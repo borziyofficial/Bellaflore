@@ -1,5 +1,57 @@
 "use client";
+import Image from "next/image";
 import { useEffect, useState } from "react";
+
+const bouquets = [
+  {
+    src: "/roza rouze royal.PNG",
+    alt: "Букет Red Luxury из красных роз",
+    title: "Red Luxury",
+    description: "51 красная роза",
+    width: 1122,
+    height: 1402,
+  },
+  {
+    src: "/0002.PNG",
+    alt: "Авторский букет Pink Elegance в розовой гамме",
+    title: "Pink Elegance",
+    description: "Премиальный авторский букет",
+    width: 1086,
+    height: 1448,
+  },
+  {
+    src: "/white rose 101.PNG",
+    alt: "Букет White Pearl из белых роз",
+    title: "White Pearl",
+    description: "101 белая роза",
+    width: 1109,
+    height: 1418,
+  },
+  {
+    src: "/0009.PNG",
+    alt: "Авторский букет Golden Romance",
+    title: "Golden Romance",
+    description: "Авторский премиальный букет",
+    width: 1136,
+    height: 1384,
+  },
+  {
+    src: "/mix piony siren.PNG",
+    alt: "Композиция Luxury Box с пионами",
+    title: "Luxury Box",
+    description: "Пионы в премиальной коробке",
+    width: 1023,
+    height: 1537,
+  },
+  {
+    src: "/piony 11.PNG",
+    alt: "Цветочная композиция Royal Collection",
+    title: "Royal Collection",
+    description: "Эксклюзивная цветочная композиция",
+    width: 1254,
+    height: 1254,
+  },
+];
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -99,61 +151,27 @@ export default function Home() {
           <span>Коллекции</span>
           <h2>Наши букеты</h2>
         </div>
-{/* ----------------buketi 1-------------*/}
         <div className="bouquet-grid">
-          <div className="bouquet-card">
-            <img src="/roza rouze royal.PNG" alt="Red Luxury" />
-            <div className="bouquet-info">
-              <h3>Red Luxury</h3>
-              <p>51 красная роза</p>
-              <button className="buy-button">Заказать</button>
+          {bouquets.map((bouquet) => (
+            <div className="bouquet-card" key={bouquet.title}>
+              <div className="bouquet-image">
+                <Image
+                  src={bouquet.src}
+                  alt={bouquet.alt}
+                  width={bouquet.width}
+                  height={bouquet.height}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+              <div className="bouquet-info">
+                <h3>{bouquet.title}</h3>
+                <p>{bouquet.description}</p>
+                <a className="buy-button bouquet-order-link" href="#contact">
+                  Заказать
+                </a>
+              </div>
             </div>
-          </div>
-{/* ----------------buketi 2-------------*/}
-          <div className="bouquet-card">
-            <img src="/0002.PNG" alt="Pink Elegance" />
-            <div className="bouquet-info">
-              <h3>Pink Elegance</h3>
-              <p>Премиальная авторскаяи букет</p>
-              <button className="buy-button">Заказать</button>
-            </div>
-          </div>
-{/* ----------------buketi 3-------------*/}
-          <div className="bouquet-card">
-            <img src="/white rose 101.PNG" alt="White Pearl" />
-            <div className="bouquet-info">
-              <h3>White Pearl</h3>
-              <p>101 белая роза</p>
-              <button className="buy-button">Заказать</button>
-            </div>
-          </div>
-{/* ----------------buketi 4-------------*/}
-          <div className="bouquet-card">
-            <img src="/0009.PNG" alt="Golden Romance" />
-            <div className="bouquet-info">
-              <h3>Golden Romance</h3>
-              <p>Авторский премиальный букет</p>
-              <button className="buy-button">Заказать</button>
-            </div>
-          </div>
-{/* ----------------buketi 5-------------*/}
-          <div className="bouquet-card">
-            <img src="/mix piony siren.PNG" alt="Luxury Box" />
-            <div className="bouquet-info">
-              <h3>Luxury Box</h3>
-              <p>Пионы в премиальной коробке</p>
-              <button className="buy-button">Заказать</button>
-            </div>
-          </div>
-{/* ----------------buketi 6-------------*/}
-          <div className="bouquet-card">
-            <img src="/piony 11.PNG" alt="Royal Collection" />
-            <div className="bouquet-info">
-              <h3>Royal Collection</h3>
-              <p>Эксклюзивная цветочная композиция</p>
-              <button className="buy-button">Заказать</button>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
