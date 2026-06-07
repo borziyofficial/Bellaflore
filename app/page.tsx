@@ -87,12 +87,15 @@ export default function Home() {
         </div>
 
         <button
+          type="button"
           className="menu-button"
           onClick={() => setMenuOpen((prev) => !prev)}
-          aria-label="Открыть меню"
+          aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
           aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
         >
-          {menuOpen ? "✕" : "≡"} МЕНЮ
+          <span aria-hidden="true">{menuOpen ? "✕" : "≡"}</span>
+          МЕНЮ
         </button>
       </nav>
 
@@ -100,7 +103,7 @@ export default function Home() {
       {menuOpen && (
         <>
           <div className="menu-overlay" onClick={closeMenu} />
-          <div className="mobile-menu">
+          <div className="mobile-menu" id="mobile-navigation">
             <a href="#" onClick={closeMenu}>ГЛАВНАЯ</a>
             <a href="#collections" onClick={closeMenu}>КОЛЛЕКЦИИ</a>
             <a href="#delivery" onClick={closeMenu}>ДОСТАВКА</a>
