@@ -59,6 +59,92 @@ type SearchPanelProps = {
   ) => void;
 };
 
+type SmartCatalogDisplayItem = {
+  id: string;
+  label: string;
+  query: string;
+  status: SmartCatalogGroup["sections"][number]["items"][number]["status"];
+};
+
+const smartCatalogDisplayLabels: Record<string, string[]> = {
+  roses: [
+    "Красные розы",
+    "Белые розы",
+    "Розовые розы",
+    "Кремовые розы",
+    "Кустовые розы",
+    "7 роз",
+    "9 роз",
+    "13 роз",
+    "19 роз",
+    "25 роз",
+    "33 розы",
+    "39 роз",
+    "51 роза",
+    "101 роза",
+    "Французский стиль",
+  ],
+  peonies: [
+    "Белые пионы",
+    "Розовые пионы",
+    "Красные пионы",
+    "9 пионов",
+    "19 пионов",
+    "25 пионов",
+    "51 пион",
+    "101 пион",
+    "Пионы в коробке",
+    "Пионы в корзине",
+  ],
+  hydrangeas: [
+    "Белые гортензии",
+    "Голубые гортензии",
+    "Розовые гортензии",
+    "7 гортензий",
+    "9 гортензий",
+    "13 гортензий",
+    "19 гортензий",
+    "33 гортензии",
+  ],
+  "french-style": [
+    "5 роз французский стиль",
+    "7 роз французский стиль",
+    "9 роз французский стиль",
+    "15 роз французский стиль",
+    "31 роза французский стиль",
+  ],
+};
+
+function getSmartCatalogDisplayItems(
+  group: SmartCatalogGroup,
+): SmartCatalogDisplayItem[] {
+  const sectionItems = group.sections.flatMap((section) => section.items);
+  const requestedLabels = smartCatalogDisplayLabels[group.id];
+
+  if (!requestedLabels) {
+    return sectionItems;
+  }
+
+  return requestedLabels.map((label) => {
+    const matchingItem = sectionItems.find(
+      (item) =>
+        item.label.toLocaleLowerCase("ru-RU") ===
+          label.toLocaleLowerCase("ru-RU") ||
+        item.query.toLocaleLowerCase("ru-RU") ===
+          label.toLocaleLowerCase("ru-RU") ||
+        item.query.toLocaleLowerCase("ru-RU") ===
+          `французский стиль ${label.replace(" французский стиль", "")}`,
+    );
+
+    return {
+      id: matchingItem?.id ?? `${group.id}-${label}`,
+      label,
+      query: matchingItem?.query ?? label,
+      status: matchingItem?.status ?? "live",
+    };
+  });
+}
+
 export function SearchPanel({
   searchQuery,
   smartCatalogGroups,
@@ -130,11 +216,10 @@ export function SearchPanel({
             <strong>Каталог Bellaflore</strong>
           </div>
           <div className="smart-catalog-groups">
-            {smartCatalogGroups.map((group, groupIndex) => (
+            {smartCatalogGroups.map((group) => (
               <details
                 className="smart-catalog-group"
                 key={group.id}
-                open={groupIndex < 2}
               >
                 <summary>
                   <span>
@@ -143,34 +228,27 @@ export function SearchPanel({
                   </span>
                   <b aria-hidden="true">+</b>
                 </summary>
-                <div className="smart-catalog-sections">
-                  {group.sections.map((section) => (
-                    <div className="smart-catalog-section" key={section.id}>
-                      <p>{section.title}</p>
-                      <div className="smart-catalog-items">
-                        {section.items.map((catalogItem) => (
-                          <button
-                            type="button"
-                            key={catalogItem.id}
-                            data-catalog-status={catalogItem.status}
-                            onClick={(event) =>
-                              handleSearchSuggestionClick(
-                                event,
-                                catalogItem.query,
-                              )
-                            }
-                            onTouchEnd={(event) =>
-                              handleSearchSuggestionTouchEnd(
-                                event,
-                                catalogItem.query,
-                              )
-                            }
-                          >
-                            {catalogItem.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                <div className="smart-catalog-items smart-catalog-items-flat">
+                  {getSmartCatalogDisplayItems(group).map((catalogItem) => (
+                    <button
+                      type="button"
+                      key={catalogItem.id}
+                      data-catalog-status={catalogItem.status}
+                      onClick={(event) =>
+                        handleSearchSuggestionClick(
+                          event,
+                          catalogItem.query,
+                        )
+                      }
+                      onTouchEnd={(event) =>
+                        handleSearchSuggestionTouchEnd(
+                          event,
+                          catalogItem.query,
+                        )
+                      }
+                    >
+                      {catalogItem.label}
+                    </button>
                   ))}
                 </div>
               </details>
