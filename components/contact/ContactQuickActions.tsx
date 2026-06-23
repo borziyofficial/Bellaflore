@@ -20,6 +20,21 @@ export function ContactQuickActions({
         aria-label="Быстрые способы связи"
       >
         <a
+          className="contact-quick-action contact-quick-action-telegram"
+          href="https://t.me/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Telegram"
+        >
+          <span className="contact-quick-action-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M20.5 4.7 4 11.2l6.3 2.3 2.4 6.1 2.9-4.2 4.9-10.7Z" />
+              <path d="m10.3 13.5 5.3-4.8" />
+            </svg>
+          </span>
+          <span className="contact-quick-action-label">Telegram</span>
+        </a>
+        <a
           className="contact-quick-action contact-quick-action-instagram"
           href="https://instagram.com/"
           target="_blank"
@@ -49,36 +64,6 @@ export function ContactQuickActions({
             </svg>
           </span>
           <span className="contact-quick-action-label">WhatsApp</span>
-        </a>
-        <a
-          className="contact-quick-action contact-quick-action-address"
-          href="https://maps.google.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Геолокация"
-        >
-          <span className="contact-quick-action-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 21s6-5.3 6-11a6 6 0 0 0-12 0c0 5.7 6 11 6 11Z" />
-              <circle cx="12" cy="10" r="2.2" />
-            </svg>
-          </span>
-          <span className="contact-quick-action-label">Геолокация</span>
-        </a>
-        <a
-          className="contact-quick-action contact-quick-action-telegram"
-          href="https://t.me/"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Telegram"
-        >
-          <span className="contact-quick-action-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M20.5 4.7 4 11.2l6.3 2.3 2.4 6.1 2.9-4.2 4.9-10.7Z" />
-              <path d="m10.3 13.5 5.3-4.8" />
-            </svg>
-          </span>
-          <span className="contact-quick-action-label">Telegram</span>
         </a>
         <a
           className="contact-quick-action contact-quick-action-phone"

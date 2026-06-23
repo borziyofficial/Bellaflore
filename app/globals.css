@@ -3803,8 +3803,8 @@ button {
     left: 50%;
     bottom: calc(116px + env(safe-area-inset-bottom));
     z-index: 2147483004;
-    width: min(92vw, 350px);
-    height: 214px;
+    width: min(88vw, 310px);
+    height: 178px;
     display: block;
     pointer-events: none;
     transform: translateX(-50%);
@@ -3813,10 +3813,10 @@ button {
   .contact-quick-actions::before {
     content: "";
     position: absolute;
-    left: 22px;
-    right: 22px;
-    bottom: 16px;
-    height: 126px;
+    left: 18px;
+    right: 18px;
+    bottom: 10px;
+    height: 112px;
     border-top: 1px solid rgba(218, 184, 126, 0.28);
     border-radius: 999px 999px 0 0;
     background:
@@ -3974,14 +3974,6 @@ button {
       inset 0 1px 0 rgba(188, 255, 212, 0.18);
   }
 
-  .contact-quick-action-address {
-    color: #f0c66f;
-  }
-
-  .contact-quick-action-address .contact-quick-action-icon {
-    border-color: rgba(240, 198, 111, 0.5);
-  }
-
   .contact-quick-action-phone {
     color: #49d676;
   }
@@ -4012,38 +4004,32 @@ button {
   }
 
   .contact-quick-action-instagram {
-    top: 0;
-    left: 50%;
-    margin-left: -38px;
-    animation-delay: 0.03s;
-  }
-
-  .contact-quick-action-telegram {
-    top: 34px;
-    left: 10px;
-    margin-left: 0;
-    animation-delay: 0.15s;
-  }
-
-  .contact-quick-action-whatsapp {
-    top: 42px;
-    right: 10px;
+    top: 16px;
+    right: 38px;
     left: auto;
     margin-left: 0;
     animation-delay: 0.08s;
   }
 
-  .contact-quick-action-address {
-    top: 128px;
-    left: 42px;
+  .contact-quick-action-telegram {
+    top: 16px;
+    left: 38px;
+    margin-left: 0;
+    animation-delay: 0.03s;
+  }
+
+  .contact-quick-action-whatsapp {
+    top: 92px;
+    left: 38px;
     margin-left: 0;
     animation-delay: 0.11s;
   }
 
   .contact-quick-action-phone {
-    top: 138px;
-    left: 50%;
-    margin-left: -38px;
+    top: 92px;
+    right: 38px;
+    left: auto;
+    margin-left: 0;
     animation-delay: 0.19s;
   }
 }
