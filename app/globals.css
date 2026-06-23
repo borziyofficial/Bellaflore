@@ -6665,3 +6665,117 @@ button {
     padding-bottom: max(88px, calc(env(safe-area-inset-bottom) + 74px));
   }
 }
+
+/* Checkout readability restoration */
+.checkout-form-card,
+.checkout-summary {
+  border-color: rgba(244, 209, 140, 0.44);
+  background:
+    linear-gradient(135deg, rgba(255, 244, 220, 0.14), rgba(218, 184, 126, 0.052) 34%, rgba(255, 255, 255, 0.034) 68%),
+    linear-gradient(180deg, rgba(48, 40, 31, 0.2), rgba(21, 18, 15, 0.12)),
+    rgba(17, 14, 12, 0.12);
+  box-shadow:
+    0 26px 82px rgba(9, 8, 7, 0.22),
+    0 0 34px rgba(218, 184, 126, 0.13),
+    0 0 1px rgba(255, 244, 220, 0.42),
+    inset 0 1px 0 rgba(255, 244, 220, 0.28),
+    inset 0 -1px 0 rgba(218, 184, 126, 0.14);
+}
+
+.checkout-card-header span,
+.checkout-field span,
+.checkout-choice-group > span {
+  color: #ffe0a3;
+  font-weight: 900;
+  text-shadow:
+    0 1px 10px rgba(9, 8, 7, 0.52),
+    0 0 12px rgba(218, 184, 126, 0.18);
+}
+
+.checkout-card-header h3 {
+  color: #fffaf0;
+  font-weight: 900;
+  text-shadow:
+    0 1px 12px rgba(9, 8, 7, 0.56),
+    0 0 18px rgba(218, 184, 126, 0.16);
+}
+
+.checkout-empty-summary,
+.checkout-note,
+.checkout-item span,
+.checkout-item dt,
+.checkout-submit-row span,
+.checkout-total-row span {
+  color: rgba(255, 250, 240, 0.84);
+}
+
+.checkout-item strong,
+.checkout-item dd,
+.checkout-total-row strong,
+.checkout-submit-row strong {
+  color: #fffaf0;
+  text-shadow: 0 1px 10px rgba(9, 8, 7, 0.5);
+}
+
+.checkout-field input,
+.checkout-field select,
+.checkout-field textarea {
+  border-color: rgba(244, 209, 140, 0.52);
+  background:
+    linear-gradient(180deg, rgba(255, 244, 220, 0.18), rgba(255, 255, 255, 0.08)),
+    rgba(18, 14, 11, 0.2);
+  color: #fffaf0;
+  -webkit-text-fill-color: #fffaf0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 220, 0.24),
+    0 10px 24px rgba(9, 8, 7, 0.1);
+}
+
+.checkout-field input::placeholder,
+.checkout-field textarea::placeholder {
+  color: rgba(255, 250, 240, 0.68);
+  -webkit-text-fill-color: rgba(255, 250, 240, 0.68);
+}
+
+.checkout-field input:focus,
+.checkout-field select:focus,
+.checkout-field textarea:focus {
+  border-color: rgba(244, 209, 140, 0.68);
+  background:
+    linear-gradient(180deg, rgba(255, 244, 220, 0.22), rgba(255, 255, 255, 0.1)),
+    rgba(18, 14, 11, 0.24);
+  box-shadow:
+    0 0 0 3px rgba(218, 184, 126, 0.2),
+    0 0 24px rgba(218, 184, 126, 0.16),
+    inset 0 1px 0 rgba(255, 244, 220, 0.28);
+}
+
+.checkout-field select option {
+  color: #2f281f;
+  background: #fff8eb;
+}
+
+.checkout-item,
+.checkout-choice-button {
+  border-color: rgba(244, 209, 140, 0.34);
+  background:
+    linear-gradient(145deg, rgba(255, 244, 220, 0.13), rgba(255, 255, 255, 0.045) 58%, rgba(218, 184, 126, 0.052)),
+    rgba(18, 14, 11, 0.12);
+}
+
+.checkout-choice-button {
+  color: #fffaf0;
+  text-shadow: 0 1px 10px rgba(9, 8, 7, 0.48);
+}
+
+.checkout-choice-button.selected {
+  border-color: rgba(244, 209, 140, 0.62);
+  color: #ffe0a3;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 220, 0.22), rgba(218, 184, 126, 0.13)),
+    rgba(18, 14, 11, 0.16);
+}
+
+.checkout-total-row {
+  border-color: rgba(244, 209, 140, 0.28);
+}
