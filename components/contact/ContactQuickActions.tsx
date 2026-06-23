@@ -1,0 +1,98 @@
+"use client";
+
+type ContactQuickActionsProps = {
+  closeContactHub: () => void;
+};
+
+export function ContactQuickActions({
+  closeContactHub,
+}: ContactQuickActionsProps) {
+  return (
+    <>
+      <div
+        className="contact-quick-actions-overlay"
+        onClick={closeContactHub}
+        onTouchStart={closeContactHub}
+      />
+      <div
+        className="contact-quick-actions"
+        id="contact-quick-actions"
+        aria-label="Быстрые способы связи"
+      >
+        <a
+          className="contact-quick-action contact-quick-action-instagram"
+          href="https://instagram.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+        >
+          <span className="contact-quick-action-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <rect x="5" y="5" width="14" height="14" rx="4" />
+              <circle cx="12" cy="12" r="3.2" />
+              <circle cx="16.3" cy="7.7" r="0.8" />
+            </svg>
+          </span>
+          <span className="contact-quick-action-label">Instagram</span>
+        </a>
+        <a
+          className="contact-quick-action contact-quick-action-whatsapp"
+          href="https://wa.me/70000000000"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="WhatsApp"
+        >
+          <span className="contact-quick-action-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M5.6 18.6 6.8 15A7.2 7.2 0 1 1 9 17.2l-3.4 1.4Z" />
+              <path d="M9.4 8.8c.2 2.6 2.1 4.6 4.8 5 .8.1 1.4-.4 1.7-1.1l-1.7-1c-.4.5-.8.6-1.3.4-.9-.3-1.6-1-2-1.9-.2-.5-.1-.9.4-1.3l-1-1.7c-.8.2-1.3.9-1.2 1.6Z" />
+            </svg>
+          </span>
+          <span className="contact-quick-action-label">WhatsApp</span>
+        </a>
+        <a
+          className="contact-quick-action contact-quick-action-address"
+          href="https://maps.google.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Геолокация"
+        >
+          <span className="contact-quick-action-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 21s6-5.3 6-11a6 6 0 0 0-12 0c0 5.7 6 11 6 11Z" />
+              <circle cx="12" cy="10" r="2.2" />
+            </svg>
+          </span>
+          <span className="contact-quick-action-label">Геолокация</span>
+        </a>
+        <a
+          className="contact-quick-action contact-quick-action-telegram"
+          href="https://t.me/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Telegram"
+        >
+          <span className="contact-quick-action-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M20.5 4.7 4 11.2l6.3 2.3 2.4 6.1 2.9-4.2 4.9-10.7Z" />
+              <path d="m10.3 13.5 5.3-4.8" />
+            </svg>
+          </span>
+          <span className="contact-quick-action-label">Telegram</span>
+        </a>
+        <a
+          className="contact-quick-action contact-quick-action-phone"
+          href="tel:+70000000000"
+          aria-label="Позвонить"
+        >
+          <span className="contact-quick-action-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7.2 5.2 9.3 4c.6-.3 1.3-.1 1.6.5l1.2 2.5c.2.5.1 1-.3 1.4l-1.1 1.1a9.8 9.8 0 0 0 3.8 3.8l1.1-1.1c.4-.4.9-.5 1.4-.3l2.5 1.2c.6.3.8 1 .5 1.6l-1.2 2.1c-.4.7-1.2 1.1-2 1A14.7 14.7 0 0 1 6.2 6.3c-.1-.8.3-1.6 1-2Z" />
+            </svg>
+          </span>
+          <span className="contact-quick-action-label">Позвонить</span>
+        </a>
+      </div>
+    </>
+  );
+}

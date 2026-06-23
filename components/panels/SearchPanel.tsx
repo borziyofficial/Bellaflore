@@ -1,0 +1,220 @@
+"use client";
+
+import Image from "next/image";
+import {
+  type ChangeEvent as ReactChangeEvent,
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+} from "react";
+
+type SearchBouquet = {
+  id: string;
+  src: string;
+  alt: string;
+  title: string;
+  description: string;
+  priceRub: number;
+  width: number;
+  height: number;
+};
+
+type SearchPanelProps = {
+  searchQuery: string;
+  searchSuggestions: string[];
+  normalizedSearchQuery: string;
+  searchResults: SearchBouquet[];
+  favoriteBouquetIds: string[];
+  failedSearchImageIds: string[];
+  formatPrice: (priceRub: number) => string;
+  closeSearchPanel: () => void;
+  handleSearchQueryChange: (
+    event: ReactChangeEvent<HTMLInputElement>,
+  ) => void;
+  clearSearchQuery: () => void;
+  handleSearchSuggestionClick: (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    suggestion: string,
+  ) => void;
+  handleSearchSuggestionTouchEnd: (
+    event: ReactTouchEvent<HTMLButtonElement>,
+    suggestion: string,
+  ) => void;
+  markSearchImageFailed: (bouquetId: string) => void;
+  handleFavoriteClick: (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    bouquetId: string,
+  ) => void;
+  handleFavoriteTouchEnd: (
+    event: ReactTouchEvent<HTMLButtonElement>,
+    bouquetId: string,
+  ) => void;
+  handleSearchBuyClick: (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    bouquetId: string,
+  ) => void;
+  handleSearchBuyTouchEnd: (
+    event: ReactTouchEvent<HTMLButtonElement>,
+    bouquetId: string,
+  ) => void;
+};
+
+export function SearchPanel({
+  searchQuery,
+  searchSuggestions,
+  normalizedSearchQuery,
+  searchResults,
+  favoriteBouquetIds,
+  failedSearchImageIds,
+  formatPrice,
+  closeSearchPanel,
+  handleSearchQueryChange,
+  clearSearchQuery,
+  handleSearchSuggestionClick,
+  handleSearchSuggestionTouchEnd,
+  markSearchImageFailed,
+  handleFavoriteClick,
+  handleFavoriteTouchEnd,
+  handleSearchBuyClick,
+  handleSearchBuyTouchEnd,
+}: SearchPanelProps) {
+  return (
+    <div
+      className="search-panel-overlay"
+      role="presentation"
+      onClick={closeSearchPanel}
+    >
+      <aside
+        className="search-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="search-panel-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="search-panel-header">
+          <div>
+            <span className="search-panel-eyebrow">Bellaflore</span>
+            <h2 id="search-panel-title">Поиск букетов</h2>
+          </div>
+          <button
+            type="button"
+            className="search-panel-close"
+            onClick={closeSearchPanel}
+            aria-label="Закрыть поиск"
+          >
+            ×
+          </button>
+        </div>
+        <div className="search-panel-control">
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+            placeholder="Поиск по названию"
+            aria-label="Поиск букетов по названию"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className="search-clear-button"
+              onClick={clearSearchQuery}
+              aria-label="Очистить поиск"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <div className="search-suggestions" aria-label="Популярное">
+          <p>Популярное:</p>
+          <div>
+            {searchSuggestions.map((suggestion) => (
+              <button
+                type="button"
+                key={suggestion}
+                onClick={(event) =>
+                  handleSearchSuggestionClick(event, suggestion)
+                }
+                onTouchEnd={(event) =>
+                  handleSearchSuggestionTouchEnd(event, suggestion)
+                }
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="search-panel-results">
+          {normalizedSearchQuery && searchResults.length === 0 && (
+            <p className="search-empty">
+              Ничего не найдено
+            </p>
+          )}
+          {searchResults.map((bouquet) => {
+            const isFavorite = favoriteBouquetIds.includes(bouquet.id);
+            const searchImageFailed = failedSearchImageIds.includes(
+              bouquet.id,
+            );
+
+            return (
+              <article className="search-result-card" key={`search-${bouquet.id}`}>
+                <div className="search-result-image">
+                  {searchImageFailed ? (
+                    <div className="search-result-image-fallback">
+                      <span>Bellaflore</span>
+                    </div>
+                  ) : (
+                    <Image
+                      src={bouquet.src}
+                      alt={bouquet.alt}
+                      width={bouquet.width}
+                      height={bouquet.height}
+                      sizes="(max-width: 768px) 34vw, 132px"
+                      onError={() => markSearchImageFailed(bouquet.id)}
+                    />
+                  )}
+                </div>
+                <div className="search-result-info">
+                  <h3>{bouquet.title}</h3>
+                  <p>{bouquet.description}</p>
+                  <strong className="search-result-price">
+                    {formatPrice(bouquet.priceRub)}
+                  </strong>
+                </div>
+                <div className="search-result-actions">
+                  <button
+                    type="button"
+                    className={`search-favorite-button ${isFavorite ? "active" : ""}`}
+                    onClick={(event) => handleFavoriteClick(event, bouquet.id)}
+                    onTouchEnd={(event) =>
+                      handleFavoriteTouchEnd(event, bouquet.id)
+                    }
+                    aria-label={
+                      isFavorite
+                        ? `Убрать ${bouquet.title} из избранного`
+                        : `Добавить ${bouquet.title} в избранное`
+                    }
+                    aria-pressed={isFavorite}
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                      <path d="M12 20.5s-7.3-4.4-9-9.2C1.9 8 3.9 5.2 7 5.2c1.8 0 3.1 1 4 2.2.9-1.2 2.2-2.2 4-2.2 3.1 0 5.1 2.8 4 6.1-1.7 4.8-9 9.2-9 9.2Z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    className="buy-button search-order-button"
+                    onClick={(event) => handleSearchBuyClick(event, bouquet.id)}
+                    onTouchEnd={(event) =>
+                      handleSearchBuyTouchEnd(event, bouquet.id)
+                    }
+                    aria-label={`Купить ${bouquet.title}`}
+                  >
+                    Купить
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </aside>
+    </div>
+  );
+}

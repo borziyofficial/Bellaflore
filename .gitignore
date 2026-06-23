@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+backend/.venv/
 /.pnp
 .pnp.*
 .yarn/*
@@ -19,6 +20,12 @@
 
 # production
 /build
+Codex.zip
+Codex.app/
+710503890 2.xlsx
+/favicon.ico
+/DEVELOPMENT_STATUS.md
+/public/0003.jpg
 
 # misc
 .DS_Store
@@ -32,6 +39,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+backend/bellaflore.db
 
 # vercel
 .vercel
