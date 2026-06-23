@@ -16,6 +16,7 @@ import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
 import { CartPanel } from "@/components/panels/CartPanel";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
 import { SearchPanel } from "@/components/panels/SearchPanel";
+import { smartCatalogGroups } from "@/data/smartCatalog";
 import {
   type ChangeEvent as ReactChangeEvent,
   type FormEvent as ReactFormEvent,
@@ -471,8 +472,6 @@ function detectDeliveryZone(address: string) {
 
   return deliveryZones[1];
 }
-
-const searchSuggestions = bouquets.map((bouquet) => bouquet.title);
 
 function normalizeSearchText(value: string) {
   return value
@@ -2013,7 +2012,7 @@ export default function Home() {
       {searchPanelOpen && (
         <SearchPanel
           searchQuery={searchQuery}
-          searchSuggestions={searchSuggestions}
+          smartCatalogGroups={smartCatalogGroups}
           normalizedSearchQuery={normalizedSearchQuery}
           searchResults={searchResults}
           favoriteBouquetIds={favoriteBouquetIds}

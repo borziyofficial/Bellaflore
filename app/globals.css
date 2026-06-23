@@ -7077,3 +7077,205 @@ button {
     font-size: 13px;
   }
 }
+
+/* Smart Catalog menu v1 */
+.smart-catalog-menu {
+  margin: 10px 0 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.smart-catalog-menu-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.smart-catalog-menu-header span {
+  color: #f4d18c;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 12px rgba(9, 8, 7, 0.38);
+}
+
+.smart-catalog-menu-header strong {
+  color: rgba(255, 249, 237, 0.92);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.smart-catalog-groups {
+  display: grid;
+  gap: 7px;
+}
+
+.smart-catalog-group {
+  overflow: hidden;
+  border: 1px solid rgba(244, 209, 140, 0.24);
+  border-radius: 16px;
+  background:
+    linear-gradient(145deg, rgba(255, 244, 220, 0.09), rgba(255, 255, 255, 0.026) 58%, rgba(218, 184, 126, 0.034)),
+    rgba(18, 14, 11, 0.08);
+  box-shadow:
+    0 12px 30px rgba(9, 8, 7, 0.13),
+    inset 0 1px 0 rgba(255, 244, 220, 0.14);
+}
+
+.smart-catalog-group summary {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 11px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.smart-catalog-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.smart-catalog-group summary span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.smart-catalog-group summary strong {
+  color: #fff9ed;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.05;
+  text-shadow: 0 1px 12px rgba(9, 8, 7, 0.42);
+}
+
+.smart-catalog-group summary small {
+  overflow: hidden;
+  color: rgba(255, 247, 232, 0.68);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.smart-catalog-group summary b {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(244, 209, 140, 0.28);
+  border-radius: 999px;
+  color: #f4d18c;
+  font-size: 16px;
+  font-weight: 700;
+  background: rgba(255, 244, 220, 0.06);
+  transition: transform 0.22s ease;
+}
+
+.smart-catalog-group[open] summary b {
+  transform: rotate(45deg);
+}
+
+.smart-catalog-sections {
+  display: grid;
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+
+.smart-catalog-section {
+  display: grid;
+  gap: 5px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(244, 209, 140, 0.14);
+}
+
+.smart-catalog-section p {
+  margin: 0;
+  color: rgba(255, 240, 196, 0.88);
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.smart-catalog-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.smart-catalog-items button {
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid rgba(244, 209, 140, 0.24);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 220, 0.09), rgba(255, 255, 255, 0.028)),
+    rgba(255, 244, 220, 0.034);
+  color: rgba(255, 249, 237, 0.9);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  box-shadow:
+    0 8px 18px rgba(9, 8, 7, 0.08),
+    inset 0 1px 0 rgba(255, 244, 220, 0.12);
+  cursor: pointer;
+}
+
+.smart-catalog-items button[data-catalog-status="draft"] {
+  border-style: dashed;
+  color: rgba(255, 249, 237, 0.72);
+}
+
+.smart-catalog-items button:hover,
+.smart-catalog-items button:focus-visible {
+  border-color: rgba(244, 209, 140, 0.46);
+  color: #fff9ed;
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .smart-catalog-menu {
+    margin: 8px 0 10px;
+    gap: 7px;
+  }
+
+  .smart-catalog-groups {
+    gap: 6px;
+  }
+
+  .smart-catalog-group summary {
+    min-height: 44px;
+    padding: 8px 10px;
+  }
+
+  .smart-catalog-group summary strong {
+    font-size: 14px;
+  }
+
+  .smart-catalog-group summary small {
+    font-size: 10.5px;
+  }
+
+  .smart-catalog-sections {
+    gap: 7px;
+    padding: 0 9px 9px;
+  }
+
+  .smart-catalog-items {
+    gap: 4px;
+  }
+
+  .smart-catalog-items button {
+    min-height: 27px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+}

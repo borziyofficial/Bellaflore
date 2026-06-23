@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { SmartCatalogGroup } from "@/data/smartCatalog";
 import {
   type ChangeEvent as ReactChangeEvent,
   type MouseEvent as ReactMouseEvent,
@@ -20,7 +21,7 @@ type SearchBouquet = {
 
 type SearchPanelProps = {
   searchQuery: string;
-  searchSuggestions: string[];
+  smartCatalogGroups: SmartCatalogGroup[];
   normalizedSearchQuery: string;
   searchResults: SearchBouquet[];
   favoriteBouquetIds: string[];
@@ -60,7 +61,7 @@ type SearchPanelProps = {
 
 export function SearchPanel({
   searchQuery,
-  searchSuggestions,
+  smartCatalogGroups,
   normalizedSearchQuery,
   searchResults,
   favoriteBouquetIds,
@@ -123,25 +124,59 @@ export function SearchPanel({
             </button>
           )}
         </div>
-        <div className="search-suggestions" aria-label="Популярное">
-          <p>Популярное:</p>
-          <div>
-            {searchSuggestions.map((suggestion) => (
-              <button
-                type="button"
-                key={suggestion}
-                onClick={(event) =>
-                  handleSearchSuggestionClick(event, suggestion)
-                }
-                onTouchEnd={(event) =>
-                  handleSearchSuggestionTouchEnd(event, suggestion)
-                }
+        <section className="smart-catalog-menu" aria-label="Каталог Bellaflore">
+          <div className="smart-catalog-menu-header">
+            <span>Smart Catalog</span>
+            <strong>Каталог Bellaflore</strong>
+          </div>
+          <div className="smart-catalog-groups">
+            {smartCatalogGroups.map((group, groupIndex) => (
+              <details
+                className="smart-catalog-group"
+                key={group.id}
+                open={groupIndex < 2}
               >
-                {suggestion}
-              </button>
+                <summary>
+                  <span>
+                    <strong>{group.title}</strong>
+                    <small>{group.description}</small>
+                  </span>
+                  <b aria-hidden="true">+</b>
+                </summary>
+                <div className="smart-catalog-sections">
+                  {group.sections.map((section) => (
+                    <div className="smart-catalog-section" key={section.id}>
+                      <p>{section.title}</p>
+                      <div className="smart-catalog-items">
+                        {section.items.map((catalogItem) => (
+                          <button
+                            type="button"
+                            key={catalogItem.id}
+                            data-catalog-status={catalogItem.status}
+                            onClick={(event) =>
+                              handleSearchSuggestionClick(
+                                event,
+                                catalogItem.query,
+                              )
+                            }
+                            onTouchEnd={(event) =>
+                              handleSearchSuggestionTouchEnd(
+                                event,
+                                catalogItem.query,
+                              )
+                            }
+                          >
+                            {catalogItem.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </details>
             ))}
           </div>
-        </div>
+        </section>
         <div className="search-panel-results">
           {normalizedSearchQuery && searchResults.length === 0 && (
             <p className="search-empty">
