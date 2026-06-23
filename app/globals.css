@@ -6939,3 +6939,141 @@ button {
     padding: 10px 14px;
   }
 }
+
+/* Checkout UX Pack 2 */
+@media (max-width: 768px) {
+  .checkout-summary {
+    padding: 7px 8px 8px;
+  }
+
+  .checkout-summary .checkout-card-header {
+    margin-bottom: 4px;
+  }
+
+  .checkout-summary .checkout-card-header span {
+    color: #fff0c4;
+    font-size: 11px;
+    text-shadow:
+      0 1px 14px rgba(9, 8, 7, 0.72),
+      0 0 18px rgba(218, 184, 126, 0.26);
+  }
+
+  .checkout-summary .checkout-card-header h3 {
+    color: #fffefa;
+    font-size: 25px;
+    line-height: 0.92;
+    text-shadow:
+      0 1px 16px rgba(9, 8, 7, 0.72),
+      0 0 22px rgba(218, 184, 126, 0.22);
+  }
+
+  .checkout-items {
+    gap: 4px;
+  }
+
+  .checkout-item {
+    padding: 7px 8px;
+  }
+
+  .checkout-item strong {
+    color: #fffefa;
+    font-size: 15px;
+  }
+
+  .checkout-item span {
+    margin-top: 0;
+    color: rgba(255, 254, 250, 0.92);
+    font-size: 12px;
+  }
+
+  .checkout-item dl {
+    gap: 3px;
+    margin-top: 5px;
+  }
+
+  .checkout-item dl div,
+  .checkout-total-row,
+  .checkout-submit-row,
+  .checkout-submit-row div {
+    gap: 6px;
+  }
+
+  .checkout-item dt,
+  .checkout-submit-row span,
+  .checkout-total-row span {
+    color: rgba(255, 254, 250, 0.92);
+    font-weight: 800;
+  }
+
+  .checkout-item dd,
+  .checkout-total-row strong,
+  .checkout-submit-row strong {
+    color: #fffefa;
+    text-shadow:
+      0 1px 14px rgba(9, 8, 7, 0.7),
+      0 0 14px rgba(218, 184, 126, 0.16);
+  }
+
+  .checkout-total-row {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-color: rgba(244, 209, 140, 0.34);
+  }
+
+  .checkout-delivery-row {
+    margin-top: 3px;
+    padding-top: 3px;
+  }
+
+  .checkout-grand-total-row {
+    margin-top: 4px;
+    padding-top: 5px;
+  }
+
+  .checkout-total-row strong,
+  .checkout-submit-row strong {
+    font-size: 20px;
+  }
+
+  .checkout-field textarea {
+    min-height: 82px;
+    field-sizing: content;
+  }
+
+  .checkout-submit-row {
+    margin-top: 5px;
+    padding-top: 5px;
+    padding-bottom: calc(54px + env(safe-area-inset-bottom));
+  }
+
+  .checkout-submit-button,
+  .checkout-secondary-button {
+    min-height: 43px;
+  }
+
+  .my-order-empty-card {
+    gap: 6px;
+    padding: 11px 12px 12px;
+  }
+
+  .my-order-empty-mark {
+    width: 36px;
+    height: 36px;
+    font-size: 10px;
+  }
+
+  .my-order-empty-card h3 {
+    font-size: 21px;
+    line-height: 1;
+  }
+
+  .my-order-empty-card p {
+    display: none;
+  }
+
+  .my-order-empty-button {
+    min-height: 38px;
+    padding: 9px 13px;
+    font-size: 13px;
+  }
+}
