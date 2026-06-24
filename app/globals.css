@@ -7221,6 +7221,211 @@ button {
   }
 }
 
+/* Checkout Polish Pack 1 */
+.checkout-section {
+  min-height: 100dvh;
+  padding-top: max(96px, calc(env(safe-area-inset-top) + 72px));
+  padding-bottom: calc(max(128px, env(safe-area-inset-bottom) + 108px));
+}
+
+.checkout-shell {
+  padding-bottom: calc(max(96px, env(safe-area-inset-bottom) + 84px));
+}
+
+.checkout-form-grid {
+  gap: 14px;
+}
+
+.checkout-field {
+  gap: 8px;
+}
+
+.checkout-field input,
+.checkout-field select,
+.checkout-field textarea {
+  min-height: 48px;
+}
+
+.checkout-field textarea {
+  min-height: 120px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.checkout-interval-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.checkout-interval-button {
+  min-height: 48px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.checkout-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 22px 18px;
+  text-align: center;
+  border: 1px solid rgba(244, 209, 140, 0.24);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 220, 0.1), rgba(255, 255, 255, 0.03)),
+    rgba(255, 255, 255, 0.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 220, 0.14),
+    0 12px 28px rgba(9, 8, 7, 0.12);
+}
+
+.checkout-empty-state-inline {
+  justify-items: start;
+  text-align: left;
+}
+
+.checkout-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 209, 140, 0.28);
+  background:
+    linear-gradient(180deg, rgba(255, 244, 220, 0.14), rgba(218, 184, 126, 0.08)),
+    rgba(255, 255, 255, 0.04);
+  color: rgba(244, 209, 140, 0.82);
+  box-shadow:
+    0 10px 24px rgba(9, 8, 7, 0.16),
+    inset 0 1px 0 rgba(255, 244, 220, 0.18);
+}
+
+.checkout-empty-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.checkout-empty-title {
+  margin: 0;
+  color: #fff7e8;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-shadow: 0 1px 10px rgba(9, 8, 7, 0.34);
+}
+
+.checkout-empty-copy {
+  margin: 0;
+  max-width: 34ch;
+  color: rgba(255, 247, 232, 0.72);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.checkout-submit-row {
+  scroll-margin-bottom: calc(max(120px, env(safe-area-inset-bottom) + 96px));
+}
+
+.checkout-submit-button,
+.checkout-secondary-button {
+  min-height: 52px;
+  padding-inline: 22px;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .checkout-section {
+    padding:
+      max(88px, calc(env(safe-area-inset-top) + 64px))
+      14px
+      calc(max(136px, env(safe-area-inset-bottom) + 112px));
+  }
+
+  .checkout-shell {
+    gap: 14px;
+    padding-bottom: calc(max(104px, env(safe-area-inset-bottom) + 92px));
+  }
+
+  .checkout-form-card,
+  .checkout-summary {
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .checkout-form-grid {
+    gap: 12px;
+  }
+
+  .checkout-field,
+  .checkout-choice-group,
+  .checkout-submit-row {
+    scroll-margin-bottom: calc(max(132px, env(safe-area-inset-bottom) + 104px));
+  }
+
+  .checkout-date-options {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .checkout-choice-button {
+    min-height: 48px;
+  }
+
+  .checkout-interval-options {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .checkout-interval-button {
+    min-height: 48px;
+    width: 100%;
+  }
+
+  .checkout-field input,
+  .checkout-field select,
+  .checkout-field textarea {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .checkout-field textarea {
+    min-height: 108px;
+  }
+
+  .checkout-submit-row {
+    margin-top: 12px;
+    padding-top: 12px;
+    padding-bottom: calc(max(12px, env(safe-area-inset-bottom)));
+  }
+
+  .checkout-submit-button,
+  .checkout-secondary-button {
+    width: 100%;
+    min-height: 52px;
+  }
+
+  .checkout-empty-state {
+    padding: 18px 14px;
+  }
+
+  .checkout-empty-title {
+    font-size: 16px;
+  }
+
+  .checkout-empty-copy {
+    font-size: 13px;
+  }
+}
+
 /* Smart Catalog menu v1 */
 .smart-catalog-menu {
   margin: 10px 0 12px;

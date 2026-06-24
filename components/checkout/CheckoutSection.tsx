@@ -255,38 +255,63 @@ export function CheckoutSection({
               )}
             </div>
 
-            <label className="checkout-field checkout-field-wide">
+            <div className="checkout-choice-group checkout-field-wide">
               <span>Интервал доставки</span>
               {availableDeliveryIntervals.length > 0 ? (
-                <select
-                  value={checkoutForm.deliveryTime}
-                  onChange={(event) =>
-                    handleCheckoutFieldChange(
-                      "deliveryTime",
-                      event.target.value,
-                    )
-                  }
+                <div
+                  className="checkout-interval-options"
+                  role="listbox"
                   aria-label="Интервал доставки"
-                  required
                 >
-                  <option value="">Выберите интервал</option>
-                  {availableDeliveryIntervals.map((interval) => (
-                    <option
-                      value={interval.label}
-                      key={interval.label}
-                    >
-                      {interval.label}
-                    </option>
-                  ))}
-                </select>
+                  {availableDeliveryIntervals.map((interval) => {
+                    const isSelected =
+                      checkoutForm.deliveryTime === interval.label;
+
+                    return (
+                      <button
+                        type="button"
+                        key={interval.label}
+                        role="option"
+                        aria-selected={isSelected}
+                        className={`checkout-choice-button checkout-interval-button ${
+                          isSelected ? "selected" : ""
+                        }`}
+                        onClick={() =>
+                          handleCheckoutFieldChange(
+                            "deliveryTime",
+                            interval.label,
+                          )
+                        }
+                      >
+                        {interval.label}
+                      </button>
+                    );
+                  })}
+                </div>
               ) : (
-                <p className="checkout-empty-summary">
-                  {checkoutForm.deliveryDate
-                    ? "На выбранную дату доступных интервалов уже нет. Выберите завтра или другую дату."
-                  : "Выберите дату доставки, чтобы увидеть доступные интервалы."}
-                </p>
+                <div
+                  className="checkout-empty-state checkout-empty-state-inline"
+                  role="status"
+                >
+                  <div className="checkout-empty-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12 8v4l3 2" />
+                      <circle cx="12" cy="12" r="9" />
+                    </svg>
+                  </div>
+                  <p className="checkout-empty-title">
+                    {checkoutForm.deliveryDate
+                      ? "На сегодня интервалов больше нет"
+                      : "Сначала выберите дату"}
+                  </p>
+                  <p className="checkout-empty-copy">
+                    {checkoutForm.deliveryDate
+                      ? "Выберите завтра или другую дату доставки."
+                      : "После выбора даты покажем доступные интервалы."}
+                  </p>
+                </div>
               )}
-            </label>
+            </div>
 
             <label className="checkout-field checkout-field-wide">
               <span>Открытка</span>
@@ -304,7 +329,7 @@ export function CheckoutSection({
               />
             </label>
             <label className="checkout-field checkout-field-wide">
-              <span>Комментарий</span>
+              <span>Комментарий к заказу</span>
               <textarea
                 value={checkoutForm.comment}
                 onChange={(event) =>
@@ -324,9 +349,20 @@ export function CheckoutSection({
             </div>
             <div className="checkout-items">
               {cartBouquets.length === 0 && (
-                <p className="checkout-empty-summary">
-                  Корзина очищена после оформления заказа.
-                </p>
+                <div className="checkout-empty-state" role="status">
+                  <div className="checkout-empty-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M6 6h15l-1.5 9h-12z" />
+                      <path d="M6 6 5 3H2" />
+                      <circle cx="9" cy="20" r="1.5" />
+                      <circle cx="18" cy="20" r="1.5" />
+                    </svg>
+                  </div>
+                  <p className="checkout-empty-title">Корзина пуста</p>
+                  <p className="checkout-empty-copy">
+                    Добавьте букет из каталога, чтобы оформить заказ.
+                  </p>
+                </div>
               )}
               {cartBouquets.map((cartItem) => (
                 <div

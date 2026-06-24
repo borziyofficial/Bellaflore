@@ -2,6 +2,7 @@
 import { AboutSection } from "@/components/home/AboutSection";
 import { ContactQuickActions } from "@/components/contact/ContactQuickActions";
 import { CheckoutSection } from "@/components/checkout/CheckoutSection";
+import { getAvailableDeliveryIntervals } from "@/components/checkout/deliveryIntervals";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
 import { DeliverySection } from "@/components/home/DeliverySection";
@@ -335,14 +336,6 @@ const initialReviews: BellafloreReview[] = [
 
 type DeliveryDatePreset = "today" | "tomorrow" | "custom";
 
-const deliveryIntervals = [
-  { label: "09:00–12:00", startMinutes: 9 * 60 },
-  { label: "12:00–15:00", startMinutes: 12 * 60 },
-  { label: "15:00–18:00", startMinutes: 15 * 60 },
-  { label: "18:00–21:00", startMinutes: 18 * 60 },
-  { label: "21:00–23:00", startMinutes: 21 * 60 },
-];
-
 const deliveryZones: DeliveryZone[] = [
   {
     id: "zone-1",
@@ -407,24 +400,6 @@ function addCalendarDays(date: Date, days: number) {
   nextDate.setDate(nextDate.getDate() + days);
 
   return nextDate;
-}
-
-function getAvailableDeliveryIntervals(deliveryDate: string, now: Date) {
-  if (!deliveryDate) {
-    return [];
-  }
-
-  const todayDateValue = formatDateInputValue(now);
-
-  if (deliveryDate !== todayDateValue) {
-    return deliveryIntervals;
-  }
-
-  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
-
-  return deliveryIntervals.filter(
-    (interval) => interval.startMinutes > currentTimeMinutes,
-  );
 }
 
 function getDeliveryZoneByDistance(distanceFromMkadKm: number) {
