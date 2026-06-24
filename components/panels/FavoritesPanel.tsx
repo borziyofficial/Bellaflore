@@ -77,9 +77,17 @@ export function FavoritesPanel({
         </div>
 
         {favoriteBouquets.length === 0 ? (
-          <p className="favorites-empty">
-            Избранное пока пусто
-          </p>
+          <div className="favorites-empty" role="status">
+            <div className="favorites-empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 20.5s-7.3-4.4-9-9.2C1.9 8 3.9 5.2 7 5.2c1.8 0 3.1 1 4 2.2.9-1.2 2.2-2.2 4-2.2 3.1 0 5.1 2.8 4 6.1-1.7 4.8-9 9.2-9 9.2Z" />
+              </svg>
+            </div>
+            <p className="favorites-empty-title">Избранное пока пусто</p>
+            <p className="favorites-empty-copy">
+              Нажмите сердечко на букете в каталоге — он появится здесь.
+            </p>
+          </div>
         ) : (
           <div className="favorites-panel-grid">
             {favoriteBouquets.map((bouquet) => (
@@ -129,19 +137,6 @@ export function FavoritesPanel({
                     aria-label={`Купить ${bouquet.title}`}
                   >
                     Купить
-                  </button>
-                  <button
-                    type="button"
-                    className="favorites-remove-button"
-                    onClick={(event) =>
-                      handleFavoriteRemoveClick(event, bouquet.id)
-                    }
-                    onTouchEnd={(event) =>
-                      handleFavoriteRemoveTouchEnd(event, bouquet.id)
-                    }
-                    aria-label={`Удалить ${bouquet.title} из избранного`}
-                  >
-                    Удалить
                   </button>
                 </div>
               </div>

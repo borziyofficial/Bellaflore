@@ -940,7 +940,7 @@ button {
 }
 
 .favorites-panel-card-info p {
-  margin: -18px 0 0 0;
+  margin: 0;
   color: var(--champagne-muted);
   font-size: 13px;
   line-height: 1.2;
@@ -2802,37 +2802,71 @@ button {
 
   .favorites-panel-overlay {
     align-items: flex-end;
-    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(96px, calc(env(safe-area-inset-bottom) + 82px)) max(12px, env(safe-area-inset-left));
   }
 
   .favorites-panel {
     width: 100%;
-    max-height: min(72vh, 600px);
+    max-height: min(62vh, calc(100dvh - max(120px, calc(env(safe-area-inset-bottom) + 110px))));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 14px;
     border-radius: 26px;
   }
 
   .favorites-panel-card {
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 80px minmax(0, 1fr);
+    grid-template-rows: 80px auto;
+    grid-template-areas:
+      "image info"
+      "actions actions";
     gap: 10px;
-    padding-right: 36px;
+    padding: 10px 40px 10px 10px;
   }
 
   .favorites-panel-image {
-    width: 72px;
+    width: 80px;
+    height: 80px;
+  }
+
+  .favorites-panel-card-info h3 {
+    font-size: 16px;
+    line-height: 1.2;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .favorites-panel-card-info p {
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .favorites-panel-card-actions {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 40px;
   }
 
   .favorites-buy-button {
-    width: min(128px, 100%);
-    min-height: 34px;
-    padding: 7px 12px;
+    width: 100%;
+    min-height: 40px;
+    padding: 10px 14px;
+    font-size: 14px;
   }
 
-  .favorites-remove-button {
-    width: 128px;
-    height: 34px;
-    max-width: none;
-    padding: 7px 12px;
+  .favorites-empty {
+    padding: 24px 18px;
+  }
+
+  .favorites-empty-title {
+    font-size: 17px;
+  }
+
+  .favorites-empty-copy {
+    font-size: 14px;
   }
 
   .cart-panel-overlay {
@@ -4301,10 +4335,12 @@ button {
 .favorites-panel-card-info h3 {
   margin: 0;
   color: #fff7e8;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
-  line-height: 1.08;
-  white-space: nowrap;
+  line-height: 1.18;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   text-shadow: 0 1px 12px rgba(9, 8, 7, 0.28);
@@ -4420,7 +4456,9 @@ button {
 .favorites-panel {
   width: min(430px, 100%);
   max-height: calc(100dvh - max(44px, calc(env(safe-area-inset-top) + env(safe-area-inset-bottom))));
-  overflow: visible;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid rgba(244, 209, 140, 0.34);
   background:
     linear-gradient(135deg, rgba(255, 244, 220, 0.075), rgba(218, 184, 126, 0.026) 34%, rgba(255, 255, 255, 0.018) 68%),
@@ -4440,15 +4478,76 @@ button {
   gap: 9px;
 }
 
+.favorites-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 28px 20px;
+  text-align: center;
+  border: 1px solid rgba(244, 209, 140, 0.24);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 220, 0.1), rgba(255, 255, 255, 0.03)),
+    rgba(255, 255, 255, 0.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 220, 0.14),
+    0 12px 28px rgba(9, 8, 7, 0.12);
+}
+
+.favorites-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 209, 140, 0.28);
+  background:
+    linear-gradient(180deg, rgba(255, 244, 220, 0.14), rgba(218, 184, 126, 0.08)),
+    rgba(255, 255, 255, 0.04);
+  color: rgba(244, 209, 140, 0.72);
+  box-shadow:
+    0 10px 24px rgba(9, 8, 7, 0.16),
+    inset 0 1px 0 rgba(255, 244, 220, 0.18);
+}
+
+.favorites-empty-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.favorites-empty-title {
+  margin: 0;
+  color: #fff7e8;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-shadow: 0 1px 10px rgba(9, 8, 7, 0.34);
+}
+
+.favorites-empty-copy {
+  margin: 0;
+  max-width: 26ch;
+  color: rgba(255, 247, 232, 0.72);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .favorites-panel-card {
   grid-template-columns: 92px minmax(0, 1fr);
-  grid-template-rows: 92px 40px;
+  grid-template-rows: 92px auto;
   grid-template-areas:
     "image info"
     "actions actions";
   align-items: stretch;
   row-gap: 9px;
-  padding: 8px;
+  padding: 10px 42px 10px 10px;
   background:
     linear-gradient(145deg, rgba(255, 244, 220, 0.085), rgba(255, 255, 255, 0.018) 58%, rgba(218, 184, 126, 0.025)),
     rgba(255, 255, 255, 0.018);
@@ -4475,42 +4574,49 @@ button {
 .favorites-panel-card-actions {
   grid-area: actions;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   align-items: center;
-  gap: 8px;
+  gap: 0;
   width: 100%;
-  height: 40px;
   min-height: 40px;
   margin: 0;
 }
 
 .favorites-card-heart-button {
   position: absolute;
-  top: 11px;
-  right: 11px;
-  z-index: 2;
-  width: 28px;
-  height: 28px;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
   max-width: none;
   min-height: 0;
   padding: 0;
   margin: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: rgba(255, 230, 226, 0.9);
+  border: 1px solid rgba(255, 190, 182, 0.28);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 220, 0.12), rgba(129, 45, 42, 0.14)),
+    rgba(17, 14, 12, 0.22);
+  box-shadow:
+    0 8px 18px rgba(9, 8, 7, 0.18),
+    inset 0 1px 0 rgba(255, 230, 226, 0.16);
+  color: rgba(255, 210, 204, 0.82);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  text-shadow:
-    0 2px 12px rgba(9, 8, 7, 0.42),
-    0 0 18px rgba(218, 184, 126, 0.16);
+  transition:
+    transform 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .favorites-card-heart-button svg {
-  width: 21px;
-  height: 21px;
+  width: 17px;
+  height: 17px;
   display: block;
+  margin: auto;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
@@ -4518,14 +4624,29 @@ button {
   stroke-linejoin: round;
 }
 
+.favorites-card-heart-button.active {
+  color: #ffd8d2;
+  border-color: rgba(255, 196, 188, 0.52);
+  background:
+    linear-gradient(180deg, rgba(255, 214, 206, 0.28), rgba(155, 70, 70, 0.34)),
+    rgba(129, 45, 42, 0.28);
+  box-shadow:
+    0 10px 22px rgba(9, 8, 7, 0.22),
+    0 0 16px rgba(217, 120, 120, 0.28),
+    inset 0 1px 0 rgba(255, 230, 226, 0.24);
+}
+
 .favorites-card-heart-button.active svg {
-  fill: currentColor;
+  fill: #f2a8a0;
+  stroke: #ffe8e4;
+  filter: drop-shadow(0 0 6px rgba(242, 168, 160, 0.42));
 }
 
 .favorites-card-heart-button:hover,
 .favorites-card-heart-button:focus-visible {
   outline: none;
-  color: #ffe4df;
+  transform: scale(1.04);
+  color: #ffe8e4;
 }
 
 .favorites-buy-button,
@@ -4539,9 +4660,9 @@ button {
   height: 40px;
   min-height: 40px;
   margin: 0;
-  padding: 0 12px;
+  padding: 0 14px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   line-height: 1;
   transform: none;
@@ -4578,18 +4699,25 @@ button {
   }
 
   .favorites-panel {
-    max-height: calc(100dvh - max(120px, calc(env(safe-area-inset-bottom) + 110px)));
+    max-height: min(62vh, calc(100dvh - max(120px, calc(env(safe-area-inset-bottom) + 110px))));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 12px;
   }
 
   .favorites-panel-card {
-    grid-template-columns: 88px minmax(0, 1fr);
-    grid-template-rows: 88px 40px;
+    grid-template-columns: 80px minmax(0, 1fr);
+    grid-template-rows: 80px auto;
+    padding: 10px 40px 10px 10px;
   }
 
   .favorites-panel-image {
-    width: 88px;
-    height: 88px;
+    width: 80px;
+    height: 80px;
+  }
+
+  .favorites-empty {
+    padding: 22px 16px;
   }
 }
 
@@ -5005,8 +5133,9 @@ button {
   }
 
   .favorites-panel {
-    max-height: none;
-    overflow-y: visible;
+    max-height: min(62vh, calc(100dvh - max(120px, calc(env(safe-area-inset-bottom) + 110px))));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .my-order-panel {
@@ -5014,46 +5143,43 @@ button {
   }
 
   .favorites-panel-card {
-    grid-template-columns: 96px minmax(0, 1fr);
-    grid-template-rows: 96px auto;
+    grid-template-columns: 80px minmax(0, 1fr);
+    grid-template-rows: 80px auto;
     grid-template-areas:
       "image info"
       "actions actions";
     column-gap: 10px;
-    row-gap: 7px;
-    padding: 8px;
+    row-gap: 8px;
+    padding: 10px 40px 10px 10px;
   }
 
   .favorites-panel-image {
-    width: 96px;
-    height: 96px;
+    width: 80px;
+    height: 80px;
   }
 
   .favorites-panel-card-info h3 {
-    font-size: 18px;
+    font-size: 16px;
+    white-space: normal;
   }
 
   .favorites-panel-card-info p {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .favorites-panel-card-actions {
-    gap: 7px;
-    align-items: center;
-    align-content: center;
-    width: 100%;
-    height: 30px;
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 40px;
     padding-left: 0;
   }
 
-  .favorites-buy-button,
-  .favorites-remove-button {
+  .favorites-buy-button {
     width: 100%;
-    height: 30px;
-    min-height: 30px;
-    padding-inline: 7px;
-    font-size: 12px;
-    align-self: center;
+    height: 40px;
+    min-height: 40px;
+    padding-inline: 14px;
+    font-size: 14px;
   }
 
   .search-result-card {
