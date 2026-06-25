@@ -42,19 +42,33 @@ PAYMENT_STATUS_LABELS = {
     "PAID": "Оплачено",
     "REFUNDED": "Возврат выполнен",
 }
-DEFAULT_ADMIN_URL = "http://192.168.0.141:3000/admin"
+DEFAULT_ADMIN_URL = "http://127.0.0.1:3000/admin"
+DEFAULT_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+]
+
+
+def get_cors_origins() -> list[str]:
+    env_values = dotenv_values(BASE_DIR / ".env")
+    configured_origins = (
+        env_values.get("CORS_ORIGINS") or os.getenv("CORS_ORIGINS") or ""
+    ).strip()
+    extra_origins = [
+        origin.strip()
+        for origin in configured_origins.split(",")
+        if origin.strip()
+    ]
+
+    return list(dict.fromkeys(DEFAULT_CORS_ORIGINS + extra_origins))
+
 
 app = FastAPI(title="Bellaflore Backend")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://192.168.0.141:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-        "http://192.168.0.141:3001",
-    ],
+    allow_origins=get_cors_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
 )

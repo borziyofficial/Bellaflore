@@ -14,6 +14,7 @@ import { MyOrderEmptyState } from "@/components/order/MyOrderEmptyState";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 import { OrdersSection } from "@/components/order/OrdersSection";
 import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
+import { getOrdersUrl, postOrderToBackend } from "@/app/orders/orderUtils";
 import { CartPanel } from "@/components/panels/CartPanel";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
 import { SearchPanel } from "@/components/panels/SearchPanel";
@@ -457,8 +458,6 @@ void TELEGRAM_USERNAME;
 const LOCAL_ORDERS_STORAGE_KEY = "bellaflore-dev-orders";
 const LOCAL_FAVORITES_STORAGE_KEY = "bellaflore-favorite-bouquets";
 const LOCAL_CART_STORAGE_KEY = "bellaflore-cart";
-const LOCAL_BACKEND_API_BASE_URL = "http://127.0.0.1:8000";
-const LAN_BACKEND_API_BASE_URL = "http://192.168.0.141:8000";
 const orderStatusLabels: Record<BellafloreOrderStatus, string> = {
   NEW: "Заказ принят",
   CONFIRMED: "Заказ подтверждён",
@@ -660,24 +659,6 @@ function writeStoredOrders(orders: BellafloreOrder[]) {
   }
 }
 
-function getBackendApiBaseUrl(): string {
-  if (typeof window === "undefined") {
-    return LOCAL_BACKEND_API_BASE_URL;
-  }
-
-  const { hostname } = window.location;
-
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
-    return LOCAL_BACKEND_API_BASE_URL;
-  }
-
-  return LAN_BACKEND_API_BASE_URL;
-}
-
-function getBackendOrdersUrl(): string {
-  return `${getBackendApiBaseUrl()}/orders`;
-}
-
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactHubOpen, setContactHubOpen] = useState(false);
@@ -739,7 +720,7 @@ export default function Home() {
     }
 
     try {
-      const response = await fetch(getBackendOrdersUrl(), { cache: "no-store" });
+      const response = await fetch(getOrdersUrl(), { cache: "no-store" });
 
       if (!response.ok) {
         throw new Error(`Backend orders request failed: ${response.status}`);
@@ -1809,6 +1790,21 @@ export default function Home() {
       } catch {
         // localStorage is development-only; local React state already has the order.
       }
+
+      const backendResult = await postOrderToBackend({
+        order_id: order.orderId,
+        customer_name: order.customerName,
+        customer_phone: order.customerPhone,
+        comment: order.comment,
+        items: order.items,
+        total_price: order.totalPriceRub,
+        payment_method: order.paymentMethod,
+        payment_status: order.paymentStatus,
+        payment_proof_file_name: order.paymentProofFileName,
+        order_status: order.status,
+        created_at: order.createdAt,
+      });
+
       setLatestOrderId(orderId);
       setCheckoutSuccessMessage("");
       setCartItems([]);
@@ -1825,7 +1821,11 @@ export default function Home() {
       setCheckoutValidationErrors([]);
       setShowCheckoutOnly(false);
       setShowOrdersOnly(true);
-      setBottomNavAction("Заказ принят");
+      setBottomNavAction(
+        backendResult.ok
+          ? "Заказ принят"
+          : `Заказ сохранён локально. ${backendResult.reason}`,
+      );
       scrollToOrders();
     } finally {
       checkoutSubmitInProgressRef.current = false;
@@ -1859,10 +1859,7 @@ export default function Home() {
 
   const renderMyOrderCard = (order: BellafloreOrder) => {
     const primaryOrderItem = order.items[0];
-    const activeTimelineIndex = Math.min(
-      getCustomerOrderTimelineIndex(order.status),
-      0,
-    );
+    const activeTimelineIndex = getCustomerOrderTimelineIndex(order.status);
     const cardMessage = getCustomerOrderNoteLine(order, "Открытка");
     const customerComment = getCustomerOrderNoteLine(order, "Комментарий");
 
