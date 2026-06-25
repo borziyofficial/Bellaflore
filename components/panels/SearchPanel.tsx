@@ -196,8 +196,10 @@ export function SearchPanel({
             type="search"
             value={searchQuery}
             onChange={handleSearchQueryChange}
-            placeholder="Поиск по названию"
-            aria-label="Поиск букетов по названию"
+            placeholder="Розы, пионы, гортензия, корзина..."
+            aria-label="Поиск букетов по цветам, цветкам и форматам"
+            enterKeyHint="search"
+            autoComplete="off"
           />
           {searchQuery && (
             <button
@@ -210,6 +212,22 @@ export function SearchPanel({
             </button>
           )}
         </div>
+        {!normalizedSearchQuery && (
+          <div className="search-idle-state" role="status">
+            <div className="search-empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5" />
+              </svg>
+            </div>
+            <h3>Найдите идеальный букет</h3>
+            <p>
+              Ищите по цветам, названию, формату или части слова — например,
+              «горт», «роза», «корзина».
+            </p>
+          </div>
+        )}
+        {!normalizedSearchQuery && (
         <section className="smart-catalog-menu" aria-label="Каталог Bellaflore">
           <div className="smart-catalog-menu-header">
             <span>Smart Catalog</span>
@@ -255,10 +273,30 @@ export function SearchPanel({
             ))}
           </div>
         </section>
-        <div className="search-panel-results">
+        )}
+        <div
+          className={`search-panel-results ${
+            normalizedSearchQuery ? "search-panel-results-active" : ""
+          }`}
+        >
           {normalizedSearchQuery && searchResults.length === 0 && (
-            <p className="search-empty">
-              Ничего не найдено
+            <div className="search-empty-state" role="status">
+              <div className="search-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="M20 20l-3.5-3.5" />
+                </svg>
+              </div>
+              <p className="search-empty-title">Ничего не найдено</p>
+              <p className="search-empty-copy">
+                Попробуйте «роза», «белые», «пион», «гортензия», «корзина» или
+                «букет».
+              </p>
+            </div>
+          )}
+          {normalizedSearchQuery && searchResults.length > 0 && (
+            <p className="search-results-meta" aria-live="polite">
+              Найдено: {searchResults.length}
             </p>
           )}
           {searchResults.map((bouquet) => {
