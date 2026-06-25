@@ -17,6 +17,10 @@ import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
 import { CartPanel } from "@/components/panels/CartPanel";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
 import { SearchPanel } from "@/components/panels/SearchPanel";
+import {
+  filterSearchResults,
+  normalizeSearchText,
+} from "@/components/search/searchFoundation";
 import { smartCatalogGroups } from "@/data/smartCatalog";
 import {
   type ChangeEvent as ReactChangeEvent,
@@ -446,14 +450,6 @@ function detectDeliveryZone(address: string) {
   }
 
   return deliveryZones[1];
-}
-
-function normalizeSearchText(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/ё/g, "е")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 const TELEGRAM_USERNAME = "borziy_Sadikhov";
@@ -1056,11 +1052,11 @@ export default function Home() {
   );
 
   const normalizedSearchQuery = normalizeSearchText(searchQuery);
-  const searchResults = normalizedSearchQuery
-    ? bouquets.filter((bouquet) =>
-        normalizeSearchText(bouquet.title).includes(normalizedSearchQuery),
-      )
-    : bouquets;
+  const searchResults = filterSearchResults(
+    bouquets,
+    searchQuery,
+    smartCatalogGroups,
+  );
 
   const addBouquetToCart = (bouquetId: string) => {
     setCartItems((currentItems) => {
