@@ -1,26 +1,36 @@
+// ==================================================
+// SECTION: Admin — Login Page
+// РАЗДЕЛ: Admin — страница входа
+// ==================================================
+
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { CSSProperties } from "react";
 import {
-  ADMIN_DASHBOARD_PATH,
-  hasAdminSession,
-  storeAdminSession,
-} from "../auth";
+  hasValidAdminEntrySession,
+  loginWithAdminEntryCredentials,
+} from "@/components/adminEntry/adminEntryAuth";
+import {
+  ADMIN_ENTRY_ROUTES,
+  resolveAdminEntryRedirectPath,
+} from "@/components/adminEntry/adminEntryRoutes";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = resolveAdminEntryRedirectPath(searchParams.get("redirect"));
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (hasAdminSession()) {
-      router.replace(ADMIN_DASHBOARD_PATH);
+    if (hasValidAdminEntrySession()) {
+      router.replace(redirectPath);
     }
-  }, [router]);
+  }, [redirectPath, router]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,20 +38,14 @@ export default function AdminLoginPage() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const result = loginWithAdminEntryCredentials(username, password);
 
-      if (!response.ok) {
-        throw new Error(`Admin login failed: ${response.status}`);
+      if (!result.ok) {
+        setErrorMessage(result.message || "Неверное имя пользователя или пароль.");
+        return;
       }
 
-      storeAdminSession();
-      router.replace(ADMIN_DASHBOARD_PATH);
+      router.replace(redirectPath);
     } catch {
       setErrorMessage("Неверное имя пользователя или пароль.");
     } finally {
@@ -55,7 +59,7 @@ export default function AdminLoginPage() {
         <div style={styles.brandPanel}>
           <p style={styles.eyebrow}>BellaFlore</p>
           <h1 style={styles.title}>Вход администратора</h1>
-          <p style={styles.lead}>Панель управления заказами</p>
+          <p style={styles.lead}>Admin Panel · System Brain · Internal Module</p>
         </div>
 
         <form style={styles.form} onSubmit={handleSubmit}>
@@ -90,6 +94,10 @@ export default function AdminLoginPage() {
           <button type="submit" style={styles.loginButton} disabled={submitting}>
             {submitting ? "Вход..." : "Войти"}
           </button>
+
+          <p style={styles.hint}>
+            После входа: {redirectPath === ADMIN_ENTRY_ROUTES.panel ? "/admin" : redirectPath}
+          </p>
         </form>
       </section>
     </main>
@@ -197,5 +205,11 @@ const styles: Record<string, CSSProperties> = {
     font: "inherit",
     fontSize: "16px",
     fontWeight: 900,
+  },
+  hint: {
+    margin: 0,
+    color: "#75695c",
+    fontSize: "13px",
+    lineHeight: 1.4,
   },
 };
