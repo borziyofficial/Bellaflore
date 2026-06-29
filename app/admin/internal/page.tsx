@@ -1,6 +1,6 @@
 // ==================================================
 // SECTION: Admin — Third Internal Module Entry
-// РАЗДЕЛ: Admin — Internal Module
+// РАЗДЕЛ: Admin — Внутренний модуль
 // ==================================================
 
 "use client";
@@ -11,14 +11,14 @@ import styles from "./internalPage.module.css";
 function InternalModuleEntryContent() {
   return (
     <section className={styles.card}>
-      <p className={styles.eyebrow}>Admin Entry · Stage 41</p>
-      <h2 className={styles.title}>Third Internal Module</h2>
-      <p className={styles.subtitle}>Bellaflore internal operations foundation</p>
+      <p className={styles.eyebrow}>Админ · Этап 42.5B</p>
+      <h2 className={styles.title}>🧩 Внутренний модуль</h2>
+      <p className={styles.subtitle}>Внутренние операционные инструменты Bellaflore</p>
       <p className={styles.body}>
-        Placeholder entry page. Operational engines are intentionally not connected on
-        this stage.
+        Страница-заглушка. Подключение operational engines на этом этапе намеренно не
+        выполняется.
       </p>
-      <p className={styles.meta}>Route: /admin/internal</p>
+      <p className={styles.meta}>Маршрут: /admin/internal</p>
     </section>
   );
 }

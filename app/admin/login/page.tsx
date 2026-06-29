@@ -59,7 +59,9 @@ export default function AdminLoginPage() {
         <div style={styles.brandPanel}>
           <p style={styles.eyebrow}>BellaFlore</p>
           <h1 style={styles.title}>Вход администратора</h1>
-          <p style={styles.lead}>Admin Panel · System Brain · Internal Module</p>
+          <p style={styles.lead}>
+            📈 Панель управления · ⚙️ Системный мозг · 🧩 Внутренний модуль
+          </p>
         </div>
 
         <form style={styles.form} onSubmit={handleSubmit}>

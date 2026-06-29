@@ -1,0 +1,62 @@
+/* Shared Bellaflore admin shell tokens and surface styles */
+
+.surfaceCard {
+  border: 1px solid var(--admin-border, rgba(138, 107, 61, 0.16));
+  border-radius: 14px;
+  padding: 22px 24px;
+  background: var(--admin-surface, #ffffff);
+  box-shadow: var(--admin-shadow-soft, 0 10px 28px rgba(47, 42, 36, 0.05));
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--admin-gold, #8a6b3d);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 8px 0 0;
+  font-size: clamp(24px, 5vw, 34px);
+  line-height: 1.12;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  color: var(--admin-muted, #75695c);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.body {
+  margin: 14px 0 0;
+  color: var(--admin-muted, #75695c);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.meta {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--admin-border, rgba(138, 107, 61, 0.12));
+  color: var(--admin-gold, #8a6b3d);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.muted {
+  margin: 0;
+  color: var(--admin-muted, #75695c);
+  line-height: 1.55;
+}
+
+.contentStack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}

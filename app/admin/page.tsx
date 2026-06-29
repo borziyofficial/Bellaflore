@@ -13,7 +13,9 @@ import {
   adminUserFromSecuritySession,
   getAdminEntrySession,
 } from "@/components/adminEntry";
+import shellTheme from "@/components/adminEntry/adminShellTheme.module.css";
 import { AdminWorkspaceLayout } from "@/components/adminWorkspace/AdminWorkspaceLayout";
+import workspaceStyles from "@/components/adminWorkspace/AdminWorkspaceLayout.module.css";
 import { guardAdminWorkspaceAccess } from "@/components/adminWorkspace/adminAccessGuards";
 import {
   buildAdminWorkspaceContext,
@@ -47,7 +49,7 @@ function AdminWorkspaceHomeContent() {
     return (
       <AdminNavigationShell activeRoute="/admin">
         <AdminWorkspaceLayout
-          title="Admin Workspace"
+          title="Панель управления"
           description={workspaceGuard.message ?? "Доступ к workspace запрещён."}
           adminUserName={adminUser.adminUserName}
           adminUserRole={adminUser.adminUserRole}
@@ -60,42 +62,45 @@ function AdminWorkspaceHomeContent() {
   return (
     <AdminNavigationShell activeRoute="/admin">
       <AdminWorkspaceLayout
-        title="Admin Workspace Foundation"
-        description="Архитектурное ядро рабочего пространства админ-панели. Navigation shell — Stage 42."
+        title="📈 Панель управления"
+        description="Основное рабочее пространство админ-панели Bellaflore."
         adminUserName={adminUser.adminUserName}
         adminUserRole={adminUser.adminUserRole}
         sections={visibleSections}
         backHref=""
       >
         <section
-          style={{
-            border: "1px solid rgba(138, 107, 61, 0.18)",
-            borderRadius: "8px",
-            padding: "18px",
-            background: "#ffffff",
-          }}
+          className={`${workspaceStyles.card} ${workspaceStyles.placeholderCard}`}
         >
-          <p
-            style={{
-              margin: 0,
-              color: "#8a6b3d",
-              fontSize: "12px",
-              fontWeight: 800,
-              textTransform: "uppercase",
-            }}
-          >
-            Workspace Context
+          <p className={workspaceStyles.eyebrow}>Скоро</p>
+          <h3 className={workspaceStyles.placeholderTitle}>Каталог и фото товаров</h3>
+          <p className={workspaceStyles.muted} style={{ marginTop: "10px" }}>
+            Здесь позже будет управление букетами, фото, категориями, ценами и
+            карточками товаров.
           </p>
-          <p style={{ margin: "12px 0 0", color: "#75695c", lineHeight: 1.5 }}>
-            Workspace ID: {workspaceContext.workspaceId}
-            <br />
-            Default section: {workspaceContext.defaultSectionId}
-            <br />
-            Accessible sections: {workspaceContext.accessibleSections.length}
+          <p className={workspaceStyles.placeholderNote}>
+            Загрузка фото и catalog engine пока не подключены.
           </p>
-          <p style={{ margin: "12px 0 0", color: "#75695c" }}>
-            Legacy admin routes:{" "}
-            <Link href="/admin/orders">/admin/orders</Link>
+        </section>
+
+        <section className={`${shellTheme.surfaceCard} ${shellTheme.contentStack}`}>
+          <p className={shellTheme.eyebrow}>Контекст workspace</p>
+          <div className={workspaceStyles.contextGrid}>
+            <p className={workspaceStyles.contextRow}>
+              <span className={workspaceStyles.contextLabel}>ID workspace:</span>
+              {workspaceContext.workspaceId}
+            </p>
+            <p className={workspaceStyles.contextRow}>
+              <span className={workspaceStyles.contextLabel}>Раздел по умолчанию:</span>
+              {workspaceContext.defaultSectionId}
+            </p>
+            <p className={workspaceStyles.contextRow}>
+              <span className={workspaceStyles.contextLabel}>Доступных разделов:</span>
+              {workspaceContext.accessibleSections.length}
+            </p>
+          </div>
+          <p className={workspaceStyles.legacyLinks}>
+            Legacy-маршруты: <Link href="/admin/orders">/admin/orders</Link>
             {" · "}
             <Link href="/admin/crm">/admin/crm</Link>
           </p>

@@ -15,24 +15,24 @@ export type AdminNavigationItem = {
 export const ADMIN_NAVIGATION_ITEMS: AdminNavigationItem[] = [
   {
     id: "admin-panel",
-    label: "Admin Panel",
-    shortLabel: "Panel",
+    label: "📈 Панель управления",
+    shortLabel: "Панель",
     route: "/admin",
-    description: "Workspace foundation and admin sections",
+    description: "Основное рабочее пространство и разделы админки",
   },
   {
     id: "system-brain",
-    label: "System Brain",
-    shortLabel: "Brain",
+    label: "⚙️ Системный мозг",
+    shortLabel: "Система",
     route: "/admin/system-brain",
-    description: "Internal system brain foundation",
+    description: "Внутренний системный слой Bellaflore",
   },
   {
     id: "internal-module",
-    label: "Internal Module",
-    shortLabel: "Internal",
+    label: "🧩 Внутренний модуль",
+    shortLabel: "Модуль",
     route: "/admin/internal",
-    description: "Internal operations foundation",
+    description: "Внутренние операционные инструменты",
   },
 ];
 
@@ -40,4 +40,24 @@ export function getAdminNavigationItemByRoute(
   route: AdminEntryRoutePath,
 ): AdminNavigationItem | null {
   return ADMIN_NAVIGATION_ITEMS.find((item) => item.route === route) ?? null;
+}
+
+export function formatAdminRoleLabel(role: string): string {
+  switch (role) {
+    case "owner":
+      return "владелец";
+    case "admin":
+      return "администратор";
+    case "manager":
+    case "courier_manager":
+      return "менеджер";
+    case "florist":
+      return "флорист";
+    case "viewer":
+      return "наблюдатель";
+    case "system":
+      return "система";
+    default:
+      return role;
+  }
 }
