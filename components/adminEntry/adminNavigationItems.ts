@@ -18,7 +18,7 @@ export const ADMIN_NAVIGATION_ITEMS: AdminNavigationItem[] = [
     label: "📈 Панель управления",
     shortLabel: "Панель",
     route: "/admin",
-    description: "Основное рабочее пространство и разделы админки",
+    description: "Рабочая панель Bellaflore и быстрые переходы",
   },
   {
     id: "system-brain",

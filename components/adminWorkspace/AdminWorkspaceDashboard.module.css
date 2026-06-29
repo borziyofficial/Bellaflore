@@ -1,0 +1,243 @@
+.dashboard {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.heroCard {
+  border: 1px solid var(--admin-border, rgba(138, 107, 61, 0.16));
+  border-radius: 14px;
+  padding: 22px 24px;
+  background: linear-gradient(145deg, #fffdf9 0%, #ffffff 100%);
+  box-shadow: var(--admin-shadow-soft, 0 10px 28px rgba(47, 42, 36, 0.05));
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--admin-gold, #8a6b3d);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  margin: 8px 0 0;
+  font-size: clamp(24px, 5vw, 34px);
+  line-height: 1.12;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.heroLead {
+  margin: 10px 0 0;
+  color: var(--admin-muted, #75695c);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.heroMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.metaPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(138, 107, 61, 0.1);
+  color: var(--admin-ink, #2f2a24);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sessionPill {
+  background: rgba(47, 107, 79, 0.12);
+  color: #2f6b4f;
+}
+
+.sessionDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2f6b4f;
+  box-shadow: 0 0 0 3px rgba(47, 107, 79, 0.18);
+  flex-shrink: 0;
+}
+
+.sectionCard {
+  border: 1px solid var(--admin-border, rgba(138, 107, 61, 0.16));
+  border-radius: 14px;
+  padding: 22px 24px;
+  background: var(--admin-surface-elevated, #ffffff);
+  box-shadow: var(--admin-shadow-soft, 0 10px 28px rgba(47, 42, 36, 0.05));
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.quickLink,
+.quickStub {
+  display: grid;
+  gap: 6px;
+  min-height: 88px;
+  border: 1px solid rgba(138, 107, 61, 0.18);
+  border-radius: 12px;
+  padding: 14px 14px;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.quickLink {
+  background: #fffaf2;
+}
+
+.quickLink:hover {
+  border-color: rgba(138, 107, 61, 0.34);
+  box-shadow: 0 8px 20px rgba(47, 42, 36, 0.06);
+  transform: translateY(-1px);
+}
+
+.quickStub {
+  background: #f8f4ee;
+  border-style: dashed;
+  cursor: default;
+}
+
+.quickLabel {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.quickNote {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--admin-muted, #75695c);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.statCard {
+  display: grid;
+  gap: 8px;
+  min-height: 96px;
+  border: 1px solid rgba(138, 107, 61, 0.14);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #fffaf2;
+}
+
+.statLabel {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--admin-muted, #75695c);
+}
+
+.statValue {
+  margin: 0;
+  font-size: clamp(18px, 4vw, 22px);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--admin-ink, #2f2a24);
+  word-break: break-word;
+}
+
+.toneNeutral {
+  border-color: rgba(138, 107, 61, 0.14);
+}
+
+.toneSuccess {
+  border-color: rgba(47, 107, 79, 0.24);
+  background: rgba(47, 107, 79, 0.06);
+}
+
+.toneWarning {
+  border-color: rgba(176, 120, 42, 0.28);
+  background: rgba(176, 120, 42, 0.08);
+}
+
+.toneInfo {
+  border-color: rgba(74, 108, 168, 0.24);
+  background: rgba(74, 108, 168, 0.06);
+}
+
+.roadmapList {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.roadmapItem {
+  display: grid;
+  gap: 4px;
+  border: 1px dashed rgba(138, 107, 61, 0.22);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #fffaf2;
+}
+
+.roadmapStage {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--admin-gold, #8a6b3d);
+}
+
+.roadmapTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.roadmapDescription {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--admin-muted, #75695c);
+}
+
+@media (max-width: 720px) {
+  .heroCard,
+  .sectionCard {
+    padding: 18px 16px;
+  }
+
+  .quickGrid,
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}

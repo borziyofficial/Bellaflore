@@ -1,0 +1,238 @@
+.section {
+  border: 1px solid var(--admin-border, rgba(138, 107, 61, 0.16));
+  border-radius: 14px;
+  padding: 22px 24px;
+  background: var(--admin-surface-elevated, #ffffff);
+  box-shadow: var(--admin-shadow-soft, 0 10px 28px rgba(47, 42, 36, 0.05));
+  min-width: 0;
+  scroll-margin-top: 96px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--admin-gold, #8a6b3d);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 8px 0 0;
+  font-size: clamp(22px, 4.8vw, 30px);
+  line-height: 1.12;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.lead {
+  margin: 10px 0 0;
+  color: var(--admin-muted, #75695c);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.searchInput,
+.categorySelect {
+  min-height: 42px;
+  border: 1px solid rgba(138, 107, 61, 0.2);
+  border-radius: 10px;
+  padding: 0 14px;
+  background: #fffaf2;
+  color: var(--admin-ink, #2f2a24);
+  font: inherit;
+  font-size: 14px;
+}
+
+.searchInput {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.categorySelect {
+  flex: 0 1 200px;
+  min-width: 160px;
+}
+
+.addButton {
+  min-height: 42px;
+  border: 1px solid rgba(47, 42, 36, 0.16);
+  border-radius: 10px;
+  padding: 0 16px;
+  background: #2f2a24;
+  color: #fffaf2;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.resultsMeta {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--admin-muted, #75695c);
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.productCard {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 12px;
+  padding: 14px;
+  background: #fffaf2;
+  min-width: 0;
+}
+
+.imagePlaceholder {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  border-radius: 10px;
+  border: 1px dashed rgba(138, 107, 61, 0.28);
+  background: linear-gradient(145deg, #fffdf9 0%, #f3ece2 100%);
+  color: var(--admin-muted, #75695c);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding: 12px;
+}
+
+.productName {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.metaPill {
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(138, 107, 61, 0.1);
+  color: var(--admin-ink, #2f2a24);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pricePill {
+  background: rgba(47, 107, 79, 0.12);
+  color: #2f6b4f;
+}
+
+.statusActive {
+  background: rgba(47, 107, 79, 0.12);
+  color: #2f6b4f;
+}
+
+.statusDraft {
+  background: rgba(176, 120, 42, 0.14);
+  color: #8a5d16;
+}
+
+.statusHidden {
+  background: rgba(120, 120, 120, 0.14);
+  color: #5f5a54;
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--admin-muted, #75695c);
+}
+
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actionButton {
+  min-height: 34px;
+  border: 1px solid rgba(47, 42, 36, 0.14);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: var(--admin-ink, #2f2a24);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.futureNote {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(138, 107, 61, 0.12);
+}
+
+.futureTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.futureDescription {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--admin-muted, #75695c);
+}
+
+.emptyState {
+  margin-top: 14px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px dashed rgba(138, 107, 61, 0.24);
+  background: #fffaf2;
+  color: var(--admin-muted, #75695c);
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding: 18px 16px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchInput,
+  .categorySelect,
+  .addButton {
+    width: 100%;
+  }
+
+  .productGrid {
+    grid-template-columns: 1fr;
+  }
+}
