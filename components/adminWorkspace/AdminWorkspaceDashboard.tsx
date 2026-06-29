@@ -5,6 +5,14 @@
 import Link from "next/link";
 import { formatAdminRoleLabel } from "@/components/adminEntry/adminNavigationItems";
 import { CatalogAdminManager } from "@/components/catalogAdmin";
+import { PhotoManagerFoundation } from "@/components/photoManager";
+import { PhotoManagerProvider } from "@/components/photoManager/PhotoManagerProvider";
+import { ProductEditorFoundation } from "@/components/productEditor";
+import {
+  ProductListFoundation,
+  ProductPhotoBindingBridge,
+  ProductStorageProvider,
+} from "@/components/productStorage";
 import {
   ADMIN_WORKSPACE_QUICK_LINKS,
   ADMIN_WORKSPACE_ROADMAP,
@@ -31,7 +39,10 @@ export function AdminWorkspaceDashboard({
   const roleLabel = formatAdminRoleLabel(adminUserRole);
 
   return (
-    <div className={styles.dashboard}>
+    <PhotoManagerProvider>
+      <ProductStorageProvider>
+        <ProductPhotoBindingBridge />
+        <div className={styles.dashboard}>
       <section className={styles.heroCard}>
         <p className={styles.eyebrow}>Bellaflore · Админ workspace</p>
         <h2 className={styles.heroTitle}>📈 Панель управления Bellaflore</h2>
@@ -69,7 +80,13 @@ export function AdminWorkspaceDashboard({
         </div>
       </section>
 
+      <ProductListFoundation />
+
       <CatalogAdminManager />
+
+      <PhotoManagerFoundation />
+
+      <ProductEditorFoundation />
 
       <section className={styles.sectionCard}>
         <h3 className={styles.sectionTitle}>Сводка дня</h3>
@@ -98,6 +115,8 @@ export function AdminWorkspaceDashboard({
           ))}
         </div>
       </section>
-    </div>
+        </div>
+      </ProductStorageProvider>
+    </PhotoManagerProvider>
   );
 }

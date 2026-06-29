@@ -1,0 +1,160 @@
+.section {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(138, 107, 61, 0.14);
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.lead {
+  margin: 6px 0 0;
+  color: var(--admin-muted, #75695c);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.card {
+  border: 1px solid rgba(138, 107, 61, 0.14);
+  border-radius: 12px;
+  padding: 14px;
+  background: #fffdf8;
+  min-width: 0;
+}
+
+.cardLabel {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--admin-gold, #8a6b3d);
+}
+
+.imagePlaceholder {
+  margin-top: 10px;
+  min-height: 140px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #f5efe3, #e8dcc8);
+  color: #8a6b3d;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding: 12px;
+}
+
+.previewImage {
+  margin-top: 10px;
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.productName {
+  margin: 10px 0 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.price {
+  margin: 4px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #8a6b3d;
+}
+
+.description {
+  margin: 8px 0 0;
+  color: var(--admin-muted, #75695c);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.snippetTitle {
+  margin: 10px 0 0;
+  font-size: 16px;
+  color: #1a0dab;
+  line-height: 1.3;
+}
+
+.snippetUrl {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #006621;
+}
+
+.snippetDescription {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #545454;
+  line-height: 1.45;
+}
+
+.ogLabel {
+  margin-top: 16px;
+}
+
+.ogPreview {
+  margin-top: 10px;
+  border: 1px solid rgba(47, 42, 36, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.ogImage {
+  min-height: 100px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #f5efe3, #e8dcc8);
+  color: #8a6b3d;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ogBody {
+  padding: 10px 12px;
+}
+
+.ogSite {
+  margin: 0;
+  font-size: 11px;
+  color: #65676b;
+  text-transform: uppercase;
+}
+
+.ogTitle {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1c1e21;
+  line-height: 1.3;
+}
+
+.ogDescription {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #606770;
+  line-height: 1.4;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,46 @@
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.input,
+.select,
+.textarea {
+  min-height: 42px;
+  width: 100%;
+  border: 1px solid rgba(138, 107, 61, 0.2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fffaf2;
+  color: var(--admin-ink, #2f2a24);
+  font: inherit;
+  font-size: 14px;
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+@media (max-width: 720px) {
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+}

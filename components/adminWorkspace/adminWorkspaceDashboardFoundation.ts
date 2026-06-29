@@ -33,8 +33,26 @@ export const ADMIN_WORKSPACE_QUICK_LINKS: AdminWorkspaceQuickLink[] = [
   {
     id: "photos",
     label: "🖼 Фото товаров",
-    href: null,
-    note: "Stage 45 · скоро",
+    href: "/admin#photo-manager",
+    note: "Галерея и preview",
+  },
+  {
+    id: "product-storage",
+    label: "📦 Хранилище товаров",
+    href: "/admin#product-storage",
+    note: "Product Store + CRUD",
+  },
+  {
+    id: "product-editor",
+    label: "📝 Редактор товара",
+    href: "/admin#product-editor",
+    note: "CMS + SEO Core",
+  },
+  {
+    id: "seo-intelligence",
+    label: "📈 SEO Intelligence",
+    href: "/admin#seo-intelligence",
+    note: "SEO score и preview",
   },
   {
     id: "orders",
@@ -116,12 +134,22 @@ export const ADMIN_WORKSPACE_ROADMAP: AdminWorkspaceRoadmapItem[] = [
   {
     stage: "Stage 45",
     title: "Photo Manager",
-    description: "Загрузка и привязка фото к товарам без production wiring.",
+    description: "Upload engine, SEO Image Core и gallery preview на /admin.",
   },
   {
     stage: "Stage 46",
     title: "Product Editor",
-    description: "Редактор цен, описаний и состава букетов.",
+    description: "Foundation CMS-редактор с SEO Core, checklist и preview на /admin.",
+  },
+  {
+    stage: "Stage 48",
+    title: "SEO Intelligence Engine",
+    description: "Локальный SEO score, checklist, previews и local SEO foundation.",
+  },
+  {
+    stage: "Stage 49",
+    title: "Product Storage Foundation",
+    description: "Локальный Product Store, CRUD, list UI и binding с Editor, Photo и SEO.",
   },
   {
     stage: "Stage 47",

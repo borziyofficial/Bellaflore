@@ -1,0 +1,79 @@
+.previewPanel {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 12px;
+  padding: 16px;
+  background: #fffaf2;
+  min-height: 320px;
+}
+
+.previewTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.previewFrame {
+  display: grid;
+  gap: 12px;
+  flex: 1;
+  min-height: 240px;
+}
+
+.previewImage {
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  background: #f3ece2;
+}
+
+.previewPlaceholderText {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px dashed rgba(138, 107, 61, 0.28);
+  background: linear-gradient(145deg, #fffdf9 0%, #f3ece2 100%);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--admin-muted, #75695c);
+  text-align: center;
+  padding: 20px;
+}
+
+.previewMeta {
+  display: grid;
+  gap: 6px;
+}
+
+.previewFileName {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+  word-break: break-word;
+}
+
+.previewDetails {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--admin-muted, #75695c);
+}
+
+.mainBadge {
+  display: inline-block;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(47, 107, 79, 0.12);
+  color: #2f6b4f;
+  font-size: 11px;
+  font-weight: 800;
+}

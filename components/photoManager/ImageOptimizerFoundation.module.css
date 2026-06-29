@@ -1,0 +1,48 @@
+.panel {
+  display: grid;
+  gap: 12px;
+  border: 1px dashed rgba(138, 107, 61, 0.24);
+  border-radius: 12px;
+  padding: 18px;
+  background: #fffaf2;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--admin-ink, #2f2a24);
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--admin-muted, #75695c);
+}
+
+.badge {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(138, 107, 61, 0.12);
+  color: var(--admin-gold, #8a6b3d);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--admin-muted, #75695c);
+}
