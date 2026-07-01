@@ -1,34 +1,95 @@
 "use client";
+
+// ==================================================
+// SECTION: Storefront Home Page
+// РАЗДЕЛ: Главная страница витрины
+//
+// Purpose (EN): Client-side storefront shell — catalog, cart, checkout, orders, favorites, reviews, and mobile bottom nav.
+//
+// Назначение (RU): Клиентская оболочка витрины — каталог, корзина, checkout, заказы, избранное, отзывы и mobile bottom nav.
+// ==================================================
+
 import { AboutSection } from "@/components/home/AboutSection";
 import { ContactQuickActions } from "@/components/contact/ContactQuickActions";
 import { CheckoutSection } from "@/components/checkout/CheckoutSection";
+import { CheckoutPanel } from "@/components/checkout/CheckoutPanel";
+import { useRealDeliveryZoneForCheckout } from "@/components/deliveryZones/useRealDeliveryZoneForCheckout";
+import {
+  canSubmitCheckoutWithDeliveryPrice,
+  resolveDeliveryPriceFromZone,
+} from "@/components/deliveryZones/deliveryPriceEngine";
+import {
+  calculateCheckoutGrandTotalWithConfidence,
+  resolveDeliveryConfidence,
+} from "@/components/deliveryConfidence/deliveryConfidenceEngine";
+import { getDeliveryPriceUnavailableMessage } from "@/components/deliveryZones/deliveryPriceTypes";
+import {
+  canSubmitCheckoutWithDeliveryValidation,
+  getDeliveryValidationUnavailableMessage,
+  resolveDeliveryValidationForCheckout,
+} from "@/components/deliveryValidation/deliveryValidationEngine";
 import { getAvailableDeliveryIntervals } from "@/components/checkout/deliveryIntervals";
+import { buildCheckoutOrderPayload } from "@/components/checkout/buildCheckoutOrderPayload";
+import { bootstrapCrmFromLogisticsAndLifecycle } from "@/components/crmCore/crmCoreEngine";
+import { persistOrderIntelligenceFromCheckout } from "@/components/orderIntelligence/checkoutOrderBridge";
+import { createAndSaveLogisticsOrderFromCheckout } from "@/components/deliveryOrchestration/deliveryOrchestrationEngine";
+import {
+  createAndSaveOrderLifecycleFromLogisticsOrder,
+  createOrderLifecycle,
+} from "@/components/orderLifecycle/orderLifecycleEngine";
+import {
+  buildCheckoutStoredOrder,
+  CHECKOUT_ORDER_CREATED_STATUS,
+  readCheckoutOrders,
+  readLatestCheckoutOrderId,
+  writeCheckoutOrders,
+  writeLatestCheckoutOrderId,
+} from "@/components/checkout/checkoutOrderStorage";
+import type { OrderTimelineEvent } from "@/components/orders/orderTimeline";
+import { getCustomerOrderStatusLabel } from "@/components/orders/resolveCustomerOrderTimeline";
+import {
+  type CheckoutForm,
+  type CheckoutOrderPayload,
+  type DeliveryDatePreset,
+} from "@/components/checkout/checkoutTypes";
+import { submitCheckoutOrderToTelegram } from "@/components/telegram/submitCheckoutOrderToTelegram";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
 import { DeliverySection } from "@/components/home/DeliverySection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { Navbar } from "@/components/home/Navbar";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
-import { MyOrderCard } from "@/components/order/MyOrderCard";
-import { MyOrderEmptyState } from "@/components/order/MyOrderEmptyState";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
+import {
+  BOTTOM_NAV_PANEL_CLOSE_MS,
+  getBottomNavPanelClosedMessage,
+  getBottomNavPanelOpenMessage,
+  type BottomNavPanelId,
+} from "@/components/navigation/bottomNavPanels";
 import { OrdersSection } from "@/components/order/OrdersSection";
+import { MyOrderHub } from "@/components/orders/MyOrderHub";
+import type { OrderPassportData } from "@/components/orders/MyOrderPassport";
+import type { ProfileHubSectionId } from "@/components/orders/profileHubTypes";
 import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
-import { getOrdersUrl, postOrderToBackend } from "@/app/orders/orderUtils";
+import { getOrdersUrl } from "@/app/orders/orderUtils";
 import { CartPanel } from "@/components/panels/CartPanel";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
-import { SearchPanel } from "@/components/panels/SearchPanel";
+import { CatalogPanel } from "@/components/catalog/CatalogPanel";
+import { ProductExperiencePage } from "@/components/product/ProductExperiencePage";
+import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import {
-  filterSearchResults,
   normalizeSearchText,
 } from "@/components/search/searchFoundation";
+import { runSmartCatalogSearch } from "@/components/smartSearch/smartSearchBridge";
 import { smartCatalogGroups } from "@/data/smartCatalog";
+import { catalogProducts as bouquets } from "@/data/catalogProducts";
 import {
   type ChangeEvent as ReactChangeEvent,
   type FormEvent as ReactFormEvent,
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -41,159 +102,6 @@ const navigationItems = [
   { href: "#contact", label: "КОНТАКТЫ" },
 ];
 
-const bouquets = [
-  {
-    id: "red-luxury",
-    src: "/roza rouze royal.PNG",
-    alt: "Букет Red Luxury из красных роз",
-    title: "Red Luxury",
-    description: "51 красная роза",
-    searchTerms: [
-      "розы",
-      "роза",
-      "rose",
-      "roses",
-      "красные розы",
-      "букет роз",
-      "классика",
-      "премиум",
-      "сегодня",
-      "день рождения",
-      "birthday",
-    ],
-    priceRub: 14900,
-    width: 1122,
-    height: 1402,
-  },
-  {
-    id: "pink-elegance",
-    src: "/0002.jpg",
-    alt: "Авторский букет Pink Elegance в розовой гамме",
-    title: "Pink Elegance",
-    description: "Премиальный авторский букет",
-    searchTerms: [
-      "авторские букеты",
-      "для девушки",
-      "девушка",
-      "любимая",
-      "жене",
-      "romantic",
-      "нежные букеты",
-      "нежный",
-      "soft",
-      "luxury",
-      "премиум",
-      "сегодня",
-    ],
-    priceRub: 11900,
-    width: 1086,
-    height: 1448,
-  },
-  {
-    id: "white-pearl",
-    src: "/white rose 101.PNG",
-    alt: "Букет White Pearl из белых роз",
-    title: "White Pearl",
-    description: "101 белая роза",
-    searchTerms: [
-      "розы",
-      "роза",
-      "rose",
-      "roses",
-      "белые розы",
-      "букет роз",
-      "премиальные букеты",
-      "нежные букеты",
-      "soft",
-      "luxury",
-      "премиум",
-      "сегодня",
-      "день рождения",
-      "birthday",
-    ],
-    priceRub: 24900,
-    width: 1109,
-    height: 1418,
-  },
-  {
-    id: "golden-romance",
-    src: "/roza rouze royal.PNG",
-    alt: "Авторский букет Golden Romance",
-    title: "Golden Romance",
-    description: "Авторский премиальный букет",
-    searchTerms: [
-      "авторские букеты",
-      "премиальные букеты",
-      "для мамы",
-      "мама",
-      "маме",
-      "mother",
-      "день рождения",
-      "birthday",
-      "luxury",
-      "премиум",
-      "сегодня",
-    ],
-    priceRub: 15900,
-    width: 1136,
-    height: 1384,
-  },
-  {
-    id: "luxury-box",
-    src: "/mix piony siren.PNG",
-    alt: "Композиция Luxury Box с пионами",
-    title: "Luxury Box",
-    description: "Пионы в премиальной коробке",
-    searchTerms: [
-      "пионы",
-      "пион",
-      "peonies",
-      "для девушки",
-      "девушка",
-      "любимая",
-      "жене",
-      "romantic",
-      "премиальные букеты",
-      "нежные букеты",
-      "soft",
-      "luxury",
-      "премиум",
-      "сегодня",
-    ],
-    priceRub: 13900,
-    width: 1023,
-    height: 1537,
-  },
-  {
-    id: "royal-collection",
-    src: "/piony 11.PNG",
-    alt: "Цветочная композиция Royal Collection",
-    title: "Royal Collection",
-    description: "Эксклюзивная цветочная композиция",
-    searchTerms: [
-      "пионы",
-      "пион",
-      "peonies",
-      "гортензии",
-      "гортензия",
-      "hydrangeas",
-      "авторские букеты",
-      "для мамы",
-      "мама",
-      "маме",
-      "mother",
-      "день рождения",
-      "birthday",
-      "luxury",
-      "премиум",
-      "сегодня",
-    ],
-    priceRub: 18900,
-    width: 1254,
-    height: 1254,
-  },
-];
-
 type CartItem = {
   bouquetId: string;
   quantity: number;
@@ -202,16 +110,6 @@ type CartItem = {
 type PaymentMethod =
   | "cashOnDelivery"
   | "cardTransfer";
-
-type CheckoutForm = {
-  name: string;
-  phone: string;
-  address: string;
-  deliveryDate: string;
-  deliveryTime: string;
-  cardMessage: string;
-  comment: string;
-};
 
 type ReviewForm = {
   name: string;
@@ -273,6 +171,16 @@ type BellafloreOrder = {
   deliveryAddress?: string;
   deliveryDate?: string;
   deliveryTime?: string;
+  deliveryZoneId?: string;
+  deliveryZoneLabel?: string;
+  deliveryZonePriceRub?: number;
+  deliveryZoneDistanceKm?: number;
+  deliveryZoneRoadDistanceKm?: number;
+  deliveryZoneRoadDurationMinutes?: number;
+  deliveryZoneStatus?: string;
+  deliveryZoneDetectionMode?: string;
+  customerComment?: string;
+  cardMessage?: string;
   checkoutSource?: "bellaflore_checkout";
   telegramNotification?: {
     template: "new_order";
@@ -283,6 +191,7 @@ type BellafloreOrder = {
   status: BellafloreOrderStatus;
   createdAt: string;
   createdAtDisplay?: string;
+  timeline?: OrderTimelineEvent[];
 };
 
 type BackendOrder = {
@@ -304,91 +213,27 @@ const paymentMethodLabels: Record<PaymentMethod, string> = {
   cashOnDelivery: "Оплата при получении — по согласованию",
 };
 
-const checkoutRequiredFields: {
-  field: keyof CheckoutForm;
-  message: string;
-}[] = [
-  { field: "name", message: "Укажите имя заказчика" },
-  { field: "phone", message: "Укажите телефон" },
-  { field: "address", message: "Укажите адрес доставки" },
-  { field: "deliveryDate", message: "Выберите дату доставки" },
-  { field: "deliveryTime", message: "Укажите время доставки" },
-];
-
 const initialReviews: BellafloreReview[] = [
   {
-    id: "review-1",
-    name: "Анна",
+    id: "demo-review-1",
+    name: "Антон",
     rating: 5,
-    text: "Букет приехал свежим и очень аккуратным. Перед доставкой прислали фото, все выглядело дорого и нежно.",
+    text: "Заказал букет на годовщину — всё аккуратно, свежо и с отличной упаковкой.",
+    createdAtDisplay: "20 июня 2026",
+  },
+  {
+    id: "demo-review-2",
+    name: "Евгений",
+    rating: 5,
+    text: "Доставили вовремя, букет выглядел именно так, как обещали. Очень аккуратная работа.",
     createdAtDisplay: "18 июня 2026",
   },
   {
-    id: "review-2",
-    name: "Мария",
+    id: "demo-review-3",
+    name: "Ольга",
     rating: 5,
-    text: "Заказывала розы в подарок маме. Доставка была вовремя, упаковка красивая, впечатление премиальное.",
-    createdAtDisplay: "16 июня 2026",
-  },
-  {
-    id: "review-3",
-    name: "Екатерина",
-    rating: 4,
-    text: "Очень стильный букет и приятная коммуникация. Хочу попробовать авторскую композицию в следующий раз.",
-    createdAtDisplay: "14 июня 2026",
-  },
-];
-
-type DeliveryDatePreset = "today" | "tomorrow" | "custom";
-
-const deliveryZones: DeliveryZone[] = [
-  {
-    id: "zone-1",
-    title: "Зона 1",
-    distanceLabel: "Внутри МКАД",
-    priceRub: 0,
-    estimatedTime: "60–120 минут",
-    color: "#d9ad62",
-  },
-  {
-    id: "zone-2",
-    title: "Зона 2",
-    distanceLabel: "0–7 км от МКАД",
-    priceRub: 700,
-    estimatedTime: "90–150 минут",
-    color: "#c99b8f",
-  },
-  {
-    id: "zone-3",
-    title: "Зона 3",
-    distanceLabel: "7–14 км от МКАД",
-    priceRub: 1200,
-    estimatedTime: "120–180 минут",
-    color: "#b98a76",
-  },
-  {
-    id: "zone-4",
-    title: "Зона 4",
-    distanceLabel: "14–21 км от МКАД",
-    priceRub: 1700,
-    estimatedTime: "150–210 минут",
-    color: "#a98f61",
-  },
-  {
-    id: "zone-5",
-    title: "Зона 5",
-    distanceLabel: "21–28 км от МКАД",
-    priceRub: 2200,
-    estimatedTime: "180–240 минут",
-    color: "#8f7f6a",
-  },
-  {
-    id: "zone-6",
-    title: "Зона 6",
-    distanceLabel: "28–35 км от МКАД",
-    priceRub: 2700,
-    estimatedTime: "210–270 минут",
-    color: "#75695c",
+    text: "Приятный сервис и красивые розы — оформление выглядело по-настоящему премиально.",
+    createdAtDisplay: "15 июня 2026",
   },
 ];
 
@@ -407,101 +252,26 @@ function addCalendarDays(date: Date, days: number) {
   return nextDate;
 }
 
-function getDeliveryZoneByDistance(distanceFromMkadKm: number) {
-  if (distanceFromMkadKm <= 0) {
-    return deliveryZones[0];
-  }
-
-  const zoneIndex = Math.min(
-    Math.ceil(distanceFromMkadKm / 7),
-    deliveryZones.length - 1,
-  );
-
-  return deliveryZones[zoneIndex];
-}
-
-function detectDeliveryZone(address: string) {
-  const normalizedAddress = address.toLowerCase().replace(/ё/g, "е");
-  const distanceMatch =
-    normalizedAddress.match(/(?:мкад|mkad)[^\d]*(\d{1,2})/) ??
-    normalizedAddress.match(/(\d{1,2})\s*(?:км|km)[^\n]*(?:мкад|mkad)/);
-
-  if (distanceMatch?.[1]) {
-    return getDeliveryZoneByDistance(Number(distanceMatch[1]));
-  }
-
-  if (
-    normalizedAddress.includes("внутри мкад") ||
-    normalizedAddress.includes("москва") ||
-    normalizedAddress.includes("цао") ||
-    normalizedAddress.includes("сао") ||
-    normalizedAddress.includes("свао") ||
-    normalizedAddress.includes("вао") ||
-    normalizedAddress.includes("ювао") ||
-    normalizedAddress.includes("юао") ||
-    normalizedAddress.includes("юзао") ||
-    normalizedAddress.includes("зао") ||
-    normalizedAddress.includes("сзао")
-  ) {
-    return deliveryZones[0];
-  }
-
-  if (!normalizedAddress.trim()) {
-    return deliveryZones[0];
-  }
-
-  return deliveryZones[1];
-}
-
 const TELEGRAM_USERNAME = "borziy_Sadikhov";
 void TELEGRAM_USERNAME;
 const LOCAL_ORDERS_STORAGE_KEY = "bellaflore-dev-orders";
 const LOCAL_FAVORITES_STORAGE_KEY = "bellaflore-favorite-bouquets";
 const LOCAL_CART_STORAGE_KEY = "bellaflore-cart";
-const orderStatusLabels: Record<BellafloreOrderStatus, string> = {
-  NEW: "Заказ принят",
-  CONFIRMED: "Заказ подтверждён",
-  PREPARING: "Букет собирается",
-  COURIER_ASSIGNED: "Курьер назначен",
-  OUT_FOR_DELIVERY: "Курьер в пути",
-  DELIVERED: "Доставлен",
-  CANCELLED: "Отменён",
-};
 
-const customerOrderTimeline: {
-  status: BellafloreOrderStatus;
-  label: string;
-}[] = [
-  { status: "NEW", label: "Заказ принят" },
-  { status: "PREPARING", label: "Готовится букет" },
-  { status: "COURIER_ASSIGNED", label: "Передано курьеру" },
-  { status: "OUT_FOR_DELIVERY", label: "В пути" },
-  { status: "DELIVERED", label: "Доставлено" },
-];
-
-function getCustomerOrderTimelineIndex(status: BellafloreOrderStatus) {
-  if (status === "CONFIRMED") {
-    return 0;
+function resolveProfileCourierStatus(status: BellafloreOrderStatus): string {
+  if (status === "COURIER_ASSIGNED") {
+    return "Курьер назначен";
   }
 
-  const stepIndex = customerOrderTimeline.findIndex(
-    (step) => step.status === status,
-  );
+  if (status === "OUT_FOR_DELIVERY") {
+    return "Курьер в пути";
+  }
 
-  return stepIndex >= 0 ? stepIndex : 0;
-}
+  if (status === "DELIVERED") {
+    return "Доставлено";
+  }
 
-function formatCustomerOrderNumber(orderId: string) {
-  return orderId.startsWith("#") ? orderId : `#${orderId}`;
-}
-
-function getCustomerOrderNoteLine(order: BellafloreOrder, label: string) {
-  const prefix = `${label}:`;
-  const line = order.comment
-    .split("\n")
-    .find((commentLine) => commentLine.startsWith(prefix));
-
-  return line?.slice(prefix.length).trim() ?? "";
+  return "Курьер будет назначен";
 }
 
 function isCustomerCreatedOrder(order: BellafloreOrder) {
@@ -660,6 +430,14 @@ function writeStoredOrders(orders: BellafloreOrder[]) {
 }
 
 export default function Home() {
+  // ==================================================
+  // SECTION: STATE
+  // РАЗДЕЛ: Состояние
+  //
+  // Purpose (EN): React state for navigation, panels, cart, checkout, orders, reviews, and scroll behavior.
+  //
+  // Назначение (RU): React-состояние навигации, панелей, корзины, checkout, заказов, отзывов и скролла.
+  // ==================================================
   const [menuOpen, setMenuOpen] = useState(false);
   const [contactHubOpen, setContactHubOpen] = useState(false);
   const [favoriteBouquetIds, setFavoriteBouquetIds] = useState<string[]>([]);
@@ -668,13 +446,28 @@ export default function Home() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartRestored, setCartRestored] = useState(false);
   const [cartPanelOpen, setCartPanelOpen] = useState(false);
+  const [checkoutPanelOpen, setCheckoutPanelOpen] = useState(false);
   const [searchPanelOpen, setSearchPanelOpen] = useState(false);
   const [myOrderPanelOpen, setMyOrderPanelOpen] = useState(false);
-  const [showCheckoutOnly, setShowCheckoutOnly] = useState(false);
+  const [closingBottomNavPanel, setClosingBottomNavPanel] =
+    useState<BottomNavPanelId | null>(null);
+  const bottomNavCloseTimerRef = useRef<number | null>(null);
+  const [profileActiveSection, setProfileActiveSection] =
+    useState<ProfileHubSectionId | null>(null);
   const [showOrdersOnly, setShowOrdersOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [homeCatalogFocusNonce, setHomeCatalogFocusNonce] = useState(0);
+  const [homeCatalogCategoryId, setHomeCatalogCategoryId] = useState("all");
+  const [homeCatalogQuickFilterId, setHomeCatalogQuickFilterId] =
+    useState("popular");
   const [failedSearchImageIds, setFailedSearchImageIds] = useState<string[]>(
     [],
+  );
+  const [productExperienceId, setProductExperienceId] = useState<string | null>(
+    null,
+  );
+  const [productFailedImageIds, setProductFailedImageIds] = useState<Set<string>>(
+    () => new Set(),
   );
   const [checkoutForm, setCheckoutForm] = useState<CheckoutForm>({
     name: "",
@@ -697,12 +490,9 @@ export default function Home() {
   const [checkoutAvailabilityNow, setCheckoutAvailabilityNow] = useState(
     () => new Date(),
   );
-  const [checkoutSuccessMessage, setCheckoutSuccessMessage] = useState("");
-  const [checkoutValidationErrors, setCheckoutValidationErrors] = useState<
-    string[]
-  >([]);
-  const [confirmedOrders, setConfirmedOrders] =
-    useState<BellafloreOrder[]>(readStoredOrders);
+  const [checkoutOrderPayload, setCheckoutOrderPayload] =
+    useState<CheckoutOrderPayload | null>(null);
+  const [confirmedOrders, setConfirmedOrders] = useState<BellafloreOrder[]>([]);
   const [latestOrderId, setLatestOrderId] = useState("");
   const [bottomNavAction, setBottomNavAction] = useState("");
   const [scrolled, setScrolled] = useState(false);
@@ -710,6 +500,11 @@ export default function Home() {
   const lastTouchActionRef = useRef(0);
   const favoritesTouchedRef = useRef(false);
   const checkoutSubmitInProgressRef = useRef(false);
+  const [checkoutSubmitInProgress, setCheckoutSubmitInProgress] = useState(false);
+  const [checkoutSubmitError, setCheckoutSubmitError] = useState<string | null>(
+    null,
+  );
+  void checkoutOrderPayload;
 
   const syncStoredOrdersWithBackend = async () => {
     const storedOrders = readStoredOrders();
@@ -767,6 +562,16 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const restoreTimer = window.setTimeout(() => {
+      const storedOrders = readCheckoutOrders();
+      setConfirmedOrders(storedOrders);
+      setLatestOrderId(readLatestCheckoutOrderId(storedOrders));
+    }, 0);
+
+    return () => window.clearTimeout(restoreTimer);
+  }, []);
+
+  useEffect(() => {
     if (!favoritesRestored) {
       return;
     }
@@ -783,11 +588,20 @@ export default function Home() {
   }, [cartItems, cartRestored]);
 
   useEffect(() => {
+    return () => {
+      if (bottomNavCloseTimerRef.current !== null) {
+        window.clearTimeout(bottomNavCloseTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (
       !favoritesPanelOpen &&
       !cartPanelOpen &&
       !searchPanelOpen &&
-      !myOrderPanelOpen
+      !contactHubOpen &&
+      !closingBottomNavPanel
     ) {
       return;
     }
@@ -798,7 +612,13 @@ export default function Home() {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [cartPanelOpen, favoritesPanelOpen, myOrderPanelOpen, searchPanelOpen]);
+  }, [
+    cartPanelOpen,
+    closingBottomNavPanel,
+    contactHubOpen,
+    favoritesPanelOpen,
+    searchPanelOpen,
+  ]);
 
   useEffect(() => {
     const syncTimer = window.setTimeout(() => {
@@ -806,6 +626,31 @@ export default function Home() {
     }, 0);
 
     return () => window.clearTimeout(syncTimer);
+  }, []);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") {
+      return;
+    }
+
+    const logTapTarget = (event: TouchEvent) => {
+      const touch = event.changedTouches[0];
+      if (!touch) {
+        return;
+      }
+
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      console.info("[bellaflore-tap-debug]", {
+        x: touch.clientX,
+        y: touch.clientY,
+        tag: target?.tagName ?? null,
+        className: target instanceof HTMLElement ? target.className : null,
+        pointerEvents: target ? getComputedStyle(target).pointerEvents : null,
+      });
+    };
+
+    document.addEventListener("touchend", logTapTarget, { passive: true });
+    return () => document.removeEventListener("touchend", logTapTarget);
   }, []);
 
   useEffect(() => {
@@ -844,19 +689,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!showCheckoutOnly) {
-      return;
-    }
-
-    requestAnimationFrame(() => {
-      document
-        .getElementById("checkout")
-        ?.scrollIntoView({ block: "start", behavior: "auto" });
-    });
-  }, [showCheckoutOnly]);
-
-  useEffect(() => {
-    if (!showCheckoutOnly) {
+    const count = cartItems.reduce(
+      (total, cartItem) => total + cartItem.quantity,
+      0,
+    );
+    if (count === 0) {
       return;
     }
 
@@ -865,7 +702,7 @@ export default function Home() {
     }, 60 * 1000);
 
     return () => window.clearInterval(availabilityTimer);
-  }, [showCheckoutOnly]);
+  }, [cartItems]);
 
   useEffect(() => {
     if (!showOrdersOnly) {
@@ -879,20 +716,261 @@ export default function Home() {
     });
   }, [showOrdersOnly]);
 
+  // ==================================================
+  // SECTION: Bottom Nav Panel Handlers
+  // РАЗДЕЛ: Обработчики панелей нижней навигации
+  //
+  // Purpose (EN): Open/close/toggle bottom-nav panels (catalog, favorites, contact, my order) with animated transitions.
+  //
+  // Назначение (RU): Открытие/закрытие/переключение панелей bottom nav (каталог, избранное, контакты, мой заказ) с анимацией.
+  // ==================================================
   const closeMenu = () => setMenuOpen(false);
-  const closeContactHub = () => setContactHubOpen(false);
-  const closeFavoritesPanel = () => setFavoritesPanelOpen(false);
+
+  const clearBottomNavCloseTimer = () => {
+    if (bottomNavCloseTimerRef.current !== null) {
+      window.clearTimeout(bottomNavCloseTimerRef.current);
+      bottomNavCloseTimerRef.current = null;
+    }
+  };
+
+  const closeBottomNavPanelImmediate = (panel: BottomNavPanelId) => {
+    switch (panel) {
+      case "catalog":
+        setSearchPanelOpen(false);
+        setSearchQuery("");
+        break;
+      case "favorites":
+        setFavoritesPanelOpen(false);
+        break;
+      case "contact":
+        setContactHubOpen(false);
+        break;
+      case "myOrder":
+        setMyOrderPanelOpen(false);
+        break;
+    }
+  };
+
+  const closeAllBottomNavPanelsImmediate = () => {
+    clearBottomNavCloseTimer();
+    setClosingBottomNavPanel(null);
+    setSearchPanelOpen(false);
+    setSearchQuery("");
+    setFavoritesPanelOpen(false);
+    setContactHubOpen(false);
+    setMyOrderPanelOpen(false);
+    setCheckoutPanelOpen(false);
+  };
+
+  const getActiveBottomNavPanel = (): BottomNavPanelId | null => {
+    if (searchPanelOpen) {
+      return "catalog";
+    }
+
+    if (favoritesPanelOpen) {
+      return "favorites";
+    }
+
+    if (contactHubOpen) {
+      return "contact";
+    }
+
+    if (myOrderPanelOpen) {
+      return "myOrder";
+    }
+
+    return null;
+  };
+
+  const isBottomNavPanelVisible = (panel: BottomNavPanelId) => {
+    if (closingBottomNavPanel === panel) {
+      return true;
+    }
+
+    switch (panel) {
+      case "catalog":
+        return searchPanelOpen;
+      case "favorites":
+        return favoritesPanelOpen;
+      case "contact":
+        return contactHubOpen;
+      case "myOrder":
+        return myOrderPanelOpen;
+      default:
+        return false;
+    }
+  };
+
+  const closeBottomNavPanel = (
+    panel: BottomNavPanelId,
+    animated = true,
+  ) => {
+    const isOpen =
+      panel === "catalog"
+        ? searchPanelOpen
+        : panel === "favorites"
+          ? favoritesPanelOpen
+          : panel === "contact"
+            ? contactHubOpen
+            : myOrderPanelOpen;
+
+    if (!isOpen && closingBottomNavPanel !== panel) {
+      return;
+    }
+
+    if (!animated) {
+      clearBottomNavCloseTimer();
+      setClosingBottomNavPanel(null);
+      closeBottomNavPanelImmediate(panel);
+      return;
+    }
+
+    clearBottomNavCloseTimer();
+    setClosingBottomNavPanel(panel);
+    bottomNavCloseTimerRef.current = window.setTimeout(() => {
+      closeBottomNavPanelImmediate(panel);
+      setClosingBottomNavPanel((currentPanel) =>
+        currentPanel === panel ? null : currentPanel,
+      );
+      bottomNavCloseTimerRef.current = null;
+    }, BOTTOM_NAV_PANEL_CLOSE_MS);
+  };
+
+  const prepareMyOrderPanelData = () => {
+    const storedOrders = readCheckoutOrders();
+    setConfirmedOrders(storedOrders);
+    setLatestOrderId((currentOrderId) =>
+      currentOrderId || readLatestCheckoutOrderId(storedOrders),
+    );
+    setShowOrdersOnly(false);
+    return storedOrders;
+  };
+
+  const openBottomNavPanel = (panel: BottomNavPanelId) => {
+    clearBottomNavCloseTimer();
+    setClosingBottomNavPanel(null);
+    setCartPanelOpen(false);
+    setCheckoutPanelOpen(false);
+
+    if (panel !== "catalog" && searchPanelOpen) {
+      setSearchPanelOpen(false);
+      setSearchQuery("");
+    } else if (panel !== "catalog") {
+      setSearchPanelOpen(false);
+    }
+
+    if (panel !== "favorites") {
+      setFavoritesPanelOpen(false);
+    }
+
+    if (panel !== "contact") {
+      setContactHubOpen(false);
+    }
+
+    if (panel !== "myOrder") {
+      setMyOrderPanelOpen(false);
+    }
+
+    let storedOrders = readCheckoutOrders();
+
+    if (panel === "myOrder") {
+      storedOrders = prepareMyOrderPanelData();
+      setProfileActiveSection(null);
+    }
+
+    switch (panel) {
+      case "catalog":
+        setSearchPanelOpen(true);
+        break;
+      case "favorites":
+        setFavoritesPanelOpen(true);
+        break;
+      case "contact":
+        setContactHubOpen(true);
+        break;
+      case "myOrder":
+        setMyOrderPanelOpen(true);
+        break;
+    }
+
+    setBottomNavAction(
+      getBottomNavPanelOpenMessage(panel, {
+        favoriteCount: favoriteBouquetIds.length,
+        hasOrders: storedOrders.length > 0,
+      }),
+    );
+  };
+
+  const toggleBottomNavPanel = (panel: BottomNavPanelId) => {
+    const activePanel = getActiveBottomNavPanel();
+
+    if (activePanel === panel && closingBottomNavPanel !== panel) {
+      closeBottomNavPanel(panel, true);
+      setBottomNavAction(getBottomNavPanelClosedMessage(panel));
+      return;
+    }
+
+    if (closingBottomNavPanel === panel) {
+      return;
+    }
+
+    openBottomNavPanel(panel);
+  };
+
+  const goHomeFromBottomNav = () => {
+    setCartPanelOpen(false);
+    setCheckoutPanelOpen(false);
+    const activePanel = getActiveBottomNavPanel();
+
+    if (activePanel) {
+      closeBottomNavPanel(activePanel, true);
+    } else {
+      closeAllBottomNavPanelsImmediate();
+    }
+
+    setBottomNavAction("Главная");
+    requestAnimationFrame(() => {
+      document.getElementById("home")?.scrollIntoView({ behavior: "smooth" });
+    });
+  };
+
+  const closeContactHub = () => closeBottomNavPanel("contact", true);
+  const closeFavoritesPanel = () => closeBottomNavPanel("favorites", true);
   const closeCartPanel = () => setCartPanelOpen(false);
-  const closeSearchPanel = () => setSearchPanelOpen(false);
-  const closeMyOrderPanel = () => setMyOrderPanelOpen(false);
+  const closeCheckoutPanel = () => setCheckoutPanelOpen(false);
+  const closeSearchPanel = () => closeBottomNavPanel("catalog", true);
+  const closeMyOrderPanel = () => {
+    setProfileActiveSection(null);
+    closeBottomNavPanel("myOrder", true);
+  };
 
   const didHandleRecentTouch = (eventTimeStamp: number) =>
     eventTimeStamp - lastTouchActionRef.current < 450;
 
   const toggleContactHub = () => {
-    setBottomNavAction("");
-    setMyOrderPanelOpen(false);
-    setContactHubOpen((prev) => !prev);
+    toggleBottomNavPanel("contact");
+  };
+
+  const handleContactNavClick = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (didHandleRecentTouch(event.timeStamp)) {
+      return;
+    }
+
+    toggleContactHub();
+  };
+
+  const handleContactNavTouchEnd = (
+    event: ReactTouchEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    lastTouchActionRef.current = event.timeStamp;
+    toggleContactHub();
   };
 
   const toggleFavoriteBouquet = (bouquetId: string) => {
@@ -919,7 +997,7 @@ export default function Home() {
 
       if (nextIds.length === 0) {
         requestAnimationFrame(() => {
-          setFavoritesPanelOpen(false);
+          closeBottomNavPanel("favorites", true);
         });
       }
 
@@ -1004,9 +1082,51 @@ export default function Home() {
     (total, cartItem) => total + cartItem.bouquet.priceRub * cartItem.quantity,
     0,
   );
-  const selectedDeliveryZone = detectDeliveryZone(checkoutForm.address);
-  const checkoutGrandTotalPrice =
-    checkoutTotalPrice + selectedDeliveryZone.priceRub;
+  const realDeliveryZoneResult = useRealDeliveryZoneForCheckout(
+    checkoutForm.address,
+  );
+  const deliveryPriceResult = useMemo(
+    () => resolveDeliveryPriceFromZone(realDeliveryZoneResult),
+    [realDeliveryZoneResult],
+  );
+  const deliveryConfidenceResult = useMemo(
+    () =>
+      resolveDeliveryConfidence(
+        checkoutTotalPrice,
+        deliveryPriceResult,
+        undefined,
+        {
+          deliveryDate: checkoutForm.deliveryDate,
+          deliveryInterval: checkoutForm.deliveryTime,
+          now: checkoutAvailabilityNow,
+        },
+      ),
+    [
+      checkoutTotalPrice,
+      deliveryPriceResult,
+      checkoutForm.deliveryDate,
+      checkoutForm.deliveryTime,
+      checkoutAvailabilityNow,
+    ],
+  );
+  const checkoutGrandTotalPrice = calculateCheckoutGrandTotalWithConfidence(
+    checkoutTotalPrice,
+    deliveryPriceResult,
+    undefined,
+    {
+      deliveryDate: checkoutForm.deliveryDate,
+      deliveryInterval: checkoutForm.deliveryTime,
+      now: checkoutAvailabilityNow,
+    },
+  );
+  const deliveryValidationResult = useMemo(
+    () =>
+      resolveDeliveryValidationForCheckout(
+        checkoutForm.address,
+        realDeliveryZoneResult,
+      ),
+    [checkoutForm.address, realDeliveryZoneResult],
+  );
 
   const formatPrice = (priceRub: number) =>
     `${priceRub.toLocaleString("ru-RU")} ₽`;
@@ -1017,6 +1137,80 @@ export default function Home() {
   const latestOrder =
     customerOrders.find((order) => order.orderId === latestOrderId) ??
     customerOrders[customerOrders.length - 1];
+
+  const orderPassport = useMemo((): OrderPassportData | null => {
+    if (latestOrder) {
+      const primary = latestOrder.items[0];
+      const bouquetsTotal = latestOrder.items.reduce(
+        (sum, item) => sum + item.lineTotalRub,
+        0,
+      );
+      const paymentLabel =
+        paymentMethodLabels[
+          latestOrder.paymentMethod as keyof typeof paymentMethodLabels
+        ] ?? latestOrder.paymentMethod;
+
+      return {
+        recipientName: latestOrder.customerName,
+        phone: latestOrder.customerPhone,
+        address: latestOrder.deliveryAddress ?? "",
+        deliveryDate: latestOrder.deliveryDate ?? "",
+        deliveryTime: latestOrder.deliveryTime ?? "",
+        paymentMethod: paymentLabel,
+        bouquetName: primary
+          ? primary.quantity > 1
+            ? `${primary.bouquetName} ×${primary.quantity}`
+            : primary.bouquetName
+          : "",
+        productPriceRub: bouquetsTotal,
+        deliveryPriceRub: latestOrder.deliveryZonePriceRub ?? null,
+        totalRub: latestOrder.totalPriceRub,
+        orderStatus: getCustomerOrderStatusLabel(latestOrder),
+        courierStatus: resolveProfileCourierStatus(latestOrder.status),
+        hasConfirmedOrder: true,
+      };
+    }
+
+    if (cartItemCount > 0) {
+      const primary = cartBouquets[0];
+
+      return {
+        recipientName: checkoutForm.name,
+        phone: checkoutForm.phone,
+        address: checkoutForm.address,
+        deliveryDate: checkoutForm.deliveryDate,
+        deliveryTime: checkoutForm.deliveryTime,
+        paymentMethod: "",
+        bouquetName: primary
+          ? primary.quantity > 1
+            ? `${primary.bouquet.title} ×${primary.quantity}`
+            : primary.bouquet.title
+          : "",
+        productPriceRub: checkoutTotalPrice,
+        deliveryPriceRub: deliveryPriceResult.deliveryPriceRub ?? null,
+        totalRub: checkoutGrandTotalPrice,
+        orderStatus: "Оформление",
+        courierStatus: "Курьер будет назначен",
+        hasConfirmedOrder: false,
+      };
+    }
+
+    return null;
+  }, [
+    latestOrder,
+    cartItemCount,
+    cartBouquets,
+    checkoutForm.name,
+    checkoutForm.phone,
+    checkoutForm.address,
+    checkoutForm.deliveryDate,
+    checkoutForm.deliveryTime,
+    checkoutTotalPrice,
+    deliveryPriceResult.deliveryPriceRub,
+    checkoutGrandTotalPrice,
+  ]);
+
+  const hasDraftOrder = Boolean(latestOrder) || cartItemCount > 0;
 
   const checkoutNow = checkoutAvailabilityNow;
   const todayDateValue = formatDateInputValue(checkoutNow);
@@ -1033,12 +1227,22 @@ export default function Home() {
   );
 
   const normalizedSearchQuery = normalizeSearchText(searchQuery);
-  const searchResults = filterSearchResults(
+  const catalogSearch = runSmartCatalogSearch(
     bouquets,
     searchQuery,
     smartCatalogGroups,
   );
+  const searchResults = catalogSearch.products;
+  const searchCategoryResults = catalogSearch.categories;
 
+  // ==================================================
+  // SECTION: Cart Handlers
+  // РАЗДЕЛ: Обработчики корзины
+  //
+  // Purpose (EN): Add, remove, and adjust cart item quantities with touch-safe click handlers.
+  //
+  // Назначение (RU): Добавление, удаление и изменение количества позиций корзины с touch-safe обработчиками.
+  // ==================================================
   const addBouquetToCart = (bouquetId: string) => {
     setCartItems((currentItems) => {
       const existingItem = currentItems.find(
@@ -1186,19 +1390,6 @@ export default function Home() {
     increaseCartItemQuantity(bouquetId);
   };
 
-  const openFavoritesPanel = () => {
-    setContactHubOpen(false);
-    setCartPanelOpen(false);
-    setSearchPanelOpen(false);
-    setMyOrderPanelOpen(false);
-    setFavoritesPanelOpen(true);
-    setBottomNavAction(
-      favoriteBouquetIds.length > 0
-        ? "Открыто избранное"
-        : "Избранное пока пусто",
-    );
-  };
-
   const handleFavoritesNavClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
   ) => {
@@ -1212,7 +1403,7 @@ export default function Home() {
       return;
     }
 
-    openFavoritesPanel();
+    toggleBottomNavPanel("favorites");
   };
 
   const handleFavoritesNavTouchEnd = (
@@ -1221,14 +1412,11 @@ export default function Home() {
     event.preventDefault();
     event.stopPropagation();
     lastTouchActionRef.current = event.timeStamp;
-    openFavoritesPanel();
+    toggleBottomNavPanel("favorites");
   };
 
   const openCartPanel = () => {
-    setContactHubOpen(false);
-    setFavoritesPanelOpen(false);
-    setSearchPanelOpen(false);
-    setMyOrderPanelOpen(false);
+    closeAllBottomNavPanelsImmediate();
     setCartPanelOpen(true);
     setBottomNavAction(
       cartItemCount > 0 ? "Открыта корзина" : "Ваша корзина пока пуста",
@@ -1261,15 +1449,14 @@ export default function Home() {
   void handleCartNavClick;
   void handleCartNavTouchEnd;
 
-  const openSearchPanel = () => {
-    setContactHubOpen(false);
-    setFavoritesPanelOpen(false);
-    setCartPanelOpen(false);
-    setMyOrderPanelOpen(false);
-    setSearchPanelOpen(true);
-    setBottomNavAction("Открыт поиск букетов");
-  };
-
+  // ==================================================
+  // SECTION: Favorites & Catalog Search Handlers
+  // РАЗДЕЛ: Обработчики избранного и поиска каталога
+  //
+  // Purpose (EN): Toggle favorites, route buy actions to product PDP, and manage catalog search query.
+  //
+  // Назначение (RU): Переключение избранного, маршрутизация покупки на карточку товара и управление запросом каталога.
+  // ==================================================
   const handleSearchNavClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
   ) => {
@@ -1280,7 +1467,7 @@ export default function Home() {
       return;
     }
 
-    openSearchPanel();
+    toggleBottomNavPanel("catalog");
   };
 
   const handleSearchNavTouchEnd = (
@@ -1289,7 +1476,28 @@ export default function Home() {
     event.preventDefault();
     event.stopPropagation();
     lastTouchActionRef.current = event.timeStamp;
-    openSearchPanel();
+    toggleBottomNavPanel("catalog");
+  };
+
+  const handleHomeNavClick = (
+    event: ReactMouseEvent<HTMLAnchorElement>,
+  ) => {
+    event.preventDefault();
+
+    if (didHandleRecentTouch(event.timeStamp)) {
+      return;
+    }
+
+    goHomeFromBottomNav();
+  };
+
+  const handleHomeNavTouchEnd = (
+    event: ReactTouchEvent<HTMLAnchorElement>,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    lastTouchActionRef.current = event.timeStamp;
+    goHomeFromBottomNav();
   };
 
   const initializeCheckoutDeliveryDate = () => {
@@ -1315,18 +1523,21 @@ export default function Home() {
     }));
   };
 
-  const prepareFavoriteCheckout = (bouquetId: string) => {
-    setCartItems([{ bouquetId, quantity: 1 }]);
+  const openCheckoutPanel = () => {
     initializeCheckoutDeliveryDate();
-    setContactHubOpen(false);
-    setFavoritesPanelOpen(false);
+    closeAllBottomNavPanelsImmediate();
     setCartPanelOpen(false);
-    setSearchPanelOpen(false);
-    setMyOrderPanelOpen(false);
-    setShowCheckoutOnly(true);
     setShowOrdersOnly(false);
+    setCheckoutPanelOpen(true);
+    setBottomNavAction(
+      cartItemCount > 0 ? "Оформление заказа" : "Корзина пока пуста",
+    );
+  };
+
+  const prepareProductCheckout = (bouquetId: string) => {
+    setCartItems([{ bouquetId, quantity: 1 }]);
+    openCheckoutPanel();
     setBottomNavAction("Букет подготовлен к покупке");
-    window.setTimeout(scrollToCheckout, 0);
   };
 
   const handleFavoriteBuyClick = (
@@ -1339,7 +1550,7 @@ export default function Home() {
       return;
     }
 
-    prepareFavoriteCheckout(bouquetId);
+    routeToProductPurchase(bouquetId);
   };
 
   const handleFavoriteBuyTouchEnd = (
@@ -1348,7 +1559,7 @@ export default function Home() {
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    prepareFavoriteCheckout(bouquetId);
+    routeToProductPurchase(bouquetId);
   };
 
   const handleSearchBuyClick = (
@@ -1361,7 +1572,7 @@ export default function Home() {
       return;
     }
 
-    prepareFavoriteCheckout(bouquetId);
+    routeToProductPurchase(bouquetId);
   };
 
   const handleSearchBuyTouchEnd = (
@@ -1370,7 +1581,28 @@ export default function Home() {
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    prepareFavoriteCheckout(bouquetId);
+    routeToProductPurchase(bouquetId);
+  };
+
+  const scrollToHomeCatalog = () => {
+    setHomeCatalogFocusNonce((current) => current + 1);
+    setBottomNavAction("Каталог на главной");
+  };
+
+  const handleHeroBrowseCatalog = () => {
+    setHomeCatalogCategoryId("all");
+    setHomeCatalogQuickFilterId("popular");
+    scrollToHomeCatalog();
+  };
+
+  const handleHeroCategorySelect = (categoryId: string) => {
+    setHomeCatalogCategoryId(categoryId);
+    setHomeCatalogQuickFilterId("popular");
+    scrollToHomeCatalog();
+  };
+
+  const handleHeroSearchEntry = () => {
+    scrollToHomeCatalog();
   };
 
   const handleBouquetOrderClick = (
@@ -1383,7 +1615,7 @@ export default function Home() {
       return;
     }
 
-    prepareFavoriteCheckout(bouquetId);
+    prepareProductCheckout(bouquetId);
   };
 
   const handleBouquetOrderTouchEnd = (
@@ -1392,30 +1624,20 @@ export default function Home() {
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    prepareFavoriteCheckout(bouquetId);
+    prepareProductCheckout(bouquetId);
   };
 
-  const openMyOrderPanel = () => {
-    setContactHubOpen(false);
-    setFavoritesPanelOpen(false);
+  const openMyOrderAfterCheckout = (orderId: string) => {
+    closeAllBottomNavPanelsImmediate();
     setCartPanelOpen(false);
-    setSearchPanelOpen(false);
-    const storedOrders = readStoredOrders();
-    const storedCustomerOrders = storedOrders.filter(isCustomerCreatedOrder);
-    setConfirmedOrders((currentOrders) =>
-      storedOrders.length > 0 ? storedOrders : currentOrders,
-    );
-    setLatestOrderId((currentOrderId) =>
-      currentOrderId ||
-      storedCustomerOrders[storedCustomerOrders.length - 1]?.orderId ||
-      "",
-    );
+    setCheckoutPanelOpen(false);
+    setShowOrdersOnly(false);
+    setLatestOrderId(orderId);
+    writeLatestCheckoutOrderId(orderId);
+    prepareMyOrderPanelData();
+    setProfileActiveSection("myOrder");
     setMyOrderPanelOpen(true);
-    setBottomNavAction(
-      storedCustomerOrders.length > 0
-        ? "Показан мой заказ"
-        : "У вас пока нет заказов",
-    );
+    setBottomNavAction(CHECKOUT_ORDER_CREATED_STATUS);
   };
 
   const handleMyOrderNavClick = (
@@ -1428,7 +1650,7 @@ export default function Home() {
       return;
     }
 
-    openMyOrderPanel();
+    toggleBottomNavPanel("myOrder");
   };
 
   const handleMyOrderNavTouchEnd = (
@@ -1437,7 +1659,7 @@ export default function Home() {
     event.preventDefault();
     event.stopPropagation();
     lastTouchActionRef.current = event.timeStamp;
-    openMyOrderPanel();
+    toggleBottomNavPanel("myOrder");
   };
 
   const handleSearchQueryChange = (
@@ -1457,9 +1679,58 @@ export default function Home() {
     );
   };
 
+  const markProductImageFailed = (imageId: string) => {
+    setProductFailedImageIds((current) => {
+      if (current.has(imageId)) {
+        return current;
+      }
+
+      const next = new Set(current);
+      next.add(imageId);
+      return next;
+    });
+  };
+
+  const openProductExperience = (bouquetId: string) => {
+    setProductExperienceId(bouquetId);
+  };
+
+  const routeToProductPurchase = (
+    bouquetId: string,
+    options?: { openCatalog?: boolean },
+  ) => {
+    if (options?.openCatalog) {
+      openBottomNavPanel("catalog");
+    }
+
+    openProductExperience(bouquetId);
+    setBottomNavAction("Открыта карточка букета");
+  };
+
+  const closeProductExperience = () => {
+    setProductExperienceId(null);
+  };
+
+  const activeProductExperience = useMemo(
+    () => bouquets.find((item) => item.id === productExperienceId) ?? null,
+    [productExperienceId],
+  );
+
+  const productFailedImages = useMemo(() => {
+    const merged = new Set(productFailedImageIds);
+    failedSearchImageIds.forEach((id) => merged.add(id));
+    return merged;
+  }, [failedSearchImageIds, productFailedImageIds]);
+
+  const handleProductExperienceBuy = (productId: string, sizeId: ProductSizeId) => {
+    void sizeId;
+    prepareProductCheckout(productId);
+    closeProductExperience();
+  };
+
   const applySearchSuggestion = (suggestion: string) => {
     setSearchQuery(suggestion);
-    setBottomNavAction(`Поиск: ${suggestion}`);
+    setBottomNavAction(`Каталог: ${suggestion}`);
   };
 
   const handleSearchSuggestionClick = (
@@ -1484,76 +1755,25 @@ export default function Home() {
     applySearchSuggestion(suggestion);
   };
 
-  const scrollToCheckout = () => {
-    requestAnimationFrame(() => {
-      document
-        .getElementById("checkout")
-        ?.scrollIntoView({ block: "start", behavior: "auto" });
-    });
+  const handleCatalogOpenFavorites = () => {
+    openBottomNavPanel("favorites");
   };
 
+  const handleCatalogOpenMyOrder = () => {
+    openBottomNavPanel("myOrder");
+  };
+
+  // ==================================================
+  // SECTION: Checkout Handlers
+  // РАЗДЕЛ: Обработчики checkout
+  //
+  // Purpose (EN): Open checkout view, manage delivery date presets, validate payload, and confirm order submission.
+  //
+  // Назначение (RU): Открытие checkout, пресеты даты доставки, валидация payload и подтверждение отправки заказа.
+  // ==================================================
   const openCheckoutView = () => {
-    if (cartItemCount === 0) {
-      setShowCheckoutOnly(false);
-      setBottomNavAction("Корзина пока пуста");
-      return;
-    }
-
-    setContactHubOpen(false);
-    setFavoritesPanelOpen(false);
-    setCartPanelOpen(false);
-    setSearchPanelOpen(false);
-    setMyOrderPanelOpen(false);
-    initializeCheckoutDeliveryDate();
-    setShowCheckoutOnly(true);
-    setShowOrdersOnly(false);
-    setBottomNavAction("Оформление заказа");
-    scrollToCheckout();
-  };
-
-  const scrollToOrders = () => {
-    requestAnimationFrame(() => {
-      document
-        .getElementById("orders")
-        ?.scrollIntoView({ block: "start", behavior: "auto" });
-    });
-  };
-
-  const openOrdersView = () => {
-    setContactHubOpen(false);
-    setFavoritesPanelOpen(false);
-    setCartPanelOpen(false);
-    setSearchPanelOpen(false);
-    setMyOrderPanelOpen(false);
-    setShowCheckoutOnly(false);
-    setShowOrdersOnly(true);
-    const storedOrders = readStoredOrders();
-    setConfirmedOrders((currentOrders) =>
-      storedOrders.length > 0 ? storedOrders : currentOrders,
-    );
-    void syncStoredOrdersWithBackend();
-    setBottomNavAction("Показаны заказы");
-    scrollToOrders();
-  };
-
-  const handleOrdersClick = (
-    event: ReactMouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-
-    if (didHandleRecentTouch(event.timeStamp)) {
-      return;
-    }
-
-    openOrdersView();
-  };
-
-  const handleOrdersTouchEnd = (
-    event: ReactTouchEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
-    openOrdersView();
+    closeCartPanel();
+    openCheckoutPanel();
   };
 
   const handleCheckoutClick = (
@@ -1580,14 +1800,21 @@ export default function Home() {
     field: keyof CheckoutForm,
     value: CheckoutForm[keyof CheckoutForm],
   ) => {
+    setCheckoutSubmitError(null);
     setCheckoutForm((currentForm) => ({
       ...currentForm,
       [field]: value,
     }));
-    setCheckoutSuccessMessage("");
-    setCheckoutValidationErrors([]);
   };
 
+  // ==================================================
+  // SECTION: Review Handlers
+  // РАЗДЕЛ: Обработчики отзывов
+  //
+  // Purpose (EN): Review form field changes and local review submission with validation.
+  //
+  // Назначение (RU): Изменение полей формы отзыва и локальная отправка отзыва с валидацией.
+  // ==================================================
   const handleReviewFieldChange = (
     field: keyof ReviewForm,
     value: ReviewForm[keyof ReviewForm],
@@ -1656,8 +1883,6 @@ export default function Home() {
         deliveryTime: preset === "custom" ? "" : nextDeliveryTime,
       };
     });
-    setCheckoutSuccessMessage("");
-    setCheckoutValidationErrors([]);
   };
 
   const handleCustomDeliveryDateChange = (value: string) => {
@@ -1673,8 +1898,6 @@ export default function Home() {
           ? ""
           : currentForm.deliveryTime,
     }));
-    setCheckoutSuccessMessage("");
-    setCheckoutValidationErrors([]);
   };
 
   const confirmCheckoutOrder = async () => {
@@ -1682,131 +1905,90 @@ export default function Home() {
       return;
     }
 
-    const customerName = checkoutForm.name.trim();
-    const customerPhone = checkoutForm.phone.trim();
-    const validationErrors = checkoutRequiredFields
-      .filter(({ field }) => !checkoutForm[field].trim())
-      .map(({ message }) => message);
-
-    if (validationErrors.length > 0) {
-      setCheckoutValidationErrors(validationErrors);
-      setBottomNavAction("Заполните обязательные поля");
-      setCheckoutSuccessMessage("");
-      return;
-    }
-
-    const currentAvailableDeliveryIntervals = getAvailableDeliveryIntervals(
-      checkoutForm.deliveryDate.trim(),
-      new Date(),
-    );
-    const deliveryTimeAvailable = currentAvailableDeliveryIntervals.some(
-      (interval) => interval.label === checkoutForm.deliveryTime.trim(),
-    );
-
-    if (!deliveryTimeAvailable) {
-      setCheckoutForm((currentForm) => ({
-        ...currentForm,
-        deliveryTime: "",
-      }));
-      setCheckoutValidationErrors([
-        "Выберите доступный интервал доставки",
-      ]);
-      setBottomNavAction("Выберите доступный интервал");
-      setCheckoutSuccessMessage("");
-      return;
-    }
-
     if (cartItemCount === 0) {
-      setShowCheckoutOnly(false);
       setBottomNavAction("Корзина пока пуста");
-      setCheckoutSuccessMessage("");
+      return;
+    }
+
+    const payload = buildCheckoutOrderPayload(
+      checkoutForm,
+      cartBouquets,
+      checkoutAvailabilityNow,
+      deliveryPriceResult,
+      realDeliveryZoneResult,
+      deliveryValidationResult,
+      deliveryConfidenceResult,
+    );
+
+    if (!payload) {
+      if (!canSubmitCheckoutWithDeliveryValidation(deliveryValidationResult)) {
+        setCheckoutSubmitError(
+          getDeliveryValidationUnavailableMessage(deliveryValidationResult) ??
+            "Delivery address validation failed.",
+        );
+      } else if (!canSubmitCheckoutWithDeliveryPrice(deliveryPriceResult)) {
+        setCheckoutSubmitError(
+          getDeliveryPriceUnavailableMessage(deliveryPriceResult.status) ??
+            "Delivery is unavailable for this address.",
+        );
+      } else {
+        setBottomNavAction("Заполните обязательные поля");
+      }
       return;
     }
 
     checkoutSubmitInProgressRef.current = true;
+    setCheckoutSubmitInProgress(true);
+    setCheckoutSubmitError(null);
+
     try {
-      const storedOrders = readStoredOrders();
+      const storedOrders = readCheckoutOrders();
       const orderId = `BF-${1001 + storedOrders.length}`;
-      const createdAt = new Date();
-      const paymentMethod = paymentMethodLabels.cardTransfer;
-      const paymentStatus = "PENDING";
-      const deliveryComment = [
-        `Адрес доставки: ${checkoutForm.address.trim()}`,
-        `Зона доставки: ${selectedDeliveryZone.title} — ${selectedDeliveryZone.distanceLabel}`,
-        `Стоимость доставки: ${formatPrice(selectedDeliveryZone.priceRub)}`,
-        `Ожидаемое время доставки: ${selectedDeliveryZone.estimatedTime}`,
-        `Дата доставки: ${checkoutForm.deliveryDate.trim()}`,
-        `Время доставки: ${checkoutForm.deliveryTime.trim()}`,
-        checkoutForm.cardMessage.trim()
-          ? `Открытка: ${checkoutForm.cardMessage.trim()}`
-          : "",
-        checkoutForm.comment.trim()
-          ? `Комментарий: ${checkoutForm.comment.trim()}`
-          : "",
-      ]
-        .filter(Boolean)
-        .join("\n");
-      const order: BellafloreOrder = {
+      const telegramResult = await submitCheckoutOrderToTelegram({
         orderId,
-        customerName,
-        customerPhone,
-        comment: deliveryComment,
-        items: cartBouquets.map((cartItem) => ({
-          bouquetId: cartItem.bouquet.id,
-          bouquetName: cartItem.bouquet.title,
-          quantity: cartItem.quantity,
-          priceRub: cartItem.bouquet.priceRub,
-          lineTotalRub: cartItem.bouquet.priceRub * cartItem.quantity,
-        })),
+        payload,
         totalPriceRub: checkoutGrandTotalPrice,
-        paymentMethod,
-        paymentStatus,
-        paymentProofFileName: null,
-        deliveryZone: selectedDeliveryZone,
-        deliveryPriceRub: selectedDeliveryZone.priceRub,
-        deliveryEstimatedTime: selectedDeliveryZone.estimatedTime,
-        deliveryAddress: checkoutForm.address.trim(),
-        deliveryDate: checkoutForm.deliveryDate.trim(),
-        deliveryTime: checkoutForm.deliveryTime.trim(),
-        checkoutSource: "bellaflore_checkout",
-        telegramNotification: {
-          template: "new_order",
-          deliveryZone: selectedDeliveryZone,
-          deliveryPriceRub: selectedDeliveryZone.priceRub,
-          deliveryEstimatedTime: selectedDeliveryZone.estimatedTime,
-        },
-        status: "NEW",
-        createdAt: createdAt.toISOString(),
-        createdAtDisplay: createdAt.toLocaleString("ru-RU"),
-      };
+        cardMessage: checkoutForm.cardMessage,
+      });
+
+      if (!telegramResult.ok) {
+        setCheckoutSubmitError(telegramResult.message);
+        return;
+      }
+
+      setCheckoutOrderPayload(payload);
+
+      const order = buildCheckoutStoredOrder({
+        orderId,
+        payload,
+        totalPriceRub: checkoutGrandTotalPrice,
+        cardMessage: checkoutForm.cardMessage,
+        paymentMethodLabel: paymentMethodLabels.cardTransfer,
+      });
       const nextOrders = [...storedOrders, order];
 
       setConfirmedOrders(nextOrders);
-      try {
-        window.localStorage.setItem(
-          LOCAL_ORDERS_STORAGE_KEY,
-          JSON.stringify(nextOrders),
-        );
-      } catch {
-        // localStorage is development-only; local React state already has the order.
-      }
-
-      const backendResult = await postOrderToBackend({
-        order_id: order.orderId,
-        customer_name: order.customerName,
-        customer_phone: order.customerPhone,
-        comment: order.comment,
-        items: order.items,
-        total_price: order.totalPriceRub,
-        payment_method: order.paymentMethod,
-        payment_status: order.paymentStatus,
-        payment_proof_file_name: order.paymentProofFileName,
-        order_status: order.status,
-        created_at: order.createdAt,
+      writeCheckoutOrders(nextOrders);
+      const logisticsOrder = createAndSaveLogisticsOrderFromCheckout({
+        orderId,
+        payload,
+        totalPriceRub: checkoutGrandTotalPrice,
+        deliveryConfidenceResult,
       });
-
+      bootstrapCrmFromLogisticsAndLifecycle(
+        logisticsOrder,
+        createOrderLifecycle(logisticsOrder),
+      );
+      persistOrderIntelligenceFromCheckout({
+        orderId,
+        payload,
+        totalPriceRub: checkoutGrandTotalPrice,
+        cardMessage: checkoutForm.cardMessage,
+        paymentMethodLabel: paymentMethodLabels.cardTransfer,
+      });
+      createAndSaveOrderLifecycleFromLogisticsOrder(logisticsOrder);
+      writeLatestCheckoutOrderId(orderId);
       setLatestOrderId(orderId);
-      setCheckoutSuccessMessage("");
       setCartItems([]);
       setCheckoutForm({
         name: "",
@@ -1818,17 +2000,10 @@ export default function Home() {
         comment: "",
       });
       setDeliveryDateMode("today");
-      setCheckoutValidationErrors([]);
-      setShowCheckoutOnly(false);
-      setShowOrdersOnly(true);
-      setBottomNavAction(
-        backendResult.ok
-          ? "Заказ принят"
-          : `Заказ сохранён локально. ${backendResult.reason}`,
-      );
-      scrollToOrders();
+      openMyOrderAfterCheckout(orderId);
     } finally {
       checkoutSubmitInProgressRef.current = false;
+      setCheckoutSubmitInProgress(false);
     }
   };
 
@@ -1853,38 +2028,67 @@ export default function Home() {
     void confirmCheckoutOrder();
   };
 
-  const renderMyOrderEmptyState = () => (
-    <MyOrderEmptyState onCloseMyOrderPanel={closeMyOrderPanel} />
+  const renderCheckoutSection = () => (
+    <CheckoutSection
+      embedded
+      checkoutForm={checkoutForm}
+      deliveryDateMode={deliveryDateMode}
+      todayDateValue={todayDateValue}
+      availableDeliveryIntervals={availableDeliveryIntervals}
+      cartBouquets={cartBouquets}
+      checkoutTotalPrice={checkoutTotalPrice}
+      checkoutGrandTotalPrice={checkoutGrandTotalPrice}
+      checkoutValidationNow={checkoutAvailabilityNow}
+      cartItemCount={cartItemCount}
+      formatPrice={formatPrice}
+      handleCheckoutFieldChange={handleCheckoutFieldChange}
+      selectDeliveryDatePreset={selectDeliveryDatePreset}
+      handleCustomDeliveryDateChange={handleCustomDeliveryDateChange}
+      handleConfirmOrderClick={handleConfirmOrderClick}
+      handleConfirmOrderTouchEnd={handleConfirmOrderTouchEnd}
+      checkoutSubmitInProgress={checkoutSubmitInProgress}
+      checkoutSubmitError={checkoutSubmitError}
+      realDeliveryZoneResult={realDeliveryZoneResult}
+      deliveryPriceResult={deliveryPriceResult}
+      deliveryConfidenceResult={deliveryConfidenceResult}
+      deliveryValidationResult={deliveryValidationResult}
+    />
   );
 
-  const renderMyOrderCard = (order: BellafloreOrder) => {
-    const primaryOrderItem = order.items[0];
-    const activeTimelineIndex = getCustomerOrderTimelineIndex(order.status);
-    const cardMessage = getCustomerOrderNoteLine(order, "Открытка");
-    const customerComment = getCustomerOrderNoteLine(order, "Комментарий");
-
-    return (
-      <MyOrderCard
-        orderId={order.orderId}
-        statusLabel={orderStatusLabels[order.status]}
-        customerName={order.customerName}
-        customerPhone={order.customerPhone}
-        deliveryAddress={order.deliveryAddress}
-        deliveryDate={order.deliveryDate}
-        deliveryTime={order.deliveryTime}
-        cardMessage={cardMessage}
-        customerComment={customerComment}
-        primaryOrderItem={primaryOrderItem}
-        activeTimelineIndex={activeTimelineIndex}
-        customerOrderTimeline={customerOrderTimeline}
-        formatCustomerOrderNumber={formatCustomerOrderNumber}
-        formatPrice={formatPrice}
-      />
-    );
-  };
+  const renderMyOrderHub = () => (
+    <MyOrderHub
+      passport={orderPassport}
+      hasDraftOrder={hasDraftOrder}
+      favoritesCount={favoriteBouquetIds.length}
+      activeSection={profileActiveSection}
+      onActiveSectionChange={setProfileActiveSection}
+      onClose={closeMyOrderPanel}
+      onOpenCatalog={() => {
+        closeMyOrderPanel();
+        openBottomNavPanel("catalog");
+      }}
+      onOpenFavorites={() => {
+        closeMyOrderPanel();
+        openBottomNavPanel("favorites");
+      }}
+      onOpenContact={() => {
+        closeMyOrderPanel();
+        openBottomNavPanel("contact");
+      }}
+      formatPrice={formatPrice}
+    />
+  );
 
   return (
     <>
+      {/* ==================================================
+          SECTION: Navbar
+          РАЗДЕЛ: Навбар
+
+          Purpose (EN): Top navigation bar with scroll state and mobile menu toggle.
+
+          Назначение (RU): Верхняя навигация со состоянием скролла и переключателем мобильного меню.
+          ================================================== */}
       <Navbar
         navigationItems={navigationItems}
         scrolled={scrolled}
@@ -1893,7 +2097,19 @@ export default function Home() {
         onCloseMenu={closeMenu}
       />
 
-      <HeroSection />
+      {/* ==================================================
+          SECTION: Hero
+          РАЗДЕЛ: Hero-секция
+
+          Purpose (EN): Full-viewport hero with brand imagery and primary call-to-action.
+
+          Назначение (RU): Hero на весь экран с брендовым изображением и основным призывом к действию.
+          ================================================== */}
+      <HeroSection
+        onBrowseCatalog={handleHeroBrowseCatalog}
+        onCategorySelect={handleHeroCategorySelect}
+        onSearchEntryClick={handleHeroSearchEntry}
+      />
 
       <CollectionsSection
         bouquets={bouquets}
@@ -1903,21 +2119,48 @@ export default function Home() {
         handleFavoriteTouchEnd={handleFavoriteTouchEnd}
         handleBouquetOrderClick={handleBouquetOrderClick}
         handleBouquetOrderTouchEnd={handleBouquetOrderTouchEnd}
+        catalogFocusNonce={homeCatalogFocusNonce}
+        initialCategoryId={homeCatalogCategoryId}
+        initialQuickFilterId={homeCatalogQuickFilterId}
       />
 
-      {favoritesPanelOpen && (
-        <FavoritesPanel
-          favoriteBouquetIds={favoriteBouquetIds}
-          favoriteBouquets={favoriteBouquets}
-          formatPrice={formatPrice}
-          onCloseFavoritesPanel={closeFavoritesPanel}
-          handleFavoriteRemoveClick={handleFavoriteRemoveClick}
-          handleFavoriteRemoveTouchEnd={handleFavoriteRemoveTouchEnd}
-          handleFavoriteBuyClick={handleFavoriteBuyClick}
-          handleFavoriteBuyTouchEnd={handleFavoriteBuyTouchEnd}
-        />
+      {/* ==================================================
+          SECTION: Favorites Panel
+          РАЗДЕЛ: Панель избранного
+
+          Purpose (EN): Bottom-nav favorites overlay — saved bouquets with buy and remove actions.
+
+          Назначение (RU): Оверлей избранного bottom nav — сохранённые букеты с покупкой и удалением.
+          ================================================== */}
+      {isBottomNavPanelVisible("favorites") && (
+        <div
+          className={
+            closingBottomNavPanel === "favorites"
+              ? "bottom-nav-panel-host-closing"
+              : undefined
+          }
+        >
+          <FavoritesPanel
+            favoriteBouquetIds={favoriteBouquetIds}
+            favoriteBouquets={favoriteBouquets}
+            formatPrice={formatPrice}
+            onCloseFavoritesPanel={closeFavoritesPanel}
+            handleFavoriteRemoveClick={handleFavoriteRemoveClick}
+            handleFavoriteRemoveTouchEnd={handleFavoriteRemoveTouchEnd}
+            handleFavoriteBuyClick={handleFavoriteBuyClick}
+            handleFavoriteBuyTouchEnd={handleFavoriteBuyTouchEnd}
+          />
+        </div>
       )}
 
+      {/* ==================================================
+          SECTION: Cart Panel
+          РАЗДЕЛ: Панель корзины
+
+          Purpose (EN): Cart overlay — line items, quantity controls, and proceed-to-checkout action.
+
+          Назначение (RU): Оверлей корзины — позиции, управление количеством и переход к checkout.
+          ================================================== */}
       {cartPanelOpen && (
         <CartPanel
           cartBouquets={cartBouquets}
@@ -1936,73 +2179,130 @@ export default function Home() {
         />
       )}
 
-      {myOrderPanelOpen && (
-        <MyOrderPanel closeMyOrderPanel={closeMyOrderPanel}>
-          {latestOrder
-            ? renderMyOrderCard(latestOrder)
-            : renderMyOrderEmptyState()}
-        </MyOrderPanel>
+      {checkoutPanelOpen && (
+        <CheckoutPanel closeCheckoutPanel={closeCheckoutPanel}>
+          {renderCheckoutSection()}
+        </CheckoutPanel>
       )}
 
-      {showCheckoutOnly && (
-        <CheckoutSection
-          checkoutForm={checkoutForm}
-          deliveryZones={deliveryZones}
-          selectedDeliveryZone={selectedDeliveryZone}
-          deliveryDateMode={deliveryDateMode}
-          todayDateValue={todayDateValue}
-          availableDeliveryIntervals={availableDeliveryIntervals}
-          cartBouquets={cartBouquets}
-          checkoutTotalPrice={checkoutTotalPrice}
-          checkoutGrandTotalPrice={checkoutGrandTotalPrice}
-          checkoutValidationErrors={checkoutValidationErrors}
-          checkoutSuccessMessage={checkoutSuccessMessage}
-          cartItemCount={cartItemCount}
-          formatPrice={formatPrice}
-          handleCheckoutFieldChange={handleCheckoutFieldChange}
-          selectDeliveryDatePreset={selectDeliveryDatePreset}
-          handleCustomDeliveryDateChange={handleCustomDeliveryDateChange}
-          handleOrdersClick={handleOrdersClick}
-          handleOrdersTouchEnd={handleOrdersTouchEnd}
-          handleConfirmOrderClick={handleConfirmOrderClick}
-          handleConfirmOrderTouchEnd={handleConfirmOrderTouchEnd}
-        />
+      {/* ==================================================
+          SECTION: My Order Panel
+          РАЗДЕЛ: Панель «Мой заказ»
+
+          Purpose (EN): Bottom-nav my-order overlay — latest order card or empty state.
+
+          Назначение (RU): Оверлей «Мой заказ» bottom nav — карточка последнего заказа или пустое состояние.
+          ================================================== */}
+      {isBottomNavPanelVisible("myOrder") && (
+        <div
+          className={
+            closingBottomNavPanel === "myOrder"
+              ? "bottom-nav-panel-host-closing"
+              : undefined
+          }
+        >
+          <MyOrderPanel closeMyOrderPanel={closeMyOrderPanel}>
+            {renderMyOrderHub()}
+          </MyOrderPanel>
+        </div>
       )}
 
+      {/* ==================================================
+          SECTION: Orders
+          РАЗДЕЛ: Заказы
+
+          Purpose (EN): Full-page orders section showing the latest customer order.
+
+          Назначение (RU): Полноэкранная секция заказов с последним заказом клиента.
+          ================================================== */}
       {showOrdersOnly && (
         <OrdersSection>
-          {latestOrder
-            ? renderMyOrderCard(latestOrder)
-            : renderMyOrderEmptyState()}
+          {renderMyOrderHub()}
         </OrdersSection>
       )}
 
-      {searchPanelOpen && (
-        <SearchPanel
-          searchQuery={searchQuery}
-          smartCatalogGroups={smartCatalogGroups}
-          normalizedSearchQuery={normalizedSearchQuery}
-          searchResults={searchResults}
-          favoriteBouquetIds={favoriteBouquetIds}
-          failedSearchImageIds={failedSearchImageIds}
-          formatPrice={formatPrice}
-          closeSearchPanel={closeSearchPanel}
-          handleSearchQueryChange={handleSearchQueryChange}
-          clearSearchQuery={clearSearchQuery}
-          handleSearchSuggestionClick={handleSearchSuggestionClick}
-          handleSearchSuggestionTouchEnd={handleSearchSuggestionTouchEnd}
-          markSearchImageFailed={markSearchImageFailed}
-          handleFavoriteClick={handleFavoriteClick}
-          handleFavoriteTouchEnd={handleFavoriteTouchEnd}
-          handleSearchBuyClick={handleSearchBuyClick}
-          handleSearchBuyTouchEnd={handleSearchBuyTouchEnd}
-        />
+      {/* ==================================================
+          SECTION: Catalog Panel
+          РАЗДЕЛ: Панель каталога
+
+          Purpose (EN): Smart search catalog overlay — query, filters, category results, and buy actions.
+
+          Назначение (RU): Оверлей каталога с умным поиском — запрос, фильтры, категории и покупка.
+          ================================================== */}
+      {isBottomNavPanelVisible("catalog") && (
+        <div
+          className={
+            closingBottomNavPanel === "catalog"
+              ? "bottom-nav-panel-host-closing"
+              : undefined
+          }
+        >
+          <CatalogPanel
+            searchQuery={searchQuery}
+            normalizedSearchQuery={normalizedSearchQuery}
+            searchResults={searchResults}
+            searchCategoryResults={searchCategoryResults}
+            favoriteBouquetIds={favoriteBouquetIds}
+            failedSearchImageIds={failedSearchImageIds}
+            formatPrice={formatPrice}
+            onClose={closeSearchPanel}
+            onOpenFavorites={handleCatalogOpenFavorites}
+            onOpenMyOrder={handleCatalogOpenMyOrder}
+            onSearchQueryChange={handleSearchQueryChange}
+            onClearSearch={clearSearchQuery}
+            onFilterClick={handleSearchSuggestionClick}
+            onFilterTouchEnd={handleSearchSuggestionTouchEnd}
+            markSearchImageFailed={markSearchImageFailed}
+            onBuyClick={handleSearchBuyClick}
+            onBuyTouchEnd={handleSearchBuyTouchEnd}
+            onFavoriteClick={handleFavoriteClick}
+            onFavoriteTouchEnd={handleFavoriteTouchEnd}
+            onProductOpen={openProductExperience}
+            smartSearchEmptyState={catalogSearch.emptyState}
+            smartResultByProductId={catalogSearch.smartResultByProductId}
+            onSearchSuggestionSelect={applySearchSuggestion}
+            allBouquets={bouquets}
+          />
+        </div>
       )}
+
+      {activeProductExperience ? (
+        <ProductExperiencePage
+          key={activeProductExperience.id}
+          product={activeProductExperience}
+          allProducts={bouquets}
+          formatPrice={formatPrice}
+          isFavorite={favoriteBouquetIds.includes(activeProductExperience.id)}
+          favoriteProductIds={favoriteBouquetIds}
+          failedImageIds={productFailedImages}
+          deliveryAddress={checkoutForm.address}
+          zoneResult={realDeliveryZoneResult}
+          deliveryDate={checkoutForm.deliveryDate}
+          deliveryTime={checkoutForm.deliveryTime}
+          nearestFromConfidence={
+            deliveryConfidenceResult.nearestAvailableInterval
+          }
+          checkoutNow={checkoutAvailabilityNow}
+          onClose={closeProductExperience}
+          onBuy={handleProductExperienceBuy}
+          onToggleFavorite={toggleFavoriteBouquet}
+          onProductSelect={openProductExperience}
+          onImageError={markProductImageFailed}
+        />
+      ) : null}
 
       <DeliverySection />
 
       <AboutSection />
 
+      {/* ==================================================
+          SECTION: Reviews
+          РАЗДЕЛ: Отзывы
+
+          Purpose (EN): Customer reviews list, rating summary, and local review submission form.
+
+          Назначение (RU): Список отзывов клиентов, сводка рейтинга и форма локальной отправки отзыва.
+          ================================================== */}
       <ReviewsSection
         averageReviewRating={averageReviewRating}
         averageReviewRatingLabel={averageReviewRatingLabel}
@@ -2017,6 +2317,14 @@ export default function Home() {
 
       <ContactSection />
 
+      {/* ==================================================
+          SECTION: Mobile Bottom Nav
+          РАЗДЕЛ: Мобильная нижняя навигация
+
+          Purpose (EN): Fixed mobile bottom bar — catalog, favorites, contact, my order, and home shortcuts.
+
+          Назначение (RU): Фиксированная нижняя панель mobile — каталог, избранное, контакты, мой заказ и главная.
+          ================================================== */}
       <MobileBottomNav
         bottomNavCompact={bottomNavCompact}
         bottomNavAction={bottomNavAction}
@@ -2027,15 +2335,34 @@ export default function Home() {
         favoriteBouquetIds={favoriteBouquetIds}
         handleSearchNavClick={handleSearchNavClick}
         handleSearchNavTouchEnd={handleSearchNavTouchEnd}
-        toggleContactHub={toggleContactHub}
+        handleContactNavClick={handleContactNavClick}
+        handleContactNavTouchEnd={handleContactNavTouchEnd}
         handleFavoritesNavClick={handleFavoritesNavClick}
         handleFavoritesNavTouchEnd={handleFavoritesNavTouchEnd}
         handleMyOrderNavClick={handleMyOrderNavClick}
         handleMyOrderNavTouchEnd={handleMyOrderNavTouchEnd}
+        handleHomeNavClick={handleHomeNavClick}
+        handleHomeNavTouchEnd={handleHomeNavTouchEnd}
       />
 
-      {contactHubOpen && (
-        <ContactQuickActions closeContactHub={closeContactHub} />
+      {/* ==================================================
+          SECTION: Contact Hub
+          РАЗДЕЛ: Contact Hub
+
+          Purpose (EN): Bottom-nav contact overlay — quick actions for phone, Telegram, and messaging.
+
+          Назначение (RU): Оверлей контактов bottom nav — быстрые действия: телефон, Telegram и мессенджеры.
+          ================================================== */}
+      {isBottomNavPanelVisible("contact") && (
+        <div
+          className={
+            closingBottomNavPanel === "contact"
+              ? "bottom-nav-panel-host-closing"
+              : undefined
+          }
+        >
+          <ContactQuickActions closeContactHub={closeContactHub} />
+        </div>
       )}
     </>
   );
