@@ -6,7 +6,10 @@ export const CATALOG_DB_SETUP_HINT = [
 ].join("\n");
 
 export function getDatabaseUrl(): string | null {
-  const url = process.env.DATABASE_URL?.trim() || process.env.POSTGRES_URL?.trim();
+  const url =
+    process.env.DATABASE_URL?.trim() ||
+    process.env.POSTGRES_URL?.trim() ||
+    process.env.POSTGRES_PRISMA_URL?.trim();
   return url || null;
 }
 
