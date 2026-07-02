@@ -44,6 +44,11 @@ export function findPublicStorefrontProduct(
 }
 
 export function getPublicStorefrontProductUrl(product: CatalogProduct): string {
+  const slug = product.slug?.trim();
+  if (slug) {
+    return `https://www.bellaflore.ru/catalog/${encodeURIComponent(slug)}`;
+  }
+
   if (typeof window === "undefined") {
     return `https://www.bellaflore.ru/?product=${encodeURIComponent(product.id)}`;
   }

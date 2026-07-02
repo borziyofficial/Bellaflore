@@ -19,6 +19,7 @@ import type {
 } from "@/components/adminCatalogManager/adminCatalogTypes";
 import { isGarbageProductTitle } from "@/components/adminCatalogManager/mockAiHintUtils";
 import { repairAdminFormFromTitleIfNeeded } from "@/components/adminCatalogManager/repairAdminFormSeo";
+import { slugifyCatalogProductTitle } from "@/lib/catalogProductSlug";
 
 const SIZE_IDS: CatalogProductSizeId[] = ["S", "M", "L", "XL"];
 
@@ -27,12 +28,7 @@ export function slugifyProductTitle(value: string): string {
     return "";
   }
 
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/ё/g, "е")
-    .replace(/[^a-z0-9а-я]+/gi, "-")
-    .replace(/(^-|-$)/g, "");
+  return slugifyCatalogProductTitle(value);
 }
 
 export function createAdminProductId(): string {

@@ -144,7 +144,7 @@ export async function postgresGetCatalogProductBySlug(
   const rows = await sql<CatalogRow[]>`
     SELECT *
     FROM catalog_products
-    WHERE slug = ${slug} OR seo_slug = ${slug}
+    WHERE slug = ${slug} OR seo_slug = ${slug} OR id = ${slug}
     LIMIT 1
   `;
   return rows[0] ? rowToProduct(rows[0]) : null;

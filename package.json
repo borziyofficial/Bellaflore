@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:migrate": "node scripts/migrate-catalog-db.mjs",
     "maps:env": "node scripts/setup-yandex-vercel-env.mjs",
-    "catalog:repair-seo": "node scripts/repair-catalog-seo.mjs"
+    "catalog:repair-seo": "node scripts/repair-catalog-seo.mjs",
+    "catalog:migrate-slugs": "node scripts/migrate-catalog-slugs-latin.mjs"
   },
   "dependencies": {
     "@vercel/blob": "^2.5.0",

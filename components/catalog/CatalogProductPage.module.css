@@ -1,0 +1,149 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 42%),
+    #120f0d;
+  color: #f7f1e8;
+  padding: 24px 20px 48px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1120px;
+  margin: 0 auto 32px;
+}
+
+.brand {
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e8c872;
+  text-decoration: none;
+}
+
+.backLink {
+  color: #d8ccb8;
+  text-decoration: none;
+}
+
+.layout {
+  display: grid;
+  gap: 32px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(320px, 460px) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.media {
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(232, 200, 114, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.details {
+  display: grid;
+  gap: 18px;
+}
+
+.category {
+  margin: 0;
+  color: #c9b27a;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+}
+
+.lead {
+  margin: 0;
+  color: #d8ccb8;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.price,
+.sizeItem strong {
+  color: #f3df9d;
+  font-size: 1.35rem;
+}
+
+.sizes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.sizeItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(232, 200, 114, 0.12);
+}
+
+.section {
+  display: grid;
+  gap: 8px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #e8c872;
+}
+
+.section p {
+  margin: 0;
+  color: #d8ccb8;
+  line-height: 1.6;
+}
+
+.actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d4af37, #f3df9d);
+  color: #1a140f;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.deliveryHint {
+  margin: 0;
+  color: #b9aa92;
+  font-size: 0.95rem;
+}

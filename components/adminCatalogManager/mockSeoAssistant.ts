@@ -10,15 +10,7 @@ import {
   calculateSeoScore,
 } from "@/components/adminCatalogManager/seoScoreEngine";
 import { CATALOG_CATEGORY_BY_ID } from "@/components/catalogEngine/categoriesCatalog";
-
-function slugify(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/ё/g, "е")
-    .replace(/[^a-z0-9а-я]+/gi, "-")
-    .replace(/(^-|-$)/g, "");
-}
+import { slugifyCatalogProductTitle } from "@/lib/catalogProductSlug";
 
 export function generateMockSeoSuggestions(
   product: MockAiSuggestion,
@@ -28,7 +20,7 @@ export function generateMockSeoSuggestions(
     : product.title.trim();
   const categoryTitle =
     CATALOG_CATEGORY_BY_ID[product.categoryId]?.title ?? "Букеты";
-  const seoSlug = slugify(productTitle);
+  const seoSlug = slugifyCatalogProductTitle(productTitle);
   const seoTitle = `${productTitle} — купить ${categoryTitle.toLowerCase()} с доставкой | Bellaflore`;
   const seoDescription = `${product.shortDescription}. Доставка по Москве сегодня. Премиальные букеты Bellaflore — подарок на любой повод.`;
   const seoH1 = `Букет «${productTitle}»`;

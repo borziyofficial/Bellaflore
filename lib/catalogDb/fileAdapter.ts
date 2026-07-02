@@ -46,7 +46,10 @@ export async function fileGetCatalogProductBySlug(
   const products = await ensureDataFile();
   return (
     products.find(
-      (product) => product.slug === slug || product.seoSlug === slug,
+      (product) =>
+        product.slug === slug ||
+        product.seoSlug === slug ||
+        product.id === slug,
     ) ?? null
   );
 }

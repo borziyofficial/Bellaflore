@@ -1,7 +1,6 @@
 import {
   CatalogDatabaseNotConfiguredError,
   getCatalogDatabaseMode,
-  getCatalogProductBySlug,
   listCatalogProducts,
   listPublishedCatalogProducts,
 } from "@/lib/catalogDb";
@@ -9,6 +8,7 @@ import {
   storedProductToCatalogRecord,
   storedProductToLegacyCatalogProduct,
 } from "@/lib/catalogDb/mappers";
+import { resolvePublishedCatalogProduct } from "@/lib/catalogDb/resolvePublishedCatalogProduct";
 
 export const runtime = "nodejs";
 
@@ -47,13 +47,5 @@ export async function GET(request: Request) {
 }
 
 export async function resolvePublicCatalogProductBySlug(slug: string) {
-  const product = await getCatalogProductBySlug(slug);
-  if (!product || product.status !== "published") {
-    return null;
-  }
-
-  return {
-    product: storedProductToLegacyCatalogProduct(product),
-    record: storedProductToCatalogRecord(product),
-  };
+  return resolvePublishedCatalogProduct(slug);
 }
