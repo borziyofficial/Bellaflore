@@ -87,7 +87,7 @@ body {
 }
 
 #home,
-#collections,
+#catalog,
 #delivery,
 #about,
 #contact {
@@ -932,6 +932,28 @@ button {
   line-height: 1.2;
 }
 
+.favorites-size-picker {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--champagne-text, #2f2a24);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.favorites-size-picker span:first-child,
+.favorites-size-picker strong {
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .favorites-panel-card-actions {
   display: flex;
   align-items: center;
@@ -1549,32 +1571,9 @@ button {
   backdrop-filter: var(--glass-blur);
 }
 
-.checkout-section-accordion {
-  padding-bottom: calc(112px + env(safe-area-inset-bottom));
-}
-
-.checkout-section-accordion .checkout-shell {
-  padding-bottom: calc(92px + env(safe-area-inset-bottom));
-}
-
-.checkout-accordion-card {
-  padding: 4px 14px 8px;
-}
-
 .checkout-summary-embedded {
   margin-top: 0;
   padding: 14px 0 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-
-.checkout-section-accordion .checkout-order-preview {
-  margin-top: 0;
-  padding: 0 0 8px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -3207,18 +3206,6 @@ button {
     padding: 104px 14px calc(128px + env(safe-area-inset-bottom));
   }
 
-  .checkout-section-accordion {
-    padding-bottom: calc(108px + env(safe-area-inset-bottom));
-  }
-
-  .checkout-section-accordion .checkout-shell {
-    padding-bottom: calc(88px + env(safe-area-inset-bottom));
-  }
-
-  .checkout-accordion-card {
-    padding: 2px 10px 8px;
-  }
-
   .checkout-shell {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -3826,7 +3813,7 @@ button {
   }
 
   #home,
-  #collections,
+  #catalog,
   #delivery,
   #about,
   #contact {
@@ -12023,51 +12010,6 @@ Purpose (EN): Second-generation premium catalog panel and search results styling
   cursor: pointer;
 }
 
-.catalog-v11-product-size-selector {
-  display: grid;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.catalog-v11-product-size-options {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.catalog-v11-product-size-option {
-  display: grid;
-  gap: 2px;
-  min-height: 46px;
-  padding: 8px 10px;
-  border: 1px solid rgba(176, 141, 87, 0.18);
-  border-radius: 14px;
-  background: rgba(255, 252, 250, 0.92);
-  color: var(--bf-heading);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.36);
-}
-
-.catalog-v11-product-size-option span {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.catalog-v11-product-size-option small {
-  color: var(--bf-text-secondary);
-  font-size: 11px;
-  line-height: 1.2;
-}
-
-.catalog-v11-product-size-option.is-active {
-  border-color: rgba(155, 112, 118, 0.72);
-  background: linear-gradient(180deg, #fff8f9 0%, #f7e3e8 100%);
-  box-shadow: 0 8px 18px rgba(155, 112, 118, 0.14);
-}
-
 .catalog-v11-product-footer {
   display: flex;
   align-items: center;
@@ -12176,10 +12118,6 @@ Purpose (EN): Second-generation premium catalog panel and search results styling
     gap: 10px;
   }
 
-  .catalog-v11-product-size-option {
-    min-height: 44px;
-    padding: 8px;
-  }
 }
 
 /* ==================================================

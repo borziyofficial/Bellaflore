@@ -8,11 +8,8 @@ import { filterHomeCatalogProducts } from "@/components/catalog/filterHomeCatalo
 import {
   homeCatalogCategoryChips,
   homeCatalogSearchPlaceholder,
-  homeCatalogSubtitleLine1,
-  homeCatalogSubtitleLine2,
   homeCatalogTitle,
 } from "@/components/catalog/homeCatalogConfig";
-import type { HomeCatalogSectionId } from "@/components/catalog/homeCatalogSections";
 import { LuxuryCatalogProductCard } from "@/components/catalog/LuxuryCatalogProductCard";
 import styles from "@/components/home/CollectionsSection.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
@@ -53,27 +50,7 @@ type CollectionsSectionProps = {
   ) => void;
   onProductOpen?: (productId: string) => void;
   catalogFocusNonce?: number;
-  focusSectionId?: HomeCatalogSectionId | null;
 };
-
-function mapFocusSectionToCategoryId(
-  sectionId: HomeCatalogSectionId | null,
-): string {
-  switch (sectionId) {
-    case "new":
-      return "new";
-    case "roses":
-      return "roses";
-    case "peonies":
-      return "peonies";
-    case "hydrangeas":
-      return "hydrangeas";
-    case "baskets-boxes":
-      return "baskets";
-    default:
-      return "all";
-  }
-}
 
 export function CollectionsSection({
   bouquets,
@@ -85,7 +62,6 @@ export function CollectionsSection({
   handleBouquetOrderTouchEnd,
   onProductOpen,
   catalogFocusNonce = 0,
-  focusSectionId = null,
 }: CollectionsSectionProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,19 +72,13 @@ export function CollectionsSection({
       return;
     }
 
-    if (focusSectionId) {
-      setActiveCategoryId(mapFocusSectionToCategoryId(focusSectionId));
-    }
-
-    document.getElementById("collections")?.scrollIntoView({
+    document.getElementById("catalog")?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
 
-    if (!focusSectionId) {
-      searchInputRef.current?.focus({ preventScroll: true });
-    }
-  }, [catalogFocusNonce, focusSectionId]);
+    searchInputRef.current?.focus({ preventScroll: true });
+  }, [catalogFocusNonce]);
 
   const normalizedSearchQuery = searchQuery.trim();
   const isSearchMode = normalizedSearchQuery.length > 0;
@@ -144,14 +114,9 @@ export function CollectionsSection({
   };
 
   return (
-    <section id="collections" className={styles.section}>
+    <section id="catalog" className={styles.section}>
       <header className={`${styles.header} bf-reveal bf-reveal-up`}>
         <h2>{homeCatalogTitle}</h2>
-        <p className={styles.subtitle}>
-          {homeCatalogSubtitleLine1}
-          <br />
-          {homeCatalogSubtitleLine2}
-        </p>
       </header>
 
       <div className={`${styles.toolbar} bf-reveal bf-reveal-up`}>

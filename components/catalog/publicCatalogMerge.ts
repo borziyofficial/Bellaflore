@@ -55,6 +55,6 @@ export function getPublicStorefrontProductUrl(product: CatalogProduct): string {
 
   const url = new URL(window.location.origin);
   url.searchParams.set("product", product.id);
-  url.hash = "collections";
+  url.hash = "catalog";
   return url.toString();
 }

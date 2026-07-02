@@ -109,19 +109,18 @@ body {
 
 /* --- Catalog --- */
 
-#collections.bouquets {
+#catalog.bouquets {
   background: var(--bf-ui-bg);
 }
 
 [data-theme="night"] .section-header h2,
-[data-theme="night"] #collections h3 {
+[data-theme="night"] #catalog h3 {
   color: var(--bf-ui-text);
 }
 
 /* --- Checkout visual polish (logic unchanged) --- */
 
-.checkout-section .checkout-form-card,
-.checkout-section .checkout-accordion-card {
+.checkout-section .checkout-form-card {
   border-radius: 24px;
   border-color: var(--bf-ui-border);
   background: var(--bf-ui-checkout-card);
@@ -136,12 +135,10 @@ body {
   background: var(--bf-ui-input-bg);
 }
 
-.checkout-section .checkout-choice-button,
-.checkout-section .checkout-accordion-trigger {
+.checkout-section .checkout-choice-button {
   border-radius: 14px;
 }
 
-[data-theme="night"] .checkout-section .checkout-form-card,
-[data-theme="night"] .checkout-section .checkout-accordion-card {
+[data-theme="night"] .checkout-section .checkout-form-card {
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
 }

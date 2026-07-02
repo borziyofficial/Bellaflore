@@ -75,9 +75,6 @@ import { getOrdersUrl } from "@/app/orders/orderUtils";
 import { CartPanel } from "@/components/panels/CartPanel";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
 import { findPublicStorefrontProduct } from "@/components/catalog/publicCatalogMerge";
-import {
-  type HomeCatalogSectionId,
-} from "@/components/catalog/homeCatalogSections";
 import { usePublicStorefrontCatalog } from "@/components/catalog/usePublicStorefrontCatalog";
 import { ProductExperiencePage } from "@/components/product/ProductExperiencePage";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
@@ -99,11 +96,11 @@ import {
 
 const navigationItems = [
   { href: "#home", label: "ГЛАВНАЯ" },
-  { href: "#collections", label: "КОЛЛЕКЦИИ" },
-  { href: "#delivery", label: "ДОСТАВКА" },
-  { href: "#about", label: "О НАС" },
-  { href: "#contact", label: "КОНТАКТЫ" },
+  { href: "#catalog", label: "КАТАЛОГ" },
+  { href: "#contact", label: "СВЯЗЬ" },
 ];
+
+type PublicAppView = "home" | "catalog";
 
 type CartItem = {
   bouquetId: string;
@@ -481,9 +478,8 @@ export default function Home() {
   const [profileActiveSection, setProfileActiveSection] =
     useState<ProfileHubSectionId | null>(null);
   const [showOrdersOnly, setShowOrdersOnly] = useState(false);
-  const [homeCatalogFocusNonce, setHomeCatalogFocusNonce] = useState(0);
-  const [homeCatalogSectionId, setHomeCatalogSectionId] =
-    useState<HomeCatalogSectionId | null>("popular");
+  const [publicAppView, setPublicAppView] = useState<PublicAppView>("home");
+  const [catalogFocusNonce, setCatalogFocusNonce] = useState(0);
   const [productExperienceId, setProductExperienceId] = useState<string | null>(
     null,
   );
@@ -676,6 +672,17 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (window.location.hash === "#catalog") {
+      setPublicAppView("catalog");
+      setCatalogFocusNonce((current) => current + 1);
+    }
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -858,16 +865,22 @@ export default function Home() {
     return storedOrders;
   };
 
-  const scrollToHomeCatalog = (sectionId: HomeCatalogSectionId | null = null) => {
-    setHomeCatalogSectionId(sectionId);
-    setHomeCatalogFocusNonce((current) => current + 1);
-    setBottomNavAction("Каталог на главной");
+  const openCatalogView = (focusSearch = false) => {
+    setPublicAppView("catalog");
+    setCatalogFocusNonce((current) => current + (focusSearch ? 1 : 0));
+    setBottomNavAction("Каталог");
+    requestAnimationFrame(() => {
+      document.getElementById("catalog")?.scrollIntoView({
+        block: "start",
+        behavior: "smooth",
+      });
+    });
   };
 
   const openBottomNavPanel = (panel: BottomNavPanelId) => {
     if (panel === "catalog") {
       closeAllBottomNavPanelsImmediate();
-      scrollToHomeCatalog(null);
+      openCatalogView(true);
       return;
     }
 
@@ -943,6 +956,7 @@ export default function Home() {
     }
 
     setBottomNavAction("Главная");
+    setPublicAppView("home");
     requestAnimationFrame(() => {
       document.getElementById("home")?.scrollIntoView({ behavior: "smooth" });
     });
@@ -1095,6 +1109,7 @@ export default function Home() {
       {
         ...cartItem,
         sizeLabel: selectedVariant.label,
+        sizeVariants: experienceData.sizeVariants,
         bouquet: {
           ...bouquet,
           priceRub: cartItem.priceRub ?? selectedVariant.priceRub,
@@ -1474,6 +1489,31 @@ export default function Home() {
     increaseCartItemQuantity(bouquetId, sizeId);
   };
 
+  const updateCheckoutPrimarySize = (sizeId: ProductSizeId) => {
+    const primaryItem = cartItems[0];
+    if (!primaryItem) {
+      return;
+    }
+
+    const selection = resolveBouquetSelection(primaryItem.bouquetId, sizeId);
+    if (!selection) {
+      return;
+    }
+
+    setCartItems((currentItems) =>
+      currentItems.map((item, index) =>
+        index === 0
+          ? {
+              ...item,
+              sizeId: selection.sizeId,
+              priceRub: selection.priceRub,
+            }
+          : item,
+      ),
+    );
+    setBottomNavAction("Размер обновлён");
+  };
+
   const handleFavoritesNavClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
   ) => {
@@ -1552,7 +1592,7 @@ export default function Home() {
     }
 
     closeAllBottomNavPanelsImmediate();
-    scrollToHomeCatalog(null);
+    openCatalogView(true);
   };
 
   const handleSearchNavTouchEnd = (
@@ -1562,7 +1602,7 @@ export default function Home() {
     event.stopPropagation();
     lastTouchActionRef.current = event.timeStamp;
     closeAllBottomNavPanelsImmediate();
-    scrollToHomeCatalog(null);
+    openCatalogView(true);
   };
 
   const handleHomeNavClick = (
@@ -1670,7 +1710,24 @@ export default function Home() {
   };
 
   const handleHeroOrderBouquet = () => {
-    scrollToHomeCatalog(null);
+    openCatalogView(true);
+  };
+
+  const handleTopNavNavigate = (href: string) => {
+    closeMenu();
+
+    if (href === "#catalog") {
+      closeAllBottomNavPanelsImmediate();
+      openCatalogView(true);
+      return;
+    }
+
+    if (href === "#contact") {
+      openBottomNavPanel("contact");
+      return;
+    }
+
+    goHomeFromBottomNav();
   };
 
   const handleBouquetOrderClick = (
@@ -1776,11 +1833,12 @@ export default function Home() {
     }
 
     setProductExperienceId(matchedProduct.id);
-    setHomeCatalogFocusNonce((current) => current + 1);
+    setPublicAppView("catalog");
+    setCatalogFocusNonce((current) => current + 1);
 
-    const collectionsSection = document.getElementById("collections");
-    if (collectionsSection) {
-      collectionsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    const catalogSection = document.getElementById("catalog");
+    if (catalogSection) {
+      catalogSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [bouquets, catalogReady]);
 
@@ -2100,6 +2158,7 @@ export default function Home() {
       handleCustomDeliveryDateChange={handleCustomDeliveryDateChange}
       handleConfirmOrderClick={handleConfirmOrderClick}
       handleConfirmOrderTouchEnd={handleConfirmOrderTouchEnd}
+      onCheckoutSizeSelect={updateCheckoutPrimarySize}
       checkoutSubmitInProgress={checkoutSubmitInProgress}
       checkoutSubmitError={checkoutSubmitError}
       realDeliveryZoneResult={realDeliveryZoneResult}
@@ -2149,6 +2208,7 @@ export default function Home() {
         menuOpen={menuOpen}
         onToggleMenu={() => setMenuOpen((prev) => !prev)}
         onCloseMenu={closeMenu}
+        onNavigate={handleTopNavNavigate}
       />
 
       {/* ==================================================
@@ -2161,18 +2221,19 @@ export default function Home() {
           ================================================== */}
       <HeroSection onOrderBouquet={handleHeroOrderBouquet} />
 
-      <CollectionsSection
-        bouquets={bouquets}
-        favoriteBouquetIds={favoriteBouquetIds}
-        formatPrice={formatPrice}
-        handleFavoriteClick={handleFavoriteClick}
-        handleFavoriteTouchEnd={handleFavoriteTouchEnd}
-        handleBouquetOrderClick={handleBouquetOrderClick}
-        handleBouquetOrderTouchEnd={handleBouquetOrderTouchEnd}
-        onProductOpen={openProductExperience}
-        catalogFocusNonce={homeCatalogFocusNonce}
-        focusSectionId={homeCatalogSectionId}
-      />
+      {publicAppView === "catalog" ? (
+        <CollectionsSection
+          bouquets={bouquets}
+          favoriteBouquetIds={favoriteBouquetIds}
+          formatPrice={formatPrice}
+          handleFavoriteClick={handleFavoriteClick}
+          handleFavoriteTouchEnd={handleFavoriteTouchEnd}
+          handleBouquetOrderClick={handleBouquetOrderClick}
+          handleBouquetOrderTouchEnd={handleBouquetOrderTouchEnd}
+          onProductOpen={openProductExperience}
+          catalogFocusNonce={catalogFocusNonce}
+        />
+      ) : null}
 
       {/* ==================================================
           SECTION: Favorites Panel
@@ -2295,9 +2356,12 @@ export default function Home() {
         />
       ) : null}
 
-      <DeliverySection />
-
-      <AboutSection />
+      {publicAppView === "catalog" ? (
+        <>
+          <DeliverySection />
+          <AboutSection />
+        </>
+      ) : null}
 
       {/* ==================================================
           SECTION: Reviews
@@ -2307,19 +2371,23 @@ export default function Home() {
 
           Назначение (RU): Список отзывов клиентов, сводка рейтинга и форма локальной отправки отзыва.
           ================================================== */}
-      <ReviewsSection
-        averageReviewRating={averageReviewRating}
-        averageReviewRatingLabel={averageReviewRatingLabel}
-        reviewsCount={reviewsCount}
-        reviewForm={reviewForm}
-        reviewFormMessage={reviewFormMessage}
-        reviews={reviews}
-        renderRatingStars={renderRatingStars}
-        handleReviewSubmit={handleReviewSubmit}
-        handleReviewFieldChange={handleReviewFieldChange}
-      />
+      {publicAppView === "catalog" ? (
+        <>
+          <ReviewsSection
+            averageReviewRating={averageReviewRating}
+            averageReviewRatingLabel={averageReviewRatingLabel}
+            reviewsCount={reviewsCount}
+            reviewForm={reviewForm}
+            reviewFormMessage={reviewFormMessage}
+            reviews={reviews}
+            renderRatingStars={renderRatingStars}
+            handleReviewSubmit={handleReviewSubmit}
+            handleReviewFieldChange={handleReviewFieldChange}
+          />
 
-      <ContactSection />
+          <ContactSection />
+        </>
+      ) : null}
 
       {/* ==================================================
           SECTION: Mobile Bottom Nav

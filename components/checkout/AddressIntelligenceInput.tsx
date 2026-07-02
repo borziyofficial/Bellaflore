@@ -184,9 +184,6 @@ export function AddressIntelligenceInput({
         block: "center",
         behavior: "smooth",
       });
-      document
-        .getElementById("checkout-accordion-panel-address")
-        ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     });
   };
 

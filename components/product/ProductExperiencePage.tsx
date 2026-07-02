@@ -19,9 +19,10 @@ import {
   getSimilarProducts,
 } from "@/components/product/productExperienceCatalog";
 import styles from "@/components/product/ProductExperiencePage.module.css";
-import { ProductSizeSelector } from "@/components/product/ProductSizeSelector";
+import { ProductSizePickerSheet } from "@/components/product/ProductSizePickerSheet";
 import { ProductStickyBuyBar } from "@/components/product/ProductStickyBuyBar";
 import { ProductTrustStrip } from "@/components/product/ProductTrustStrip";
+import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
 import type {
   CatalogProductBase,
   ProductSizeId,
@@ -74,10 +75,14 @@ export function ProductExperiencePage({
     [allProducts, product.id],
   );
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
-    experienceData.defaultSizeId,
+    experienceData.sizeVariants.some((variant) => variant.sizeId === "M")
+      ? "M"
+      : experienceData.defaultSizeId,
   );
+  const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
+  const selectedSizeLabel = getProductSizeRuLabel(selectedVariant.sizeId);
   const priceLabel = formatPrice(selectedVariant.priceRub);
 
   const handleBuy = () => {
@@ -112,25 +117,27 @@ export function ProductExperiencePage({
             <p className={styles.lead}>{experienceData.description}</p>
             <div className={styles.priceRow}>
               <strong className={styles.price}>{priceLabel}</strong>
-              <span className={styles.sizeHint}>Размер {selectedVariant.label}</span>
+              <span className={styles.sizeHint}>Размер {selectedSizeLabel}</span>
             </div>
             {selectedVariant.stemCount ? (
               <p className={styles.stemHint}>{selectedVariant.stemCount} стеблей</p>
             ) : null}
           </div>
 
-          <ProductSizeSelector
-            layout="full"
-            variants={experienceData.sizeVariants}
-            selectedSizeId={selectedSizeId}
-            onSelectSize={setSelectedSizeId}
-            formatPrice={formatPrice}
-            showDetails={false}
-            ariaLabel={`Размеры для ${product.title}`}
-          />
+          <button
+            type="button"
+            className={styles.sizePickerButton}
+            onClick={() => setSizeSheetOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={sizeSheetOpen}
+          >
+            <span>Размер: {selectedSizeLabel}</span>
+            <strong>{priceLabel}</strong>
+            <span aria-hidden="true">▼</span>
+          </button>
 
           <ProductBuyPanel
-            sizeLabel={selectedVariant.label}
+            sizeLabel={selectedSizeLabel}
             priceLabel={priceLabel}
             deliveryNote={experienceData.deliveryNote}
             isFavorite={isFavorite}
@@ -164,12 +171,23 @@ export function ProductExperiencePage({
       </div>
 
       <ProductStickyBuyBar
-        sizeLabel={selectedVariant.label}
+        sizeLabel={selectedSizeLabel}
         priceLabel={priceLabel}
         deliveryNote={experienceData.deliveryNote}
         isFavorite={isFavorite}
         onToggleFavorite={() => onToggleFavorite(product.id)}
         onBuy={handleBuy}
+      />
+
+      <ProductSizePickerSheet
+        open={sizeSheetOpen}
+        title="Размер"
+        variants={experienceData.sizeVariants}
+        selectedSizeId={selectedSizeId}
+        formatPrice={formatPrice}
+        visibleSizeIds={["S", "M", "L", "XL"]}
+        onSelect={setSelectedSizeId}
+        onClose={() => setSizeSheetOpen(false)}
       />
     </div>
   );

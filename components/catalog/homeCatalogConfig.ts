@@ -10,16 +10,15 @@ export type HomeCatalogCategoryChip = {
 
 export const homeCatalogCategoryChips: HomeCatalogCategoryChip[] = [
   { id: "all", label: "Все" },
-  { id: "roses", label: "Розы" },
   { id: "peonies", label: "Пионы" },
+  { id: "roses", label: "Розы" },
   { id: "hydrangeas", label: "Гортензии" },
-  { id: "author", label: "Авторские" },
   { id: "baskets", label: "Корзины" },
   { id: "boxes", label: "Коробки" },
+  { id: "author", label: "Авторские" },
+  { id: "new", label: "Новинки" },
 ];
 
 export const homeCatalogSearchPlaceholder = "Найти букет или цветы…";
 
-export const homeCatalogTitle = "Выберите букет";
-export const homeCatalogSubtitleLine1 = "Самые красивые композиции";
-export const homeCatalogSubtitleLine2 = "с доставкой сегодня";
+export const homeCatalogTitle = "Каталог";

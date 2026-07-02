@@ -14,8 +14,9 @@ import Image from "next/image";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import { getProductExperienceData, getProductSizeVariant } from "@/components/product/productExperienceCatalog";
-import { ProductSizeSelector } from "@/components/product/ProductSizeSelector";
+import { ProductSizePickerSheet } from "@/components/product/ProductSizePickerSheet";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
+import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
 import {
   useMemo,
   useState,
@@ -96,9 +97,13 @@ function FavoriteCard({
 }: FavoriteCardProps) {
   const experienceData = useMemo(() => getProductExperienceData(bouquet), [bouquet]);
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
-    experienceData.defaultSizeId,
+    experienceData.sizeVariants.some((variant) => variant.sizeId === "M")
+      ? "M"
+      : experienceData.defaultSizeId,
   );
+  const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
+  const selectedSizeLabel = getProductSizeRuLabel(selectedVariant.sizeId);
 
   return (
     <div className="favorites-panel-card">
@@ -126,15 +131,17 @@ function FavoriteCard({
       </div>
       <div className="favorites-panel-card-info">
         <h3>{bouquet.title}</h3>
-        <ProductSizeSelector
-          layout="compact"
-          variants={experienceData.sizeVariants}
-          selectedSizeId={selectedSizeId}
-          onSelectSize={setSelectedSizeId}
-          formatPrice={formatPrice}
-          visibleSizeIds={["S", "M", "L"]}
-          ariaLabel={`Размеры для ${bouquet.title}`}
-        />
+        <button
+          type="button"
+          className="favorites-size-picker"
+          onClick={() => setSizeSheetOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={sizeSheetOpen}
+        >
+          <span>Размер: {selectedSizeLabel}</span>
+          <strong>{formatPrice(selectedVariant.priceRub)}</strong>
+          <span aria-hidden="true">▼</span>
+        </button>
       </div>
       <div className="favorites-panel-card-actions">
         <button
@@ -156,11 +163,21 @@ function FavoriteCard({
               selectedVariant.priceRub,
             )
           }
-          aria-label={`Купить ${bouquet.title} в размере ${selectedVariant.label}`}
+          aria-label={`Купить ${bouquet.title} в размере ${selectedSizeLabel}`}
         >
           Купить
         </button>
       </div>
+      <ProductSizePickerSheet
+        open={sizeSheetOpen}
+        title="Размер"
+        variants={experienceData.sizeVariants}
+        selectedSizeId={selectedSizeId}
+        formatPrice={formatPrice}
+        visibleSizeIds={["S", "M", "L", "XL"]}
+        onSelect={setSelectedSizeId}
+        onClose={() => setSizeSheetOpen(false)}
+      />
     </div>
   );
 }

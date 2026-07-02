@@ -121,6 +121,29 @@
   font-size: 14px;
 }
 
+.sizePickerButton {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  width: 100%;
+  padding: 0 16px;
+  border: 1px solid rgba(176, 141, 87, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--champagne-text, var(--bf-text));
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sizePickerButton span:first-child,
+.sizePickerButton strong {
+  font-size: 15px;
+  font-weight: 700;
+}
+
 .sectionBlock {
   display: grid;
   gap: 12px;

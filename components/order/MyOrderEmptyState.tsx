@@ -23,7 +23,7 @@ export function MyOrderEmptyState({
       <p>У вас пока нет заказов</p>
       <a
         className="buy-button my-order-empty-button"
-        href="#collections"
+        href="#catalog"
         onClick={onCloseMyOrderPanel}
       >
         Перейти к букетам

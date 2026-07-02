@@ -28,7 +28,7 @@ export function CatalogProductPageView({
   const pageTitle = record.metadata.adminSeoDraft?.seoH1 || record.title;
   const heading =
     pageTitle.startsWith("Букет") ? pageTitle : `Букет «${record.title}»`;
-  const orderHref = `/?product=${encodeURIComponent(product.id)}#collections`;
+  const orderHref = `/?product=${encodeURIComponent(product.id)}#catalog`;
 
   return (
     <main className={styles.page}>
@@ -36,7 +36,7 @@ export function CatalogProductPageView({
         <Link href="/" className={styles.brand}>
           Bellaflore
         </Link>
-        <Link href="/#collections" className={styles.backLink}>
+        <Link href="/#catalog" className={styles.backLink}>
           ← Каталог
         </Link>
       </header>
@@ -61,18 +61,7 @@ export function CatalogProductPageView({
           <h1 className={styles.title}>{heading}</h1>
           <p className={styles.lead}>{product.description}</p>
 
-          {product.sizes?.length ? (
-            <ul className={styles.sizes} aria-label="Размеры и цены">
-              {product.sizes.map((size) => (
-                <li key={size.label} className={styles.sizeItem}>
-                  <span>{size.label}</span>
-                  <strong>{formatPrice(size.price)}</strong>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className={styles.price}>{formatPrice(product.priceRub)}</p>
-          )}
+          <p className={styles.price}>{formatPrice(product.priceRub)}</p>
 
           {product.composition ? (
             <section className={styles.section}>

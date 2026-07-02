@@ -80,7 +80,7 @@ Purpose (EN): Typography overrides for Hero, sections, catalog, and delivery. Ch
 }
 
 /* Section headers — storefront only (not checkout / orders) */
-#collections .section-header span,
+#catalog .section-header span,
 #delivery .section-header span,
 #about .section-header span,
 #contact .section-header span,
@@ -92,7 +92,7 @@ Purpose (EN): Typography overrides for Hero, sections, catalog, and delivery. Ch
   letter-spacing: var(--tracking-label);
 }
 
-#collections .section-header h2,
+#catalog .section-header h2,
 #delivery .section-header h2,
 #about .section-header h2,
 #contact .section-header h2,
@@ -105,7 +105,7 @@ Purpose (EN): Typography overrides for Hero, sections, catalog, and delivery. Ch
 }
 
 /* Catalog — home grid + catalog panel */
-#collections .bouquet-info h3,
+#catalog .bouquet-info h3,
 .catalog-v11-product-title {
   font-family: var(--font-brand);
   font-size: var(--type-h3);
@@ -114,7 +114,7 @@ Purpose (EN): Typography overrides for Hero, sections, catalog, and delivery. Ch
   letter-spacing: var(--tracking-tight);
 }
 
-#collections .bouquet-price,
+#catalog .bouquet-price,
 .catalog-v11-product-price {
   font-family: var(--font-body);
   font-size: var(--type-price);

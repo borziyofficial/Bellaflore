@@ -73,7 +73,9 @@ export function LuxuryCatalogProductCard({
     [product],
   );
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
-    experienceData.defaultSizeId,
+    experienceData.sizeVariants.some((variant) => variant.sizeId === "M")
+      ? "M"
+      : experienceData.defaultSizeId,
   );
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);

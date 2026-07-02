@@ -674,12 +674,7 @@ SECTION: STAGE 49.15 — CHECKOUT MOBILE COMPACT + KEYBOARD SAFE
     scroll-padding-bottom: calc(120px + env(safe-area-inset-bottom));
   }
 
-  .checkout-section-accordion .checkout-shell {
-    padding-bottom: calc(100px + env(safe-area-inset-bottom));
-  }
-
-  .checkout-form-card,
-  .checkout-accordion-card {
+  .checkout-form-card {
     padding: 12px 12px 8px;
   }
 
@@ -705,20 +700,6 @@ SECTION: STAGE 49.15 — CHECKOUT MOBILE COMPACT + KEYBOARD SAFE
 
   .checkout-field-error {
     font-size: 11px;
-  }
-
-  .checkout-accordion-trigger {
-    font-size: 14px;
-    color: #3d3630;
-  }
-
-  .checkout-accordion-summary {
-    font-size: 12px;
-    color: #75695c;
-  }
-
-  #checkout-accordion-panel-address {
-    scroll-margin-bottom: calc(140px + env(safe-area-inset-bottom));
   }
 
   .checkout-section .checkout-preview-details div {
@@ -810,8 +791,7 @@ SECTION: STAGE 49.15 — FAST MOBILE PANEL TAP RESPONSE
     padding-bottom: 0;
   }
 
-  .checkout-section-embedded .checkout-form-card,
-  .checkout-section-embedded .checkout-accordion-card {
+  .checkout-section-embedded .checkout-form-card {
     padding: 8px 8px 6px;
   }
 

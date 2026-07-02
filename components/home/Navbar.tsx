@@ -23,6 +23,7 @@ type NavbarProps = {
   menuOpen: boolean;
   onToggleMenu: () => void;
   onCloseMenu: () => void;
+  onNavigate?: (href: string) => void;
 };
 
 export function Navbar({
@@ -31,6 +32,7 @@ export function Navbar({
   menuOpen,
   onToggleMenu,
   onCloseMenu,
+  onNavigate,
 }: NavbarProps) {
   const lastMenuTouchRef = useRef(0);
 
@@ -58,7 +60,18 @@ export function Navbar({
 
         <div className="nav-center">
           {navigationItems.map((item) => (
-            <a href={item.href} key={item.href}>
+            <a
+              href={item.href}
+              key={item.href}
+              onClick={(event) => {
+                if (!onNavigate) {
+                  return;
+                }
+
+                event.preventDefault();
+                onNavigate(item.href);
+              }}
+            >
               {item.label}
             </a>
           ))}
@@ -82,7 +95,18 @@ export function Navbar({
           <div className="menu-overlay" onClick={onCloseMenu} />
           <div className={`mobile-menu ${styles.mobileMenu}`} id="mobile-navigation">
             {navigationItems.map((item) => (
-              <a href={item.href} key={item.href} onClick={onCloseMenu}>
+              <a
+                href={item.href}
+                key={item.href}
+                onClick={(event) => {
+                  if (onNavigate) {
+                    event.preventDefault();
+                    onNavigate(item.href);
+                  }
+
+                  onCloseMenu();
+                }}
+              >
                 {item.label}
               </a>
             ))}

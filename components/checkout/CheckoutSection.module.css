@@ -147,6 +147,85 @@
   letter-spacing: 0.02em;
 }
 
+.checkoutFlatBlock {
+  display: grid;
+  gap: 12px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid rgba(176, 141, 87, 0.18);
+}
+
+.checkoutFlatSelector {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--champagne-text, #2f2a24);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.checkoutFlatSelector span:first-child,
+.checkoutFlatDelivery span:first-child {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.checkoutFlatSelector strong {
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.checkoutFlatDelivery {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.checkoutFlatSelectWrap {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.checkoutFlatSelectWrap::after {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  color: var(--champagne-text, #2f2a24);
+  content: "▼";
+  font-size: 12px;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.checkoutFlatSelectWrap select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 24px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--champagne-text, #2f2a24);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  appearance: none;
+  cursor: pointer;
+}
+
+.checkoutFlatMuted {
+  color: var(--champagne-muted, #75695c);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
 .checkoutV2TodayBadge {
   display: inline-flex;
   align-items: center;
