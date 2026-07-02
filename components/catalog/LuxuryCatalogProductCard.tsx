@@ -1,9 +1,13 @@
 // ==================================================
 // SECTION: LUXURY CATALOG PRODUCT CARD
-// РАЗДЕЛ: Премиальная карточка товара (Stage 56A)
+// РАЗДЕЛ: Премиальная карточка товара (Stage 57A)
 // ==================================================
 "use client";
 
+import {
+  getProductCardDescription,
+  getProductCategoryHint,
+} from "@/components/catalog/filterHomeCatalogProducts";
 import styles from "@/components/catalog/LuxuryCatalogProductCard.module.css";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
 import { ProductSizeSelector } from "@/components/product/ProductSizeSelector";
@@ -36,7 +40,6 @@ type LuxuryCatalogProductCardProps = {
   product: CatalogProduct;
   formatPrice: (priceRub: number) => string;
   isFavorite: boolean;
-  badge?: string | null;
   onFavoriteClick: (event: MouseEvent<HTMLButtonElement>, productId: string) => void;
   onFavoriteTouchEnd: (event: TouchEvent<HTMLButtonElement>, productId: string) => void;
   onBuyClick: (
@@ -58,7 +61,6 @@ export function LuxuryCatalogProductCard({
   product,
   formatPrice,
   isFavorite,
-  badge = null,
   onFavoriteClick,
   onFavoriteTouchEnd,
   onBuyClick,
@@ -73,6 +75,13 @@ export function LuxuryCatalogProductCard({
     experienceData.defaultSizeId,
   );
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
+  const categoryLabel = getProductCategoryHint(product);
+  const description = getProductCardDescription(product);
+  const fromPriceRub = useMemo(
+    () =>
+      Math.min(...experienceData.sizeVariants.map((variant) => variant.priceRub)),
+    [experienceData.sizeVariants],
+  );
 
   const openProduct = () => {
     onProductOpen?.(product.id);
@@ -106,50 +115,58 @@ export function LuxuryCatalogProductCard({
 
   return (
     <article className={`bouquet-card ${styles.card}`}>
-      <button
-        type="button"
-        className={styles.mediaButton}
-        onClick={openProduct}
-        aria-label={`Открыть ${product.title}`}
-      >
-        <div className={`bouquet-image ${styles.imageWrap}`}>
-          {badge ? <span className={styles.badge}>{badge}</span> : null}
-          <ProductImageWithFallback
-            src={product.src}
-            alt={product.alt}
-            width={product.width}
-            height={product.height}
-            sizes="(max-width: 768px) 50vw, 280px"
-            imageClassName={styles.productImage}
-            fallbackClassName={styles.imageFallback}
-          />
-        </div>
-      </button>
+      <div className={styles.mediaWrap}>
+        <button
+          type="button"
+          className={styles.mediaButton}
+          onClick={openProduct}
+          aria-label={`Открыть ${product.title}`}
+        >
+          <div className={`bouquet-image ${styles.imageWrap}`}>
+            <ProductImageWithFallback
+              src={product.src}
+              alt={product.alt}
+              width={product.width}
+              height={product.height}
+              sizes="(max-width: 768px) 50vw, 280px"
+              imageClassName={styles.productImage}
+              fallbackClassName={styles.imageFallback}
+            />
+          </div>
+        </button>
 
-      <button
-        type="button"
-        className={`bouquet-favorite-button ${styles.favorite} ${isFavorite ? styles.favoriteActive : ""}`}
-        onClick={(event) => onFavoriteClick(event, product.id)}
-        onTouchEnd={(event) => onFavoriteTouchEnd(event, product.id)}
-        aria-label={
-          isFavorite
-            ? `Убрать ${product.title} из избранного`
-            : `Добавить ${product.title} в избранное`
-        }
-        aria-pressed={isFavorite}
-      >
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path d="M12 20.5s-7.3-4.4-9-9.2C1.9 8 3.9 5.2 7 5.2c1.8 0 3.1 1 4 2.2.9-1.2 2.2-2.2 4-2.2 3.1 0 5.1 2.8 4 6.1-1.7 4.8-9 9.2-9 9.2Z" />
-        </svg>
-      </button>
+        <button
+          type="button"
+          className={`bouquet-favorite-button ${styles.favorite} ${isFavorite ? styles.favoriteActive : ""}`}
+          onClick={(event) => onFavoriteClick(event, product.id)}
+          onTouchEnd={(event) => onFavoriteTouchEnd(event, product.id)}
+          aria-label={
+            isFavorite
+              ? `Убрать ${product.title} из избранного`
+              : `Добавить ${product.title} в избранное`
+          }
+          aria-pressed={isFavorite}
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M12 20.5s-7.3-4.4-9-9.2C1.9 8 3.9 5.2 7 5.2c1.8 0 3.1 1 4 2.2.9-1.2 2.2-2.2 4-2.2 3.1 0 5.1 2.8 4 6.1-1.7 4.8-9 9.2-9 9.2Z" />
+          </svg>
+        </button>
+      </div>
 
       <div className={`bouquet-info ${styles.info}`}>
+        <p className={styles.category}>{categoryLabel}</p>
+
         <button type="button" className={styles.titleButton} onClick={openProduct}>
           <h3 className={styles.title}>{product.title}</h3>
         </button>
 
-        <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
-        <p className={styles.deliveryHint}>Доставка сегодня</p>
+        {description ? (
+          <p className={styles.description}>{description}</p>
+        ) : null}
+
+        <p className={styles.price}>
+          от {formatPrice(fromPriceRub)}
+        </p>
 
         <ProductSizeSelector
           layout="compact"

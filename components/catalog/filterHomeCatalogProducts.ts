@@ -1,13 +1,12 @@
 // ==================================================
 // SECTION: HOME CATALOG
-// РАЗДЕЛ: Фильтрация каталога на главной
-//
-// Purpose (EN): Client-side filtering for homepage catalog using existing product data.
-//
-// Назначение (RU): Клиентская фильтрация каталога на главной по локальным данным.
+// РАЗДЕЛ: Фильтрация каталога на главной (Stage 57A)
 // ==================================================
 import { catalogProductBadges } from "@/components/catalog/catalogConfig";
-import { normalizeSearchText } from "@/components/search/searchFoundation";
+import {
+  expandSearchTokens,
+  normalizeSearchText,
+} from "@/components/search/searchFoundation";
 import type { CatalogProduct } from "@/data/catalogProducts";
 
 const POPULAR_PRODUCT_IDS = new Set([
@@ -24,6 +23,9 @@ function productHaystack(product: CatalogProduct): string {
       product.description,
       product.category,
       product.flowerType,
+      product.composition,
+      product.seoTitle,
+      product.seoDescription,
       ...(product.tags ?? []),
       ...(product.searchTerms ?? []),
     ]
@@ -47,6 +49,8 @@ function matchesCategory(product: CatalogProduct, categoryId: string): boolean {
   const haystack = productHaystack(product);
 
   switch (categoryId) {
+    case "new":
+      return Boolean(product.isNew) || Boolean(product.isAdminProduct);
     case "roses":
       return (
         haystack.includes("роз") ||
@@ -111,7 +115,14 @@ function matchesSearch(product: CatalogProduct, searchQuery: string): boolean {
     return true;
   }
 
-  return productHaystack(product).includes(normalizedQuery);
+  const haystack = productHaystack(product);
+
+  if (haystack.includes(normalizedQuery)) {
+    return true;
+  }
+
+  const tokens = expandSearchTokens(normalizedQuery);
+  return tokens.some((token) => token.length >= 2 && haystack.includes(token));
 }
 
 export function filterHomeCatalogProducts(
@@ -131,13 +142,17 @@ export function filterHomeCatalogProducts(
 }
 
 export function getProductCategoryHint(product: CatalogProduct): string {
-  if (product.flowerType && product.flowerType !== "микс") {
-    return product.flowerType.charAt(0).toUpperCase() + product.flowerType.slice(1);
-  }
-
   if (product.category) {
     return product.category;
   }
 
+  if (product.flowerType && product.flowerType !== "микс") {
+    return product.flowerType.charAt(0).toUpperCase() + product.flowerType.slice(1);
+  }
+
   return "Авторский букет";
+}
+
+export function getProductCardDescription(product: CatalogProduct): string {
+  return product.description?.trim() || product.composition?.trim() || "";
 }

@@ -1,22 +1,17 @@
 // ==================================================
 // SECTION: CATALOG
-// РАЗДЕЛ: Каталог на главной (Stage 56A luxury reset)
+// РАЗДЕЛ: Каталог на главной (Stage 57A premium experience)
 // ==================================================
 "use client";
 
-import { catalogProductBadges } from "@/components/catalog/catalogConfig";
 import { filterHomeCatalogProducts } from "@/components/catalog/filterHomeCatalogProducts";
 import {
   homeCatalogCategoryChips,
   homeCatalogSearchPlaceholder,
+  homeCatalogSubtitle,
+  homeCatalogTitle,
 } from "@/components/catalog/homeCatalogConfig";
-import {
-  getHomeCatalogSectionAnchor,
-  getHomeCatalogSectionProducts,
-  HOME_CATALOG_SECTIONS,
-  mapHeroCategoryToSectionId,
-  type HomeCatalogSectionId,
-} from "@/components/catalog/homeCatalogSections";
+import type { HomeCatalogSectionId } from "@/components/catalog/homeCatalogSections";
 import { LuxuryCatalogProductCard } from "@/components/catalog/LuxuryCatalogProductCard";
 import styles from "@/components/home/CollectionsSection.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
@@ -60,6 +55,25 @@ type CollectionsSectionProps = {
   focusSectionId?: HomeCatalogSectionId | null;
 };
 
+function mapFocusSectionToCategoryId(
+  sectionId: HomeCatalogSectionId | null,
+): string {
+  switch (sectionId) {
+    case "new":
+      return "new";
+    case "roses":
+      return "roses";
+    case "peonies":
+      return "peonies";
+    case "hydrangeas":
+      return "hydrangeas";
+    case "baskets-boxes":
+      return "baskets";
+    default:
+      return "all";
+  }
+}
+
 export function CollectionsSection({
   bouquets,
   favoriteBouquetIds,
@@ -74,10 +88,15 @@ export function CollectionsSection({
 }: CollectionsSectionProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategoryId, setActiveCategoryId] = useState("all");
 
   useEffect(() => {
     if (!catalogFocusNonce) {
       return;
+    }
+
+    if (focusSectionId) {
+      setActiveCategoryId(mapFocusSectionToCategoryId(focusSectionId));
     }
 
     document.getElementById("collections")?.scrollIntoView({
@@ -85,41 +104,22 @@ export function CollectionsSection({
       block: "start",
     });
 
-    if (focusSectionId) {
-      window.setTimeout(() => {
-        document
-          .getElementById(
-            HOME_CATALOG_SECTIONS.find((section) => section.id === focusSectionId)
-              ?.anchorId ?? "collections",
-          )
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 180);
-      return;
+    if (!focusSectionId) {
+      searchInputRef.current?.focus({ preventScroll: true });
     }
-
-    searchInputRef.current?.focus({ preventScroll: true });
   }, [catalogFocusNonce, focusSectionId]);
 
   const normalizedSearchQuery = searchQuery.trim();
   const isSearchMode = normalizedSearchQuery.length > 0;
 
-  const searchResults = useMemo(
+  const displayedProducts = useMemo(
     () =>
       filterHomeCatalogProducts(bouquets, {
-        categoryId: "all",
+        categoryId: isSearchMode ? "all" : activeCategoryId,
         quickFilterId: "all",
         searchQuery,
       }),
-    [bouquets, searchQuery],
-  );
-
-  const sectionGroups = useMemo(
-    () =>
-      HOME_CATALOG_SECTIONS.map((section) => ({
-        ...section,
-        products: getHomeCatalogSectionProducts(section.id, bouquets),
-      })).filter((section) => section.products.length > 0),
-    [bouquets],
+    [activeCategoryId, bouquets, isSearchMode, searchQuery],
   );
 
   const handleSearchChange = (event: ReactChangeEvent<HTMLInputElement>) => {
@@ -131,30 +131,27 @@ export function CollectionsSection({
     searchInputRef.current?.focus();
   };
 
-  const handleCategorySelect = (categoryId: string) => {
-    const sectionId = mapHeroCategoryToSectionId(categoryId);
-    if (!sectionId) {
-      return;
-    }
+  const showAllProducts = () => {
+    setSearchQuery("");
+    setActiveCategoryId("all");
+    searchInputRef.current?.focus();
+  };
 
-    document
-      .getElementById(getHomeCatalogSectionAnchor(sectionId))
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const handleCategorySelect = (categoryId: string) => {
+    setActiveCategoryId(categoryId);
+    setSearchQuery("");
   };
 
   return (
     <section id="collections" className={`bouquets ${styles.section}`}>
-      <div className={`section-header bf-reveal bf-reveal-up ${styles.header}`}>
-        <span>Каталог</span>
-        <h2>Букеты Bellaflore</h2>
-        <p className={styles.headerNote}>
-          Премиальные композиции с доставкой сегодня по Москве
-        </p>
-      </div>
+      <header className={`section-header bf-reveal bf-reveal-up ${styles.header}`}>
+        <h2>{homeCatalogTitle}</h2>
+        <p className={styles.subtitle}>{homeCatalogSubtitle}</p>
+      </header>
 
-      <div className={`${styles.catalogToolbar} bf-reveal bf-reveal-up`}>
+      <div className={`${styles.toolbar} bf-reveal bf-reveal-up`}>
         <label className={styles.searchField}>
-          <span className={styles.searchFieldIcon} aria-hidden="true">
+          <span className={styles.searchIcon} aria-hidden="true">
             ⌕
           </span>
           <input
@@ -166,6 +163,7 @@ export function CollectionsSection({
             placeholder={homeCatalogSearchPlaceholder}
             aria-label="Поиск букетов"
             autoComplete="off"
+            enterKeyHint="search"
           />
           {searchQuery ? (
             <button
@@ -179,75 +177,52 @@ export function CollectionsSection({
           ) : null}
         </label>
 
-        <div className={styles.categoryRow} aria-label="Категории каталога">
-          {homeCatalogCategoryChips.map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              className={styles.categoryChip}
-              onClick={() => handleCategorySelect(chip.id)}
-            >
-              {chip.label}
-            </button>
-          ))}
+        <div
+          className={styles.categoryRow}
+          role="tablist"
+          aria-label="Категории букетов"
+        >
+          {homeCatalogCategoryChips.map((chip) => {
+            const isActive = !isSearchMode && activeCategoryId === chip.id;
+
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={`${styles.categoryChip} ${isActive ? styles.categoryChipActive : ""}`}
+                onClick={() => handleCategorySelect(chip.id)}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {isSearchMode ? (
-        searchResults.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>По вашему запросу букеты не найдены.</p>
-            <button type="button" className={styles.emptyReset} onClick={clearSearch}>
-              Очистить поиск
-            </button>
-          </div>
-        ) : (
-          <div className={`bouquet-grid ${styles.grid} ${styles.searchGrid}`}>
-            {searchResults.map((bouquet) => (
-              <LuxuryCatalogProductCard
-                key={bouquet.id}
-                product={bouquet}
-                formatPrice={formatPrice}
-                isFavorite={favoriteBouquetIds.includes(bouquet.id)}
-                badge={catalogProductBadges[bouquet.id]}
-                onFavoriteClick={handleFavoriteClick}
-                onFavoriteTouchEnd={handleFavoriteTouchEnd}
-                onBuyClick={handleBouquetOrderClick}
-                onBuyTouchEnd={handleBouquetOrderTouchEnd}
-                onProductOpen={onProductOpen}
-              />
-            ))}
-          </div>
-        )
+      {displayedProducts.length === 0 ? (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyTitle}>Букеты не найдены</p>
+          <p className={styles.emptyMessage}>Попробуйте другой запрос</p>
+          <button type="button" className={styles.emptyReset} onClick={showAllProducts}>
+            Показать все
+          </button>
+        </div>
       ) : (
-        <div className={styles.sections}>
-          {sectionGroups.map((section) => (
-            <section
-              key={section.id}
-              id={section.anchorId}
-              className={styles.sectionBlock}
-              aria-labelledby={`${section.anchorId}-title`}
-            >
-              <div className={styles.sectionHeader}>
-                <h3 id={`${section.anchorId}-title`}>{section.title}</h3>
-              </div>
-              <div className={`bouquet-grid ${styles.grid}`}>
-                {section.products.map((bouquet) => (
-                  <LuxuryCatalogProductCard
-                    key={`${section.id}-${bouquet.id}`}
-                    product={bouquet}
-                    formatPrice={formatPrice}
-                    isFavorite={favoriteBouquetIds.includes(bouquet.id)}
-                    badge={catalogProductBadges[bouquet.id]}
-                    onFavoriteClick={handleFavoriteClick}
-                    onFavoriteTouchEnd={handleFavoriteTouchEnd}
-                    onBuyClick={handleBouquetOrderClick}
-                    onBuyTouchEnd={handleBouquetOrderTouchEnd}
-                    onProductOpen={onProductOpen}
-                  />
-                ))}
-              </div>
-            </section>
+        <div className={`bouquet-grid ${styles.grid}`}>
+          {displayedProducts.map((bouquet) => (
+            <LuxuryCatalogProductCard
+              key={bouquet.id}
+              product={bouquet}
+              formatPrice={formatPrice}
+              isFavorite={favoriteBouquetIds.includes(bouquet.id)}
+              onFavoriteClick={handleFavoriteClick}
+              onFavoriteTouchEnd={handleFavoriteTouchEnd}
+              onBuyClick={handleBouquetOrderClick}
+              onBuyTouchEnd={handleBouquetOrderTouchEnd}
+              onProductOpen={onProductOpen}
+            />
           ))}
         </div>
       )}
