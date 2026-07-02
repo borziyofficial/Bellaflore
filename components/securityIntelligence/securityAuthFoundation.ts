@@ -7,6 +7,7 @@ import {
   findDevSecurityUserById,
   SECURITY_DEV_CONFIG_FLAG,
 } from "@/components/securityIntelligence/securityDevConfig";
+import { isProductionEnvAdminUserId } from "@/components/securityIntelligence/securityProductionConstants";
 import { getPermissionsForSecurityRole } from "@/components/securityIntelligence/securityRolesCatalog";
 import { createSecurityAuditEvent } from "@/components/securityIntelligence/securityAuditFoundation";
 import {
@@ -121,7 +122,7 @@ export function validateSecurityLogin(
     return { ok: false, user: null, message: "Введите логин и пароль" };
   }
 
-  const user = findDevSecurityUserByCredentials(login.trim(), password);
+  const user = findDevSecurityUserByCredentials(login, password.trim());
 
   if (!user) {
     recordRateLimitHit("login_attempt", login.trim());
@@ -196,6 +197,10 @@ export function getCurrentSecuritySession(): SecuritySession | null {
 
   const user = findDevSecurityUserById(session.userId);
   if (!user?.enabled) {
+    if (isProductionEnvAdminUserId(session.userId)) {
+      return session;
+    }
+
     writeSessionToStorage(null);
     return null;
   }

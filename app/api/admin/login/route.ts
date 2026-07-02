@@ -2,54 +2,18 @@
 // SECTION: Admin API — Login Route
 // РАЗДЕЛ: Admin API — маршрут входа
 //
-// Purpose (EN): POST handler — validates admin credentials via env and security dev config.
+// Purpose (EN): POST handler — validates admin credentials via env and dev config.
 //
-// Назначение (RU): POST-обработчик — проверяет учётные данные admin через env и security dev config.
+// Назначение (RU): POST-обработчик — проверяет учётные данные admin через env и dev config.
 // ==================================================
-import { findDevSecurityUserByCredentials } from "@/components/securityIntelligence/securityDevConfig";
+import { resolveSecurityLoginUser } from "@/components/securityIntelligence/resolveSecurityLoginUser";
 
 type AdminLoginRequest = {
   username?: unknown;
   password?: unknown;
 };
 
-function isExpectedCredential(value: unknown, expected: string): boolean {
-  return typeof value === "string" && value === expected;
-}
-
-function credentialsMatchEnv(username: unknown, password: unknown): boolean {
-  const adminUsername = process.env.ADMIN_USERNAME;
-  const adminPassword = process.env.ADMIN_PASSWORD;
-
-  if (!adminUsername || !adminPassword) {
-    return false;
-  }
-
-  return (
-    isExpectedCredential(username, adminUsername) &&
-    isExpectedCredential(password, adminPassword)
-  );
-}
-
-function credentialsMatchDevConfig(username: unknown, password: unknown): boolean {
-  if (typeof username !== "string" || typeof password !== "string") {
-    return false;
-  }
-
-  return findDevSecurityUserByCredentials(username, password) !== null;
-}
-
 export async function POST(request: Request) {
-  const adminUsername = process.env.ADMIN_USERNAME;
-  const adminPassword = process.env.ADMIN_PASSWORD;
-
-  if (!adminUsername || !adminPassword) {
-    return Response.json(
-      { message: "Admin credentials are not configured." },
-      { status: 500 },
-    );
-  }
-
   let body: AdminLoginRequest;
 
   try {
@@ -61,16 +25,29 @@ export async function POST(request: Request) {
     );
   }
 
-  const isValid =
-    credentialsMatchEnv(body.username, body.password) ||
-    credentialsMatchDevConfig(body.username, body.password);
-
-  if (!isValid) {
+  if (typeof body.username !== "string" || typeof body.password !== "string") {
     return Response.json(
       { message: "Invalid admin credentials." },
       { status: 401 },
     );
   }
 
-  return Response.json({ authenticated: true });
+  const user = resolveSecurityLoginUser(body.username, body.password);
+
+  if (!user) {
+    return Response.json(
+      { message: "Invalid admin credentials." },
+      { status: 401 },
+    );
+  }
+
+  return Response.json({
+    authenticated: true,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  });
 }

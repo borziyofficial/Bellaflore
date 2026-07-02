@@ -17,7 +17,19 @@ import {
 import type {
   SecurityRole,
   SecuritySession,
+  SecurityUser,
 } from "@/components/securityIntelligence/securityIntelligenceTypes";
+
+type AdminLoginApiResponse = {
+  authenticated?: boolean;
+  message?: string;
+  user?: {
+    id: string;
+    name: string;
+    email?: string;
+    role: SecurityRole;
+  };
+};
 
 function mapSecurityRoleToAdminUserRole(role: SecurityRole): AdminUser["adminUserRole"] {
   if (role === "owner" || role === "system") {
@@ -35,25 +47,8 @@ function mapSecurityRoleToAdminUserRole(role: SecurityRole): AdminUser["adminUse
   return "viewer";
 }
 
-export function hasValidAdminEntrySession(): boolean {
-  return getCurrentSecuritySession() !== null;
-}
-
-export function loginWithAdminEntryCredentials(
-  username: string,
-  password: string,
-): AdminEntryLoginResult {
-  const validation = validateSecurityLogin(username, password);
-
-  if (!validation.ok || !validation.user) {
-    return {
-      ok: false,
-      session: null,
-      message: validation.message,
-    };
-  }
-
-  const session = createSecuritySession(validation.user);
+function finalizeAdminEntryLogin(user: SecurityUser): AdminEntryLoginResult {
+  const session = createSecuritySession(user);
 
   if (!session) {
     return {
@@ -70,6 +65,83 @@ export function loginWithAdminEntryCredentials(
     session,
     message: "OK",
   };
+}
+
+function securityUserFromApiResponse(
+  response: AdminLoginApiResponse,
+): SecurityUser | null {
+  if (!response.user?.id || !response.user.name || !response.user.role) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+
+  return {
+    id: response.user.id,
+    name: response.user.name,
+    email: response.user.email ?? `${response.user.name}@bellaflore.ru`,
+    role: response.user.role,
+    enabled: true,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+export function hasValidAdminEntrySession(): boolean {
+  return getCurrentSecuritySession() !== null;
+}
+
+export async function loginWithAdminEntryCredentials(
+  username: string,
+  password: string,
+): Promise<AdminEntryLoginResult> {
+  const trimmedLogin = username.trim();
+  const trimmedPassword = password.trim();
+
+  const localValidation = validateSecurityLogin(trimmedLogin, trimmedPassword);
+  if (localValidation.ok && localValidation.user) {
+    return finalizeAdminEntryLogin(localValidation.user);
+  }
+
+  try {
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: trimmedLogin,
+        password: trimmedPassword,
+      }),
+    });
+
+    const body = (await response.json()) as AdminLoginApiResponse;
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        session: null,
+        message: body.message || "Неверное имя пользователя или пароль.",
+      };
+    }
+
+    const user = securityUserFromApiResponse(body);
+    if (!user) {
+      return {
+        ok: false,
+        session: null,
+        message: "Не удалось создать сессию",
+      };
+    }
+
+    return finalizeAdminEntryLogin(user);
+  } catch {
+    return {
+      ok: false,
+      session: null,
+      message: "Не удалось проверить учётные данные.",
+    };
+  }
 }
 
 export function logoutAdminEntrySession(): void {

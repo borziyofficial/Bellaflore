@@ -67,8 +67,12 @@ export function findDevSecurityUserByCredentials(
   login: string,
   password: string,
 ): SecurityUser | null {
+  const normalizedLogin = login.trim();
+  const normalizedPassword = password.trim();
+
   const match = SECURITY_DEV_CREDENTIALS.find(
-    (entry) => entry.login === login && entry.password === password,
+    (entry) =>
+      entry.login === normalizedLogin && entry.password === normalizedPassword,
   );
 
   if (!match?.user.enabled) {

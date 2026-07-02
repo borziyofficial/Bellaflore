@@ -38,7 +38,7 @@ export default function AdminLoginPageClient() {
     setErrorMessage("");
 
     try {
-      const result = loginWithAdminEntryCredentials(username, password);
+      const result = await loginWithAdminEntryCredentials(username, password);
 
       if (!result.ok) {
         setErrorMessage(result.message || "Неверное имя пользователя или пароль.");
