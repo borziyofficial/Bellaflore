@@ -55,6 +55,8 @@ import {
   getCheckoutFieldErrors,
   isCheckoutFormReady,
 } from "@/components/checkout/validateCheckoutForm";
+import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
+import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import {
   useEffect,
   useMemo,
@@ -393,12 +395,15 @@ export function CheckoutSection({
       ? deliveryPriceLabel
       : "Рассчитается после адреса";
 
-  const bouquetSummaryLabel =
-    cartBouquets.length === 1
-      ? cartBouquets[0].bouquet.title
-      : cartBouquets.length > 1
-        ? `${cartBouquets.length} букета`
-        : "Букет";
+  const bouquetSummaryLabel = "Букет";
+
+  const primaryCartItem = cartBouquets[0] ?? null;
+  const checkoutSizeLabel = primaryCartItem
+    ? getProductSizeRuLabel(primaryCartItem.sizeId as ProductSizeId)
+    : null;
+  const checkoutSizePrice = primaryCartItem
+    ? formatPrice(primaryCartItem.bouquet.priceRub)
+    : null;
 
   const showInlineMap =
     checkoutForm.address.trim().length >= 2 ||
@@ -422,7 +427,8 @@ export function CheckoutSection({
       ) : null}
       <div className="checkout-shell">
         <div className={`checkout-form-card ${checkoutSectionStyles.checkoutV2Card}`}>
-          <div className={checkoutSectionStyles.checkoutV2Flow}>
+          <div className={checkoutSectionStyles.checkoutV2Layout}>
+            <div className={checkoutSectionStyles.checkoutV2Scroll}>
             <section className={checkoutSectionStyles.checkoutV2Block}>
               <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>
                 Получатель
@@ -521,6 +527,27 @@ export function CheckoutSection({
                 </label>
               </CheckoutCollapsible>
             </section>
+
+            {primaryCartItem && checkoutSizeLabel && checkoutSizePrice ? (
+              <section className={checkoutSectionStyles.checkoutV2Block}>
+                <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>
+                  Размер
+                </h3>
+                <div className={checkoutSectionStyles.checkoutV2SizeDisplay}>
+                  <span className={checkoutSectionStyles.checkoutV2SizeLabel}>
+                    {checkoutSizeLabel}
+                  </span>
+                  <strong className={checkoutSectionStyles.checkoutV2SizePrice}>
+                    {checkoutSizePrice}
+                  </strong>
+                </div>
+                {cartBouquets.length === 1 ? (
+                  <p className={checkoutSectionStyles.checkoutV2SizeProduct}>
+                    {primaryCartItem.bouquet.title}
+                  </p>
+                ) : null}
+              </section>
+            ) : null}
 
             <section className={checkoutSectionStyles.checkoutV2Block}>
               <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>
@@ -674,9 +701,10 @@ export function CheckoutSection({
                 />
               </label>
             </section>
+            </div>
 
-            <section
-              className={`${checkoutSectionStyles.checkoutV2Block} ${checkoutSectionStyles.checkoutV2Summary}`}
+            <div
+              className={checkoutSectionStyles.checkoutV2StickyFooter}
               aria-label="Итог"
             >
               <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>Итог</h3>
@@ -732,9 +760,7 @@ export function CheckoutSection({
                   >
                     {checkoutSubmitInProgress
                       ? "Отправка..."
-                      : paymentMethod === "online"
-                        ? "Оплатить"
-                        : "Оформить заказ"}
+                      : "Оформить заказ"}
                   </button>
                 )}
               </div>
@@ -743,7 +769,7 @@ export function CheckoutSection({
                   {checkoutSubmitError}
                 </span>
               ) : null}
-            </section>
+            </div>
           </div>
         </div>
       </div>
