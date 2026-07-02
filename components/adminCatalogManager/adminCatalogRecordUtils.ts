@@ -17,10 +17,16 @@ import type {
   AdminProductFormState,
   AdminProductFormStatus,
 } from "@/components/adminCatalogManager/adminCatalogTypes";
+import { isGarbageProductTitle } from "@/components/adminCatalogManager/mockAiHintUtils";
+import { repairAdminFormFromTitleIfNeeded } from "@/components/adminCatalogManager/repairAdminFormSeo";
 
 const SIZE_IDS: CatalogProductSizeId[] = ["S", "M", "L", "XL"];
 
 export function slugifyProductTitle(value: string): string {
+  if (isGarbageProductTitle(value)) {
+    return "";
+  }
+
   return value
     .trim()
     .toLowerCase()
@@ -155,49 +161,55 @@ export function adminFormToCatalogUpsertInput(
   form: AdminProductFormState,
   existing?: CatalogProductRecord | null,
 ): CatalogProductUpsertInput {
+  const normalizedForm = repairAdminFormFromTitleIfNeeded(form);
   const now = new Date().toISOString();
-  const id = form.id ?? createAdminProductId();
-  const slug = form.seoSlug.trim() || form.slug.trim() || slugifyProductTitle(form.title);
-  const sizes = parseSizePrices(form);
+  const id = normalizedForm.id ?? createAdminProductId();
+  const slug =
+    normalizedForm.seoSlug.trim() ||
+    normalizedForm.slug.trim() ||
+    slugifyProductTitle(normalizedForm.title);
+  const sizes = parseSizePrices(normalizedForm);
   const basePriceRub = sizes.length
     ? Math.min(...sizes.map((size) => size.priceRub))
     : 0;
-  const images = buildImages(form);
+  const images = buildImages(normalizedForm);
   const primaryImageUrl = images[0]?.url ?? "";
-  const tags = parseTagsInput(form.tags);
-  const category = CATALOG_CATEGORY_BY_ID[form.categoryId];
-  const isPublished = form.status === "published";
+  const tags = parseTagsInput(normalizedForm.tags);
+  const category = CATALOG_CATEGORY_BY_ID[normalizedForm.categoryId];
+  const isPublished = normalizedForm.status === "published";
   const seoBundle = buildProductSeoBundle({
-    title: form.title.trim(),
-    shortDescription: form.shortDescription.trim(),
-    fullDescription: form.fullDescription.trim(),
+    title: normalizedForm.title.trim(),
+    shortDescription: normalizedForm.shortDescription.trim(),
+    fullDescription: normalizedForm.fullDescription.trim(),
     slug,
     primaryImageUrl,
     basePriceRub,
   });
 
   const adminSeoDraft: CatalogAdminSeoDraft = {
-    seoH1: form.seoH1.trim(),
-    seoSlug: form.seoSlug.trim() || slug,
-    seoKeywords: parseTagsInput(form.seoKeywords),
-    seoFaq: form.seoFaq,
-    seoGalleryAlt: form.seoGalleryAlt,
-    openGraphTitle: form.openGraphTitle.trim() || form.seoTitle.trim(),
+    seoH1: normalizedForm.seoH1.trim(),
+    seoSlug: normalizedForm.seoSlug.trim() || slug,
+    seoKeywords: parseTagsInput(normalizedForm.seoKeywords),
+    seoFaq: normalizedForm.seoFaq,
+    seoGalleryAlt: normalizedForm.seoGalleryAlt,
+    openGraphTitle:
+      normalizedForm.openGraphTitle.trim() || normalizedForm.seoTitle.trim(),
     openGraphDescription:
-      form.openGraphDescription.trim() || form.seoDescription.trim(),
-    schemaProductJsonLd: form.schemaProductJsonLd,
-    seoScore: form.seoScore,
-    seoRecommendations: form.seoRecommendations,
-    internalLinkSuggestions: form.internalLinkSuggestions,
+      normalizedForm.openGraphDescription.trim() ||
+      normalizedForm.seoDescription.trim(),
+    schemaProductJsonLd: normalizedForm.schemaProductJsonLd,
+    seoScore: normalizedForm.seoScore,
+    seoRecommendations: normalizedForm.seoRecommendations,
+    internalLinkSuggestions: normalizedForm.internalLinkSuggestions,
   };
 
   return {
     id,
     slug,
-    title: form.title.trim(),
-    shortDescription: form.shortDescription.trim(),
-    fullDescription: form.fullDescription.trim(),
-    categoryIds: form.categoryId ? [form.categoryId] : [],
+    title: normalizedForm.title.trim(),
+    shortDescription: normalizedForm.shortDescription.trim(),
+    fullDescription: normalizedForm.fullDescription.trim(),
+    categoryIds: normalizedForm.categoryId ? [normalizedForm.categoryId] : [],
     tags,
     colors: [],
     flowerTypes: category ? [category.title.toLowerCase()] : [],
@@ -209,9 +221,13 @@ export function adminFormToCatalogUpsertInput(
     availability: "in_stock",
     status: isPublished ? "ACTIVE" : "DRAFT",
     isPublished,
-    isFeatured: form.isFeatured,
-    isNew: form.isNew,
-    popularityScore: form.isBestseller ? 95 : form.isFeatured ? 85 : 60,
+    isFeatured: normalizedForm.isFeatured,
+    isNew: normalizedForm.isNew,
+    popularityScore: normalizedForm.isBestseller
+      ? 95
+      : normalizedForm.isFeatured
+        ? 85
+        : 60,
     seasonalScore: 50,
     addOnIds: existing?.addOnIds ?? [],
     recommendations: existing?.recommendations ?? {
@@ -222,32 +238,36 @@ export function adminFormToCatalogUpsertInput(
     },
     seo: {
       ...seoBundle,
-      title: form.seoTitle.trim() || seoBundle.title,
-      description: form.seoDescription.trim() || seoBundle.description,
+      title: normalizedForm.seoTitle.trim() || seoBundle.title,
+      description:
+        normalizedForm.seoDescription.trim() || seoBundle.description,
       slug,
       canonicalPath: `/catalog/${slug}`,
       schemaJsonLd:
-        Object.keys(form.schemaProductJsonLd).length > 0
-          ? form.schemaProductJsonLd
+        Object.keys(normalizedForm.schemaProductJsonLd).length > 0
+          ? normalizedForm.schemaProductJsonLd
           : seoBundle.schemaJsonLd,
       openGraph: {
         ...seoBundle.openGraph,
-        title: form.openGraphTitle.trim() || form.seoTitle.trim() || seoBundle.openGraph.title,
+        title:
+          normalizedForm.openGraphTitle.trim() ||
+          normalizedForm.seoTitle.trim() ||
+          seoBundle.openGraph.title,
         description:
-          form.openGraphDescription.trim() ||
-          form.seoDescription.trim() ||
+          normalizedForm.openGraphDescription.trim() ||
+          normalizedForm.seoDescription.trim() ||
           seoBundle.openGraph.description,
         imageUrl: primaryImageUrl,
       },
     },
-    searchTerms: [...tags, ...parseTagsInput(form.seoKeywords)],
+    searchTerms: [...tags, ...parseTagsInput(normalizedForm.seoKeywords)],
     metadata: {
       catalogVersion: CATALOG_ENGINE_VERSION,
       createdAt: existing?.metadata.createdAt ?? now,
       updatedAt: now,
       legacyCategory: category?.title,
-      composition: form.composition.trim(),
-      isBestseller: form.isBestseller,
+      composition: normalizedForm.composition.trim(),
+      isBestseller: normalizedForm.isBestseller,
       adminCreated: existing?.metadata.adminCreated ?? !existing,
       adminSeoDraft,
     },

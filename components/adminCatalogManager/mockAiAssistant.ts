@@ -6,93 +6,46 @@ import type {
   MockAiBundle,
   MockAiSuggestion,
 } from "@/components/adminCatalogManager/adminCatalogTypes";
+import { inferBouquetProfile } from "@/components/adminCatalogManager/mockAiBouquetEngine";
+import { resolveAiHint } from "@/components/adminCatalogManager/mockAiHintUtils";
 import { generateMockSeoSuggestions } from "@/components/adminCatalogManager/mockSeoAssistant";
-import type { CatalogProductSizeId } from "@/components/catalogEngine/catalogTypes";
 
-const MOCK_TEMPLATES = [
-  {
-    title: "Velvet Rose",
-    categoryId: "roses",
-    shortDescription: "51 красная роза премиального сорта",
-    composition: "Красные розы, фирменная лента, премиальная упаковка Bellaflore",
-    tags: ["красные", "моно-букет", "премиум", "розы"],
-    basePrice: 14900,
-  },
-  {
-    title: "Soft Peony Cloud",
-    categoryId: "peonies",
-    shortDescription: "Нежный букет из пионовидных роз и эвкалипта",
-    composition: "Пионовидные розы, эвкалипт, атласная лента",
-    tags: ["нежный", "пионы", "авторский", "подарок"],
-    basePrice: 12900,
-  },
-  {
-    title: "Hydrangea Dream",
-    categoryId: "hydrangeas",
-    shortDescription: "Объёмная композиция из голубых гортензий",
-    composition: "Гортензии, зелень, фирменная коробка Bellaflore",
-    tags: ["гортензии", "голубой", "премиум", "композиция"],
-    basePrice: 16900,
-  },
-  {
-    title: "Royal Author",
-    categoryId: "author",
-    shortDescription: "Авторский букет в премиальной подаче",
-    composition: "Сезонные цветы, дизайнерская упаковка, фирменная лента",
-    tags: ["авторский", "vip", "премиум", "эксклюзив"],
-    basePrice: 18900,
-  },
-] as const;
-
-function buildSizePrices(basePrice: number): Record<CatalogProductSizeId, number> {
-  return {
-    S: basePrice,
-    M: Math.round(basePrice * 1.27),
-    L: Math.round(basePrice * 1.67),
-    XL: Math.round(basePrice * 2.2),
-  };
-}
-
-function pickTemplate(seed: string) {
-  const hash = seed
-    .split("")
-    .reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return MOCK_TEMPLATES[hash % MOCK_TEMPLATES.length];
-}
+type GenerateMockOptions = {
+  fileName?: string;
+  formTitle?: string;
+};
 
 export function generateMockProductSuggestions(
   hint = "",
+  options?: GenerateMockOptions,
 ): MockAiSuggestion {
-  const template = pickTemplate(hint || "bellaflore");
-  const title = hint.trim()
-    ? hint
-        .trim()
-        .replace(/\.[^.]+$/, "")
-        .replace(/[-_]+/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase())
-    : template.title;
-  const sizePrices = buildSizePrices(template.basePrice);
-  const fullDescription = `${template.shortDescription}. Композиция собрана флористами Bellaflore с доставкой по Москве в день заказа.`;
+  const resolvedTitle = resolveAiHint({
+    fileName: options?.fileName,
+    formTitle: options?.formTitle ?? hint,
+    fallback: hint,
+  });
+  const profile = inferBouquetProfile(resolvedTitle);
 
   return {
-    title,
-    categoryId: template.categoryId,
-    shortDescription: template.shortDescription,
-    fullDescription,
-    composition: template.composition,
-    tags: [...template.tags],
-    sizePrices,
-    imageAlt: `Букет ${title} — Bellaflore`,
-    suggestFeatured: [...template.tags].includes("премиум"),
-    suggestNew: title.toLowerCase().includes("cloud"),
-    suggestBestseller:
-      [...template.tags].includes("vip") ||
-      [...template.tags].includes("эксклюзив"),
+    title: profile.title,
+    categoryId: profile.categoryId,
+    shortDescription: profile.shortDescription,
+    fullDescription: profile.fullDescription,
+    composition: profile.composition,
+    tags: profile.tags,
+    sizePrices: profile.sizePrices,
+    imageAlt: profile.imageAlt,
+    suggestFeatured: profile.suggestFeatured,
+    suggestNew: profile.suggestNew,
+    suggestBestseller: profile.suggestBestseller,
   };
 }
 
-export function generateMockAiBundle(hint = ""): MockAiBundle {
-  const product = generateMockProductSuggestions(hint);
+export function generateMockAiBundle(
+  hint = "",
+  options?: GenerateMockOptions,
+): MockAiBundle {
+  const product = generateMockProductSuggestions(hint, options);
   const seo = generateMockSeoSuggestions(product);
 
   return { product, seo };

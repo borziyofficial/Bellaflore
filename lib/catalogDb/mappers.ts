@@ -3,6 +3,7 @@ import {
   createAdminProductId,
   slugifyProductTitle,
 } from "@/components/adminCatalogManager/adminCatalogRecordUtils";
+import { repairAdminFormFromTitleIfNeeded } from "@/components/adminCatalogManager/repairAdminFormSeo";
 import { CATALOG_CATEGORY_BY_ID } from "@/components/catalogEngine/categoriesCatalog";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
@@ -41,41 +42,45 @@ export function adminFormToStoredProduct(
   form: AdminProductFormState,
   existing?: StoredCatalogProduct | null,
 ): StoredCatalogProduct {
+  const normalizedForm = repairAdminFormFromTitleIfNeeded(form);
   const now = new Date().toISOString();
   const slug =
-    form.seoSlug.trim() ||
-    form.slug.trim() ||
-    slugifyProductTitle(form.title);
+    normalizedForm.seoSlug.trim() ||
+    normalizedForm.slug.trim() ||
+    slugifyProductTitle(normalizedForm.title);
   const status: CatalogProductDbStatus =
-    form.status === "published" ? "published" : "draft";
+    normalizedForm.status === "published" ? "published" : "draft";
 
   return {
-    id: form.id ?? existing?.id ?? createAdminProductId(),
+    id: normalizedForm.id ?? existing?.id ?? createAdminProductId(),
     slug,
-    title: form.title.trim(),
-    category: form.categoryId,
+    title: normalizedForm.title.trim(),
+    category: normalizedForm.categoryId,
     status,
-    shortDescription: form.shortDescription.trim(),
-    fullDescription: form.fullDescription.trim(),
-    composition: form.composition.trim(),
-    tags: parseTags(form.tags),
-    sizes: parseSizePricesFromForm(form),
-    imageUrl: form.mainImageUrl.trim(),
-    galleryImages: form.galleryUrls.filter(Boolean),
-    seoTitle: form.seoTitle.trim(),
-    seoDescription: form.seoDescription.trim(),
-    seoH1: form.seoH1.trim() || form.title.trim(),
-    seoSlug: form.seoSlug.trim() || slug,
-    seoImageAlt: form.seoImageAlt.trim() || form.mainImageAlt.trim(),
-    seoKeywords: parseTags(form.seoKeywords),
-    seoFaq: form.seoFaq,
-    openGraphTitle: form.openGraphTitle.trim() || form.seoTitle.trim(),
+    shortDescription: normalizedForm.shortDescription.trim(),
+    fullDescription: normalizedForm.fullDescription.trim(),
+    composition: normalizedForm.composition.trim(),
+    tags: parseTags(normalizedForm.tags),
+    sizes: parseSizePricesFromForm(normalizedForm),
+    imageUrl: normalizedForm.mainImageUrl.trim(),
+    galleryImages: normalizedForm.galleryUrls.filter(Boolean),
+    seoTitle: normalizedForm.seoTitle.trim(),
+    seoDescription: normalizedForm.seoDescription.trim(),
+    seoH1: normalizedForm.seoH1.trim() || normalizedForm.title.trim(),
+    seoSlug: normalizedForm.seoSlug.trim() || slug,
+    seoImageAlt:
+      normalizedForm.seoImageAlt.trim() || normalizedForm.mainImageAlt.trim(),
+    seoKeywords: parseTags(normalizedForm.seoKeywords),
+    seoFaq: normalizedForm.seoFaq,
+    openGraphTitle:
+      normalizedForm.openGraphTitle.trim() || normalizedForm.seoTitle.trim(),
     openGraphDescription:
-      form.openGraphDescription.trim() || form.seoDescription.trim(),
-    schemaProductJsonLd: form.schemaProductJsonLd,
-    isFeatured: form.isFeatured,
-    isNew: form.isNew,
-    isBestseller: form.isBestseller,
+      normalizedForm.openGraphDescription.trim() ||
+      normalizedForm.seoDescription.trim(),
+    schemaProductJsonLd: normalizedForm.schemaProductJsonLd,
+    isFeatured: normalizedForm.isFeatured,
+    isNew: normalizedForm.isNew,
+    isBestseller: normalizedForm.isBestseller,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
   };

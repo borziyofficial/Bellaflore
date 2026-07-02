@@ -22,6 +22,7 @@ import { AdminProductSeoAiPanel } from "@/components/adminCatalogManager/AdminPr
 import { AdminProductSeoPreview } from "@/components/adminCatalogManager/AdminProductSeoPreview";
 import { slugifyProductTitle } from "@/components/adminCatalogManager/adminCatalogRecordUtils";
 import { generateMockAiBundle } from "@/components/adminCatalogManager/mockAiAssistant";
+import { resolveAiHint } from "@/components/adminCatalogManager/mockAiHintUtils";
 import { evaluateSeoFromForm } from "@/components/adminCatalogManager/seoScoreEngine";
 import {
   CATALOG_CATEGORIES,
@@ -136,7 +137,11 @@ export function AdminProductWizard({
   }, []);
 
   const runAutoAiFlow = useCallback(
-    async (hint: string, currentForm: AdminProductFormState) => {
+    async (
+      hint: string,
+      currentForm: AdminProductFormState,
+      options?: { fileName?: string },
+    ) => {
       setIsProcessing(true);
       setStep(2);
       setAiFlags({
@@ -150,7 +155,10 @@ export function AdminProductWizard({
       });
 
       await delay(400);
-      const bundle = generateMockAiBundle(hint);
+      const bundle = generateMockAiBundle(hint, {
+        fileName: options?.fileName,
+        formTitle: currentForm.title,
+      });
       setAiBundle(bundle);
 
       setAiFlags((flags) => ({ ...flags, titleSuggested: true }));
@@ -203,8 +211,11 @@ export function AdminProductWizard({
       setForm(withImage);
       setUploadNote("Фото загружено.");
 
-      const hint = file.name.replace(/\.[^.]+$/, "").trim() || form.title;
-      await runAutoAiFlow(hint, withImage);
+      const hint = resolveAiHint({
+        fileName: file.name,
+        formTitle: form.title,
+      });
+      await runAutoAiFlow(hint, withImage, { fileName: file.name });
     } catch (error) {
       setUploadNote(
         error instanceof Error
@@ -215,7 +226,7 @@ export function AdminProductWizard({
   };
 
   const regenerateAi = async () => {
-    const hint = form.title || "bellaflore";
+    const hint = resolveAiHint({ formTitle: form.title });
     await runAutoAiFlow(hint, form);
   };
 

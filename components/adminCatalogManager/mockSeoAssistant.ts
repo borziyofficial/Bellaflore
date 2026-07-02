@@ -4,6 +4,7 @@
 // ==================================================
 import type { MockAiSuggestion } from "@/components/adminCatalogManager/adminCatalogTypes";
 import type { MockSeoSuggestion } from "@/components/adminCatalogManager/adminSeoTypes";
+import { isGarbageProductTitle } from "@/components/adminCatalogManager/mockAiHintUtils";
 import {
   buildSeoChecklist,
   calculateSeoScore,
@@ -22,14 +23,17 @@ function slugify(value: string): string {
 export function generateMockSeoSuggestions(
   product: MockAiSuggestion,
 ): MockSeoSuggestion {
+  const productTitle = isGarbageProductTitle(product.title)
+    ? "Авторский букет"
+    : product.title.trim();
   const categoryTitle =
     CATALOG_CATEGORY_BY_ID[product.categoryId]?.title ?? "Букеты";
-  const seoSlug = slugify(product.title);
-  const seoTitle = `${product.title} — купить ${categoryTitle.toLowerCase()} с доставкой | Bellaflore`;
+  const seoSlug = slugify(productTitle);
+  const seoTitle = `${productTitle} — купить ${categoryTitle.toLowerCase()} с доставкой | Bellaflore`;
   const seoDescription = `${product.shortDescription}. Доставка по Москве сегодня. Премиальные букеты Bellaflore — подарок на любой повод.`;
-  const seoH1 = `Букет «${product.title}»`;
+  const seoH1 = `Букет «${productTitle}»`;
   const seoKeywords = [
-    product.title.toLowerCase(),
+    productTitle.toLowerCase(),
     categoryTitle.toLowerCase(),
     "букет с доставкой",
     "цветы москва",
@@ -38,7 +42,7 @@ export function generateMockSeoSuggestions(
   ];
   const seoFaq = [
     {
-      question: `Сколько стоит букет «${product.title}»?`,
+      question: `Сколько стоит букет «${productTitle}»?`,
       answer: `Стоимость зависит от размера S–XL. Базовая цена от ${product.sizePrices.S} ₽ с доставкой по Москве.`,
     },
     {
@@ -53,7 +57,7 @@ export function generateMockSeoSuggestions(
   const schemaProductJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: product.title,
+    name: productTitle,
     description: seoDescription,
     brand: {
       "@type": "Brand",
@@ -77,13 +81,13 @@ export function generateMockSeoSuggestions(
     seoSlug,
     seoKeywords: seoKeywords.join(", "),
     seoFaq,
-    seoImageAlt: `Букет ${product.title} — ${categoryTitle}, Bellaflore`,
+    seoImageAlt: `Букет ${productTitle} — ${categoryTitle}, Bellaflore`,
     seoGalleryAlt: [
-      `Букет ${product.title} крупным планом`,
-      `Упаковка букета ${product.title}`,
-      `Букет ${product.title} в интерьере`,
+      `Букет ${productTitle} крупным планом`,
+      `Упаковка букета ${productTitle}`,
+      `Букет ${productTitle} в интерьере`,
     ],
-    openGraphTitle: `${product.title} — Bellaflore`,
+    openGraphTitle: `${productTitle} — Bellaflore`,
     openGraphDescription: product.shortDescription,
     schemaProductJsonLd,
     internalLinkSuggestions: [
