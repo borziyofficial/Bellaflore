@@ -1,0 +1,120 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 24px;
+  border: 1px solid rgba(232, 220, 220, 0.72);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.96), rgba(251, 248, 242, 0.9)),
+    rgba(253, 251, 247, 0.94);
+  box-shadow: 0 14px 34px rgba(61, 49, 38, 0.06);
+  overflow: hidden;
+}
+
+.mediaButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.imageWrap {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 18px;
+  background: rgba(234, 214, 214, 0.18);
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageFallback {
+  min-height: 100%;
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(253, 251, 247, 0.92);
+  color: rgba(61, 49, 38, 0.84);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.favorite {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 3;
+}
+
+.favoriteActive {
+  color: #b07a7a;
+}
+
+.info {
+  display: grid;
+  gap: 8px;
+}
+
+.titleButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  color: var(--champagne-text);
+}
+
+.price {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: rgba(61, 49, 38, 0.92);
+}
+
+.deliveryHint {
+  margin: 0;
+  color: rgba(118, 92, 92, 0.82);
+  font-size: 12px;
+}
+
+.buyButton {
+  margin-top: 4px;
+  min-height: 44px;
+  scroll-margin-bottom: calc(120px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 10px;
+    border-radius: 20px;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .price {
+    font-size: 1.05rem;
+  }
+}

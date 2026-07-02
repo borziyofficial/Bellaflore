@@ -1,25 +1,46 @@
+// ==================================================
+// SECTION: MOBILE BOTTOM NAV
+// РАЗДЕЛ: Мобильная нижняя навигация
+//
+// Purpose (EN):
+// Fixed bottom tab bar for mobile quick navigation
+//
+// Назначение (RU):
+// Нижняя мобильная навигация
+// ==================================================
 "use client";
 
 import {
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
 } from "react";
+import navStyles from "@/components/navigation/MobileBottomNav.module.css";
 
 type MobileBottomNavProps = {
   bottomNavCompact: boolean;
   bottomNavAction: string;
-  searchPanelOpen: boolean;
   contactHubOpen: boolean;
   favoritesPanelOpen: boolean;
   myOrderPanelOpen: boolean;
   favoriteBouquetIds: string[];
+  handleHomeNavClick: (
+    event: ReactMouseEvent<HTMLAnchorElement>,
+  ) => void;
+  handleHomeNavTouchEnd: (
+    event: ReactTouchEvent<HTMLAnchorElement>,
+  ) => void;
   handleSearchNavClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
   ) => void;
   handleSearchNavTouchEnd: (
     event: ReactTouchEvent<HTMLButtonElement>,
   ) => void;
-  toggleContactHub: () => void;
+  handleContactNavClick: (
+    event: ReactMouseEvent<HTMLButtonElement>,
+  ) => void;
+  handleContactNavTouchEnd: (
+    event: ReactTouchEvent<HTMLButtonElement>,
+  ) => void;
   handleFavoritesNavClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
   ) => void;
@@ -37,14 +58,16 @@ type MobileBottomNavProps = {
 export function MobileBottomNav({
   bottomNavCompact,
   bottomNavAction,
-  searchPanelOpen,
   contactHubOpen,
   favoritesPanelOpen,
   myOrderPanelOpen,
   favoriteBouquetIds,
+  handleHomeNavClick,
+  handleHomeNavTouchEnd,
   handleSearchNavClick,
   handleSearchNavTouchEnd,
-  toggleContactHub,
+  handleContactNavClick,
+  handleContactNavTouchEnd,
   handleFavoritesNavClick,
   handleFavoritesNavTouchEnd,
   handleMyOrderNavClick,
@@ -52,55 +75,59 @@ export function MobileBottomNav({
 }: MobileBottomNavProps) {
   return (
     <nav
-      className={`mobile-bottom-nav ${bottomNavCompact ? "mobile-bottom-nav-compact" : ""}`}
+      className={`${navStyles.nav} ${bottomNavCompact ? navStyles.compact : ""}`}
       aria-label="Быстрая мобильная навигация"
     >
-      <span className="mobile-bottom-nav-glass" aria-hidden="true" />
+      <span className={navStyles.glass} aria-hidden="true" />
       <span className="sr-only" aria-live="polite">
         {bottomNavAction}
       </span>
       <a
-        className="mobile-bottom-nav-item"
+        className={navStyles.item}
         href="#home"
         aria-label="Главный"
+        onClick={handleHomeNavClick}
+        onTouchEnd={handleHomeNavTouchEnd}
       >
         <svg aria-hidden="true" viewBox="0 0 24 24">
           <path d="M3.5 11.4 12 4l8.5 7.4" />
           <path d="M6.5 10.2V20h5v-5.2h3V20h5v-9.8" />
         </svg>
-        <span className="mobile-bottom-nav-label">Главный</span>
+        <span className={navStyles.label}>Главный</span>
       </a>
       <button
         type="button"
-        className={`mobile-bottom-nav-item ${searchPanelOpen ? "mobile-bottom-nav-item-active" : ""}`}
+        className={navStyles.item}
         onClick={handleSearchNavClick}
         onTouchEnd={handleSearchNavTouchEnd}
         aria-label="Каталог"
-        aria-pressed={searchPanelOpen}
       >
         <svg aria-hidden="true" viewBox="0 0 24 24">
-          <circle cx="10.8" cy="10.8" r="6.3" />
-          <path d="m16.1 16.1 4.4 4.4" />
+          <path d="M5 7h14" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M5 12h14" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M5 17h14" stroke="currentColor" strokeWidth="1.8" />
         </svg>
-        <span className="mobile-bottom-nav-label">Каталог</span>
+        <span className={navStyles.label}>Каталог</span>
       </button>
       <button
         type="button"
-        className="mobile-bottom-nav-item mobile-bottom-nav-primary"
-        onClick={toggleContactHub}
+        className={`${navStyles.item} ${navStyles.itemPrimary} ${contactHubOpen ? navStyles.itemActive : ""}`}
+        onClick={handleContactNavClick}
+        onTouchEnd={handleContactNavTouchEnd}
         aria-label="Связь"
         aria-expanded={contactHubOpen}
+        aria-pressed={contactHubOpen}
         aria-controls="contact-quick-actions"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24">
           <path d="M21 4 10.6 14.4" />
           <path d="m21 4-6.6 18-3.8-7.6L3 10.6 21 4Z" />
         </svg>
-        <span className="mobile-bottom-nav-label">Связь</span>
+        <span className={navStyles.label}>Связь</span>
       </button>
       <button
         type="button"
-        className={`mobile-bottom-nav-item ${favoritesPanelOpen ? "mobile-bottom-nav-item-active" : ""}`}
+        className={`${navStyles.item} ${favoritesPanelOpen ? navStyles.itemActive : ""}`}
         onClick={handleFavoritesNavClick}
         onTouchEnd={handleFavoritesNavTouchEnd}
         aria-label={
@@ -118,24 +145,21 @@ export function MobileBottomNav({
             {favoriteBouquetIds.length}
           </span>
         )}
-        <span className="mobile-bottom-nav-label">Избранное</span>
+        <span className={navStyles.label}>Избранное</span>
       </button>
       <button
         type="button"
-        className={`mobile-bottom-nav-item ${myOrderPanelOpen ? "mobile-bottom-nav-item-active" : ""}`}
+        className={`${navStyles.item} ${myOrderPanelOpen ? navStyles.itemActive : ""}`}
         onClick={handleMyOrderNavClick}
         onTouchEnd={handleMyOrderNavTouchEnd}
-        aria-label="Мой заказ"
+        aria-label="Мой профиль"
         aria-pressed={myOrderPanelOpen}
       >
         <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path d="M7.2 3.8h8.2l2.4 2.4v14H7.2z" />
-          <path d="M15.4 3.8v2.4h2.4" />
-          <path d="M9.6 10.1h4.8" />
-          <path d="M9.6 13.2h3.2" />
-          <path d="m10 17 1.5 1.5 3-3.2" />
+          <circle cx="12" cy="8.2" r="3.4" />
+          <path d="M5.2 20v-1a6.8 6.8 0 0 1 13.6 0v1" />
         </svg>
-        <span className="mobile-bottom-nav-label">Мой заказ</span>
+        <span className={navStyles.label}>Профиль</span>
       </button>
     </nav>
   );

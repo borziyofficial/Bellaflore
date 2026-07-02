@@ -74,8 +74,11 @@ import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
 import { getOrdersUrl } from "@/app/orders/orderUtils";
 import { CartPanel } from "@/components/panels/CartPanel";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
-import { CatalogPanel } from "@/components/catalog/CatalogPanel";
 import { findPublicStorefrontProduct } from "@/components/catalog/publicCatalogMerge";
+import {
+  mapHeroCategoryToSectionId,
+  type HomeCatalogSectionId,
+} from "@/components/catalog/homeCatalogSections";
 import { usePublicStorefrontCatalog } from "@/components/catalog/usePublicStorefrontCatalog";
 import { ProductExperiencePage } from "@/components/product/ProductExperiencePage";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
@@ -83,11 +86,6 @@ import {
   getProductExperienceData,
   getProductSizeVariant,
 } from "@/components/product/productExperienceCatalog";
-import {
-  normalizeSearchText,
-} from "@/components/search/searchFoundation";
-import { runSmartCatalogSearch } from "@/components/smartSearch/smartSearchBridge";
-import { smartCatalogGroups } from "@/data/smartCatalog";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import {
   type ChangeEvent as ReactChangeEvent,
@@ -477,7 +475,6 @@ export default function Home() {
   const [cartRestored, setCartRestored] = useState(false);
   const [cartPanelOpen, setCartPanelOpen] = useState(false);
   const [checkoutPanelOpen, setCheckoutPanelOpen] = useState(false);
-  const [searchPanelOpen, setSearchPanelOpen] = useState(false);
   const [myOrderPanelOpen, setMyOrderPanelOpen] = useState(false);
   const [closingBottomNavPanel, setClosingBottomNavPanel] =
     useState<BottomNavPanelId | null>(null);
@@ -485,14 +482,9 @@ export default function Home() {
   const [profileActiveSection, setProfileActiveSection] =
     useState<ProfileHubSectionId | null>(null);
   const [showOrdersOnly, setShowOrdersOnly] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [homeCatalogFocusNonce, setHomeCatalogFocusNonce] = useState(0);
-  const [homeCatalogCategoryId, setHomeCatalogCategoryId] = useState("all");
-  const [homeCatalogQuickFilterId, setHomeCatalogQuickFilterId] =
-    useState("popular");
-  const [failedSearchImageIds, setFailedSearchImageIds] = useState<string[]>(
-    [],
-  );
+  const [homeCatalogSectionId, setHomeCatalogSectionId] =
+    useState<HomeCatalogSectionId | null>("popular");
   const [productExperienceId, setProductExperienceId] = useState<string | null>(
     null,
   );
@@ -637,7 +629,6 @@ export default function Home() {
     if (
       !favoritesPanelOpen &&
       !cartPanelOpen &&
-      !searchPanelOpen &&
       !contactHubOpen &&
       !closingBottomNavPanel
     ) {
@@ -650,13 +641,7 @@ export default function Home() {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [
-    cartPanelOpen,
-    closingBottomNavPanel,
-    contactHubOpen,
-    favoritesPanelOpen,
-    searchPanelOpen,
-  ]);
+  }, [cartPanelOpen, closingBottomNavPanel, contactHubOpen, favoritesPanelOpen]);
 
   useEffect(() => {
     const syncTimer = window.setTimeout(() => {
@@ -774,8 +759,6 @@ export default function Home() {
   const closeBottomNavPanelImmediate = (panel: BottomNavPanelId) => {
     switch (panel) {
       case "catalog":
-        setSearchPanelOpen(false);
-        setSearchQuery("");
         break;
       case "favorites":
         setFavoritesPanelOpen(false);
@@ -792,8 +775,6 @@ export default function Home() {
   const closeAllBottomNavPanelsImmediate = () => {
     clearBottomNavCloseTimer();
     setClosingBottomNavPanel(null);
-    setSearchPanelOpen(false);
-    setSearchQuery("");
     setFavoritesPanelOpen(false);
     setContactHubOpen(false);
     setMyOrderPanelOpen(false);
@@ -801,10 +782,6 @@ export default function Home() {
   };
 
   const getActiveBottomNavPanel = (): BottomNavPanelId | null => {
-    if (searchPanelOpen) {
-      return "catalog";
-    }
-
     if (favoritesPanelOpen) {
       return "favorites";
     }
@@ -827,7 +804,7 @@ export default function Home() {
 
     switch (panel) {
       case "catalog":
-        return searchPanelOpen;
+        return false;
       case "favorites":
         return favoritesPanelOpen;
       case "contact":
@@ -844,13 +821,11 @@ export default function Home() {
     animated = true,
   ) => {
     const isOpen =
-      panel === "catalog"
-        ? searchPanelOpen
-        : panel === "favorites"
-          ? favoritesPanelOpen
-          : panel === "contact"
-            ? contactHubOpen
-            : myOrderPanelOpen;
+      panel === "favorites"
+        ? favoritesPanelOpen
+        : panel === "contact"
+          ? contactHubOpen
+          : myOrderPanelOpen;
 
     if (!isOpen && closingBottomNavPanel !== panel) {
       return;
@@ -884,18 +859,23 @@ export default function Home() {
     return storedOrders;
   };
 
+  const scrollToHomeCatalog = (sectionId: HomeCatalogSectionId | null = null) => {
+    setHomeCatalogSectionId(sectionId);
+    setHomeCatalogFocusNonce((current) => current + 1);
+    setBottomNavAction("Каталог на главной");
+  };
+
   const openBottomNavPanel = (panel: BottomNavPanelId) => {
+    if (panel === "catalog") {
+      closeAllBottomNavPanelsImmediate();
+      scrollToHomeCatalog(null);
+      return;
+    }
+
     clearBottomNavCloseTimer();
     setClosingBottomNavPanel(null);
     setCartPanelOpen(false);
     setCheckoutPanelOpen(false);
-
-    if (panel !== "catalog" && searchPanelOpen) {
-      setSearchPanelOpen(false);
-      setSearchQuery("");
-    } else if (panel !== "catalog") {
-      setSearchPanelOpen(false);
-    }
 
     if (panel !== "favorites") {
       setFavoritesPanelOpen(false);
@@ -917,9 +897,6 @@ export default function Home() {
     }
 
     switch (panel) {
-      case "catalog":
-        setSearchPanelOpen(true);
-        break;
       case "favorites":
         setFavoritesPanelOpen(true);
         break;
@@ -976,7 +953,6 @@ export default function Home() {
   const closeFavoritesPanel = () => closeBottomNavPanel("favorites", true);
   const closeCartPanel = () => setCartPanelOpen(false);
   const closeCheckoutPanel = () => setCheckoutPanelOpen(false);
-  const closeSearchPanel = () => closeBottomNavPanel("catalog", true);
   const closeMyOrderPanel = () => {
     setProfileActiveSection(null);
     closeBottomNavPanel("myOrder", true);
@@ -1282,15 +1258,6 @@ export default function Home() {
     checkoutNow,
   );
 
-  const normalizedSearchQuery = normalizeSearchText(searchQuery);
-  const catalogSearch = runSmartCatalogSearch(
-    bouquets,
-    searchQuery,
-    smartCatalogGroups,
-  );
-  const searchResults = catalogSearch.products;
-  const searchCategoryResults = catalogSearch.categories;
-
   const resolveBouquetSelection = (
     bouquetId: string,
     sizeId: ProductSizeId = "S",
@@ -1585,7 +1552,8 @@ export default function Home() {
       return;
     }
 
-    toggleBottomNavPanel("catalog");
+    closeAllBottomNavPanelsImmediate();
+    scrollToHomeCatalog(null);
   };
 
   const handleSearchNavTouchEnd = (
@@ -1594,7 +1562,8 @@ export default function Home() {
     event.preventDefault();
     event.stopPropagation();
     lastTouchActionRef.current = event.timeStamp;
-    toggleBottomNavPanel("catalog");
+    closeAllBottomNavPanelsImmediate();
+    scrollToHomeCatalog(null);
   };
 
   const handleHomeNavClick = (
@@ -1701,51 +1670,12 @@ export default function Home() {
     prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
-  const handleSearchBuyClick = (
-    event: ReactMouseEvent<HTMLButtonElement>,
-    bouquetId: string,
-    sizeId: ProductSizeId,
-    priceRub: number,
-  ) => {
-    event.preventDefault();
-
-    if (didHandleRecentTouch(event.timeStamp)) {
-      return;
-    }
-
-    prepareProductCheckout(bouquetId, sizeId, priceRub);
-  };
-
-  const handleSearchBuyTouchEnd = (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    bouquetId: string,
-    sizeId: ProductSizeId,
-    priceRub: number,
-  ) => {
-    event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
-    prepareProductCheckout(bouquetId, sizeId, priceRub);
-  };
-
-  const scrollToHomeCatalog = () => {
-    setHomeCatalogFocusNonce((current) => current + 1);
-    setBottomNavAction("Каталог на главной");
-  };
-
   const handleHeroBrowseCatalog = () => {
-    setHomeCatalogCategoryId("all");
-    setHomeCatalogQuickFilterId("popular");
-    scrollToHomeCatalog();
+    scrollToHomeCatalog("popular");
   };
 
   const handleHeroCategorySelect = (categoryId: string) => {
-    setHomeCatalogCategoryId(categoryId);
-    setHomeCatalogQuickFilterId("popular");
-    scrollToHomeCatalog();
-  };
-
-  const handleHeroSearchEntry = () => {
-    scrollToHomeCatalog();
+    scrollToHomeCatalog(mapHeroCategoryToSectionId(categoryId));
   };
 
   const handleBouquetOrderClick = (
@@ -1807,23 +1737,6 @@ export default function Home() {
     event.stopPropagation();
     lastTouchActionRef.current = event.timeStamp;
     toggleBottomNavPanel("myOrder");
-  };
-
-  const handleSearchQueryChange = (
-    event: ReactChangeEvent<HTMLInputElement>,
-  ) => {
-    setSearchQuery(event.target.value);
-  };
-
-  const clearSearchQuery = () => {
-    setSearchQuery("");
-    setBottomNavAction("Поиск очищен");
-  };
-
-  const markSearchImageFailed = (bouquetId: string) => {
-    setFailedSearchImageIds((currentIds) =>
-      currentIds.includes(bouquetId) ? currentIds : [...currentIds, bouquetId],
-    );
   };
 
   const markProductImageFailed = (imageId: string) => {
@@ -1903,11 +1816,10 @@ export default function Home() {
     };
   }, [activeProductExperience]);
 
-  const productFailedImages = useMemo(() => {
-    const merged = new Set(productFailedImageIds);
-    failedSearchImageIds.forEach((id) => merged.add(id));
-    return merged;
-  }, [failedSearchImageIds, productFailedImageIds]);
+  const productFailedImages = useMemo(
+    () => new Set(productFailedImageIds),
+    [productFailedImageIds],
+  );
 
   const handleProductExperienceBuy = (
     productId: string,
@@ -1918,49 +1830,6 @@ export default function Home() {
     closeProductExperience();
   };
 
-  const applySearchSuggestion = (suggestion: string) => {
-    setSearchQuery(suggestion);
-    setBottomNavAction(`Каталог: ${suggestion}`);
-  };
-
-  const handleSearchSuggestionClick = (
-    event: ReactMouseEvent<HTMLButtonElement>,
-    suggestion: string,
-  ) => {
-    event.preventDefault();
-
-    if (didHandleRecentTouch(event.timeStamp)) {
-      return;
-    }
-
-    applySearchSuggestion(suggestion);
-  };
-
-  const handleSearchSuggestionTouchEnd = (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    suggestion: string,
-  ) => {
-    event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
-    applySearchSuggestion(suggestion);
-  };
-
-  const handleCatalogOpenFavorites = () => {
-    openBottomNavPanel("favorites");
-  };
-
-  const handleCatalogOpenMyOrder = () => {
-    openBottomNavPanel("myOrder");
-  };
-
-  // ==================================================
-  // SECTION: Checkout Handlers
-  // РАЗДЕЛ: Обработчики checkout
-  //
-  // Purpose (EN): Open checkout view, manage delivery date presets, validate payload, and confirm order submission.
-  //
-  // Назначение (RU): Открытие checkout, пресеты даты доставки, валидация payload и подтверждение отправки заказа.
-  // ==================================================
   const openCheckoutView = () => {
     closeCartPanel();
     openCheckoutPanel();
@@ -2298,7 +2167,6 @@ export default function Home() {
       <HeroSection
         onBrowseCatalog={handleHeroBrowseCatalog}
         onCategorySelect={handleHeroCategorySelect}
-        onSearchEntryClick={handleHeroSearchEntry}
       />
 
       <CollectionsSection
@@ -2309,9 +2177,9 @@ export default function Home() {
         handleFavoriteTouchEnd={handleFavoriteTouchEnd}
         handleBouquetOrderClick={handleBouquetOrderClick}
         handleBouquetOrderTouchEnd={handleBouquetOrderTouchEnd}
+        onProductOpen={openProductExperience}
         catalogFocusNonce={homeCatalogFocusNonce}
-        initialCategoryId={homeCatalogCategoryId}
-        initialQuickFilterId={homeCatalogQuickFilterId}
+        focusSectionId={homeCatalogSectionId}
       />
 
       {/* ==================================================
@@ -2411,51 +2279,6 @@ export default function Home() {
         </OrdersSection>
       )}
 
-      {/* ==================================================
-          SECTION: Catalog Panel
-          РАЗДЕЛ: Панель каталога
-
-          Purpose (EN): Smart search catalog overlay — query, filters, category results, and buy actions.
-
-          Назначение (RU): Оверлей каталога с умным поиском — запрос, фильтры, категории и покупка.
-          ================================================== */}
-      {isBottomNavPanelVisible("catalog") && (
-        <div
-          className={
-            closingBottomNavPanel === "catalog"
-              ? "bottom-nav-panel-host-closing"
-              : undefined
-          }
-        >
-          <CatalogPanel
-            searchQuery={searchQuery}
-            normalizedSearchQuery={normalizedSearchQuery}
-            searchResults={searchResults}
-            searchCategoryResults={searchCategoryResults}
-            favoriteBouquetIds={favoriteBouquetIds}
-            failedSearchImageIds={failedSearchImageIds}
-            formatPrice={formatPrice}
-            onClose={closeSearchPanel}
-            onOpenFavorites={handleCatalogOpenFavorites}
-            onOpenMyOrder={handleCatalogOpenMyOrder}
-            onSearchQueryChange={handleSearchQueryChange}
-            onClearSearch={clearSearchQuery}
-            onFilterClick={handleSearchSuggestionClick}
-            onFilterTouchEnd={handleSearchSuggestionTouchEnd}
-            markSearchImageFailed={markSearchImageFailed}
-            onBuyClick={handleSearchBuyClick}
-            onBuyTouchEnd={handleSearchBuyTouchEnd}
-            onFavoriteClick={handleFavoriteClick}
-            onFavoriteTouchEnd={handleFavoriteTouchEnd}
-            onProductOpen={openProductExperience}
-            smartSearchEmptyState={catalogSearch.emptyState}
-            smartResultByProductId={catalogSearch.smartResultByProductId}
-            onSearchSuggestionSelect={applySearchSuggestion}
-            allBouquets={bouquets}
-          />
-        </div>
-      )}
-
       {activeProductExperience ? (
         <ProductExperiencePage
           key={activeProductExperience.id}
@@ -2517,7 +2340,6 @@ export default function Home() {
       <MobileBottomNav
         bottomNavCompact={bottomNavCompact}
         bottomNavAction={bottomNavAction}
-        searchPanelOpen={searchPanelOpen}
         contactHubOpen={contactHubOpen}
         favoritesPanelOpen={favoritesPanelOpen}
         myOrderPanelOpen={myOrderPanelOpen}

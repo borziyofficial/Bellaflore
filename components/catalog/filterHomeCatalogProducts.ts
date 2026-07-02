@@ -32,6 +32,13 @@ function productHaystack(product: CatalogProduct): string {
   );
 }
 
+export function matchesHomeCatalogCategory(
+  product: CatalogProduct,
+  categoryId: string,
+): boolean {
+  return matchesCategory(product, categoryId);
+}
+
 function matchesCategory(product: CatalogProduct, categoryId: string): boolean {
   if (categoryId === "all") {
     return true;
@@ -78,6 +85,8 @@ function matchesQuickFilter(
         POPULAR_PRODUCT_IDS.has(product.id) ||
         Boolean(catalogProductBadges[product.id])
       );
+    case "all":
+      return true;
     case "under-5000":
       return product.priceRub < 5000;
     case "mid-range":

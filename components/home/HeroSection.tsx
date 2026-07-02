@@ -1,10 +1,6 @@
 // ==================================================
 // SECTION: HERO
-// РАЗДЕЛ: Главный экран
-//
-// Purpose (EN): Premium landing hero with catalog entry and order CTA.
-//
-// Назначение (RU): Премиальный hero с входом в каталог и CTA заказа.
+// РАЗДЕЛ: Главный экран (Stage 56A)
 // ==================================================
 "use client";
 
@@ -15,13 +11,11 @@ import styles from "@/components/home/HeroSection.module.css";
 type HeroSectionProps = {
   onBrowseCatalog: () => void;
   onCategorySelect: (categoryId: string) => void;
-  onSearchEntryClick: () => void;
 };
 
 export function HeroSection({
   onBrowseCatalog,
   onCategorySelect,
-  onSearchEntryClick,
 }: HeroSectionProps) {
   return (
     <main id="home" className="hero">
@@ -31,32 +25,17 @@ export function HeroSection({
           Премиальная доставка цветов для особых моментов
         </p>
 
-        <button
-          type="button"
-          className={styles.searchEntry}
-          onClick={onSearchEntryClick}
-          aria-label="Перейти к поиску букетов в каталоге"
-        >
-          <span className={styles.searchIcon} aria-hidden="true">
-            ⌕
-          </span>
-          <span>Найти букет в каталоге</span>
-        </button>
-
-        <div className={styles.categoryRow} aria-label="Быстрые категории">
-          {homeCatalogCategoryChips
-            .filter((chip) => chip.id !== "all")
-            .slice(0, 5)
-            .map((chip) => (
-              <button
-                key={chip.id}
-                type="button"
-                className={styles.categoryChip}
-                onClick={() => onCategorySelect(chip.id)}
-              >
-                {chip.label}
-              </button>
-            ))}
+        <div className={styles.categoryRow} aria-label="Категории каталога">
+          {homeCatalogCategoryChips.map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              className={styles.categoryChip}
+              onClick={() => onCategorySelect(chip.id)}
+            >
+              {chip.label}
+            </button>
+          ))}
         </div>
 
         <div className={styles.actions}>
