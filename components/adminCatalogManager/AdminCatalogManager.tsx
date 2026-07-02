@@ -25,7 +25,6 @@ export function AdminCatalogManager() {
     isReady,
     saveProduct,
     archiveProduct,
-    deleteProduct,
     getProductById,
     buildPreviewRecord,
     getPublishedPreviewProducts,
@@ -59,8 +58,23 @@ export function AdminCatalogManager() {
     setView("edit");
   };
 
-  const handleSave = (form: AdminProductFormState) => {
-    saveProduct(form);
+  const handleSaveDraft = (form: AdminProductFormState) => {
+    const saved = saveProduct({ ...form, status: "draft" });
+    setFormSeed(catalogRecordToAdminForm(saved));
+    setEditingId(saved.id);
+    setView("edit");
+  };
+
+  const handlePublish = (form: AdminProductFormState) => {
+    saveProduct({ ...form, status: "published" });
+    setView("list");
+    setEditingId(null);
+  };
+
+  const handleArchive = (form: AdminProductFormState) => {
+    if (form.id) {
+      archiveProduct(form.id);
+    }
     setView("list");
     setEditingId(null);
   };
@@ -92,7 +106,6 @@ export function AdminCatalogManager() {
           onCreate={openCreate}
           onEdit={openEdit}
           onArchive={archiveProduct}
-          onDelete={deleteProduct}
         />
       ) : (
         <AdminProductForm
@@ -100,8 +113,9 @@ export function AdminCatalogManager() {
           initialForm={formSeed}
           mode={view === "create" ? "create" : "edit"}
           buildPreviewRecord={buildPreviewRecord}
-          onSaveDraft={handleSave}
-          onPublish={handleSave}
+          onSaveDraft={handleSaveDraft}
+          onPublish={handlePublish}
+          onArchive={handleArchive}
           onCancel={() => {
             setView("list");
             setEditingId(null);

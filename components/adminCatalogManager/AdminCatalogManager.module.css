@@ -783,6 +783,183 @@
   border-radius: 6px;
 }
 
+.wizardShell {
+  max-width: 520px;
+  margin: 0 auto;
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  overflow-x: hidden;
+}
+
+.wizardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.wizardTitle {
+  margin: 0;
+  font-size: 24px;
+}
+
+.wizardSteps {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.wizardSteps::-webkit-scrollbar {
+  display: none;
+}
+
+.wizardStepChip {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 4px;
+  min-width: 92px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wizardStepChipActive {
+  border-color: var(--admin-gold);
+  background: rgba(138, 107, 61, 0.08);
+}
+
+.wizardStepChipDone {
+  border-color: rgba(47, 107, 79, 0.25);
+}
+
+.wizardStepNumber {
+  font-size: 11px;
+  color: var(--admin-muted);
+  font-weight: 700;
+}
+
+.wizardStepLabel {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.wizardPanel {
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow);
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.wizardPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wizardPhotoFrame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #efe6da;
+}
+
+.wizardPhotoImage {
+  object-fit: cover;
+}
+
+.wizardPhotoEmpty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--admin-muted);
+  font-weight: 600;
+}
+
+.wizardActionRow,
+.wizardNavRow {
+  display: grid;
+  gap: 10px;
+}
+
+.wizardStickyActions {
+  display: grid;
+  gap: 10px;
+  position: sticky;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  padding-top: 8px;
+  background: linear-gradient(180deg, transparent, var(--admin-surface) 24%);
+}
+
+.compactSummary {
+  display: grid;
+  gap: 12px;
+}
+
+.aiStatusList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.aiStatusDone {
+  color: var(--admin-success);
+  font-size: 14px;
+}
+
+.aiStatusActive {
+  color: var(--admin-gold);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.aiStatusPending {
+  color: var(--admin-muted);
+  font-size: 14px;
+}
+
+.successNote {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(47, 107, 79, 0.1);
+  color: var(--admin-success);
+  font-size: 13px;
+}
+
+.technicalBlock {
+  border: 1px dashed var(--admin-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.technicalSummary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--admin-muted);
+}
+
+.wizardFooter {
+  margin-top: 12px;
+}
+
 @media (max-width: 960px) {
   .toolbar {
     grid-template-columns: 1fr;
@@ -816,5 +993,15 @@
   .ghostButton,
   .dangerButton {
     width: 100%;
+    min-height: 48px;
+  }
+
+  .wizardShell {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .sizeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

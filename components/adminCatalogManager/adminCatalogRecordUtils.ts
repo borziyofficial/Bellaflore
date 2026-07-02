@@ -51,6 +51,7 @@ export function createEmptyAdminProductForm(): AdminProductFormState {
     mainImageUrl: "",
     mainImageAlt: "",
     mainImageTemporary: false,
+    mainImageStorage: "none",
     galleryUrls: [],
     seoTitle: "",
     seoDescription: "",
@@ -294,7 +295,14 @@ export function catalogRecordToAdminForm(
     isBestseller: product.metadata.isBestseller ?? product.popularityScore >= 90,
     mainImageUrl: primaryImage?.url ?? "",
     mainImageAlt: primaryImage?.alt ?? product.title,
-    mainImageTemporary: primaryImage?.url.startsWith("blob:") ?? false,
+    mainImageTemporary: false,
+    mainImageStorage: primaryImage?.url.startsWith("data:")
+      ? "base64"
+      : primaryImage?.url.startsWith("/uploads/")
+        ? "server"
+        : primaryImage?.url
+          ? "server"
+          : "none",
     galleryUrls,
     seoTitle: product.seo.title,
     seoDescription: product.seo.description,

@@ -5,6 +5,7 @@
 "use client";
 
 import Image from "next/image";
+import { shouldUseUnoptimizedImage } from "@/components/adminCatalogManager/adminImagePersistence";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import { CATALOG_CATEGORY_BY_ID } from "@/components/catalogEngine/categoriesCatalog";
 import styles from "@/components/adminCatalogManager/AdminCatalogManager.module.css";
@@ -41,7 +42,7 @@ export function AdminProductPreviewCard({ product }: AdminProductPreviewCardProp
               fill
               sizes="240px"
               className={styles.previewImage}
-              unoptimized={primaryImage.url.startsWith("blob:")}
+              unoptimized={shouldUseUnoptimizedImage(primaryImage.url)}
             />
           ) : (
             <div className={styles.imageFallback}>Bellaflore</div>

@@ -8,7 +8,6 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { AdminProductStatusFilter } from "@/components/adminCatalogManager/adminCatalogTypes";
 import {
-  canDeleteAdminProduct,
   getAdminProductStatusLabel,
 } from "@/components/adminCatalogManager/adminCatalogRecordUtils";
 import { CATALOG_CATEGORY_BY_ID } from "@/components/catalogEngine/categoriesCatalog";
@@ -20,7 +19,6 @@ type AdminProductListProps = {
   onCreate: () => void;
   onEdit: (productId: string) => void;
   onArchive: (productId: string) => void;
-  onDelete: (productId: string) => void;
 };
 
 function formatPrice(priceRub: number): string {
@@ -32,7 +30,6 @@ export function AdminProductList({
   onCreate,
   onEdit,
   onArchive,
-  onDelete,
 }: AdminProductListProps) {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -187,7 +184,7 @@ export function AdminProductList({
                         className={styles.ghostButton}
                         onClick={() => onEdit(product.id)}
                       >
-                        Изменить
+                        ✏️ Редактировать
                       </button>
                       {product.status !== "ARCHIVED" ? (
                         <button
@@ -195,16 +192,7 @@ export function AdminProductList({
                           className={styles.ghostButton}
                           onClick={() => onArchive(product.id)}
                         >
-                          В архив
-                        </button>
-                      ) : null}
-                      {canDeleteAdminProduct(product) ? (
-                        <button
-                          type="button"
-                          className={styles.dangerButton}
-                          onClick={() => onDelete(product.id)}
-                        >
-                          Удалить
+                          🗑 Архивировать
                         </button>
                       ) : null}
                     </div>

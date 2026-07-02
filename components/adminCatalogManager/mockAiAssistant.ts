@@ -65,7 +65,11 @@ export function generateMockProductSuggestions(
 ): MockAiSuggestion {
   const template = pickTemplate(hint || "bellaflore");
   const title = hint.trim()
-    ? hint.trim().replace(/\b\w/g, (char) => char.toUpperCase())
+    ? hint
+        .trim()
+        .replace(/\.[^.]+$/, "")
+        .replace(/[-_]+/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase())
     : template.title;
   const sizePrices = buildSizePrices(template.basePrice);
   const fullDescription = `${template.shortDescription}. Композиция собрана флористами Bellaflore с доставкой по Москве в день заказа.`;
@@ -79,6 +83,11 @@ export function generateMockProductSuggestions(
     tags: [...template.tags],
     sizePrices,
     imageAlt: `Букет ${title} — Bellaflore`,
+    suggestFeatured: [...template.tags].includes("премиум"),
+    suggestNew: title.toLowerCase().includes("cloud"),
+    suggestBestseller:
+      [...template.tags].includes("vip") ||
+      [...template.tags].includes("эксклюзив"),
   };
 }
 
