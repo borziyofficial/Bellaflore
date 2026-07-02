@@ -20,7 +20,16 @@ function ensureBuyButtonClearOfBottomNav(button: HTMLButtonElement) {
     return;
   }
 
-  button.scrollIntoView({ block: "nearest", behavior: "auto" });
+  const bottomNav = document.querySelector<HTMLElement>(
+    'nav[aria-label="Быстрая мобильная навигация"]',
+  );
+  const navTop = bottomNav?.getBoundingClientRect().top ?? window.innerHeight - 96;
+  const buttonRect = button.getBoundingClientRect();
+  const overlap = buttonRect.bottom + 12 - navTop;
+
+  if (overlap > 0) {
+    window.scrollBy({ top: overlap, behavior: "auto" });
+  }
 }
 
 type LuxuryCatalogProductCardProps = {
