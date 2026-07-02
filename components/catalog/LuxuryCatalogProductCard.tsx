@@ -13,7 +13,15 @@ import {
 } from "@/components/product/productExperienceCatalog";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
-import { useMemo, useState, type MouseEvent, type TouchEvent } from "react";
+import { useMemo, useState, type MouseEvent, type PointerEvent, type TouchEvent } from "react";
+
+function ensureBuyButtonClearOfBottomNav(button: HTMLButtonElement) {
+  if (typeof window === "undefined" || window.innerWidth > 768) {
+    return;
+  }
+
+  button.scrollIntoView({ block: "nearest", behavior: "auto" });
+}
 
 type LuxuryCatalogProductCardProps = {
   product: CatalogProduct;
@@ -59,6 +67,32 @@ export function LuxuryCatalogProductCard({
 
   const openProduct = () => {
     onProductOpen?.(product.id);
+  };
+
+  const handleBuyPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === "touch") {
+      ensureBuyButtonClearOfBottomNav(event.currentTarget);
+    }
+  };
+
+  const handleBuyClick = (event: MouseEvent<HTMLButtonElement>) => {
+    ensureBuyButtonClearOfBottomNav(event.currentTarget);
+    onBuyClick(
+      event,
+      product.id,
+      selectedVariant.sizeId,
+      selectedVariant.priceRub,
+    );
+  };
+
+  const handleBuyTouchEnd = (event: TouchEvent<HTMLButtonElement>) => {
+    ensureBuyButtonClearOfBottomNav(event.currentTarget);
+    onBuyTouchEnd(
+      event,
+      product.id,
+      selectedVariant.sizeId,
+      selectedVariant.priceRub,
+    );
   };
 
   return (
@@ -121,22 +155,9 @@ export function LuxuryCatalogProductCard({
         <button
           type="button"
           className={`buy-button bouquet-order-link ${styles.buyButton}`}
-          onClick={(event) =>
-            onBuyClick(
-              event,
-              product.id,
-              selectedVariant.sizeId,
-              selectedVariant.priceRub,
-            )
-          }
-          onTouchEnd={(event) =>
-            onBuyTouchEnd(
-              event,
-              product.id,
-              selectedVariant.sizeId,
-              selectedVariant.priceRub,
-            )
-          }
+          onPointerDown={handleBuyPointerDown}
+          onClick={handleBuyClick}
+          onTouchEnd={handleBuyTouchEnd}
           aria-label={`Купить ${product.title} в размере ${selectedVariant.label}`}
         >
           Купить

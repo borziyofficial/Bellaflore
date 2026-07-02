@@ -101,13 +101,19 @@
 .buyButton {
   margin-top: 4px;
   min-height: 44px;
-  scroll-margin-bottom: calc(120px + env(safe-area-inset-bottom));
+  scroll-margin-bottom: calc(140px + env(safe-area-inset-bottom));
 }
 
 @media (max-width: 768px) {
   .card {
     padding: 10px;
     border-radius: 20px;
+  }
+
+  .buyButton {
+    position: relative;
+    z-index: 1;
+    scroll-margin-bottom: calc(148px + env(safe-area-inset-bottom));
   }
 
   .title {
