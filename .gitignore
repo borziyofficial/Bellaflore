@@ -41,8 +41,12 @@ yarn-error.log*
 .env*
 backend/bellaflore.db
 
+# catalog database (local dev fallback)
+.data/
+
 # vercel
 .vercel
+
 
 # typescript
 *.tsbuildinfo

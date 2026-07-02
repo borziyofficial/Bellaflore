@@ -29,7 +29,7 @@ export type AdminProductFormState = {
   mainImageUrl: string;
   mainImageAlt: string;
   mainImageTemporary: boolean;
-  mainImageStorage: "none" | "server" | "base64" | "blob";
+  mainImageStorage: "none" | "server" | "blob";
   galleryUrls: string[];
   seoTitle: string;
   seoDescription: string;

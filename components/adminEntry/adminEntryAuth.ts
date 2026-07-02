@@ -98,14 +98,10 @@ export async function loginWithAdminEntryCredentials(
   const trimmedLogin = username.trim();
   const trimmedPassword = password.trim();
 
-  const localValidation = validateSecurityLogin(trimmedLogin, trimmedPassword);
-  if (localValidation.ok && localValidation.user) {
-    return finalizeAdminEntryLogin(localValidation.user);
-  }
-
   try {
     const response = await fetch("/api/admin/login", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -136,6 +132,11 @@ export async function loginWithAdminEntryCredentials(
 
     return finalizeAdminEntryLogin(user);
   } catch {
+    const localValidation = validateSecurityLogin(trimmedLogin, trimmedPassword);
+    if (localValidation.ok && localValidation.user) {
+      return finalizeAdminEntryLogin(localValidation.user);
+    }
+
     return {
       ok: false,
       session: null,

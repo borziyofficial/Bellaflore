@@ -25,6 +25,8 @@ export function AdminCatalogManager() {
   const {
     products,
     isReady,
+    loadError,
+    imageStorageWarning,
     saveProduct,
     archiveProduct,
     getProductById,
@@ -40,6 +42,8 @@ export function AdminCatalogManager() {
   const [formSeed, setFormSeed] = useState<AdminProductFormState>(
     createEmptyAdminProductForm(),
   );
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const publishedCount = useMemo(
     () => getPublishedPreviewProducts().length,
@@ -48,6 +52,7 @@ export function AdminCatalogManager() {
 
   const openCreate = () => {
     setPublishedProduct(null);
+    setActionError(null);
     setFormSeed(createEmptyAdminProductForm());
     setEditingId(null);
     setView("create");
@@ -60,43 +65,80 @@ export function AdminCatalogManager() {
     }
 
     setPublishedProduct(null);
+    setActionError(null);
     setFormSeed(catalogRecordToAdminForm(product));
     setEditingId(productId);
     setView("edit");
   };
 
-  const handleSaveDraft = (form: AdminProductFormState) => {
-    const saved = saveProduct({ ...form, status: "draft" });
-    setFormSeed(catalogRecordToAdminForm(saved));
-    setEditingId(saved.id);
-    setView("edit");
+  const handleSaveDraft = async (form: AdminProductFormState) => {
+    setIsSaving(true);
+    setActionError(null);
+    try {
+      const saved = await saveProduct({ ...form, status: "draft" });
+      setFormSeed(catalogRecordToAdminForm(saved));
+      setEditingId(saved.id);
+      setView("edit");
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Не удалось сохранить черновик.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handlePublish = (form: AdminProductFormState) => {
-    const saved = saveProduct({ ...form, status: "published" });
-    setPublishedProduct(saved);
-    setFormSeed(catalogRecordToAdminForm(saved));
-    setEditingId(saved.id);
-    setView("edit");
+  const handlePublish = async (form: AdminProductFormState) => {
+    setIsSaving(true);
+    setActionError(null);
+    try {
+      const saved = await saveProduct({ ...form, status: "published" });
+      setPublishedProduct(saved);
+      setFormSeed(catalogRecordToAdminForm(saved));
+      setEditingId(saved.id);
+      setView("edit");
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Не удалось опубликовать товар.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleArchiveFromSuccess = () => {
+  const handleArchiveFromSuccess = async () => {
     if (!publishedProduct) {
       return;
     }
 
-    archiveProduct(publishedProduct.id);
-    setPublishedProduct(null);
-    setView("list");
-    setEditingId(null);
+    setActionError(null);
+    try {
+      await archiveProduct(publishedProduct.id);
+      setPublishedProduct(null);
+      setView("list");
+      setEditingId(null);
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Не удалось архивировать товар.",
+      );
+    }
   };
 
-  const handleArchive = (form: AdminProductFormState) => {
-    if (form.id) {
-      archiveProduct(form.id);
+  const handleArchive = async (form: AdminProductFormState) => {
+    if (!form.id) {
+      return;
     }
-    setView("list");
-    setEditingId(null);
+
+    setActionError(null);
+    try {
+      await archiveProduct(form.id);
+      setView("list");
+      setEditingId(null);
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Не удалось архивировать товар.",
+      );
+    }
   };
 
   if (!isReady) {
@@ -112,20 +154,28 @@ export function AdminCatalogManager() {
       <header className={styles.topBar}>
         <div className={styles.topBarMain}>
           <Link href="/admin" className={styles.backLink}>
-            ← Admin Control Center
+            ← Панель администратора
           </Link>
           <p className={styles.topMeta}>
-            {products.length} товаров · {publishedCount} опубликовано в admin
+            {products.length} товаров · {publishedCount} опубликовано
           </p>
         </div>
       </header>
+
+      {loadError ? <p className={styles.errorBanner}>{loadError}</p> : null}
+      {imageStorageWarning ? (
+        <p className={styles.warningBanner}>{imageStorageWarning}</p>
+      ) : null}
+      {actionError ? <p className={styles.errorBanner}>{actionError}</p> : null}
 
       {view === "list" ? (
         <AdminProductList
           products={products}
           onCreate={openCreate}
           onEdit={openEdit}
-          onArchive={archiveProduct}
+          onArchive={(productId) => {
+            void archiveProduct(productId);
+          }}
         />
       ) : publishedProduct ? (
         <div className={styles.wizardShell}>
@@ -149,7 +199,9 @@ export function AdminCatalogManager() {
           <AdminPublishSuccessPanel
             product={publishedProduct}
             onEdit={() => setPublishedProduct(null)}
-            onArchive={handleArchiveFromSuccess}
+            onArchive={() => {
+              void handleArchiveFromSuccess();
+            }}
             onOpenCatalog={() => {
               setPublishedProduct(null);
               setView("list");
@@ -163,14 +215,22 @@ export function AdminCatalogManager() {
           initialForm={formSeed}
           mode={view === "create" ? "create" : "edit"}
           buildPreviewRecord={buildPreviewRecord}
-          onSaveDraft={handleSaveDraft}
-          onPublish={handlePublish}
-          onArchive={handleArchive}
+          onSaveDraft={(form) => {
+            void handleSaveDraft(form);
+          }}
+          onPublish={(form) => {
+            void handlePublish(form);
+          }}
+          onArchive={(form) => {
+            void handleArchive(form);
+          }}
           onCancel={() => {
             setPublishedProduct(null);
             setView("list");
             setEditingId(null);
           }}
+          isSaving={isSaving}
+          imageStorageWarning={imageStorageWarning}
         />
       )}
     </div>

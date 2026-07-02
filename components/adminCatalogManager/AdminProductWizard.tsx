@@ -59,6 +59,8 @@ type AdminProductWizardProps = {
   onPublish: (form: AdminProductFormState) => void;
   onArchive?: (form: AdminProductFormState) => void;
   onCancel: () => void;
+  isSaving?: boolean;
+  imageStorageWarning?: string | null;
 };
 
 function validateForm(form: AdminProductFormState): AdminProductFormErrors {
@@ -106,6 +108,8 @@ export function AdminProductWizard({
   onPublish,
   onArchive,
   onCancel,
+  isSaving = false,
+  imageStorageWarning = null,
 }: AdminProductWizardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState(initialForm);
@@ -183,8 +187,8 @@ export function AdminProductWizard({
       const nextForm: AdminProductFormState = {
         ...form,
         mainImageUrl: instantPreview,
-        mainImageTemporary: false,
-        mainImageStorage: "base64",
+        mainImageTemporary: true,
+        mainImageStorage: "none",
       };
       setForm(nextForm);
       setAiFlags((flags) => ({ ...flags, photoReceived: true }));
@@ -197,19 +201,16 @@ export function AdminProductWizard({
         mainImageTemporary: false,
       };
       setForm(withImage);
-
-      if (persisted.storage === "base64") {
-        setUploadNote(
-          "Фото сохранено в черновике (base64). До подключения облачного хранилища изображение остаётся в браузере.",
-        );
-      } else {
-        setUploadNote("Фото загружено.");
-      }
+      setUploadNote("Фото загружено.");
 
       const hint = file.name.replace(/\.[^.]+$/, "").trim() || form.title;
       await runAutoAiFlow(hint, withImage);
-    } catch {
-      setUploadNote("Не удалось обработать изображение. Попробуйте другой файл.");
+    } catch (error) {
+      setUploadNote(
+        error instanceof Error
+          ? error.message
+          : "Хранилище изображений не настроено",
+      );
     }
   };
 
@@ -280,6 +281,10 @@ export function AdminProductWizard({
           );
         })}
       </nav>
+
+      {imageStorageWarning ? (
+        <p className={styles.warningBanner}>{imageStorageWarning}</p>
+      ) : null}
 
       {savedNotice ? <p className={styles.successNote}>{savedNotice}</p> : null}
 
@@ -576,6 +581,7 @@ export function AdminProductWizard({
               type="button"
               className={styles.secondaryButton}
               onClick={() => submit("draft")}
+              disabled={isSaving}
             >
               Сохранить черновик
             </button>
@@ -583,16 +589,18 @@ export function AdminProductWizard({
               type="button"
               className={styles.primaryButton}
               onClick={() => submit("published")}
+              disabled={isSaving}
             >
-              Опубликовать
+              {isSaving ? "Сохранение…" : "Опубликовать"}
             </button>
             {form.id && onArchive ? (
               <button
                 type="button"
                 className={styles.ghostButton}
                 onClick={() => onArchive(form)}
+                disabled={isSaving}
               >
-                🗑 Архивировать
+                Архивировать
               </button>
             ) : null}
           </div>
@@ -605,17 +613,14 @@ export function AdminProductWizard({
           className={styles.ghostButton}
           onClick={() => setShowTechnical((value) => !value)}
         >
-          {showTechnical ? "Скрыть" : "✏️ Редактировать"} технические поля
+          {showTechnical ? "Скрыть технические данные" : "Технические данные"}
         </button>
       </footer>
 
       {showTechnical ? (
         <details className={styles.technicalBlock} open>
           <summary className={styles.technicalSummary}>Технические данные</summary>
-          <p className={styles.cardHint}>ID: {form.id ?? "новый"}</p>
-          <p className={styles.cardHint}>
-            Хранение фото: {form.mainImageStorage}
-          </p>
+          <AdminProductSeoAiPanel form={form} aiBundle={aiBundle} onApply={setForm} />
         </details>
       ) : null}
     </div>

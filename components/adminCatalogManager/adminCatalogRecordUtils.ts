@@ -296,8 +296,8 @@ export function catalogRecordToAdminForm(
     mainImageUrl: primaryImage?.url ?? "",
     mainImageAlt: primaryImage?.alt ?? product.title,
     mainImageTemporary: false,
-    mainImageStorage: primaryImage?.url.startsWith("data:")
-      ? "base64"
+    mainImageStorage: primaryImage?.url.includes("blob.vercel-storage.com")
+      ? "blob"
       : primaryImage?.url.startsWith("/uploads/")
         ? "server"
         : primaryImage?.url

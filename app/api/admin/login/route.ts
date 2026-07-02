@@ -7,6 +7,10 @@
 // Назначение (RU): POST-обработчик — проверяет учётные данные admin через env и dev config.
 // ==================================================
 import { resolveSecurityLoginUser } from "@/components/securityIntelligence/resolveSecurityLoginUser";
+import {
+  adminSessionCookieHeader,
+  createAdminSessionToken,
+} from "@/lib/adminApiAuth";
 
 type AdminLoginRequest = {
   username?: unknown;
@@ -41,13 +45,22 @@ export async function POST(request: Request) {
     );
   }
 
-  return Response.json({
-    authenticated: true,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+  const token = createAdminSessionToken(user.id);
+
+  return Response.json(
+    {
+      authenticated: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     },
-  });
+    {
+      headers: {
+        "Set-Cookie": adminSessionCookieHeader(token),
+      },
+    },
+  );
 }
