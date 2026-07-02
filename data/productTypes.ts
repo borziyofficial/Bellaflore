@@ -22,6 +22,7 @@ export type ProductDetailFields = {
   badge?: string;
   isPopular?: boolean;
   isNew?: boolean;
+  whatsIncluded?: string;
 };
 
 export type ProductSelection = {

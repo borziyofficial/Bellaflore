@@ -41,6 +41,7 @@ export type ProductReviewEntry = {
 
 export type ProductExperienceData = {
   productId: string;
+  description: string;
   galleryImages: ProductGalleryImage[];
   sizeVariants: ProductSizeVariant[];
   defaultSizeId: ProductSizeId;
@@ -48,6 +49,7 @@ export type ProductExperienceData = {
   composition: string;
   deliveryNote: string;
   careNote: string;
+  whatsIncluded: string;
   availability?: string;
   badge?: string;
   isPopular?: boolean;

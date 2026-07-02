@@ -1,0 +1,39 @@
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 220, 220, 0.76);
+  background:
+    linear-gradient(180deg, rgba(253, 251, 247, 0.96), rgba(251, 248, 242, 0.88)),
+    rgba(253, 251, 247, 0.92);
+  color: rgba(61, 49, 38, 0.78);
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(155, 112, 118, 0.72);
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .item {
+    font-size: 11px;
+    padding: 7px 10px;
+  }
+}

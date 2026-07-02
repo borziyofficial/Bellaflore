@@ -22,6 +22,7 @@ type ProductSizeSelectorProps = {
   formatPrice?: (priceRub: number) => string;
   visibleSizeIds?: ProductSizeId[];
   showSelectedPrice?: boolean;
+  showDetails?: boolean;
   ariaLabel?: string;
 };
 
@@ -37,6 +38,7 @@ export function ProductSizeSelector({
   formatPrice = formatFallbackPrice,
   visibleSizeIds,
   showSelectedPrice = true,
+  showDetails = true,
   ariaLabel = "Выбор размера",
 }: ProductSizeSelectorProps) {
   const selectedVariant =
@@ -115,15 +117,19 @@ export function ProductSizeSelector({
         })}
       </div>
 
-      <p className={styles.description}>{selectedVariant.description}</p>
+      {showDetails ? (
+        <>
+          <p className={styles.description}>{selectedVariant.description}</p>
 
-      <ul className={styles.specs}>
-        {selectedVariant.specs.map((spec) => (
-          <li className={styles.spec} key={`${selectedVariant.sizeId}-${spec.label}`}>
-            {spec.label}: <strong>{spec.value}</strong>
-          </li>
-        ))}
-      </ul>
+          <ul className={styles.specs}>
+            {selectedVariant.specs.map((spec) => (
+              <li className={styles.spec} key={`${selectedVariant.sizeId}-${spec.label}`}>
+                {spec.label}: <strong>{spec.value}</strong>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
     </div>
   );
 }

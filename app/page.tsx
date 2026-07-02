@@ -78,6 +78,10 @@ import { CatalogPanel } from "@/components/catalog/CatalogPanel";
 import { ProductExperiencePage } from "@/components/product/ProductExperiencePage";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import {
+  getProductExperienceData,
+  getProductSizeVariant,
+} from "@/components/product/productExperienceCatalog";
+import {
   normalizeSearchText,
 } from "@/components/search/searchFoundation";
 import { runSmartCatalogSearch } from "@/components/smartSearch/smartSearchBridge";
@@ -105,6 +109,8 @@ const navigationItems = [
 type CartItem = {
   bouquetId: string;
   quantity: number;
+  sizeId: ProductSizeId;
+  priceRub: number;
 };
 
 type PaymentMethod =
@@ -364,10 +370,30 @@ function readStoredCartItems(): CartItem[] {
         return [];
       }
 
+      const bouquet = bouquets.find((entry) => entry.id === item.bouquetId);
+      if (!bouquet) {
+        return [];
+      }
+
+      const sizeId =
+        item.sizeId === "S" ||
+        item.sizeId === "M" ||
+        item.sizeId === "L" ||
+        item.sizeId === "XL"
+          ? (item.sizeId as ProductSizeId)
+          : getProductExperienceData(bouquet).defaultSizeId;
+      const experienceData = getProductExperienceData(bouquet);
+      const selectedVariant = getProductSizeVariant(experienceData, sizeId);
+
       return [
         {
           bouquetId: item.bouquetId,
           quantity: Math.min(Math.floor(item.quantity), 99),
+          sizeId,
+          priceRub:
+            typeof item.priceRub === "number" && Number.isFinite(item.priceRub)
+              ? item.priceRub
+              : selectedVariant.priceRub,
         },
       ];
     });
@@ -1068,8 +1094,26 @@ export default function Home() {
 
   const cartBouquets = cartItems.flatMap((cartItem) => {
     const bouquet = bouquets.find((item) => item.id === cartItem.bouquetId);
+    if (!bouquet) {
+      return [];
+    }
 
-    return bouquet ? [{ ...cartItem, bouquet }] : [];
+    const experienceData = getProductExperienceData(bouquet);
+    const selectedVariant = getProductSizeVariant(
+      experienceData,
+      cartItem.sizeId,
+    );
+
+    return [
+      {
+        ...cartItem,
+        sizeLabel: selectedVariant.label,
+        bouquet: {
+          ...bouquet,
+          priceRub: cartItem.priceRub ?? selectedVariant.priceRub,
+        },
+      },
+    ];
   });
   const customerOrders = confirmedOrders.filter(isCustomerCreatedOrder);
 
@@ -1235,6 +1279,33 @@ export default function Home() {
   const searchResults = catalogSearch.products;
   const searchCategoryResults = catalogSearch.categories;
 
+  const resolveBouquetSelection = (
+    bouquetId: string,
+    sizeId: ProductSizeId = "S",
+    priceRub?: number,
+  ) => {
+    const bouquet = bouquets.find((item) => item.id === bouquetId);
+    if (!bouquet) {
+      return null;
+    }
+
+    const experienceData = getProductExperienceData(bouquet);
+    const selectedVariant = getProductSizeVariant(
+      experienceData,
+      sizeId,
+    );
+
+    return {
+      bouquet,
+      sizeId: selectedVariant.sizeId,
+      sizeLabel: selectedVariant.label,
+      priceRub:
+        typeof priceRub === "number" && Number.isFinite(priceRub)
+          ? priceRub
+          : selectedVariant.priceRub,
+    };
+  };
+
   // ==================================================
   // SECTION: Cart Handlers
   // РАЗДЕЛ: Обработчики корзины
@@ -1243,36 +1314,58 @@ export default function Home() {
   //
   // Назначение (RU): Добавление, удаление и изменение количества позиций корзины с touch-safe обработчиками.
   // ==================================================
-  const addBouquetToCart = (bouquetId: string) => {
+  const addBouquetToCart = (
+    bouquetId: string,
+    sizeId: ProductSizeId,
+    priceRub?: number,
+  ) => {
+    const selection = resolveBouquetSelection(bouquetId, sizeId, priceRub);
+    if (!selection) {
+      return;
+    }
+
     setCartItems((currentItems) => {
       const existingItem = currentItems.find(
-        (item) => item.bouquetId === bouquetId,
+        (item) => item.bouquetId === bouquetId && item.sizeId === selection.sizeId,
       );
 
       setBottomNavAction("Букет добавлен в корзину");
 
       if (!existingItem) {
-        return [...currentItems, { bouquetId, quantity: 1 }];
+        return [
+          ...currentItems,
+          {
+            bouquetId,
+            quantity: 1,
+            sizeId: selection.sizeId,
+            priceRub: selection.priceRub,
+          },
+        ];
       }
 
       return currentItems.map((item) =>
-        item.bouquetId === bouquetId
-          ? { ...item, quantity: item.quantity + 1 }
+        item.bouquetId === bouquetId && item.sizeId === selection.sizeId
+          ? { ...item, quantity: item.quantity + 1, priceRub: selection.priceRub }
           : item,
       );
     });
   };
 
-  const removeBouquetFromCart = (bouquetId: string) => {
+  const removeBouquetFromCart = (bouquetId: string, sizeId: ProductSizeId) => {
     setCartItems((currentItems) =>
-      currentItems.filter((item) => item.bouquetId !== bouquetId),
+      currentItems.filter(
+        (item) => item.bouquetId !== bouquetId || item.sizeId !== sizeId,
+      ),
     );
   };
 
-  const decreaseCartItemQuantity = (bouquetId: string) => {
+  const decreaseCartItemQuantity = (
+    bouquetId: string,
+    sizeId: ProductSizeId,
+  ) => {
     setCartItems((currentItems) =>
       currentItems.flatMap((item) => {
-        if (item.bouquetId !== bouquetId) {
+        if (item.bouquetId !== bouquetId || item.sizeId !== sizeId) {
           return [item];
         }
 
@@ -1286,10 +1379,13 @@ export default function Home() {
     setBottomNavAction("Количество обновлено");
   };
 
-  const increaseCartItemQuantity = (bouquetId: string) => {
+  const increaseCartItemQuantity = (
+    bouquetId: string,
+    sizeId: ProductSizeId,
+  ) => {
     setCartItems((currentItems) =>
       currentItems.map((item) =>
-        item.bouquetId === bouquetId
+        item.bouquetId === bouquetId && item.sizeId === sizeId
           ? { ...item, quantity: Math.min(item.quantity + 1, 99) }
           : item,
       ),
@@ -1300,6 +1396,8 @@ export default function Home() {
   const handleCartAddClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
+    priceRub: number,
   ) => {
     event.preventDefault();
 
@@ -1307,16 +1405,18 @@ export default function Home() {
       return;
     }
 
-    addBouquetToCart(bouquetId);
+    addBouquetToCart(bouquetId, sizeId, priceRub);
   };
 
   const handleCartAddTouchEnd = (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
+    priceRub: number,
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    addBouquetToCart(bouquetId);
+    addBouquetToCart(bouquetId, sizeId, priceRub);
   };
 
   void handleCartAddClick;
@@ -1325,6 +1425,7 @@ export default function Home() {
   const handleCartRemoveClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => {
     event.preventDefault();
 
@@ -1332,23 +1433,25 @@ export default function Home() {
       return;
     }
 
-    removeBouquetFromCart(bouquetId);
+    removeBouquetFromCart(bouquetId, sizeId);
     setBottomNavAction("Букет удалён из корзины");
   };
 
   const handleCartRemoveTouchEnd = (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    removeBouquetFromCart(bouquetId);
+    removeBouquetFromCart(bouquetId, sizeId);
     setBottomNavAction("Букет удалён из корзины");
   };
 
   const handleCartDecreaseClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => {
     event.preventDefault();
 
@@ -1356,21 +1459,23 @@ export default function Home() {
       return;
     }
 
-    decreaseCartItemQuantity(bouquetId);
+    decreaseCartItemQuantity(bouquetId, sizeId);
   };
 
   const handleCartDecreaseTouchEnd = (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    decreaseCartItemQuantity(bouquetId);
+    decreaseCartItemQuantity(bouquetId, sizeId);
   };
 
   const handleCartIncreaseClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => {
     event.preventDefault();
 
@@ -1378,16 +1483,17 @@ export default function Home() {
       return;
     }
 
-    increaseCartItemQuantity(bouquetId);
+    increaseCartItemQuantity(bouquetId, sizeId);
   };
 
   const handleCartIncreaseTouchEnd = (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    increaseCartItemQuantity(bouquetId);
+    increaseCartItemQuantity(bouquetId, sizeId);
   };
 
   const handleFavoritesNavClick = (
@@ -1534,8 +1640,25 @@ export default function Home() {
     );
   };
 
-  const prepareProductCheckout = (bouquetId: string) => {
-    setCartItems([{ bouquetId, quantity: 1 }]);
+  const prepareProductCheckout = (
+    bouquetId: string,
+    sizeId: ProductSizeId,
+    priceRub?: number,
+  ) => {
+    const selection = resolveBouquetSelection(bouquetId, sizeId, priceRub);
+
+    if (!selection) {
+      return;
+    }
+
+    setCartItems([
+      {
+        bouquetId,
+        quantity: 1,
+        sizeId: selection.sizeId,
+        priceRub: selection.priceRub,
+      },
+    ]);
     openCheckoutPanel();
     setBottomNavAction("Букет подготовлен к покупке");
   };
@@ -1543,6 +1666,8 @@ export default function Home() {
   const handleFavoriteBuyClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
+    priceRub: number,
   ) => {
     event.preventDefault();
 
@@ -1550,21 +1675,25 @@ export default function Home() {
       return;
     }
 
-    routeToProductPurchase(bouquetId);
+    prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
   const handleFavoriteBuyTouchEnd = (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
+    priceRub: number,
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    routeToProductPurchase(bouquetId);
+    prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
   const handleSearchBuyClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
+    priceRub: number,
   ) => {
     event.preventDefault();
 
@@ -1572,16 +1701,18 @@ export default function Home() {
       return;
     }
 
-    routeToProductPurchase(bouquetId);
+    prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
   const handleSearchBuyTouchEnd = (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
+    priceRub: number,
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    routeToProductPurchase(bouquetId);
+    prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
   const scrollToHomeCatalog = () => {
@@ -1608,6 +1739,8 @@ export default function Home() {
   const handleBouquetOrderClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId = "S",
+    priceRub?: number,
   ) => {
     event.preventDefault();
 
@@ -1615,16 +1748,18 @@ export default function Home() {
       return;
     }
 
-    prepareProductCheckout(bouquetId);
+    prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
   const handleBouquetOrderTouchEnd = (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId = "S",
+    priceRub?: number,
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
-    prepareProductCheckout(bouquetId);
+    prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
   const openMyOrderAfterCheckout = (orderId: string) => {
@@ -1695,18 +1830,6 @@ export default function Home() {
     setProductExperienceId(bouquetId);
   };
 
-  const routeToProductPurchase = (
-    bouquetId: string,
-    options?: { openCatalog?: boolean },
-  ) => {
-    if (options?.openCatalog) {
-      openBottomNavPanel("catalog");
-    }
-
-    openProductExperience(bouquetId);
-    setBottomNavAction("Открыта карточка букета");
-  };
-
   const closeProductExperience = () => {
     setProductExperienceId(null);
   };
@@ -1722,9 +1845,12 @@ export default function Home() {
     return merged;
   }, [failedSearchImageIds, productFailedImageIds]);
 
-  const handleProductExperienceBuy = (productId: string, sizeId: ProductSizeId) => {
-    void sizeId;
-    prepareProductCheckout(productId);
+  const handleProductExperienceBuy = (
+    productId: string,
+    sizeId: ProductSizeId,
+    priceRub: number,
+  ) => {
+    prepareProductCheckout(productId, sizeId, priceRub);
     closeProductExperience();
   };
 
@@ -2273,7 +2399,6 @@ export default function Home() {
           allProducts={bouquets}
           formatPrice={formatPrice}
           isFavorite={favoriteBouquetIds.includes(activeProductExperience.id)}
-          favoriteProductIds={favoriteBouquetIds}
           failedImageIds={productFailedImages}
           deliveryAddress={checkoutForm.address}
           zoneResult={realDeliveryZoneResult}

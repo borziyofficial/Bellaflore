@@ -1,0 +1,99 @@
+.wrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2147483015;
+  display: none;
+  pointer-events: none;
+  padding:
+    0
+    max(12px, env(safe-area-inset-right))
+    calc(56px + env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+}
+
+.bar {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 12px;
+  border: 1px solid rgba(176, 141, 87, 0.22);
+  border-radius: 20px;
+  background: rgba(255, 252, 250, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 32px rgba(62, 44, 36, 0.14);
+}
+
+.priceBlock {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.priceMeta {
+  margin: 0;
+  color: var(--champagne-text, var(--bf-text));
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.deliveryNote {
+  margin: 0;
+  color: rgba(61, 49, 38, 0.58);
+  font-size: 11px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  min-height: 46px;
+  padding: 0;
+  border: 1px solid rgba(176, 141, 87, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(61, 49, 38, 0.78);
+  cursor: pointer;
+}
+
+.iconButtonActive {
+  border-color: rgba(155, 112, 118, 0.52);
+  background: rgba(247, 227, 232, 0.88);
+  color: rgba(155, 112, 118, 0.92);
+}
+
+.heartIcon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.buyButton {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #b8848d 0%, #9b7076 100%);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .wrap {
+    display: block;
+  }
+}

@@ -119,6 +119,7 @@ function buildExperienceData(product: CatalogProduct): ProductExperienceData {
 
   return {
     productId: product.id,
+    description: product.description,
     galleryImages: buildGalleryImages(product),
     sizeVariants: buildSizeVariants(product),
     defaultSizeId: getDefaultProductSizeId(product),
@@ -126,6 +127,9 @@ function buildExperienceData(product: CatalogProduct): ProductExperienceData {
     composition: getProductCompositionFallback(product),
     deliveryNote: details.deliveryHint,
     careNote: details.care,
+    whatsIncluded:
+      product.whatsIncluded ??
+      "Премиальная упаковка Bellaflore, аккуратная доставка и рекомендации по уходу после получения.",
     availability: details.availability,
     badge: details.badge,
     isPopular: details.isPopular,
