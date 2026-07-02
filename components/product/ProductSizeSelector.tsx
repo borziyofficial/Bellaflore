@@ -21,6 +21,7 @@ type ProductSizeSelectorProps = {
   layout?: "full" | "compact";
   formatPrice?: (priceRub: number) => string;
   visibleSizeIds?: ProductSizeId[];
+  compactOptionColumns?: 3 | 4;
   showSelectedPrice?: boolean;
   showDetails?: boolean;
   ariaLabel?: string;
@@ -37,6 +38,7 @@ export function ProductSizeSelector({
   layout = "full",
   formatPrice = formatFallbackPrice,
   visibleSizeIds,
+  compactOptionColumns = 3,
   showSelectedPrice = true,
   showDetails = true,
   ariaLabel = "Выбор размера",
@@ -72,7 +74,11 @@ export function ProductSizeSelector({
           </div>
         ) : null}
         {showSizeButtons ? (
-          <div className={styles.compactOptions}>
+          <div
+            className={`${styles.compactOptions} ${
+              compactOptionColumns === 4 ? styles.compactOptionsFour : ""
+            }`}
+          >
             {visibleVariants.map((variant) => {
               const isActive = variant.sizeId === selectedSizeId;
 

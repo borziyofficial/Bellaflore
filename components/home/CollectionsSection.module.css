@@ -1,8 +1,10 @@
 .section {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 16px calc(220px + env(safe-area-inset-bottom));
+  padding: 40px 16px calc(220px + env(safe-area-inset-bottom));
   overflow-x: clip;
+  background: var(--champagne-background, var(--bf-ui-page-bg, #f7f2ea));
+  scroll-margin-top: calc(72px + env(safe-area-inset-top));
 }
 
 .header {
@@ -152,7 +154,7 @@
 
 @media (min-width: 900px) {
   .section {
-    padding-inline: 24px;
+    padding: 48px 24px calc(220px + env(safe-area-inset-bottom));
   }
 
   .grid {
@@ -199,7 +201,6 @@
     padding-bottom: 2px;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
   }
 
   .categoryRow::-webkit-scrollbar {

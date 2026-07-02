@@ -143,8 +143,8 @@ export function CollectionsSection({
   };
 
   return (
-    <section id="collections" className={`bouquets ${styles.section}`}>
-      <header className={`section-header bf-reveal bf-reveal-up ${styles.header}`}>
+    <section id="collections" className={styles.section}>
+      <header className={`${styles.header} bf-reveal bf-reveal-up`}>
         <h2>{homeCatalogTitle}</h2>
         <p className={styles.subtitle}>{homeCatalogSubtitle}</p>
       </header>
@@ -210,7 +210,7 @@ export function CollectionsSection({
           </button>
         </div>
       ) : (
-        <div className={`bouquet-grid ${styles.grid}`}>
+        <div className={styles.grid}>
           {displayedProducts.map((bouquet) => (
             <LuxuryCatalogProductCard
               key={bouquet.id}

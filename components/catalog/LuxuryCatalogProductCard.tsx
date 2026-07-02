@@ -114,7 +114,7 @@ export function LuxuryCatalogProductCard({
   };
 
   return (
-    <article className={`bouquet-card ${styles.card}`}>
+    <article className={styles.card}>
       <div className={styles.mediaWrap}>
         <button
           type="button"
@@ -122,7 +122,7 @@ export function LuxuryCatalogProductCard({
           onClick={openProduct}
           aria-label={`Открыть ${product.title}`}
         >
-          <div className={`bouquet-image ${styles.imageWrap}`}>
+          <div className={styles.imageWrap}>
             <ProductImageWithFallback
               src={product.src}
               alt={product.alt}
@@ -137,7 +137,7 @@ export function LuxuryCatalogProductCard({
 
         <button
           type="button"
-          className={`bouquet-favorite-button ${styles.favorite} ${isFavorite ? styles.favoriteActive : ""}`}
+          className={`${styles.favorite} ${isFavorite ? styles.favoriteActive : ""}`}
           onClick={(event) => onFavoriteClick(event, product.id)}
           onTouchEnd={(event) => onFavoriteTouchEnd(event, product.id)}
           aria-label={
@@ -153,7 +153,7 @@ export function LuxuryCatalogProductCard({
         </button>
       </div>
 
-      <div className={`bouquet-info ${styles.info}`}>
+      <div className={styles.info}>
         <p className={styles.category}>{categoryLabel}</p>
 
         <button type="button" className={styles.titleButton} onClick={openProduct}>
@@ -175,12 +175,14 @@ export function LuxuryCatalogProductCard({
           onSelectSize={setSelectedSizeId}
           formatPrice={formatPrice}
           visibleSizeIds={["S", "M", "L", "XL"]}
+          compactOptionColumns={4}
+          showSelectedPrice={false}
           ariaLabel={`Размеры для ${product.title}`}
         />
 
         <button
           type="button"
-          className={`buy-button bouquet-order-link ${styles.buyButton}`}
+          className={`buy-button ${styles.buyButton}`}
           onPointerDown={handleBuyPointerDown}
           onClick={handleBuyClick}
           onTouchEnd={handleBuyTouchEnd}

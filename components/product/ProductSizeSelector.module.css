@@ -142,6 +142,16 @@
   gap: 6px;
 }
 
+.compactOptionsFour {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.compactOptionsFour .compactOption {
+  min-height: 34px;
+  padding: 6px 4px;
+  font-size: 12px;
+}
+
 .compactOption {
   min-height: 40px;
   padding: 8px 10px;
