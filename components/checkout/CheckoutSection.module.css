@@ -1,0 +1,135 @@
+.checkoutPaymentInfo {
+  display: grid;
+  gap: 12px;
+  padding: 20px 22px;
+  border: 1px solid var(--bf-ui-border, rgba(176, 141, 87, 0.18));
+  border-radius: 20px;
+  background: var(--bf-ui-surface-soft, rgba(255, 255, 255, 0.38));
+}
+
+.checkoutContactStrip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0 2px 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(176, 141, 87, 0.14);
+}
+
+.checkoutMapToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 42px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border: 0.5px solid rgba(255, 244, 220, 0.42);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.62), rgba(255, 253, 248, 0.34)),
+    rgba(253, 251, 247, 0.28);
+  box-shadow:
+    0 6px 18px rgba(9, 8, 7, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  color: var(--champagne-text, #2f2a24);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.checkoutMapToggle:hover,
+.checkoutMapToggle:focus-visible {
+  outline: none;
+  border-color: rgba(176, 141, 87, 0.32);
+}
+
+.checkoutSmartOptions {
+  display: grid;
+  gap: 10px;
+}
+
+.checkoutAnonymousInfo {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(155, 112, 118, 0.18);
+  background: rgba(234, 214, 214, 0.22);
+  color: var(--champagne-text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.checkoutCardTextarea {
+  min-height: 148px;
+}
+
+.checkoutPaymentLabel {
+  margin: 0;
+  color: var(--champagne-muted);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.checkoutPaymentValue {
+  margin: 0;
+  color: var(--champagne-text);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.checkoutPaymentNote {
+  margin: 0;
+  color: var(--champagne-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.checkoutPaymentOptions {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.checkoutPaymentOption {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 0.5px solid var(--bf-ui-border, rgba(255, 244, 220, 0.42));
+  border-radius: 16px;
+  background: var(--bf-ui-input-bg, rgba(255, 255, 255, 0.42));
+  color: var(--bf-ui-text, var(--champagne-text));
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.checkoutPaymentOption:has(input:checked) {
+  border-color: rgba(155, 112, 118, 0.34);
+  background: rgba(234, 214, 214, 0.22);
+}
+
+.checkoutPaymentOption input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--rose-accent, #9b7076);
+}
+
+@media (max-width: 720px) {
+  .checkoutContactStrip {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding-bottom: 16px;
+  }
+}

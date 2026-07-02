@@ -6,10 +6,15 @@
 
 import { catalogProductBadges } from "@/components/catalog/catalogConfig";
 import { filterHomeCatalogProducts } from "@/components/catalog/filterHomeCatalogProducts";
-import { homeCatalogSearchPlaceholder } from "@/components/catalog/homeCatalogConfig";
 import {
+  homeCatalogCategoryChips,
+  homeCatalogSearchPlaceholder,
+} from "@/components/catalog/homeCatalogConfig";
+import {
+  getHomeCatalogSectionAnchor,
   getHomeCatalogSectionProducts,
   HOME_CATALOG_SECTIONS,
+  mapHeroCategoryToSectionId,
   type HomeCatalogSectionId,
 } from "@/components/catalog/homeCatalogSections";
 import { LuxuryCatalogProductCard } from "@/components/catalog/LuxuryCatalogProductCard";
@@ -126,6 +131,17 @@ export function CollectionsSection({
     searchInputRef.current?.focus();
   };
 
+  const handleCategorySelect = (categoryId: string) => {
+    const sectionId = mapHeroCategoryToSectionId(categoryId);
+    if (!sectionId) {
+      return;
+    }
+
+    document
+      .getElementById(getHomeCatalogSectionAnchor(sectionId))
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <section id="collections" className={`bouquets ${styles.section}`}>
       <div className={`section-header bf-reveal bf-reveal-up ${styles.header}`}>
@@ -162,6 +178,19 @@ export function CollectionsSection({
             </button>
           ) : null}
         </label>
+
+        <div className={styles.categoryRow} aria-label="Категории каталога">
+          {homeCatalogCategoryChips.map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              className={styles.categoryChip}
+              onClick={() => handleCategorySelect(chip.id)}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {isSearchMode ? (

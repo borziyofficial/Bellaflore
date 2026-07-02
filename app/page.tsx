@@ -76,7 +76,6 @@ import { CartPanel } from "@/components/panels/CartPanel";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
 import { findPublicStorefrontProduct } from "@/components/catalog/publicCatalogMerge";
 import {
-  mapHeroCategoryToSectionId,
   type HomeCatalogSectionId,
 } from "@/components/catalog/homeCatalogSections";
 import { usePublicStorefrontCatalog } from "@/components/catalog/usePublicStorefrontCatalog";
@@ -1670,12 +1669,8 @@ export default function Home() {
     prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
-  const handleHeroBrowseCatalog = () => {
-    scrollToHomeCatalog("popular");
-  };
-
-  const handleHeroCategorySelect = (categoryId: string) => {
-    scrollToHomeCatalog(mapHeroCategoryToSectionId(categoryId));
+  const handleHeroOrderBouquet = () => {
+    scrollToHomeCatalog(null);
   };
 
   const handleBouquetOrderClick = (
@@ -2164,10 +2159,7 @@ export default function Home() {
 
           Назначение (RU): Hero на весь экран с брендовым изображением и основным призывом к действию.
           ================================================== */}
-      <HeroSection
-        onBrowseCatalog={handleHeroBrowseCatalog}
-        onCategorySelect={handleHeroCategorySelect}
-      />
+      <HeroSection onOrderBouquet={handleHeroOrderBouquet} />
 
       <CollectionsSection
         bouquets={bouquets}

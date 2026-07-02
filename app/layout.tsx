@@ -1,5 +1,24 @@
+// ==================================================
+// SECTION: SEO & Root Layout Metadata
+// РАЗДЕЛ: SEO и метаданные корневого layout
+//
+// Purpose (EN): Root HTML shell, global CSS imports, site metadata, Open Graph, Twitter cards, and JSON-LD structured data.
+//
+// Назначение (RU): Корневой HTML-контейнер, импорт глобальных стилей, метаданные сайта, Open Graph, Twitter-карточки и JSON-LD разметка.
+// ==================================================
+
 import type { Metadata } from "next";
 import "./globals.css";
+import "./pearl-theme.css";
+import "./pearl-typography.css";
+import "./pearl-buttons.css";
+import "./pearl-inputs.css";
+import "./pearl-surfaces.css";
+import "./pearl-motion.css";
+import "./pearl-readability.css";
+import "./pearl-mobile-qa.css";
+import "./bellaflore-ui-system.css";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import {
   absoluteUrl,
   homepageDescription,
@@ -91,13 +110,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" suppressHydrationWarning>
+    <html lang="ru" suppressHydrationWarning data-theme="day">
       <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("bellaflore-ui-theme");document.documentElement.dataset.theme=t==="night"?"night":"day";}catch(e){}})();`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

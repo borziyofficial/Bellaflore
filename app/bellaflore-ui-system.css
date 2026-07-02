@@ -1,0 +1,147 @@
+/* ==================================================
+   BellaFlore UI System v1.0 — Stage 56B
+   Minimal Luxe 98% + Dark Elegant gold glow 2%
+   ================================================== */
+
+:root,
+[data-theme="day"] {
+  --bf-ui-bg: #f7f4ef;
+  --bf-ui-surface: #fdfbf7;
+  --bf-ui-surface-soft: rgba(253, 251, 247, 0.92);
+  --bf-ui-text: #3d3126;
+  --bf-ui-text-muted: rgba(61, 49, 38, 0.62);
+  --bf-ui-border: rgba(232, 220, 220, 0.76);
+  --bf-ui-gold-1: #c9a962;
+  --bf-ui-gold-2: #b8924f;
+  --bf-ui-gold-3: #a67c3a;
+  --bf-ui-gold-glow: rgba(201, 169, 98, 0.22);
+  --bf-ui-gold-glow-strong: rgba(201, 169, 98, 0.34);
+  --bf-ui-hero-overlay: linear-gradient(
+    180deg,
+    rgba(255, 249, 250, 0.08) 0%,
+    rgba(255, 249, 250, 0.42) 48%,
+    rgba(255, 249, 250, 0.88) 100%
+  );
+  --bf-ui-card-bg: linear-gradient(
+    180deg,
+    rgba(255, 252, 244, 0.96),
+    rgba(251, 248, 242, 0.9)
+  );
+  --bf-ui-input-bg: rgba(253, 251, 247, 0.96);
+  --bf-ui-checkout-card: rgba(253, 251, 247, 0.88);
+}
+
+[data-theme="night"] {
+  --background: #121110;
+  --surface: #1a1816;
+  --surface-glass: rgba(26, 24, 22, 0.92);
+  --border: rgba(255, 244, 220, 0.12);
+  --text-strong: #f5efe6;
+  --text-main: #e8dfd3;
+  --text-secondary: rgba(232, 223, 211, 0.78);
+  --text-label: rgba(232, 223, 211, 0.68);
+  --bf-bg: #121110;
+  --bf-surface: #1a1816;
+  --bf-text: #e8dfd3;
+  --bf-text-secondary: rgba(232, 223, 211, 0.78);
+  --champagne-background: #121110;
+  --champagne-section: #161412;
+  --champagne-card: #1e1b18;
+  --champagne-text: #e8dfd3;
+  --champagne-muted: rgba(232, 223, 211, 0.68);
+  --champagne-border: rgba(255, 244, 220, 0.14);
+  --bf-ui-bg: #121110;
+  --bf-ui-surface: #1a1816;
+  --bf-ui-surface-soft: rgba(26, 24, 22, 0.94);
+  --bf-ui-text: #e8dfd3;
+  --bf-ui-text-muted: rgba(232, 223, 211, 0.68);
+  --bf-ui-border: rgba(255, 244, 220, 0.14);
+  --bf-ui-gold-1: #e4c878;
+  --bf-ui-gold-2: #d4b05a;
+  --bf-ui-gold-3: #c4a04a;
+  --bf-ui-gold-glow: rgba(228, 200, 120, 0.38);
+  --bf-ui-gold-glow-strong: rgba(228, 200, 120, 0.52);
+  --bf-ui-hero-overlay: linear-gradient(
+    180deg,
+    rgba(8, 7, 6, 0.28) 0%,
+    rgba(8, 7, 6, 0.62) 48%,
+    rgba(8, 7, 6, 0.88) 100%
+  );
+  --bf-ui-card-bg: linear-gradient(180deg, rgba(30, 27, 24, 0.96), rgba(22, 20, 18, 0.92));
+  --bf-ui-input-bg: rgba(26, 24, 22, 0.96);
+  --bf-ui-checkout-card: rgba(26, 24, 22, 0.92);
+}
+
+body {
+  background: var(--bf-ui-bg);
+  color: var(--bf-ui-text);
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+
+/* --- Hero glow (night brighter than day) --- */
+
+[data-theme="day"] .bf-brand-logo--hero.hero-title,
+[data-theme="day"] .bf-brand-logo--hero {
+  filter:
+    drop-shadow(0 2px 4px rgba(91, 72, 54, 0.24))
+    drop-shadow(0 8px 22px var(--bf-ui-gold-glow));
+}
+
+[data-theme="night"] .bf-brand-logo--hero.hero-title,
+[data-theme="night"] .bf-brand-logo--hero {
+  filter:
+    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 10px 28px var(--bf-ui-gold-glow-strong))
+    drop-shadow(0 0 42px var(--bf-ui-gold-glow));
+}
+
+[data-theme="night"] .hero::after {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(228, 200, 120, 0.12) 0%, transparent 42%),
+    var(--bf-ui-hero-overlay);
+}
+
+[data-theme="night"] .hero-subtitle {
+  color: rgba(232, 223, 211, 0.86);
+}
+
+/* --- Catalog --- */
+
+#collections.bouquets {
+  background: var(--bf-ui-bg);
+}
+
+[data-theme="night"] .section-header h2,
+[data-theme="night"] #collections h3 {
+  color: var(--bf-ui-text);
+}
+
+/* --- Checkout visual polish (logic unchanged) --- */
+
+.checkout-section .checkout-form-card,
+.checkout-section .checkout-accordion-card {
+  border-radius: 24px;
+  border-color: var(--bf-ui-border);
+  background: var(--bf-ui-checkout-card);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.06);
+}
+
+.checkout-section .checkout-field input,
+.checkout-section .checkout-field textarea,
+.checkout-section .checkout-field select {
+  border-radius: 16px;
+  border-color: var(--bf-ui-border);
+  background: var(--bf-ui-input-bg);
+}
+
+.checkout-section .checkout-choice-button,
+.checkout-section .checkout-accordion-trigger {
+  border-radius: 14px;
+}
+
+[data-theme="night"] .checkout-section .checkout-form-card,
+[data-theme="night"] .checkout-section .checkout-accordion-card {
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
