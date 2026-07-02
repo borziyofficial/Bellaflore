@@ -68,11 +68,11 @@ export function getDeliveryPriceUnavailableMessage(
 ): string | null {
   switch (status) {
     case "outside_delivery_area":
-      return "Delivery is unavailable for this address.";
+      return "Доставка по этому адресу недоступна.";
     case "unknown":
-      return "Enter a valid delivery address to calculate delivery price.";
+      return "Рассчитается после адреса";
     case "error":
-      return "Unable to calculate delivery price for this address.";
+      return "Не удалось рассчитать стоимость доставки.";
     case "ready":
     default:
       return null;
