@@ -13,6 +13,7 @@
 import Image from "next/image";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
+import styles from "@/components/panels/FavoritesPanel.module.css";
 import { getProductExperienceData, getProductSizeVariant } from "@/components/product/productExperienceCatalog";
 import { ProductSizePickerSheet } from "@/components/product/ProductSizePickerSheet";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
@@ -106,67 +107,63 @@ function FavoriteCard({
   const selectedSizeLabel = getProductSizeRuLabel(selectedVariant.sizeId);
 
   return (
-    <div className="favorites-panel-card">
-      <button
-        type="button"
-        className="favorites-card-heart-button active"
-        onClick={(event) => handleFavoriteRemoveClick(event, bouquet.id)}
-        onTouchEnd={(event) => handleFavoriteRemoveTouchEnd(event, bouquet.id)}
-        aria-label={`Убрать ${bouquet.title} из избранного`}
-        aria-pressed="true"
-      >
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path d="M12 20.5s-7.3-4.4-9-9.2C1.9 8 3.9 5.2 7 5.2c1.8 0 3.1 1 4 2.2.9-1.2 2.2-2.2 4-2.2 3.1 0 5.1 2.8 4 6.1-1.7 4.8-9 9.2-9 9.2Z" />
-        </svg>
-      </button>
-      <div className="favorites-panel-image">
+    <article className={styles.card}>
+      <div className={styles.image}>
         <Image
           src={bouquet.src}
           alt={bouquet.alt}
           width={bouquet.width}
           height={bouquet.height}
-          sizes="88px"
+          sizes="76px"
           unoptimized={shouldUseUnoptimizedImage(bouquet.src)}
         />
       </div>
-      <div className="favorites-panel-card-info">
-        <h3>{bouquet.title}</h3>
-        <button
-          type="button"
-          className="favorites-size-picker"
-          onClick={() => setSizeSheetOpen(true)}
-          aria-haspopup="dialog"
-          aria-expanded={sizeSheetOpen}
-        >
-          <span>Размер: {selectedSizeLabel}</span>
-          <strong>{formatPrice(selectedVariant.priceRub)}</strong>
-          <span aria-hidden="true">▼</span>
-        </button>
-      </div>
-      <div className="favorites-panel-card-actions">
-        <button
-          type="button"
-          className="favorites-buy-button"
-          onClick={(event) =>
-            handleFavoriteBuyClick(
-              event,
-              bouquet.id,
-              selectedVariant.sizeId,
-              selectedVariant.priceRub,
-            )
-          }
-          onTouchEnd={(event) =>
-            handleFavoriteBuyTouchEnd(
-              event,
-              bouquet.id,
-              selectedVariant.sizeId,
-              selectedVariant.priceRub,
-            )
-          }
-          aria-label={`Купить ${bouquet.title} в размере ${selectedSizeLabel}`}
-        >
-          Купить
-        </button>
+      <div className={styles.info}>
+        <h3 className={styles.cardTitle}>{bouquet.title}</h3>
+        <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.sizeButton}
+            onClick={() => setSizeSheetOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={sizeSheetOpen}
+          >
+            Размер ▼
+          </button>
+          <button
+            type="button"
+            className={styles.orderButton}
+            onClick={(event) =>
+              handleFavoriteBuyClick(
+                event,
+                bouquet.id,
+                selectedVariant.sizeId,
+                selectedVariant.priceRub,
+              )
+            }
+            onTouchEnd={(event) =>
+              handleFavoriteBuyTouchEnd(
+                event,
+                bouquet.id,
+                selectedVariant.sizeId,
+                selectedVariant.priceRub,
+              )
+            }
+            aria-label={`Заказать ${bouquet.title} в размере ${selectedSizeLabel}`}
+          >
+            Заказать
+          </button>
+          <button
+            type="button"
+            className={styles.removeButton}
+            onClick={(event) => handleFavoriteRemoveClick(event, bouquet.id)}
+            onTouchEnd={(event) => handleFavoriteRemoveTouchEnd(event, bouquet.id)}
+            aria-label={`Убрать ${bouquet.title} из избранного`}
+          >
+            ×
+          </button>
+        </div>
       </div>
       <ProductSizePickerSheet
         open={sizeSheetOpen}
@@ -178,7 +175,7 @@ function FavoriteCard({
         onSelect={setSelectedSizeId}
         onClose={() => setSizeSheetOpen(false)}
       />
-    </div>
+    </article>
   );
 }
 
@@ -194,61 +191,41 @@ export function FavoritesPanel({
 }: FavoritesPanelProps) {
   return (
     <div
-      className="favorites-panel-overlay"
+      className={styles.overlay}
       role="presentation"
       onClick={onCloseFavoritesPanel}
     >
-      {/* ==================================================
-SECTION: FAVORITES
-РАЗДЕЛ: Диалог избранного
-Purpose (EN): Dialog with header, empty state, or grid
-Назначение (RU): Диалог избранного
-================================================== */}
       <aside
-        className="favorites-panel"
+        className={styles.sheet}
         role="dialog"
         aria-modal="true"
         aria-labelledby="favorites-panel-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="favorites-panel-header">
+        <div className={styles.header}>
           <div>
-            <BrandLogo variant="panel" className="favorites-panel-eyebrow" />
-            <h2 id="favorites-panel-title">Избранное</h2>
+            <BrandLogo variant="panel" className={styles.eyebrow} />
+            <h2 id="favorites-panel-title" className={styles.title}>
+              Избранное
+            </h2>
           </div>
-          <div className="favorites-panel-actions">
-            {favoriteBouquetIds.length > 0 && (
-              <span className="favorite-count-badge" aria-hidden="true">
-                {favoriteBouquetIds.length}
-              </span>
-            )}
-          </div>
+          {favoriteBouquetIds.length > 0 ? (
+            <span className={styles.count} aria-hidden="true">
+              {favoriteBouquetIds.length}
+            </span>
+          ) : null}
         </div>
 
         {favoriteBouquets.length === 0 ? (
-          <div className="favorites-empty" role="status">
-            {/* ==================================================
-SECTION: FAVORITES
-РАЗДЕЛ: Пустое состояние избранного
-Purpose (EN): Empty state prompt
-Назначение (RU): Пустое состояние избранного
-================================================== */}
-            <div className="favorites-empty-icon" aria-hidden="true">
-              <BrandLogo variant="compact" className="favorites-empty-brand" />
-            </div>
-            <p className="favorites-empty-title">Избранное пока пусто</p>
-            <p className="favorites-empty-copy">
-              Нажмите сердечко на букете в каталоге — он появится здесь.
+          <div className={styles.empty} role="status">
+            <BrandLogo variant="compact" className={styles.emptyMark} />
+            <p className={styles.emptyTitle}>Избранное пока пусто</p>
+            <p className={styles.emptyCopy}>
+              Сохранённые букеты появятся здесь.
             </p>
           </div>
         ) : (
-          <div className="favorites-panel-grid">
-            {/* ==================================================
-SECTION: PRODUCT GRID
-РАЗДЕЛ: Сетка сохранённых букетов
-Purpose (EN): Saved bouquet cards with buy actions
-Назначение (RU): Сетка сохранённых букетов
-================================================== */}
+          <div className={styles.grid}>
             {favoriteBouquets.map((bouquet) => (
               <FavoriteCard
                 key={`favorite-${bouquet.id}`}

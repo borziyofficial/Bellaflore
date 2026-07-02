@@ -6,6 +6,7 @@
 
 import { type ReactNode, useEffect } from "react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import styles from "@/components/orders/MyOrderPanel.module.css";
 
 type MyOrderPanelProps = {
   children: ReactNode;
@@ -47,36 +48,34 @@ export function MyOrderPanel({
 
   return (
     <div
-      className="cart-panel-overlay my-order-panel-overlay profile-panel-overlay"
+      className={styles.overlay}
       role="presentation"
       onClick={closeMyOrderPanel}
     >
       <aside
-        className={`cart-panel my-order-panel profile-panel-sheet${
-          expanded ? " profile-panel-sheet-expanded" : ""
-        }`}
+        className={`${styles.sheet} ${expanded ? styles.expanded : ""}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="my-profile-panel-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="cart-panel-header profile-panel-header">
+        <div className={styles.header}>
           <div>
-            <BrandLogo variant="panel" className="cart-panel-eyebrow" />
-            <h2 id="my-profile-panel-title">Мой профиль</h2>
+            <BrandLogo variant="panel" className={styles.eyebrow} />
+            <h2 id="my-profile-panel-title" className={styles.title}>
+              Профиль
+            </h2>
           </div>
-          <div className="cart-panel-actions">
-            <button
-              type="button"
-              className="cart-panel-close"
-              onClick={closeMyOrderPanel}
-              aria-label="Закрыть профиль"
-            >
-              ×
-            </button>
-          </div>
+          <button
+            type="button"
+            className={styles.close}
+            onClick={closeMyOrderPanel}
+            aria-label="Закрыть профиль"
+          >
+            ×
+          </button>
         </div>
-        <div className="profile-panel-body">{children}</div>
+        <div className={styles.body}>{children}</div>
       </aside>
     </div>
   );

@@ -167,31 +167,33 @@ export function LuxuryCatalogProductCard({
 
         <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
 
-        {hasMultipleSizes ? (
+        <div className={styles.actionRow}>
+          {hasMultipleSizes ? (
+            <button
+              type="button"
+              className={styles.sizePicker}
+              onClick={() => setSizeSheetOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={sizeSheetOpen}
+            >
+              <span className={styles.sizePickerValue}>Размер</span>
+              <span aria-hidden="true">▼</span>
+            </button>
+          ) : (
+            <span className={styles.singleSize}>{selectedSizeLabel}</span>
+          )}
+
           <button
             type="button"
-            className={styles.sizePicker}
-            onClick={() => setSizeSheetOpen(true)}
-            aria-haspopup="dialog"
-            aria-expanded={sizeSheetOpen}
+            className={styles.orderButton}
+            onPointerDown={handleBuyPointerDown}
+            onClick={handleBuyClick}
+            onTouchEnd={handleBuyTouchEnd}
+            aria-label={`Заказать ${product.title} в размере ${selectedSizeLabel}`}
           >
-            <span className={styles.sizePickerValue}>
-              Размер: {selectedSizeLabel}
-            </span>
-            <span aria-hidden="true">▼</span>
+            Заказать
           </button>
-        ) : null}
-
-        <button
-          type="button"
-          className={`buy-button ${styles.buyButton}`}
-          onPointerDown={handleBuyPointerDown}
-          onClick={handleBuyClick}
-          onTouchEnd={handleBuyTouchEnd}
-          aria-label={`Купить ${product.title} в размере ${selectedSizeLabel}`}
-        >
-          Купить
-        </button>
+        </div>
       </div>
 
       <ProductSizePickerSheet

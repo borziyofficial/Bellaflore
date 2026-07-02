@@ -241,7 +241,7 @@ export function CheckoutSection({
     }
 
     return (
-      <span className="checkout-field-error" role="alert">
+      <span className={checkoutSectionStyles.checkoutError} role="alert">
         {message}
       </span>
     );
@@ -340,7 +340,7 @@ export function CheckoutSection({
                 <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
                   Получатель
                 </h3>
-                <label className="checkout-field checkout-field-wide">
+                <label className={checkoutSectionStyles.checkoutField}>
                   <span>Имя</span>
                   <input
                     type="text"
@@ -357,7 +357,7 @@ export function CheckoutSection({
                   />
                   {renderFieldError("name")}
                 </label>
-                <label className="checkout-field checkout-field-wide">
+                <label className={checkoutSectionStyles.checkoutField}>
                   <span>Телефон</span>
                   <input
                     type="tel"
@@ -429,7 +429,7 @@ export function CheckoutSection({
                 <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
                   Адрес
                 </h3>
-                <label className="checkout-field checkout-field-wide">
+                <label className={checkoutSectionStyles.checkoutField}>
                   <span className="sr-only">Адрес доставки</span>
                   <AddressIntelligenceInput
                     value={checkoutForm.address}
@@ -474,7 +474,7 @@ export function CheckoutSection({
                 <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
                   Комментарий
                 </h3>
-                <label className="checkout-field checkout-field-wide">
+                <label className={checkoutSectionStyles.checkoutField}>
                   <span className="sr-only">Комментарий к заказу</span>
                   <textarea
                     value={checkoutForm.comment}
@@ -533,11 +533,11 @@ export function CheckoutSection({
                 </p>
               ) : null}
 
-              <div className="checkout-submit-row checkout-submit-row-compact">
+              <div className={checkoutSectionStyles.checkoutSubmitRow}>
                 {cartItemCount > 0 && (
                   <button
                     type="button"
-                    className="buy-button checkout-submit-button"
+                    className={checkoutSectionStyles.checkoutSubmitButton}
                     disabled={!canSubmitOrder}
                     aria-disabled={!canSubmitOrder}
                     aria-busy={checkoutSubmitInProgress}
@@ -551,7 +551,7 @@ export function CheckoutSection({
                 )}
               </div>
               {checkoutSubmitError ? (
-                <span className="checkout-field-error" role="alert">
+                <span className={checkoutSectionStyles.checkoutError} role="alert">
                   {checkoutSubmitError}
                 </span>
               ) : null}

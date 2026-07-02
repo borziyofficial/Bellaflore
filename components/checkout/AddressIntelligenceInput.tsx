@@ -60,6 +60,11 @@ export function AddressIntelligenceInput({
   const helperMessage =
     geocoder.uxMessage ??
     (geocoder.suggestions.length === 0 ? localHelperMessage : null);
+  const publicHelperMessage =
+    helperMessage &&
+    !/yandex|not configured|api key|ключ/i.test(helperMessage)
+      ? helperMessage
+      : null;
   const showSuggestions = menuOpen && geocoder.suggestions.length > 0;
   const showEmptyState =
     menuOpen &&
@@ -239,9 +244,9 @@ Purpose (EN): Text input for delivery address
         required={required}
       />
 
-      {helperMessage ? (
+      {publicHelperMessage ? (
         <p className={styles.helper} role="status">
-          {helperMessage}
+          {publicHelperMessage}
         </p>
       ) : null}
 

@@ -9,7 +9,6 @@
 // Назначение (RU): Клиентская оболочка витрины — каталог, корзина, checkout, заказы, избранное, отзывы и mobile bottom nav.
 // ==================================================
 
-import { AboutSection } from "@/components/home/AboutSection";
 import { ContactQuickActions } from "@/components/contact/ContactQuickActions";
 import { CheckoutSection } from "@/components/checkout/CheckoutSection";
 import { CheckoutPanel } from "@/components/checkout/CheckoutPanel";
@@ -54,11 +53,8 @@ import {
 } from "@/components/checkout/checkoutTypes";
 import { submitCheckoutOrderToTelegram } from "@/components/telegram/submitCheckoutOrderToTelegram";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
-import { ContactSection } from "@/components/home/ContactSection";
-import { DeliverySection } from "@/components/home/DeliverySection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { Navbar } from "@/components/home/Navbar";
-import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 import {
   BOTTOM_NAV_PANEL_CLOSE_MS,
@@ -72,7 +68,6 @@ import type { OrderPassportData } from "@/components/orders/MyOrderPassport";
 import type { ProfileHubSectionId } from "@/components/orders/profileHubTypes";
 import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
 import { getOrdersUrl } from "@/app/orders/orderUtils";
-import { CartPanel } from "@/components/panels/CartPanel";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
 import { findPublicStorefrontProduct } from "@/components/catalog/publicCatalogMerge";
 import { usePublicStorefrontCatalog } from "@/components/catalog/usePublicStorefrontCatalog";
@@ -469,7 +464,6 @@ export default function Home() {
   const [favoritesPanelOpen, setFavoritesPanelOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartRestored, setCartRestored] = useState(false);
-  const [cartPanelOpen, setCartPanelOpen] = useState(false);
   const [checkoutPanelOpen, setCheckoutPanelOpen] = useState(false);
   const [myOrderPanelOpen, setMyOrderPanelOpen] = useState(false);
   const [closingBottomNavPanel, setClosingBottomNavPanel] =
@@ -623,7 +617,6 @@ export default function Home() {
   useEffect(() => {
     if (
       !favoritesPanelOpen &&
-      !cartPanelOpen &&
       !contactHubOpen &&
       !closingBottomNavPanel
     ) {
@@ -636,7 +629,7 @@ export default function Home() {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [cartPanelOpen, closingBottomNavPanel, contactHubOpen, favoritesPanelOpen]);
+  }, [closingBottomNavPanel, contactHubOpen, favoritesPanelOpen]);
 
   useEffect(() => {
     const syncTimer = window.setTimeout(() => {
@@ -900,7 +893,6 @@ export default function Home() {
 
     clearBottomNavCloseTimer();
     setClosingBottomNavPanel(null);
-    setCartPanelOpen(false);
     setCheckoutPanelOpen(false);
 
     if (panel !== "favorites") {
@@ -959,7 +951,6 @@ export default function Home() {
   };
 
   const goHomeFromBottomNav = () => {
-    setCartPanelOpen(false);
     setCheckoutPanelOpen(false);
     const activePanel = getActiveBottomNavPanel();
 
@@ -981,7 +972,6 @@ export default function Home() {
 
   const closeContactHub = () => closeBottomNavPanel("contact", true);
   const closeFavoritesPanel = () => closeBottomNavPanel("favorites", true);
-  const closeCartPanel = () => setCartPanelOpen(false);
   const closeCheckoutPanel = () => setCheckoutPanelOpen(false);
   const closeMyOrderPanel = () => {
     setProfileActiveSection(null);
@@ -1556,40 +1546,6 @@ export default function Home() {
     toggleBottomNavPanel("favorites");
   };
 
-  const openCartPanel = () => {
-    closeAllBottomNavPanelsImmediate();
-    setCartPanelOpen(true);
-    setBottomNavAction(
-      cartItemCount > 0 ? "Открыта корзина" : "Ваша корзина пока пуста",
-    );
-  };
-
-  const handleCartNavClick = (
-    event: ReactMouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (didHandleRecentTouch(event.timeStamp)) {
-      return;
-    }
-
-    openCartPanel();
-  };
-
-  const handleCartNavTouchEnd = (
-    event: ReactTouchEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    lastTouchActionRef.current = event.timeStamp;
-    openCartPanel();
-  };
-
-  // Cart nav is intentionally dormant while Мой заказ occupies the mobile slot.
-  void handleCartNavClick;
-  void handleCartNavTouchEnd;
-
   // ==================================================
   // SECTION: Favorites & Catalog Search Handlers
   // РАЗДЕЛ: Обработчики избранного и поиска каталога
@@ -1669,7 +1625,6 @@ export default function Home() {
   const openCheckoutPanel = () => {
     initializeCheckoutDeliveryDate();
     closeAllBottomNavPanelsImmediate();
-    setCartPanelOpen(false);
     setShowOrdersOnly(false);
     setCheckoutPanelOpen(true);
     setBottomNavAction(
@@ -1775,7 +1730,6 @@ export default function Home() {
 
   const openMyOrderAfterCheckout = (orderId: string) => {
     closeAllBottomNavPanelsImmediate();
-    setCartPanelOpen(false);
     setCheckoutPanelOpen(false);
     setShowOrdersOnly(false);
     setLatestOrderId(orderId);
@@ -1898,31 +1852,6 @@ export default function Home() {
   ) => {
     prepareProductCheckout(productId, sizeId, priceRub);
     closeProductExperience();
-  };
-
-  const openCheckoutView = () => {
-    closeCartPanel();
-    openCheckoutPanel();
-  };
-
-  const handleCheckoutClick = (
-    event: ReactMouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-
-    if (didHandleRecentTouch(event.timeStamp)) {
-      return;
-    }
-
-    openCheckoutView();
-  };
-
-  const handleCheckoutTouchEnd = (
-    event: ReactTouchEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
-    openCheckoutView();
   };
 
   const handleCheckoutFieldChange = (
@@ -2283,32 +2212,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* ==================================================
-          SECTION: Cart Panel
-          РАЗДЕЛ: Панель корзины
-
-          Purpose (EN): Cart overlay — line items, quantity controls, and proceed-to-checkout action.
-
-          Назначение (RU): Оверлей корзины — позиции, управление количеством и переход к checkout.
-          ================================================== */}
-      {cartPanelOpen && (
-        <CartPanel
-          cartBouquets={cartBouquets}
-          cartItemCount={cartItemCount}
-          checkoutTotalPrice={checkoutTotalPrice}
-          formatPrice={formatPrice}
-          closeCartPanel={closeCartPanel}
-          handleCartDecreaseClick={handleCartDecreaseClick}
-          handleCartDecreaseTouchEnd={handleCartDecreaseTouchEnd}
-          handleCartIncreaseClick={handleCartIncreaseClick}
-          handleCartIncreaseTouchEnd={handleCartIncreaseTouchEnd}
-          handleCartRemoveClick={handleCartRemoveClick}
-          handleCartRemoveTouchEnd={handleCartRemoveTouchEnd}
-          handleCheckoutClick={handleCheckoutClick}
-          handleCheckoutTouchEnd={handleCheckoutTouchEnd}
-        />
-      )}
-
       {checkoutPanelOpen && (
         <CheckoutPanel closeCheckoutPanel={closeCheckoutPanel}>
           {renderCheckoutSection()}
@@ -2373,39 +2276,6 @@ export default function Home() {
           onProductSelect={openProductExperience}
           onImageError={markProductImageFailed}
         />
-      ) : null}
-
-      {publicAppView === "catalog" ? (
-        <>
-          <DeliverySection />
-          <AboutSection />
-        </>
-      ) : null}
-
-      {/* ==================================================
-          SECTION: Reviews
-          РАЗДЕЛ: Отзывы
-
-          Purpose (EN): Customer reviews list, rating summary, and local review submission form.
-
-          Назначение (RU): Список отзывов клиентов, сводка рейтинга и форма локальной отправки отзыва.
-          ================================================== */}
-      {publicAppView === "catalog" ? (
-        <>
-          <ReviewsSection
-            averageReviewRating={averageReviewRating}
-            averageReviewRatingLabel={averageReviewRatingLabel}
-            reviewsCount={reviewsCount}
-            reviewForm={reviewForm}
-            reviewFormMessage={reviewFormMessage}
-            reviews={reviews}
-            renderRatingStars={renderRatingStars}
-            handleReviewSubmit={handleReviewSubmit}
-            handleReviewFieldChange={handleReviewFieldChange}
-          />
-
-          <ContactSection />
-        </>
       ) : null}
 
       {/* ==================================================
