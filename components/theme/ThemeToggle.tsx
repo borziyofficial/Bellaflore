@@ -4,7 +4,11 @@ import { useBellaFloreTheme } from "@/components/theme/ThemeProvider";
 import styles from "@/components/theme/ThemeToggle.module.css";
 import { useEffect, useState } from "react";
 
-export function ThemeToggle() {
+type ThemeToggleProps = {
+  variant?: "menu";
+};
+
+export function ThemeToggle({ variant = "menu" }: ThemeToggleProps) {
   const { theme, toggleTheme } = useBellaFloreTheme();
   const [mounted, setMounted] = useState(false);
   const isNight = theme === "night";
@@ -14,25 +18,13 @@ export function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return (
-      <button
-        type="button"
-        className={styles.toggle}
-        aria-label="Переключить тему"
-        suppressHydrationWarning
-      >
-        <span className={styles.icon} aria-hidden="true">
-          ☼
-        </span>
-        <span className={styles.label}>День</span>
-      </button>
-    );
+    return null;
   }
 
   return (
     <button
       type="button"
-      className={styles.toggle}
+      className={styles.menuToggle}
       onClick={toggleTheme}
       aria-label={isNight ? "Включить дневной режим" : "Включить ночной режим"}
       aria-pressed={isNight}
@@ -40,7 +32,11 @@ export function ThemeToggle() {
       <span className={styles.icon} aria-hidden="true">
         {isNight ? "☾" : "☼"}
       </span>
-      <span className={styles.label}>{isNight ? "Ночь" : "День"}</span>
+      {variant === "menu" ? (
+        <span className={styles.menuLabel}>
+          {isNight ? "Ночной режим" : "Дневной режим"}
+        </span>
+      ) : null}
     </button>
   );
 }

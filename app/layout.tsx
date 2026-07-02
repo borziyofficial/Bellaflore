@@ -114,7 +114,7 @@ export default function RootLayout({
       <body>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("bellaflore-ui-theme");document.documentElement.dataset.theme=t==="night"?"night":"day";}catch(e){}})();`,
+            __html: `(function(){try{var m=localStorage.getItem("bellaflore-ui-theme-manual");if(m==="day"||m==="night"){document.documentElement.dataset.theme=m;return;}var h=Number(new Intl.DateTimeFormat("en-US",{hour:"numeric",hour12:false,timeZone:"Europe/Moscow"}).format(new Date()));var t=h>=7&&h<20?"day":"night";document.documentElement.dataset.theme=t;localStorage.setItem("bellaflore-ui-theme",t);}catch(e){}})();`,
           }}
         />
         <script

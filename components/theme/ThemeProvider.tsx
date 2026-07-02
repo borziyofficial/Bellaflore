@@ -1,6 +1,15 @@
 "use client";
 
 import {
+  applyDocumentTheme,
+  clearManualThemeOverride,
+  readManualThemeOverride,
+  resolveActiveTheme,
+  resolveAutoTheme,
+  setManualThemeOverride,
+  type BellaFloreTheme,
+} from "@/lib/theme/bellafloreAutoTheme";
+import {
   createContext,
   useCallback,
   useContext,
@@ -10,54 +19,89 @@ import {
   type ReactNode,
 } from "react";
 
-export type BellaFloreTheme = "day" | "night";
-
-const STORAGE_KEY = "bellaflore-ui-theme";
+export type { BellaFloreTheme };
 
 type ThemeContextValue = {
   theme: BellaFloreTheme;
+  isManualOverride: boolean;
   setTheme: (theme: BellaFloreTheme) => void;
   toggleTheme: () => void;
+  resetToAutoTheme: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-function readStoredTheme(): BellaFloreTheme {
-  if (typeof window === "undefined") {
-    return "day";
-  }
-
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return stored === "night" ? "night" : "day";
-}
-
-function applyTheme(theme: BellaFloreTheme) {
-  document.documentElement.dataset.theme = theme;
-  window.localStorage.setItem(STORAGE_KEY, theme);
-}
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<BellaFloreTheme>(() => readStoredTheme());
+  const [theme, setThemeState] = useState<BellaFloreTheme>(() => resolveActiveTheme());
+  const [isManualOverride, setIsManualOverride] = useState(
+    () => readManualThemeOverride() !== null,
+  );
+
+  const syncTheme = useCallback(() => {
+    const nextTheme = resolveActiveTheme();
+    setThemeState(nextTheme);
+    setIsManualOverride(readManualThemeOverride() !== null);
+    applyDocumentTheme(nextTheme);
+  }, []);
 
   useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
+    syncTheme();
+
+    const intervalId = window.setInterval(() => {
+      if (readManualThemeOverride()) {
+        return;
+      }
+
+      const autoTheme = resolveAutoTheme();
+      setThemeState(autoTheme);
+      applyDocumentTheme(autoTheme);
+    }, 60_000);
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        syncTheme();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [syncTheme]);
 
   const setTheme = useCallback((nextTheme: BellaFloreTheme) => {
+    setManualThemeOverride(nextTheme);
     setThemeState(nextTheme);
+    setIsManualOverride(true);
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setThemeState((current) => (current === "day" ? "night" : "day"));
+    setThemeState((current) => {
+      const nextTheme = current === "day" ? "night" : "day";
+      setManualThemeOverride(nextTheme);
+      setIsManualOverride(true);
+      return nextTheme;
+    });
+  }, []);
+
+  const resetToAutoTheme = useCallback(() => {
+    clearManualThemeOverride();
+    const autoTheme = resolveAutoTheme();
+    setThemeState(autoTheme);
+    setIsManualOverride(false);
   }, []);
 
   const value = useMemo(
     () => ({
       theme,
+      isManualOverride,
       setTheme,
       toggleTheme,
+      resetToAutoTheme,
     }),
-    [theme, setTheme, toggleTheme],
+    [theme, isManualOverride, setTheme, toggleTheme, resetToAutoTheme],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
