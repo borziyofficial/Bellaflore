@@ -676,10 +676,21 @@ export default function Home() {
       return;
     }
 
-    if (window.location.hash === "#catalog") {
+    if (window.location.pathname === "/catalog" || window.location.hash === "#catalog") {
       setPublicAppView("catalog");
       setCatalogFocusNonce((current) => current + 1);
     }
+
+    const handlePopState = () => {
+      setPublicAppView(
+        window.location.pathname === "/catalog" || window.location.hash === "#catalog"
+          ? "catalog"
+          : "home",
+      );
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   useEffect(() => {
@@ -869,6 +880,9 @@ export default function Home() {
     setPublicAppView("catalog");
     setCatalogFocusNonce((current) => current + (focusSearch ? 1 : 0));
     setBottomNavAction("Каталог");
+    if (typeof window !== "undefined" && window.location.pathname !== "/catalog") {
+      window.history.pushState({}, "", "/catalog");
+    }
     requestAnimationFrame(() => {
       document.getElementById("catalog")?.scrollIntoView({
         block: "start",
@@ -957,6 +971,9 @@ export default function Home() {
 
     setBottomNavAction("Главная");
     setPublicAppView("home");
+    if (typeof window !== "undefined" && window.location.pathname !== "/") {
+      window.history.pushState({}, "", "/");
+    }
     requestAnimationFrame(() => {
       document.getElementById("home")?.scrollIntoView({ behavior: "smooth" });
     });
@@ -2202,14 +2219,16 @@ export default function Home() {
 
           Назначение (RU): Верхняя навигация со состоянием скролла и переключателем мобильного меню.
           ================================================== */}
-      <Navbar
-        navigationItems={navigationItems}
-        scrolled={scrolled}
-        menuOpen={menuOpen}
-        onToggleMenu={() => setMenuOpen((prev) => !prev)}
-        onCloseMenu={closeMenu}
-        onNavigate={handleTopNavNavigate}
-      />
+      {publicAppView === "catalog" ? (
+        <Navbar
+          navigationItems={navigationItems}
+          scrolled={scrolled}
+          menuOpen={menuOpen}
+          onToggleMenu={() => setMenuOpen((prev) => !prev)}
+          onCloseMenu={closeMenu}
+          onNavigate={handleTopNavNavigate}
+        />
+      ) : null}
 
       {/* ==================================================
           SECTION: Hero
@@ -2397,24 +2416,26 @@ export default function Home() {
 
           Назначение (RU): Фиксированная нижняя панель mobile — каталог, избранное, контакты, мой заказ и главная.
           ================================================== */}
-      <MobileBottomNav
-        bottomNavCompact={bottomNavCompact}
-        bottomNavAction={bottomNavAction}
-        contactHubOpen={contactHubOpen}
-        favoritesPanelOpen={favoritesPanelOpen}
-        myOrderPanelOpen={myOrderPanelOpen}
-        favoriteBouquetIds={favoriteBouquetIds}
-        handleSearchNavClick={handleSearchNavClick}
-        handleSearchNavTouchEnd={handleSearchNavTouchEnd}
-        handleContactNavClick={handleContactNavClick}
-        handleContactNavTouchEnd={handleContactNavTouchEnd}
-        handleFavoritesNavClick={handleFavoritesNavClick}
-        handleFavoritesNavTouchEnd={handleFavoritesNavTouchEnd}
-        handleMyOrderNavClick={handleMyOrderNavClick}
-        handleMyOrderNavTouchEnd={handleMyOrderNavTouchEnd}
-        handleHomeNavClick={handleHomeNavClick}
-        handleHomeNavTouchEnd={handleHomeNavTouchEnd}
-      />
+      {publicAppView === "catalog" ? (
+        <MobileBottomNav
+          bottomNavCompact={bottomNavCompact}
+          bottomNavAction={bottomNavAction}
+          contactHubOpen={contactHubOpen}
+          favoritesPanelOpen={favoritesPanelOpen}
+          myOrderPanelOpen={myOrderPanelOpen}
+          favoriteBouquetIds={favoriteBouquetIds}
+          handleSearchNavClick={handleSearchNavClick}
+          handleSearchNavTouchEnd={handleSearchNavTouchEnd}
+          handleContactNavClick={handleContactNavClick}
+          handleContactNavTouchEnd={handleContactNavTouchEnd}
+          handleFavoritesNavClick={handleFavoritesNavClick}
+          handleFavoritesNavTouchEnd={handleFavoritesNavTouchEnd}
+          handleMyOrderNavClick={handleMyOrderNavClick}
+          handleMyOrderNavTouchEnd={handleMyOrderNavTouchEnd}
+          handleHomeNavClick={handleHomeNavClick}
+          handleHomeNavTouchEnd={handleHomeNavTouchEnd}
+        />
+      ) : null}
 
       {/* ==================================================
           SECTION: Contact Hub

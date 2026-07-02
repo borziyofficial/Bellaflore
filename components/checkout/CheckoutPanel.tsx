@@ -45,26 +45,26 @@ export function CheckoutPanel({
 
   return (
     <div
-      className="cart-panel-overlay my-order-panel-overlay profile-panel-overlay checkout-panel-overlay"
+      className="checkout-v3-overlay"
       role="presentation"
       onClick={closeCheckoutPanel}
     >
       <aside
-        className="cart-panel my-order-panel profile-panel-sheet profile-panel-sheet-expanded checkout-panel-sheet"
+        className="checkout-v3-sheet"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="checkout-panel-title"
+        aria-labelledby="checkout-v3-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="cart-panel-header profile-panel-header">
+        <div className="checkout-v3-header">
           <div>
-            <BrandLogo variant="panel" className="cart-panel-eyebrow" />
-            <h2 id="checkout-panel-title">Оформить заказ</h2>
+            <BrandLogo variant="panel" className="checkout-v3-eyebrow" />
+            <h2 id="checkout-v3-title">Оформить заказ</h2>
           </div>
-          <div className="cart-panel-actions">
+          <div className="checkout-v3-actions">
             <button
               type="button"
-              className="cart-panel-close"
+              className="checkout-v3-close"
               onClick={closeCheckoutPanel}
               aria-label="Закрыть оформление заказа"
             >
@@ -72,7 +72,7 @@ export function CheckoutPanel({
             </button>
           </div>
         </div>
-        <div className="profile-panel-body">{children}</div>
+        <div className="checkout-v3-body">{children}</div>
       </aside>
     </div>
   );

@@ -109,7 +109,7 @@ const PAYMENT_METHOD_LABELS: Record<PaymentMethodUi, string> = {
   card: "Картой при получении",
 };
 
-const CHECKOUT_V2_PAYMENT_METHODS: PaymentMethodUi[] = ["online", "cash"];
+const CHECKOUT_V3_PAYMENT_METHODS: PaymentMethodUi[] = ["online", "cash"];
 
 export function CheckoutSection({
   checkoutForm,
@@ -251,7 +251,7 @@ export function CheckoutSection({
     if (deliveryDateMode !== "today") {
       selectDeliveryDatePreset("today");
     }
-    // Pearl checkout v2 defaults to same-day delivery.
+    // Pearl checkout defaults to same-day delivery.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -317,8 +317,8 @@ export function CheckoutSection({
   const selectedPaymentLabel = PAYMENT_METHOD_LABELS[paymentMethod];
 
   const rootClassName = embedded
-    ? "checkout-section checkout-section-v2 checkout-section-embedded"
-    : "checkout-section checkout-section-v2";
+    ? "checkout-section checkout-section-v3 checkout-section-embedded"
+    : "checkout-section checkout-section-v3";
 
   return (
     <section
@@ -333,11 +333,11 @@ export function CheckoutSection({
         </div>
       ) : null}
       <div className="checkout-shell">
-        <div className={`checkout-form-card ${checkoutSectionStyles.checkoutV2Card}`}>
-          <div className={checkoutSectionStyles.checkoutV2Layout}>
-            <div className={checkoutSectionStyles.checkoutV2Scroll}>
+        <div className={`checkout-form-card ${checkoutSectionStyles.checkoutV3Card}`}>
+          <div className={checkoutSectionStyles.checkoutV3Layout}>
+            <div className={checkoutSectionStyles.checkoutV3Scroll}>
               <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>
+                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
                   Получатель
                 </h3>
                 <label className="checkout-field checkout-field-wide">
@@ -378,7 +378,7 @@ export function CheckoutSection({
 
               {primaryCartItem && checkoutSizeLabel && checkoutSizePrice ? (
                 <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                  <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>
+                  <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
                     Размер
                   </h3>
                   <button
@@ -396,7 +396,7 @@ export function CheckoutSection({
               ) : null}
 
               <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>
+                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
                   Доставка
                 </h3>
                 <div className={checkoutSectionStyles.checkoutFlatDelivery}>
@@ -426,7 +426,7 @@ export function CheckoutSection({
               </section>
 
               <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>
+                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
                   Адрес
                 </h3>
                 <label className="checkout-field checkout-field-wide">
@@ -446,7 +446,7 @@ export function CheckoutSection({
               </section>
 
               <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>
+                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
                   Оплата
                 </h3>
                 <label className={checkoutSectionStyles.checkoutFlatSelectWrap}>
@@ -458,7 +458,7 @@ export function CheckoutSection({
                     }
                     aria-label="Способ оплаты"
                   >
-                    {CHECKOUT_V2_PAYMENT_METHODS.map((method) => (
+                    {CHECKOUT_V3_PAYMENT_METHODS.map((method) => (
                       <option key={method} value={method}>
                         {PAYMENT_METHOD_LABELS[method]}
                       </option>
@@ -471,7 +471,7 @@ export function CheckoutSection({
               </section>
 
               <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>
+                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
                   Комментарий
                 </h3>
                 <label className="checkout-field checkout-field-wide">
@@ -490,21 +490,21 @@ export function CheckoutSection({
             </div>
 
             <div
-              className={checkoutSectionStyles.checkoutV2StickyFooter}
+              className={checkoutSectionStyles.checkoutV3StickyFooter}
               aria-label="Итог"
             >
-              <h3 className={checkoutSectionStyles.checkoutV2BlockTitle}>Итог</h3>
-              <div className={checkoutSectionStyles.checkoutV2SummaryRows}>
-                <div className={checkoutSectionStyles.checkoutV2SummaryRow}>
+              <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>Итог</h3>
+              <div className={checkoutSectionStyles.checkoutV3SummaryRows}>
+                <div className={checkoutSectionStyles.checkoutV3SummaryRow}>
                   <span>{bouquetSummaryLabel}</span>
                   <strong>{formatPrice(checkoutTotalPrice)}</strong>
                 </div>
-                <div className={checkoutSectionStyles.checkoutV2SummaryRow}>
+                <div className={checkoutSectionStyles.checkoutV3SummaryRow}>
                   <span>Доставка</span>
                   <strong>{deliverySummaryPrice}</strong>
                 </div>
                 <div
-                  className={`${checkoutSectionStyles.checkoutV2SummaryRow} ${checkoutSectionStyles.checkoutV2SummaryTotal}`}
+                  className={`${checkoutSectionStyles.checkoutV3SummaryRow} ${checkoutSectionStyles.checkoutV3SummaryTotal}`}
                 >
                   <span>Итого</span>
                   <strong>{formatPrice(checkoutGrandTotalPrice)}</strong>

@@ -1,6 +1,5 @@
 /* ==================================================
-   BellaFlore UI System v1.0 — Stage 56B
-   Minimal Luxe 98% + Dark Elegant gold glow 2%
+   BellaFlore UI System v1.0 — Stage 61 Pearl
    ================================================== */
 
 :root,
@@ -31,47 +30,6 @@
   --bf-ui-checkout-card: rgba(253, 251, 247, 0.88);
 }
 
-[data-theme="night"] {
-  --background: #121110;
-  --surface: #1a1816;
-  --surface-glass: rgba(26, 24, 22, 0.92);
-  --border: rgba(255, 244, 220, 0.12);
-  --text-strong: #f5efe6;
-  --text-main: #e8dfd3;
-  --text-secondary: rgba(232, 223, 211, 0.78);
-  --text-label: rgba(232, 223, 211, 0.68);
-  --bf-bg: #121110;
-  --bf-surface: #1a1816;
-  --bf-text: #e8dfd3;
-  --bf-text-secondary: rgba(232, 223, 211, 0.78);
-  --champagne-background: #121110;
-  --champagne-section: #161412;
-  --champagne-card: #1e1b18;
-  --champagne-text: #e8dfd3;
-  --champagne-muted: rgba(232, 223, 211, 0.68);
-  --champagne-border: rgba(255, 244, 220, 0.14);
-  --bf-ui-bg: #121110;
-  --bf-ui-surface: #1a1816;
-  --bf-ui-surface-soft: rgba(26, 24, 22, 0.94);
-  --bf-ui-text: #e8dfd3;
-  --bf-ui-text-muted: rgba(232, 223, 211, 0.68);
-  --bf-ui-border: rgba(255, 244, 220, 0.14);
-  --bf-ui-gold-1: #e4c878;
-  --bf-ui-gold-2: #d4b05a;
-  --bf-ui-gold-3: #c4a04a;
-  --bf-ui-gold-glow: rgba(228, 200, 120, 0.38);
-  --bf-ui-gold-glow-strong: rgba(228, 200, 120, 0.52);
-  --bf-ui-hero-overlay: linear-gradient(
-    180deg,
-    rgba(8, 7, 6, 0.28) 0%,
-    rgba(8, 7, 6, 0.62) 48%,
-    rgba(8, 7, 6, 0.88) 100%
-  );
-  --bf-ui-card-bg: linear-gradient(180deg, rgba(30, 27, 24, 0.96), rgba(22, 20, 18, 0.92));
-  --bf-ui-input-bg: rgba(26, 24, 22, 0.96);
-  --bf-ui-checkout-card: rgba(26, 24, 22, 0.92);
-}
-
 body {
   background: var(--bf-ui-bg);
   color: var(--bf-ui-text);
@@ -80,7 +38,7 @@ body {
     color 0.35s ease;
 }
 
-/* --- Hero glow (night brighter than day) --- */
+/* --- Hero glow --- */
 
 [data-theme="day"] .bf-brand-logo--hero.hero-title,
 [data-theme="day"] .bf-brand-logo--hero {
@@ -89,33 +47,10 @@ body {
     drop-shadow(0 8px 22px var(--bf-ui-gold-glow));
 }
 
-[data-theme="night"] .bf-brand-logo--hero.hero-title,
-[data-theme="night"] .bf-brand-logo--hero {
-  filter:
-    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.42))
-    drop-shadow(0 10px 28px var(--bf-ui-gold-glow-strong))
-    drop-shadow(0 0 42px var(--bf-ui-gold-glow));
-}
-
-[data-theme="night"] .hero::after {
-  background:
-    radial-gradient(circle at 50% 18%, rgba(228, 200, 120, 0.12) 0%, transparent 42%),
-    var(--bf-ui-hero-overlay);
-}
-
-[data-theme="night"] .hero-subtitle {
-  color: rgba(232, 223, 211, 0.86);
-}
-
 /* --- Catalog --- */
 
 #catalog.bouquets {
   background: var(--bf-ui-bg);
-}
-
-[data-theme="night"] .section-header h2,
-[data-theme="night"] #catalog h3 {
-  color: var(--bf-ui-text);
 }
 
 /* --- Checkout visual polish (logic unchanged) --- */
@@ -137,8 +72,4 @@ body {
 
 .checkout-section .checkout-choice-button {
   border-radius: 14px;
-}
-
-[data-theme="night"] .checkout-section .checkout-form-card {
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
 }

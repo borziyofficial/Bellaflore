@@ -165,10 +165,7 @@ export function LuxuryCatalogProductCard({
           <p className={styles.description}>{description}</p>
         ) : null}
 
-        <p className={styles.price}>
-          {hasMultipleSizes ? "от " : ""}
-          {formatPrice(selectedVariant.priceRub)}
-        </p>
+        <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
 
         {hasMultipleSizes ? (
           <button
@@ -178,11 +175,10 @@ export function LuxuryCatalogProductCard({
             aria-haspopup="dialog"
             aria-expanded={sizeSheetOpen}
           >
-            <span className={styles.sizePickerLabel}>Размер</span>
             <span className={styles.sizePickerValue}>
-              {selectedSizeLabel}
-              <span aria-hidden="true"> ▼</span>
+              Размер: {selectedSizeLabel}
             </span>
+            <span aria-hidden="true">▼</span>
           </button>
         ) : null}
 

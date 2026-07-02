@@ -3,6 +3,7 @@
 *::after {
   box-sizing: border-box;
 }
+
 :root {
   --bf-bg: #faf8f5;
   --bf-surface: #ffffff;
@@ -1580,27 +1581,6 @@ button {
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-}
-
-.checkout-section-accordion .checkout-order-preview .checkout-card-header {
-  margin-bottom: 10px;
-}
-
-.checkout-section-accordion .checkout-order-preview .checkout-card-header h3 {
-  font-size: clamp(22px, 3.4vw, 28px);
-}
-
-.checkout-section-accordion .delivery-zone-preview {
-  margin-top: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.checkout-section-accordion .delivery-zone-card {
-  padding: 0;
-  gap: 0;
 }
 
 .checkout-summary {
@@ -13643,15 +13623,6 @@ a.hero-order-link {
   width: 100%;
 }
 
-.checkout-section-accordion .checkout-order-preview {
-  margin-top: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
 .checkout-section .checkout-preview-comment {
   margin-top: 12px;
   padding-top: 12px;
@@ -13682,4 +13653,118 @@ a.hero-order-link {
   color: var(--bf-text-secondary);
   font-size: 14px;
   font-weight: 600;
+}
+
+/* ==================================================
+SECTION: STAGE 61 — Pearl UX Foundation
+РАЗДЕЛ: STAGE 61 — Pearl UX Foundation
+================================================== */
+:root,
+html[data-theme="day"],
+html[data-theme="night"] {
+  --champagne-background: #fffdf8;
+  --champagne-section: #f8f1e5;
+  --champagne-card: #ffffff;
+  --champagne-text: #2f2a24;
+  --champagne-muted: rgba(61, 49, 38, 0.62);
+  --champagne-gold: #c9a962;
+  --champagne-gold-hover: #b89345;
+  --champagne-border: rgba(201, 169, 98, 0.34);
+  --champagne-border-soft: rgba(201, 169, 98, 0.18);
+  --glass-surface: rgba(255, 255, 255, 0.74);
+  --glass-surface-strong: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(201, 169, 98, 0.22);
+  --glass-border-warm: rgba(201, 169, 98, 0.2);
+  --glass-gold-line: rgba(201, 169, 98, 0.28);
+  --luxury-glass: rgba(255, 255, 255, 0.78);
+  --luxury-glass-strong: rgba(255, 255, 255, 0.92);
+  --luxury-glass-border: rgba(201, 169, 98, 0.22);
+}
+
+html,
+body {
+  background: #fffdf8;
+  color: #2f2a24;
+}
+
+.hero,
+#catalog,
+.checkout-section,
+.favorites-panel,
+.my-order-panel,
+.profile-panel-sheet,
+.cart-panel {
+  color: #2f2a24;
+}
+
+.checkout-v3-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483016;
+  display: flex;
+  justify-content: flex-end;
+  padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+  background: rgba(47, 42, 36, 0.16);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.checkout-v3-sheet {
+  display: flex;
+  flex-direction: column;
+  width: min(520px, 100%);
+  max-height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(201, 169, 98, 0.28);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(248, 241, 229, 0.92));
+  box-shadow: 0 28px 82px rgba(61, 49, 38, 0.16);
+  padding: 22px;
+}
+
+.checkout-v3-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.checkout-v3-eyebrow {
+  display: block;
+  color: #9f7f35;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.checkout-v3-sheet h2 {
+  margin: 8px 0 0;
+  color: #2f2a24;
+  font-size: clamp(28px, 7vw, 38px);
+  line-height: 1;
+}
+
+.checkout-v3-actions {
+  flex: 0 0 auto;
+}
+
+.checkout-v3-close {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(201, 169, 98, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.58);
+  color: #6d5630;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.checkout-v3-body {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
