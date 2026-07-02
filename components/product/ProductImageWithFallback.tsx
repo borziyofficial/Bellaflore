@@ -9,6 +9,7 @@
 "use client";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import Image from "next/image";
 import styles from "@/components/product/ProductImageWithFallback.module.css";
 import { useState } from "react";
@@ -57,6 +58,7 @@ export function ProductImageWithFallback({
       width={width}
       height={height}
       sizes={sizes}
+      unoptimized={shouldUseUnoptimizedImage(src)}
       onError={() => setFailed(true)}
     />
   );

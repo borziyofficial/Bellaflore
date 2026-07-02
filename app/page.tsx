@@ -75,6 +75,8 @@ import { getOrdersUrl } from "@/app/orders/orderUtils";
 import { CartPanel } from "@/components/panels/CartPanel";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
 import { CatalogPanel } from "@/components/catalog/CatalogPanel";
+import { findPublicStorefrontProduct } from "@/components/catalog/publicCatalogMerge";
+import { usePublicStorefrontCatalog } from "@/components/catalog/usePublicStorefrontCatalog";
 import { ProductExperiencePage } from "@/components/product/ProductExperiencePage";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import {
@@ -86,7 +88,7 @@ import {
 } from "@/components/search/searchFoundation";
 import { runSmartCatalogSearch } from "@/components/smartSearch/smartSearchBridge";
 import { smartCatalogGroups } from "@/data/smartCatalog";
-import { catalogProducts as bouquets } from "@/data/catalogProducts";
+import type { CatalogProduct } from "@/data/catalogProducts";
 import {
   type ChangeEvent as ReactChangeEvent,
   type FormEvent as ReactFormEvent,
@@ -304,7 +306,7 @@ function readStoredOrders(): BellafloreOrder[] {
   }
 }
 
-function readStoredFavoriteBouquetIds(): string[] {
+function readStoredFavoriteBouquetIds(catalog: { id: string }[]): string[] {
   if (typeof window === "undefined") {
     return [];
   }
@@ -319,7 +321,7 @@ function readStoredFavoriteBouquetIds(): string[] {
       return [];
     }
 
-    const bouquetIds = new Set(bouquets.map((bouquet) => bouquet.id));
+    const bouquetIds = new Set(catalog.map((bouquet) => bouquet.id));
     return parsedFavorites.filter(
       (bouquetId): bouquetId is string =>
         typeof bouquetId === "string" && bouquetIds.has(bouquetId),
@@ -344,7 +346,7 @@ function writeStoredFavoriteBouquetIds(favoriteIds: string[]) {
   }
 }
 
-function readStoredCartItems(): CartItem[] {
+function readStoredCartItems(catalog: CatalogProduct[]): CartItem[] {
   if (typeof window === "undefined") {
     return [];
   }
@@ -357,7 +359,7 @@ function readStoredCartItems(): CartItem[] {
       return [];
     }
 
-    const bouquetIds = new Set(bouquets.map((bouquet) => bouquet.id));
+    const bouquetIds = new Set(catalog.map((bouquet) => bouquet.id));
     return parsedCart.flatMap((item): CartItem[] => {
       if (
         !item ||
@@ -370,7 +372,7 @@ function readStoredCartItems(): CartItem[] {
         return [];
       }
 
-      const bouquet = bouquets.find((entry) => entry.id === item.bouquetId);
+      const bouquet = catalog.find((entry) => entry.id === item.bouquetId);
       if (!bouquet) {
         return [];
       }
@@ -456,6 +458,8 @@ function writeStoredOrders(orders: BellafloreOrder[]) {
 }
 
 export default function Home() {
+  const { catalog: bouquets, isReady: catalogReady, reload: reloadPublicCatalog } =
+    usePublicStorefrontCatalog();
   // ==================================================
   // SECTION: STATE
   // РАЗДЕЛ: Состояние
@@ -568,24 +572,32 @@ export default function Home() {
   }, [menuOpen]);
 
   useEffect(() => {
+    if (!catalogReady) {
+      return;
+    }
+
     const restoreTimer = window.setTimeout(() => {
       if (!favoritesTouchedRef.current) {
-        setFavoriteBouquetIds(readStoredFavoriteBouquetIds());
+        setFavoriteBouquetIds(readStoredFavoriteBouquetIds(bouquets));
       }
       setFavoritesRestored(true);
     }, 0);
 
     return () => window.clearTimeout(restoreTimer);
-  }, []);
+  }, [bouquets, catalogReady]);
 
   useEffect(() => {
+    if (!catalogReady) {
+      return;
+    }
+
     const restoreTimer = window.setTimeout(() => {
-      setCartItems(readStoredCartItems());
+      setCartItems(readStoredCartItems(bouquets));
       setCartRestored(true);
     }, 0);
 
     return () => window.clearTimeout(restoreTimer);
-  }, []);
+  }, [bouquets, catalogReady]);
 
   useEffect(() => {
     const restoreTimer = window.setTimeout(() => {
@@ -1836,8 +1848,60 @@ export default function Home() {
 
   const activeProductExperience = useMemo(
     () => bouquets.find((item) => item.id === productExperienceId) ?? null,
-    [productExperienceId],
+    [bouquets, productExperienceId],
   );
+
+  useEffect(() => {
+    if (!catalogReady || typeof window === "undefined") {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const productParam = params.get("product")?.trim();
+    if (!productParam) {
+      return;
+    }
+
+    const matchedProduct = findPublicStorefrontProduct(productParam, bouquets);
+    if (!matchedProduct) {
+      return;
+    }
+
+    setProductExperienceId(matchedProduct.id);
+    setHomeCatalogFocusNonce((current) => current + 1);
+
+    const collectionsSection = document.getElementById("collections");
+    if (collectionsSection) {
+      collectionsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [bouquets, catalogReady]);
+
+  useEffect(() => {
+    if (!activeProductExperience || typeof document === "undefined") {
+      return;
+    }
+
+    const previousTitle = document.title;
+    const seoTitle =
+      activeProductExperience.seoTitle?.trim() || activeProductExperience.title;
+    document.title = `${seoTitle} | Bellaflore`;
+
+    const metaDescription = document.querySelector('meta[name="description"]');
+    const previousDescription = metaDescription?.getAttribute("content") ?? "";
+    if (metaDescription && activeProductExperience.seoDescription?.trim()) {
+      metaDescription.setAttribute(
+        "content",
+        activeProductExperience.seoDescription.trim(),
+      );
+    }
+
+    return () => {
+      document.title = previousTitle;
+      if (metaDescription && previousDescription) {
+        metaDescription.setAttribute("content", previousDescription);
+      }
+    };
+  }, [activeProductExperience]);
 
   const productFailedImages = useMemo(() => {
     const merged = new Set(productFailedImageIds);

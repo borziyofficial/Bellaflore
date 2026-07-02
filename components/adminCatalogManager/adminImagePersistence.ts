@@ -71,6 +71,4 @@ export function isPersistableImageUrl(url: string): boolean {
   );
 }
 
-export function shouldUseUnoptimizedImage(url: string): boolean {
-  return url.startsWith("blob:") || url.startsWith("data:");
-}
+export { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";

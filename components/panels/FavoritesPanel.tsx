@@ -12,6 +12,7 @@
 
 import Image from "next/image";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import { getProductExperienceData, getProductSizeVariant } from "@/components/product/productExperienceCatalog";
 import { ProductSizeSelector } from "@/components/product/ProductSizeSelector";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
@@ -120,6 +121,7 @@ function FavoriteCard({
           width={bouquet.width}
           height={bouquet.height}
           sizes="88px"
+          unoptimized={shouldUseUnoptimizedImage(bouquet.src)}
         />
       </div>
       <div className="favorites-panel-card-info">

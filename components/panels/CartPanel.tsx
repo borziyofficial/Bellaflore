@@ -1,6 +1,19 @@
+// ==================================================
+// SECTION: CHECKOUT
+// РАЗДЕЛ: Оформление заказа
+//
+// Purpose (EN):
+// Slide-out cart panel with items and checkout CTA
+//
+// Назначение (RU):
+// Панель корзины с позициями и оформлением
+// ==================================================
 "use client";
 
 import Image from "next/image";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
+import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import {
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
@@ -18,6 +31,8 @@ type CartPanelBouquet = {
 
 type CartPanelItem = {
   bouquet: CartPanelBouquet;
+  sizeId: ProductSizeId;
+  sizeLabel: string;
   quantity: number;
 };
 
@@ -30,26 +45,32 @@ type CartPanelProps = {
   handleCartDecreaseClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => void;
   handleCartDecreaseTouchEnd: (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => void;
   handleCartIncreaseClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => void;
   handleCartIncreaseTouchEnd: (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => void;
   handleCartRemoveClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => void;
   handleCartRemoveTouchEnd: (
     event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
+    sizeId: ProductSizeId,
   ) => void;
   handleCheckoutClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
@@ -80,6 +101,12 @@ export function CartPanel({
       role="presentation"
       onClick={closeCartPanel}
     >
+      {/* ==================================================
+SECTION: CHECKOUT
+РАЗДЕЛ: Диалог корзины с позициями и итогами
+Purpose (EN): Cart dialog with items and summary
+Назначение (RU): Диалог корзины с позициями и итогами
+================================================== */}
       <aside
         className="cart-panel"
         role="dialog"
@@ -89,7 +116,7 @@ export function CartPanel({
       >
         <div className="cart-panel-header">
           <div>
-            <span className="cart-panel-eyebrow">Bellaflore</span>
+            <BrandLogo variant="panel" className="cart-panel-eyebrow" />
             <h2 id="cart-panel-title">Корзина</h2>
           </div>
           <div className="cart-panel-actions">
@@ -117,7 +144,7 @@ export function CartPanel({
               {cartBouquets.map((cartItem) => (
                 <article
                   className="cart-panel-item"
-                  key={`cart-${cartItem.bouquet.id}`}
+                  key={`cart-${cartItem.bouquet.id}-${cartItem.sizeId}`}
                 >
                   <div className="cart-panel-image">
                     <Image
@@ -126,12 +153,15 @@ export function CartPanel({
                       width={cartItem.bouquet.width}
                       height={cartItem.bouquet.height}
                       sizes="(max-width: 768px) 34vw, 132px"
+                      unoptimized={shouldUseUnoptimizedImage(cartItem.bouquet.src)}
                     />
                   </div>
                   <div className="cart-panel-item-info">
                     <div className="cart-panel-item-heading">
                       <h3>{cartItem.bouquet.title}</h3>
-                      <p>{formatPrice(cartItem.bouquet.priceRub)}</p>
+                      <p>
+                        Размер {cartItem.sizeLabel} · {formatPrice(cartItem.bouquet.priceRub)}
+                      </p>
                     </div>
                     <div className="cart-panel-quantity-block">
                       <span>Количество</span>
@@ -139,15 +169,17 @@ export function CartPanel({
                         <button
                           type="button"
                           onClick={(event) =>
-                            handleCartDecreaseClick(
+                          handleCartDecreaseClick(
                               event,
                               cartItem.bouquet.id,
+                              cartItem.sizeId,
                             )
                           }
                           onTouchEnd={(event) =>
                             handleCartDecreaseTouchEnd(
                               event,
                               cartItem.bouquet.id,
+                              cartItem.sizeId,
                             )
                           }
                           aria-label={`Уменьшить количество ${cartItem.bouquet.title}`}
@@ -160,15 +192,17 @@ export function CartPanel({
                         <button
                           type="button"
                           onClick={(event) =>
-                            handleCartIncreaseClick(
+                          handleCartIncreaseClick(
                               event,
                               cartItem.bouquet.id,
+                              cartItem.sizeId,
                             )
                           }
                           onTouchEnd={(event) =>
                             handleCartIncreaseTouchEnd(
                               event,
                               cartItem.bouquet.id,
+                              cartItem.sizeId,
                             )
                           }
                           aria-label={`Увеличить количество ${cartItem.bouquet.title}`}
@@ -189,12 +223,17 @@ export function CartPanel({
                       type="button"
                       className="cart-remove-button"
                       onClick={(event) =>
-                        handleCartRemoveClick(event, cartItem.bouquet.id)
+                        handleCartRemoveClick(
+                          event,
+                          cartItem.bouquet.id,
+                          cartItem.sizeId,
+                        )
                       }
                       onTouchEnd={(event) =>
                         handleCartRemoveTouchEnd(
                           event,
                           cartItem.bouquet.id,
+                          cartItem.sizeId,
                         )
                       }
                       aria-label={`Удалить ${cartItem.bouquet.title} из корзины`}
@@ -206,6 +245,12 @@ export function CartPanel({
               ))}
             </div>
             <div className="cart-panel-summary">
+              {/* ==================================================
+SECTION: ORDER SUMMARY
+РАЗДЕЛ: Итоги и кнопка оформления
+Purpose (EN): Totals and checkout button
+Назначение (RU): Итоги и кнопка оформления
+================================================== */}
               <div>
                 <span>Сумма заказа</span>
                 <strong>{formatPrice(checkoutTotalPrice)}</strong>

@@ -10,6 +10,11 @@ export type CatalogProduct = SearchableBouquet &
     width: number;
     height: number;
     sizes?: ProductSizeOption[];
+    /** Admin-published product marker (optional) */
+    isAdminProduct?: boolean;
+    slug?: string;
+    seoTitle?: string;
+    seoDescription?: string;
   };
 
 export const catalogProducts: CatalogProduct[] = [

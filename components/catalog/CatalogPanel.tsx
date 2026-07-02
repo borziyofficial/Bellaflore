@@ -12,6 +12,7 @@
 
 import Image from "next/image";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import { useMemo, useRef, useState } from "react";
 import {
   type ChangeEvent as ReactChangeEvent,
@@ -224,6 +225,7 @@ Purpose (EN): Media, badge, and favorites
             fill
             sizes="(max-width: 768px) 46vw, 220px"
             className="catalog-v11-product-image"
+            unoptimized={shouldUseUnoptimizedImage(bouquet.src)}
             onError={() => markSearchImageFailed(bouquet.id)}
           />
         )}

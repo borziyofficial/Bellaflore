@@ -10,6 +10,7 @@
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import Image from "next/image";
+import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import type { CatalogProductBase } from "@/components/product/productExperienceTypes";
 import styles from "@/components/product/ProductRecommendations.module.css";
 
@@ -55,6 +56,7 @@ export function ProductRecommendations({
                   fill
                   className={styles.image}
                   sizes="168px"
+                  unoptimized={shouldUseUnoptimizedImage(product.src)}
                   onError={() => onImageError(product.id)}
                 />
               )}

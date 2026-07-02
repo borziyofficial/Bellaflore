@@ -8,10 +8,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AdminProductForm } from "@/components/adminCatalogManager/AdminProductForm";
 import { AdminProductList } from "@/components/adminCatalogManager/AdminProductList";
+import { AdminPublishSuccessPanel } from "@/components/adminCatalogManager/AdminPublishSuccessPanel";
 import type {
   AdminCatalogView,
   AdminProductFormState,
 } from "@/components/adminCatalogManager/adminCatalogTypes";
+import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import {
   catalogRecordToAdminForm,
   createEmptyAdminProductForm,
@@ -32,6 +34,9 @@ export function AdminCatalogManager() {
 
   const [view, setView] = useState<AdminCatalogView>("list");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [publishedProduct, setPublishedProduct] = useState<CatalogProductRecord | null>(
+    null,
+  );
   const [formSeed, setFormSeed] = useState<AdminProductFormState>(
     createEmptyAdminProductForm(),
   );
@@ -42,6 +47,7 @@ export function AdminCatalogManager() {
   );
 
   const openCreate = () => {
+    setPublishedProduct(null);
     setFormSeed(createEmptyAdminProductForm());
     setEditingId(null);
     setView("create");
@@ -53,6 +59,7 @@ export function AdminCatalogManager() {
       return;
     }
 
+    setPublishedProduct(null);
     setFormSeed(catalogRecordToAdminForm(product));
     setEditingId(productId);
     setView("edit");
@@ -66,7 +73,20 @@ export function AdminCatalogManager() {
   };
 
   const handlePublish = (form: AdminProductFormState) => {
-    saveProduct({ ...form, status: "published" });
+    const saved = saveProduct({ ...form, status: "published" });
+    setPublishedProduct(saved);
+    setFormSeed(catalogRecordToAdminForm(saved));
+    setEditingId(saved.id);
+    setView("edit");
+  };
+
+  const handleArchiveFromSuccess = () => {
+    if (!publishedProduct) {
+      return;
+    }
+
+    archiveProduct(publishedProduct.id);
+    setPublishedProduct(null);
     setView("list");
     setEditingId(null);
   };
@@ -107,6 +127,36 @@ export function AdminCatalogManager() {
           onEdit={openEdit}
           onArchive={archiveProduct}
         />
+      ) : publishedProduct ? (
+        <div className={styles.wizardShell}>
+          <header className={styles.wizardHeader}>
+            <button
+              type="button"
+              className={styles.ghostButton}
+              onClick={() => {
+                setPublishedProduct(null);
+                setView("list");
+                setEditingId(null);
+              }}
+            >
+              ← К списку товаров
+            </button>
+            <div>
+              <p className={styles.formEyebrow}>Публикация завершена</p>
+              <h2 className={styles.wizardTitle}>Товар на витрине</h2>
+            </div>
+          </header>
+          <AdminPublishSuccessPanel
+            product={publishedProduct}
+            onEdit={() => setPublishedProduct(null)}
+            onArchive={handleArchiveFromSuccess}
+            onOpenCatalog={() => {
+              setPublishedProduct(null);
+              setView("list");
+              setEditingId(null);
+            }}
+          />
+        </div>
       ) : (
         <AdminProductForm
           key={editingId ?? "create"}
@@ -117,6 +167,7 @@ export function AdminCatalogManager() {
           onPublish={handlePublish}
           onArchive={handleArchive}
           onCancel={() => {
+            setPublishedProduct(null);
             setView("list");
             setEditingId(null);
           }}

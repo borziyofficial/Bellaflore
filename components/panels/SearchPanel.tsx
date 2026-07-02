@@ -1,6 +1,17 @@
+// ==================================================
+// SECTION: CATALOG
+// РАЗДЕЛ: Каталог
+//
+// Purpose (EN):
+// Slide-out search panel with smart catalog and results
+//
+// Назначение (RU):
+// Панель поиска с умным каталогом и результатами
+// ==================================================
 "use client";
 
 import Image from "next/image";
+import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import type { SmartCatalogGroup } from "@/data/smartCatalog";
 import {
   type ChangeEvent as ReactChangeEvent,
@@ -170,6 +181,12 @@ export function SearchPanel({
       role="presentation"
       onClick={closeSearchPanel}
     >
+      {/* ==================================================
+SECTION: CATALOG
+РАЗДЕЛ: Диалог поиска с категориями и результатами
+Purpose (EN): Search dialog with input, categories, and results
+Назначение (RU): Диалог поиска с категориями и результатами
+================================================== */}
       <aside
         className="search-panel"
         role="dialog"
@@ -179,7 +196,6 @@ export function SearchPanel({
       >
         <div className="search-panel-header">
           <div>
-            <span className="search-panel-eyebrow">Bellaflore</span>
             <h2 id="search-panel-title">Поиск букетов</h2>
           </div>
           <button
@@ -213,40 +229,35 @@ export function SearchPanel({
           )}
         </div>
         {!normalizedSearchQuery && (
-          <div className="search-idle-state" role="status">
-            <div className="search-empty-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="7" />
-                <path d="M20 20l-3.5-3.5" />
-              </svg>
-            </div>
-            <h3>Найдите идеальный букет</h3>
-            <p>
-              Ищите по цветам, названию, формату или части слова — например,
-              «горт», «роза», «корзина».
-            </p>
-          </div>
+          <p className="search-helper-text" role="status">
+            Ищите по цветам, названию или формату — «роза», «пион», «корзина».
+          </p>
         )}
         {!normalizedSearchQuery && (
         <section className="smart-catalog-menu" aria-label="Каталог Bellaflore">
-          <div className="smart-catalog-menu-header">
-            <span>Smart Catalog</span>
-            <strong>Каталог Bellaflore</strong>
-          </div>
+          {/* ==================================================
+SECTION: CATALOG
+РАЗДЕЛ: Раскрывающееся меню категорий
+Purpose (EN): Expandable smart catalog category menu
+Назначение (RU): Раскрывающееся меню категорий
+================================================== */}
+          <p className="smart-catalog-section-label">Категории</p>
           <div className="smart-catalog-groups">
             {smartCatalogGroups.map((group) => (
               <details
-                className="smart-catalog-group"
+                className="smart-catalog-group catalog-category-card"
                 key={group.id}
               >
-                <summary>
-                  <span>
+                <summary className="catalog-category-card-summary">
+                  <div className="catalog-category-card-copy">
                     <strong>{group.title}</strong>
-                    <small>{group.description}</small>
+                    <p>{group.description}</p>
+                  </div>
+                  <span className="catalog-category-card-toggle" aria-hidden="true">
+                    +
                   </span>
-                  <b aria-hidden="true">+</b>
                 </summary>
-                <div className="smart-catalog-items smart-catalog-items-flat">
+                <div className="smart-catalog-items smart-catalog-items-flat catalog-category-items">
                   {getSmartCatalogDisplayItems(group).map((catalogItem) => (
                     <button
                       type="button"
@@ -279,6 +290,12 @@ export function SearchPanel({
             normalizedSearchQuery ? "search-panel-results-active" : ""
           }`}
         >
+          {/* ==================================================
+SECTION: PRODUCT GRID
+РАЗДЕЛ: Карточки результатов поиска
+Purpose (EN): Search result cards with buy and favorites
+Назначение (RU): Карточки результатов поиска
+================================================== */}
           {normalizedSearchQuery && searchResults.length === 0 && (
             <div className="search-empty-state" role="status">
               <div className="search-empty-icon" aria-hidden="true">
@@ -319,6 +336,7 @@ export function SearchPanel({
                       width={bouquet.width}
                       height={bouquet.height}
                       sizes="(max-width: 768px) 34vw, 132px"
+                      unoptimized={shouldUseUnoptimizedImage(bouquet.src)}
                       onError={() => markSearchImageFailed(bouquet.id)}
                     />
                   )}

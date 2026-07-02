@@ -39,8 +39,12 @@ const PRODUCT_GALLERY_OVERRIDES: Record<string, string[]> = {
 };
 
 function buildGalleryImages(product: CatalogProductBase): ProductGalleryImage[] {
-  const sources =
-    PRODUCT_GALLERY_OVERRIDES[product.id] ?? [product.src, product.src, product.src];
+  const overrideSources = PRODUCT_GALLERY_OVERRIDES[product.id];
+  const sources = overrideSources?.length
+    ? overrideSources
+    : product.src
+      ? [product.src, product.src, product.src]
+      : ["/roza rouze royal.PNG"];
 
   return sources.map((src, index) => ({
     id: `${product.id}-gallery-${index}`,

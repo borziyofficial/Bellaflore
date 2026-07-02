@@ -10,6 +10,7 @@
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import Image from "next/image";
+import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ProductGalleryImage } from "@/components/product/productExperienceTypes";
 import styles from "@/components/product/ProductGallery.module.css";
@@ -133,6 +134,7 @@ export function ProductGallery({
         className={styles.slideImage}
         sizes="(max-width: 768px) 100vw, 560px"
         priority={priority}
+        unoptimized={shouldUseUnoptimizedImage(image.src)}
         onError={() => onImageError(image.id)}
       />
     );
@@ -184,6 +186,7 @@ export function ProductGallery({
                       fill
                       className={styles.thumbnailImage}
                       sizes="72px"
+                      unoptimized={shouldUseUnoptimizedImage(image.src)}
                       onError={() => onImageError(image.id)}
                     />
                   ) : (
@@ -234,6 +237,7 @@ export function ProductGallery({
                       width={image.width}
                       height={image.height}
                       className={styles.fullscreenImage}
+                      unoptimized={shouldUseUnoptimizedImage(image.src)}
                       onError={() => onImageError(image.id)}
                     />
                   ) : (
