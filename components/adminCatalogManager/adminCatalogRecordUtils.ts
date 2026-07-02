@@ -12,6 +12,7 @@ import type {
   CatalogProductUpsertInput,
 } from "@/components/catalogEngine/catalogTypes";
 import { buildProductSeoBundle } from "@/components/catalogEngine/seoEngine";
+import type { CatalogAdminSeoDraft } from "@/components/catalogEngine/catalogTypes";
 import type {
   AdminProductFormState,
   AdminProductFormStatus,
@@ -53,6 +54,18 @@ export function createEmptyAdminProductForm(): AdminProductFormState {
     galleryUrls: [],
     seoTitle: "",
     seoDescription: "",
+    seoH1: "",
+    seoSlug: "",
+    seoKeywords: "",
+    seoFaq: [],
+    seoImageAlt: "",
+    seoGalleryAlt: [],
+    openGraphTitle: "",
+    openGraphDescription: "",
+    schemaProductJsonLd: {},
+    seoScore: 0,
+    seoRecommendations: [],
+    internalLinkSuggestions: [],
   };
 }
 
@@ -92,7 +105,7 @@ function buildImages(form: AdminProductFormState): CatalogProductImage[] {
     images.push({
       id: `${form.id ?? "new"}-main`,
       url: form.mainImageUrl,
-      alt: form.mainImageAlt || form.title || "Букет Bellaflore",
+      alt: form.seoImageAlt || form.mainImageAlt || form.title || "Букет Bellaflore",
       width: 1080,
       height: 1350,
       sortOrder: 0,
@@ -108,7 +121,7 @@ function buildImages(form: AdminProductFormState): CatalogProductImage[] {
     images.push({
       id: `${form.id ?? "new"}-gallery-${index}`,
       url: url.trim(),
-      alt: form.mainImageAlt || form.title || "Букет Bellaflore",
+      alt: form.seoImageAlt || form.mainImageAlt || form.title || "Букет Bellaflore",
       width: 1080,
       height: 1350,
       sortOrder: index + 1,
@@ -143,7 +156,7 @@ export function adminFormToCatalogUpsertInput(
 ): CatalogProductUpsertInput {
   const now = new Date().toISOString();
   const id = form.id ?? createAdminProductId();
-  const slug = form.slug.trim() || slugifyProductTitle(form.title);
+  const slug = form.seoSlug.trim() || form.slug.trim() || slugifyProductTitle(form.title);
   const sizes = parseSizePrices(form);
   const basePriceRub = sizes.length
     ? Math.min(...sizes.map((size) => size.priceRub))
@@ -161,6 +174,21 @@ export function adminFormToCatalogUpsertInput(
     primaryImageUrl,
     basePriceRub,
   });
+
+  const adminSeoDraft: CatalogAdminSeoDraft = {
+    seoH1: form.seoH1.trim(),
+    seoSlug: form.seoSlug.trim() || slug,
+    seoKeywords: parseTagsInput(form.seoKeywords),
+    seoFaq: form.seoFaq,
+    seoGalleryAlt: form.seoGalleryAlt,
+    openGraphTitle: form.openGraphTitle.trim() || form.seoTitle.trim(),
+    openGraphDescription:
+      form.openGraphDescription.trim() || form.seoDescription.trim(),
+    schemaProductJsonLd: form.schemaProductJsonLd,
+    seoScore: form.seoScore,
+    seoRecommendations: form.seoRecommendations,
+    internalLinkSuggestions: form.internalLinkSuggestions,
+  };
 
   return {
     id,
@@ -195,13 +223,23 @@ export function adminFormToCatalogUpsertInput(
       ...seoBundle,
       title: form.seoTitle.trim() || seoBundle.title,
       description: form.seoDescription.trim() || seoBundle.description,
+      slug,
+      canonicalPath: `/catalog/${slug}`,
+      schemaJsonLd:
+        Object.keys(form.schemaProductJsonLd).length > 0
+          ? form.schemaProductJsonLd
+          : seoBundle.schemaJsonLd,
       openGraph: {
         ...seoBundle.openGraph,
-        title: form.seoTitle.trim() || seoBundle.openGraph.title,
-        description: form.seoDescription.trim() || seoBundle.openGraph.description,
+        title: form.openGraphTitle.trim() || form.seoTitle.trim() || seoBundle.openGraph.title,
+        description:
+          form.openGraphDescription.trim() ||
+          form.seoDescription.trim() ||
+          seoBundle.openGraph.description,
+        imageUrl: primaryImageUrl,
       },
     },
-    searchTerms: tags,
+    searchTerms: [...tags, ...parseTagsInput(form.seoKeywords)],
     metadata: {
       catalogVersion: CATALOG_ENGINE_VERSION,
       createdAt: existing?.metadata.createdAt ?? now,
@@ -210,6 +248,7 @@ export function adminFormToCatalogUpsertInput(
       composition: form.composition.trim(),
       isBestseller: form.isBestseller,
       adminCreated: existing?.metadata.adminCreated ?? !existing,
+      adminSeoDraft,
     },
   };
 }
@@ -237,6 +276,8 @@ export function catalogRecordToAdminForm(
     ? "published"
     : "draft";
 
+  const adminSeo = product.metadata.adminSeoDraft;
+
   return {
     id: product.id,
     title: product.title,
@@ -257,6 +298,20 @@ export function catalogRecordToAdminForm(
     galleryUrls,
     seoTitle: product.seo.title,
     seoDescription: product.seo.description,
+    seoH1: adminSeo?.seoH1 ?? product.title,
+    seoSlug: adminSeo?.seoSlug ?? product.slug,
+    seoKeywords: formatTagsInput(adminSeo?.seoKeywords ?? product.searchTerms),
+    seoFaq: adminSeo?.seoFaq ?? [],
+    seoImageAlt: primaryImage?.alt ?? product.title,
+    seoGalleryAlt: adminSeo?.seoGalleryAlt ?? [],
+    openGraphTitle: adminSeo?.openGraphTitle ?? product.seo.openGraph.title,
+    openGraphDescription:
+      adminSeo?.openGraphDescription ?? product.seo.openGraph.description,
+    schemaProductJsonLd:
+      adminSeo?.schemaProductJsonLd ?? product.seo.schemaJsonLd,
+    seoScore: adminSeo?.seoScore ?? 0,
+    seoRecommendations: adminSeo?.seoRecommendations ?? [],
+    internalLinkSuggestions: adminSeo?.internalLinkSuggestions ?? [],
   };
 }
 
@@ -275,6 +330,7 @@ export function finalizeCatalogRecord(
       composition: input.metadata?.composition,
       isBestseller: input.metadata?.isBestseller,
       adminCreated: input.metadata?.adminCreated,
+      adminSeoDraft: input.metadata?.adminSeoDraft,
     },
   };
 

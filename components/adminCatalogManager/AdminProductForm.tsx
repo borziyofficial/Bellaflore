@@ -8,8 +8,10 @@ import { useMemo, useState } from "react";
 import type {
   AdminProductFormErrors,
   AdminProductFormState,
+  MockAiBundle,
 } from "@/components/adminCatalogManager/adminCatalogTypes";
 import { AdminProductAiPanel } from "@/components/adminCatalogManager/AdminProductAiPanel";
+import { AdminProductSeoAiPanel } from "@/components/adminCatalogManager/AdminProductSeoAiPanel";
 import { AdminProductImageUpload } from "@/components/adminCatalogManager/AdminProductImageUpload";
 import { AdminProductPreviewCard } from "@/components/adminCatalogManager/AdminProductPreviewCard";
 import { slugifyProductTitle } from "@/components/adminCatalogManager/adminCatalogRecordUtils";
@@ -65,6 +67,7 @@ export function AdminProductForm({
 }: AdminProductFormProps) {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState<AdminProductFormErrors>({});
+  const [aiBundle, setAiBundle] = useState<MockAiBundle | null>(null);
 
   const previewRecord = useMemo(() => buildPreviewRecord(form), [buildPreviewRecord, form]);
 
@@ -131,7 +134,17 @@ export function AdminProductForm({
           </div>
         </header>
 
-        <AdminProductAiPanel form={form} onApply={setForm} />
+        <AdminProductAiPanel
+          form={form}
+          onApply={setForm}
+          onBundleGenerated={setAiBundle}
+        />
+
+        <AdminProductSeoAiPanel
+          form={form}
+          aiBundle={aiBundle}
+          onApply={setForm}
+        />
 
         <section className={styles.card}>
           <div className={styles.cardHeader}>
@@ -263,7 +276,7 @@ export function AdminProductForm({
 
         <section className={styles.card}>
           <div className={styles.cardHeader}>
-            <h3 className={styles.cardTitle}>Флаги и SEO</h3>
+            <h3 className={styles.cardTitle}>Флаги витрины</h3>
           </div>
           <div className={styles.toggleRow}>
             <label className={styles.toggle}>
@@ -272,7 +285,7 @@ export function AdminProductForm({
                 checked={form.isFeatured}
                 onChange={(event) => updateForm({ isFeatured: event.target.checked })}
               />
-              <span>Featured</span>
+              <span>Хит</span>
             </label>
             <label className={styles.toggle}>
               <input
@@ -280,7 +293,7 @@ export function AdminProductForm({
                 checked={form.isNew}
                 onChange={(event) => updateForm({ isNew: event.target.checked })}
               />
-              <span>New</span>
+              <span>Новинка</span>
             </label>
             <label className={styles.toggle}>
               <input
@@ -290,28 +303,7 @@ export function AdminProductForm({
                   updateForm({ isBestseller: event.target.checked })
                 }
               />
-              <span>Bestseller</span>
-            </label>
-          </div>
-          <div className={styles.fieldGrid}>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>SEO title</span>
-              <input
-                className={styles.input}
-                value={form.seoTitle}
-                onChange={(event) => updateForm({ seoTitle: event.target.value })}
-              />
-            </label>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>SEO description</span>
-              <textarea
-                className={styles.textarea}
-                rows={3}
-                value={form.seoDescription}
-                onChange={(event) =>
-                  updateForm({ seoDescription: event.target.value })
-                }
-              />
+              <span>Бестселлер</span>
             </label>
           </div>
         </section>

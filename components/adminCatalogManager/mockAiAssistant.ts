@@ -2,7 +2,11 @@
 // SECTION: Admin Catalog Manager — mock AI assistant
 // РАЗДЕЛ: Mock AI-помощник (без внешнего API)
 // ==================================================
-import type { MockAiSuggestion } from "@/components/adminCatalogManager/adminCatalogTypes";
+import type {
+  MockAiBundle,
+  MockAiSuggestion,
+} from "@/components/adminCatalogManager/adminCatalogTypes";
+import { generateMockSeoSuggestions } from "@/components/adminCatalogManager/mockSeoAssistant";
 import type { CatalogProductSizeId } from "@/components/catalogEngine/catalogTypes";
 
 const MOCK_TEMPLATES = [
@@ -56,17 +60,13 @@ function pickTemplate(seed: string) {
   return MOCK_TEMPLATES[hash % MOCK_TEMPLATES.length];
 }
 
-export function generateMockAiSuggestions(
+export function generateMockProductSuggestions(
   hint = "",
 ): MockAiSuggestion {
   const template = pickTemplate(hint || "bellaflore");
   const title = hint.trim()
     ? hint.trim().replace(/\b\w/g, (char) => char.toUpperCase())
     : template.title;
-  const slug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9а-я]+/gi, "-")
-    .replace(/(^-|-$)/g, "");
   const sizePrices = buildSizePrices(template.basePrice);
   const fullDescription = `${template.shortDescription}. Композиция собрана флористами Bellaflore с доставкой по Москве в день заказа.`;
 
@@ -78,8 +78,18 @@ export function generateMockAiSuggestions(
     composition: template.composition,
     tags: [...template.tags],
     sizePrices,
-    seoTitle: `${title} — купить с доставкой | Bellaflore`,
-    seoDescription: `${template.shortDescription}. Премиальная доставка цветов Bellaflore по Москве.`,
     imageAlt: `Букет ${title} — Bellaflore`,
   };
+}
+
+export function generateMockAiBundle(hint = ""): MockAiBundle {
+  const product = generateMockProductSuggestions(hint);
+  const seo = generateMockSeoSuggestions(product);
+
+  return { product, seo };
+}
+
+/** @deprecated Use generateMockAiBundle */
+export function generateMockAiSuggestions(hint = ""): MockAiSuggestion {
+  return generateMockProductSuggestions(hint);
 }

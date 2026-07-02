@@ -1,11 +1,21 @@
 // ==================================================
 // SECTION: CATALOG ENGINE
 // РАЗДЕЛ: Smart Catalog — типы
-//
-// Purpose (EN): Admin-ready catalog domain types for Bellaflore Product Engine.
-//
-// Назначение (RU): Доменные типы умного каталога для Product Engine.
 // ==================================================
+
+export type CatalogAdminSeoDraft = {
+  seoH1?: string;
+  seoSlug?: string;
+  seoKeywords?: string[];
+  seoFaq?: Array<{ question: string; answer: string }>;
+  seoGalleryAlt?: string[];
+  openGraphTitle?: string;
+  openGraphDescription?: string;
+  schemaProductJsonLd?: Record<string, unknown>;
+  seoScore?: number;
+  seoRecommendations?: string[];
+  internalLinkSuggestions?: string[];
+};
 
 export type CatalogProductSizeId = "S" | "M" | "L" | "XL";
 
@@ -112,6 +122,7 @@ export type CatalogProductRecord = {
     composition?: string;
     isBestseller?: boolean;
     adminCreated?: boolean;
+    adminSeoDraft?: CatalogAdminSeoDraft;
   };
 };
 

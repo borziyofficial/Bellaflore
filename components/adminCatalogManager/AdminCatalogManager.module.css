@@ -561,6 +561,228 @@
   font-weight: 600;
 }
 
+.seoAiPanel {
+  border: 1px solid rgba(47, 107, 79, 0.22);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f8fcf9 0%, #fffcf7 100%);
+  box-shadow: var(--admin-shadow);
+  padding: 16px;
+}
+
+.seoAiHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.seoScoreBlock {
+  min-width: 120px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(47, 107, 79, 0.08);
+  text-align: center;
+}
+
+.seoScoreLabel {
+  margin: 0;
+  font-size: 12px;
+  color: var(--admin-muted);
+}
+
+.seoScoreValue {
+  margin: 4px 0 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--admin-success);
+}
+
+.seoScoreDelta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--admin-gold);
+}
+
+.seoAiActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.seoSectionsGrid {
+  display: grid;
+  gap: 14px;
+}
+
+.seoSection {
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.seoSectionTitle {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.seoPreviewStack {
+  display: grid;
+  gap: 12px;
+}
+
+.seoPreviewCard {
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.seoPreviewTitle {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--admin-muted);
+}
+
+.searchSnippet {
+  display: grid;
+  gap: 4px;
+}
+
+.searchSnippetUrl {
+  margin: 0;
+  font-size: 12px;
+  color: #1a7f37;
+}
+
+.searchSnippetHeading {
+  margin: 0;
+  font-size: 18px;
+  color: #1a0dab;
+}
+
+.searchSnippetDescription {
+  margin: 0;
+  font-size: 13px;
+  color: #4d5156;
+  line-height: 1.45;
+}
+
+.ogPreview {
+  display: grid;
+  gap: 10px;
+}
+
+.ogPreviewMedia {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.91 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #efe6da;
+}
+
+.ogPreviewImage {
+  object-fit: cover;
+}
+
+.ogPreviewBody {
+  display: grid;
+  gap: 4px;
+}
+
+.ogPreviewDomain,
+.ogPreviewHeading,
+.ogPreviewDescription {
+  margin: 0;
+}
+
+.ogPreviewDomain {
+  font-size: 11px;
+  color: var(--admin-muted);
+  text-transform: uppercase;
+}
+
+.ogPreviewHeading {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ogPreviewDescription {
+  font-size: 13px;
+  color: var(--admin-muted);
+}
+
+.schemaPreview {
+  margin: 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f7f3ec;
+  overflow: auto;
+  font-size: 11px;
+  line-height: 1.45;
+  max-height: 220px;
+}
+
+.faqList {
+  display: grid;
+  gap: 10px;
+}
+
+.faqItem {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--admin-border);
+}
+
+.faqQuestion {
+  margin: 0;
+  font-weight: 600;
+}
+
+.faqAnswer {
+  margin: 6px 0 0;
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+.seoChecklist,
+.seoRecommendations,
+.internalLinks {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.checklistPass {
+  color: var(--admin-success);
+  font-size: 13px;
+}
+
+.checklistFail {
+  color: var(--admin-gold);
+  font-size: 13px;
+}
+
+.seoRecommendations li,
+.internalLinks li {
+  font-size: 13px;
+  color: var(--admin-muted);
+}
+
+.internalLinks code {
+  font-size: 12px;
+  background: #f3ece2;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
 @media (max-width: 960px) {
   .toolbar {
     grid-template-columns: 1fr;
