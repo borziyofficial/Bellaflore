@@ -1,0 +1,1452 @@
+/* ==================================================
+SECTION: Pearl Motion — Token Foundation
+РАЗДЕЛ: Pearl Motion — базовые токены
+
+Purpose (EN): Duration, easing, and transform motion tokens plus opt-in utility classes. No component migration yet.
+
+Назначение (RU): Токены motion (duration, easing, transform) и opt-in utility-классы. Миграция компонентов пока не выполнена.
+================================================== */
+
+:root {
+  /* --- Duration --- */
+  --motion-duration-fast: 0.2s;
+  --motion-duration-base: 0.28s;
+  --motion-duration-slow: 0.44s;
+  --motion-duration-panel: 0.28s;
+
+  /* --- Easing --- */
+  --motion-ease-standard: ease;
+  --motion-ease-soft: ease;
+  --motion-ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-exit: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Transform --- */
+  --motion-lift-sm: -2px;
+  --motion-lift-md: -3px;
+  --motion-scale-hover: 1.01;
+  --motion-scale-active: 0.98;
+
+  /* --- Enter / exit primitives --- */
+  --motion-blur-enter: 8px;
+  --motion-opacity-enter: 0;
+
+  /* --- Reduced motion (applied in guard) --- */
+  --motion-duration-reduced: 0.01ms;
+}
+
+/* ============================================================
+   Foundation keyframes — utility classes only (T6.1)
+   ============================================================ */
+
+@keyframes bf-motion-enter-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    transform: translateY(var(--motion-lift-sm));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bf-motion-exit-keyframes {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: var(--motion-opacity-enter);
+    transform: translateY(var(--motion-lift-sm));
+  }
+}
+
+/* ============================================================
+   Foundation utility classes — opt-in API (no JSX migration yet)
+   ============================================================ */
+
+.bf-motion-fade {
+  transition: opacity var(--motion-duration-base) var(--motion-ease-soft);
+}
+
+.bf-motion-lift {
+  transition: transform var(--motion-duration-base) var(--motion-ease-premium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bf-motion-lift:hover {
+    transform: translateY(var(--motion-lift-md));
+  }
+}
+
+.bf-motion-scale {
+  transition: transform var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bf-motion-scale:hover {
+    transform: scale(var(--motion-scale-hover));
+  }
+}
+
+.bf-motion-scale:active {
+  transform: scale(var(--motion-scale-active));
+}
+
+.bf-motion-enter {
+  animation: bf-motion-enter-keyframes var(--motion-duration-base)
+    var(--motion-ease-premium) forwards;
+}
+
+.bf-motion-exit {
+  animation: bf-motion-exit-keyframes var(--motion-duration-fast)
+    var(--motion-ease-exit) forwards;
+}
+
+/* ============================================================
+   Global prefers-reduced-motion guard
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: var(--motion-duration-reduced) !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--motion-duration-reduced) !important;
+  }
+
+  .bf-reveal,
+  .bf-reveal-up,
+  .bf-reveal-fade,
+  .bf-reveal-scale,
+  .bf-reveal-stagger > *,
+  .bf-reveal-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   T6.2 — Scroll reveal system (CSS view timeline + opt-in classes)
+   Progressive enhancement: visible by default when view() unsupported.
+   No JS required on modern browsers. Intersection Observer optional
+   for legacy parity + .bf-reveal-visible toggling.
+   ============================================================ */
+
+@keyframes bf-reveal-up-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    transform: translateY(calc(var(--motion-lift-md) * -8));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bf-reveal-fade-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bf-reveal-scale-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    transform: scale(var(--motion-scale-active));
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* --- Base: visible fallback (no view timeline support) --- */
+
+.bf-reveal,
+.bf-reveal-up,
+.bf-reveal-fade,
+.bf-reveal-scale {
+  opacity: 1;
+  transform: none;
+}
+
+.bf-reveal-visible,
+.bf-reveal.bf-reveal-visible,
+.bf-reveal-up.bf-reveal-visible,
+.bf-reveal-fade.bf-reveal-visible,
+.bf-reveal-scale.bf-reveal-visible {
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+/* --- Scroll-driven reveal (modern browsers) --- */
+
+@supports (animation-timeline: view()) {
+  .bf-reveal-up {
+    animation: bf-reveal-up-keyframes linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 32%;
+  }
+
+  .bf-reveal-fade {
+    animation: bf-reveal-fade-keyframes linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
+
+  .bf-reveal-scale {
+    animation: bf-reveal-scale-keyframes linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+
+  /* Stagger delays — child 1–5 */
+  .bf-reveal-stagger > .bf-reveal-up:nth-child(1),
+  .bf-reveal-stagger > .bf-reveal-fade:nth-child(1),
+  .bf-reveal-stagger > .bf-reveal-scale:nth-child(1) {
+    animation-delay: 0ms;
+  }
+
+  .bf-reveal-stagger > .bf-reveal-up:nth-child(2),
+  .bf-reveal-stagger > .bf-reveal-fade:nth-child(2),
+  .bf-reveal-stagger > .bf-reveal-scale:nth-child(2) {
+    animation-delay: calc(var(--motion-duration-fast) * 0.5);
+  }
+
+  .bf-reveal-stagger > .bf-reveal-up:nth-child(3),
+  .bf-reveal-stagger > .bf-reveal-fade:nth-child(3),
+  .bf-reveal-stagger > .bf-reveal-scale:nth-child(3) {
+    animation-delay: var(--motion-duration-fast);
+  }
+
+  .bf-reveal-stagger > .bf-reveal-up:nth-child(4),
+  .bf-reveal-stagger > .bf-reveal-fade:nth-child(4),
+  .bf-reveal-stagger > .bf-reveal-scale:nth-child(4) {
+    animation-delay: calc(var(--motion-duration-fast) * 1.5);
+  }
+
+  .bf-reveal-stagger > .bf-reveal-up:nth-child(5),
+  .bf-reveal-stagger > .bf-reveal-fade:nth-child(5),
+  .bf-reveal-stagger > .bf-reveal-scale:nth-child(5) {
+    animation-delay: calc(var(--motion-duration-fast) * 2);
+  }
+}
+
+/* --- Storefront exclusions (never reveal) --- */
+
+.checkout-section .bf-reveal,
+.checkout-section .bf-reveal-up,
+.checkout-section .bf-reveal-fade,
+.checkout-section .bf-reveal-scale,
+.mobile-bottom-nav .bf-reveal,
+.mobile-bottom-nav .bf-reveal-up,
+.mobile-bottom-nav .bf-reveal-fade,
+.mobile-bottom-nav .bf-reveal-scale,
+.review-form-card.bf-reveal,
+.review-form-card.bf-reveal-up,
+.review-form-card.bf-reveal-fade,
+.review-form-card.bf-reveal-scale {
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+/* ============================================================
+   T6.3 — Premium card motion system
+   Unified hover / press for interactive storefront cards.
+   Overrides pearl-surfaces T5.4 motion. Motion tokens only.
+   ============================================================ */
+
+:root {
+  --motion-card-transition:
+    transform var(--motion-duration-base) var(--motion-ease-premium),
+    box-shadow var(--motion-duration-base) var(--motion-ease-premium),
+    border-color var(--motion-duration-base) var(--motion-ease-premium),
+    background var(--motion-duration-base) var(--motion-ease-premium),
+    backdrop-filter var(--motion-duration-base) var(--motion-ease-premium),
+    -webkit-backdrop-filter var(--motion-duration-base) var(--motion-ease-premium);
+}
+
+/* --- Card groups --- */
+
+.bouquet-card,
+.catalog-v11-product-card,
+.luxury-catalog-result-card,
+.delivery-card,
+.review-card,
+.about-card,
+.contact-card,
+.contact-link,
+.smart-catalog-group,
+.catalog-category-card,
+.favorites-panel-bouquet-card {
+  transition: var(--motion-card-transition);
+}
+
+/* --- Hover (standard tier) --- */
+
+@media (hover: hover) and (pointer: fine) {
+  .bouquet-card:hover,
+  .catalog-v11-product-card:hover,
+  .delivery-card:hover,
+  .review-card:hover,
+  .about-card:hover,
+  .contact-link:hover,
+  .favorites-panel-bouquet-card:hover {
+    transform: translateY(var(--motion-lift-md))
+      scale(var(--motion-scale-hover));
+    border-color: var(--border-active);
+    box-shadow: var(--shadow-surface-hover);
+    backdrop-filter: var(--glass-medium);
+    -webkit-backdrop-filter: var(--glass-medium);
+  }
+
+  /* Contact shell — border / shadow / glass only (links handle lift) */
+  .contact-card:hover {
+    border-color: var(--border-active);
+    box-shadow: var(--shadow-surface-hover);
+    backdrop-filter: var(--glass-medium);
+    -webkit-backdrop-filter: var(--glass-medium);
+  }
+
+  /* Compact tier — collection / catalog rows */
+  .luxury-catalog-result-card:hover,
+  .smart-catalog-group:hover,
+  .catalog-category-card:hover {
+    transform: translateY(var(--motion-lift-sm))
+      scale(var(--motion-scale-hover));
+    border-color: var(--border-active);
+    box-shadow: var(--shadow-surface-hover);
+    backdrop-filter: var(--glass-light);
+    -webkit-backdrop-filter: var(--glass-light);
+  }
+}
+
+/* --- Active / press (all tiers) --- */
+
+.bouquet-card:active,
+.catalog-v11-product-card:active,
+.luxury-catalog-result-card:active,
+.delivery-card:active,
+.review-card:active,
+.about-card:active,
+.contact-link:active,
+.smart-catalog-group:active,
+.catalog-category-card:active,
+.favorites-panel-bouquet-card:active {
+  transform: translateY(var(--motion-lift-sm))
+    scale(var(--motion-scale-active));
+  border-color: var(--border-active);
+  box-shadow: var(--shadow-surface-active);
+}
+
+/* --- Reduced motion: no card lift / scale --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .bouquet-card,
+  .catalog-v11-product-card,
+  .luxury-catalog-result-card,
+  .delivery-card,
+  .review-card,
+  .about-card,
+  .contact-card,
+  .contact-link,
+  .smart-catalog-group,
+  .catalog-category-card,
+  .favorites-panel-bouquet-card {
+    transition: none !important;
+  }
+
+  .bouquet-card:hover,
+  .catalog-v11-product-card:hover,
+  .luxury-catalog-result-card:hover,
+  .delivery-card:hover,
+  .review-card:hover,
+  .about-card:hover,
+  .contact-card:hover,
+  .contact-link:hover,
+  .smart-catalog-group:hover,
+  .catalog-category-card:hover,
+  .favorites-panel-bouquet-card:hover,
+  .bouquet-card:active,
+  .catalog-v11-product-card:active,
+  .luxury-catalog-result-card:active,
+  .delivery-card:active,
+  .review-card:active,
+  .about-card:active,
+  .contact-link:active,
+  .smart-catalog-group:active,
+  .catalog-category-card:active,
+  .favorites-panel-bouquet-card:active {
+    transform: none !important;
+  }
+}
+
+/* ============================================================
+   T6.4 — Premium panel motion system
+   Unified enter / exit for storefront panels.
+   Uses existing bottom-nav-panel-host-closing for exit (no JSX).
+   Cart panel: enter only (no closing host in page logic).
+   ============================================================ */
+
+:root {
+  --motion-panel-transition:
+    opacity var(--motion-duration-panel) var(--motion-ease-soft),
+    transform var(--motion-duration-panel) var(--motion-ease-premium),
+    backdrop-filter var(--motion-duration-panel) var(--motion-ease-soft),
+    -webkit-backdrop-filter var(--motion-duration-panel) var(--motion-ease-soft),
+    box-shadow var(--motion-duration-panel) var(--motion-ease-premium),
+    border-color var(--motion-duration-panel) var(--motion-ease-premium);
+
+  --motion-panel-focus-transition:
+    opacity var(--motion-duration-fast) var(--motion-ease-standard),
+    transform var(--motion-duration-fast) var(--motion-ease-standard),
+    box-shadow var(--motion-duration-fast) var(--motion-ease-standard),
+    border-color var(--motion-duration-fast) var(--motion-ease-standard),
+    backdrop-filter var(--motion-duration-fast) var(--motion-ease-standard),
+    -webkit-backdrop-filter var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+/* --- Panel keyframes (motion tokens only) --- */
+
+@keyframes bf-panel-overlay-in-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    backdrop-filter: blur(0px) saturate(1);
+    -webkit-backdrop-filter: blur(0px) saturate(1);
+  }
+
+  to {
+    opacity: 1;
+    backdrop-filter: blur(var(--motion-blur-enter)) saturate(1.08);
+    -webkit-backdrop-filter: blur(var(--motion-blur-enter)) saturate(1.08);
+  }
+}
+
+@keyframes bf-panel-overlay-out-keyframes {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(var(--motion-blur-enter)) saturate(1.08);
+    -webkit-backdrop-filter: blur(var(--motion-blur-enter)) saturate(1.08);
+  }
+
+  to {
+    opacity: var(--motion-opacity-enter);
+    backdrop-filter: blur(0px) saturate(1);
+    -webkit-backdrop-filter: blur(0px) saturate(1);
+  }
+}
+
+@keyframes bf-panel-content-in-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    transform: translateY(calc(var(--motion-lift-md) * -6))
+      scale(var(--motion-scale-active));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bf-panel-content-out-keyframes {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: var(--motion-opacity-enter);
+    transform: translateY(calc(var(--motion-lift-sm) * -7))
+      scale(var(--motion-scale-active));
+  }
+}
+
+@keyframes bf-panel-contact-content-in-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    transform: translateX(-50%)
+      translateY(calc(var(--motion-lift-md) * -6))
+      scale(var(--motion-scale-active));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes bf-panel-contact-content-out-keyframes {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  to {
+    opacity: var(--motion-opacity-enter);
+    transform: translateX(-50%)
+      translateY(calc(var(--motion-lift-sm) * -7))
+      scale(var(--motion-scale-active));
+  }
+}
+
+/* --- Overlay enter --- */
+
+.search-panel-overlay,
+.favorites-panel-overlay,
+.cart-panel-overlay,
+.my-order-panel-overlay,
+.luxury-catalog-overlay,
+.catalog-placeholder-overlay,
+.contact-quick-actions-overlay {
+  transition: var(--motion-panel-transition);
+  animation: bf-panel-overlay-in-keyframes var(--motion-duration-panel)
+    var(--motion-ease-premium) forwards;
+}
+
+/* --- Panel content enter --- */
+
+.search-panel,
+.favorites-panel,
+.cart-panel:not(.my-order-panel),
+.my-order-panel,
+.luxury-catalog-panel,
+.catalog-v11-panel,
+.catalog-placeholder-panel {
+  transition: var(--motion-panel-transition);
+  animation: bf-panel-content-in-keyframes var(--motion-duration-panel)
+    var(--motion-ease-premium) forwards;
+}
+
+/* Contact hub shell — preserves horizontal centering transform */
+.contact-quick-actions {
+  transition: var(--motion-panel-transition);
+  animation: bf-panel-contact-content-in-keyframes var(--motion-duration-panel)
+    var(--motion-ease-premium) forwards;
+}
+
+/* --- Exit (existing .bottom-nav-panel-host-closing host — no JSX change) --- */
+
+.bottom-nav-panel-host-closing .search-panel-overlay,
+.bottom-nav-panel-host-closing .favorites-panel-overlay,
+.bottom-nav-panel-host-closing .my-order-panel-overlay,
+.bottom-nav-panel-host-closing .luxury-catalog-overlay,
+.bottom-nav-panel-host-closing .catalog-placeholder-overlay,
+.bottom-nav-panel-host-closing .contact-quick-actions-overlay {
+  animation: bf-panel-overlay-out-keyframes var(--motion-duration-panel)
+    var(--motion-ease-exit) forwards;
+}
+
+.bottom-nav-panel-host-closing .search-panel,
+.bottom-nav-panel-host-closing .favorites-panel,
+.bottom-nav-panel-host-closing .my-order-panel,
+.bottom-nav-panel-host-closing .luxury-catalog-panel,
+.bottom-nav-panel-host-closing .catalog-v11-panel,
+.bottom-nav-panel-host-closing .catalog-placeholder-panel {
+  animation: bf-panel-content-out-keyframes var(--motion-duration-panel)
+    var(--motion-ease-exit) forwards;
+}
+
+.bottom-nav-panel-host-closing .contact-quick-actions {
+  animation: bf-panel-contact-content-out-keyframes var(--motion-duration-panel)
+    var(--motion-ease-exit) forwards;
+}
+
+/* --- Panel chrome: focus-visible transition --- */
+
+.search-panel-close,
+.cart-panel-close,
+.catalog-placeholder-panel .search-panel-close,
+.luxury-catalog-panel .catalog-v1-icon-button {
+  transition: var(--motion-panel-focus-transition);
+}
+
+/* --- Reduced motion: instant panels --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .search-panel-overlay,
+  .favorites-panel-overlay,
+  .cart-panel-overlay,
+  .my-order-panel-overlay,
+  .luxury-catalog-overlay,
+  .catalog-placeholder-overlay,
+  .contact-quick-actions-overlay,
+  .search-panel,
+  .favorites-panel,
+  .cart-panel,
+  .my-order-panel,
+  .luxury-catalog-panel,
+  .catalog-v11-panel,
+  .catalog-placeholder-panel,
+  .contact-quick-actions,
+  .bottom-nav-panel-host-closing .search-panel-overlay,
+  .bottom-nav-panel-host-closing .favorites-panel-overlay,
+  .bottom-nav-panel-host-closing .my-order-panel-overlay,
+  .bottom-nav-panel-host-closing .luxury-catalog-overlay,
+  .bottom-nav-panel-host-closing .catalog-placeholder-overlay,
+  .bottom-nav-panel-host-closing .contact-quick-actions-overlay,
+  .bottom-nav-panel-host-closing .search-panel,
+  .bottom-nav-panel-host-closing .favorites-panel,
+  .bottom-nav-panel-host-closing .my-order-panel,
+  .bottom-nav-panel-host-closing .luxury-catalog-panel,
+  .bottom-nav-panel-host-closing .catalog-v11-panel,
+  .bottom-nav-panel-host-closing .catalog-placeholder-panel,
+  .bottom-nav-panel-host-closing .contact-quick-actions {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .contact-quick-actions {
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* ============================================================
+   T6.5 — Premium micro-interaction system
+   Unified hover / press / focus for storefront controls.
+   Bridges pearl-buttons + pearl-inputs to motion tokens.
+   Mobile bottom nav excluded.
+   ============================================================ */
+
+:root {
+  --motion-micro-transition:
+    transform var(--motion-duration-fast) var(--motion-ease-premium),
+    opacity var(--motion-duration-fast) var(--motion-ease-soft),
+    color var(--motion-duration-fast) var(--motion-ease-soft),
+    background-color var(--motion-duration-fast) var(--motion-ease-soft),
+    border-color var(--motion-duration-fast) var(--motion-ease-soft),
+    box-shadow var(--motion-duration-fast) var(--motion-ease-premium),
+    filter var(--motion-duration-fast) var(--motion-ease-soft);
+
+  --motion-input-transition:
+    border-color var(--motion-duration-fast) var(--motion-ease-soft),
+    box-shadow var(--motion-duration-fast) var(--motion-ease-premium),
+    background-color var(--motion-duration-fast) var(--motion-ease-soft),
+    color var(--motion-duration-fast) var(--motion-ease-soft),
+    opacity var(--motion-duration-fast) var(--motion-ease-soft);
+
+  --motion-icon-transition:
+    opacity var(--motion-duration-fast) var(--motion-ease-soft),
+    transform var(--motion-duration-fast) var(--motion-ease-premium),
+    filter var(--motion-duration-fast) var(--motion-ease-soft),
+    color var(--motion-duration-fast) var(--motion-ease-soft);
+
+  --motion-badge-transition:
+    transform var(--motion-duration-fast) var(--motion-ease-premium),
+    opacity var(--motion-duration-fast) var(--motion-ease-soft),
+    box-shadow var(--motion-duration-fast) var(--motion-ease-premium),
+    background-color var(--motion-duration-fast) var(--motion-ease-soft),
+    border-color var(--motion-duration-fast) var(--motion-ease-soft),
+    color var(--motion-duration-fast) var(--motion-ease-soft);
+
+  --motion-chip-transition:
+    transform var(--motion-duration-fast) var(--motion-ease-premium),
+    opacity var(--motion-duration-fast) var(--motion-ease-soft),
+    background-color var(--motion-duration-fast) var(--motion-ease-soft),
+    color var(--motion-duration-fast) var(--motion-ease-soft),
+    box-shadow var(--motion-duration-fast) var(--motion-ease-premium),
+    border-color var(--motion-duration-fast) var(--motion-ease-soft);
+
+  --motion-link-transition:
+    opacity var(--motion-duration-fast) var(--motion-ease-soft),
+    color var(--motion-duration-fast) var(--motion-ease-soft),
+    border-color var(--motion-duration-fast) var(--motion-ease-soft),
+    box-shadow var(--motion-duration-fast) var(--motion-ease-premium),
+    filter var(--motion-duration-fast) var(--motion-ease-soft),
+    text-decoration-color var(--motion-duration-base) var(--motion-ease-premium);
+
+  /* Bridge pearl-buttons / pearl-inputs token layers */
+  --button-transition: var(--motion-micro-transition);
+  --input-transition: var(--motion-input-transition);
+}
+
+/* --- Buttons: transition baseline (globals hardcoded overrides) --- */
+
+.bf-btn,
+.buy-button,
+.hero-order-link,
+.bouquet-order-link,
+.favorites-buy-button,
+.favorites-remove-button,
+.search-order-button,
+.catalog-search-empty-button,
+.catalog-placeholder-button,
+.review-submit-button,
+.bouquet-favorite-button,
+.catalog-v1-icon-button,
+.catalog-v11-product-heart,
+.catalog-v11-product-choose,
+.search-panel .search-clear-button,
+.search-panel .search-favorite-button,
+.luxury-catalog-panel .search-clear-button,
+.luxury-catalog-panel .catalog-search-favorite-button,
+.luxury-catalog-panel .catalog-v1-row,
+.luxury-catalog-panel .catalog-v1-subrow,
+.cart-panel .cart-quantity-controls button,
+.cart-panel .cart-remove-button,
+.cart-panel .buy-button.cart-checkout-button,
+.search-panel .search-suggestions button,
+.reviews-section .review-rating-star,
+.navbar .menu-button,
+.contact-quick-action {
+  transition: var(--motion-micro-transition);
+}
+
+/* --- Buttons: unified hover / press / focus-visible --- */
+
+@media (hover: hover) and (pointer: fine) {
+  .bf-btn--primary:hover:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]),
+  .bf-btn--secondary:hover:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]),
+  .bf-btn--ghost:hover:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]),
+  .bf-btn--icon:hover:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]),
+  .hero .hero-order-link.buy-button:hover,
+  a.hero-order-link:not(.checkout-submit-button):hover,
+  .bouquet-order-link:hover,
+  .favorites-buy-button:hover,
+  .search-order-button:hover,
+  .catalog-search-empty-button:hover,
+  .catalog-placeholder-button:hover,
+  .buy-button.catalog-placeholder-button:hover,
+  .review-submit-button:hover,
+  .bouquet-favorite-button:hover,
+  .catalog-v1-icon-button:hover,
+  .catalog-v11-product-heart:hover,
+  .catalog-v11-product-choose:hover,
+  .search-panel .search-favorite-button:hover,
+  .luxury-catalog-panel .catalog-search-favorite-button:hover,
+  .favorites-panel .favorites-remove-button:hover,
+  .luxury-catalog-panel .catalog-v1-row:hover,
+  .luxury-catalog-panel .catalog-v1-subrow:hover,
+  .cart-panel .cart-quantity-controls button:hover,
+  .cart-panel .cart-remove-button:hover,
+  .cart-panel .buy-button.cart-checkout-button:hover,
+  .search-panel .search-suggestions button:hover,
+  .reviews-section .review-rating-star:hover,
+  .navbar .menu-button:hover,
+  .contact-quick-action:hover {
+    transform: translateY(var(--motion-lift-sm)) scale(var(--motion-scale-hover));
+  }
+
+  .search-panel .search-clear-button:hover,
+  .luxury-catalog-panel .search-clear-button:hover {
+    transform: translateY(calc(-50% + var(--motion-lift-sm)))
+      scale(var(--motion-scale-hover));
+  }
+}
+
+.bf-btn:focus-visible,
+.hero .hero-order-link.buy-button:focus-visible,
+a.hero-order-link:not(.checkout-submit-button):focus-visible,
+.bouquet-order-link:focus-visible,
+.favorites-buy-button:focus-visible,
+.search-order-button:focus-visible,
+.catalog-search-empty-button:focus-visible,
+.catalog-placeholder-button:focus-visible,
+.buy-button.catalog-placeholder-button:focus-visible,
+.review-submit-button:focus-visible,
+.bouquet-favorite-button:focus-visible,
+.catalog-v1-icon-button:focus-visible,
+.catalog-v11-product-heart:focus-visible,
+.catalog-v11-product-choose:focus-visible,
+.search-panel .search-clear-button:focus-visible,
+.search-panel .search-favorite-button:focus-visible,
+.luxury-catalog-panel .search-clear-button:focus-visible,
+.luxury-catalog-panel .catalog-search-favorite-button:focus-visible,
+.favorites-panel .favorites-remove-button:focus-visible,
+.luxury-catalog-panel .catalog-v1-row:focus-visible,
+.luxury-catalog-panel .catalog-v1-subrow:focus-visible,
+.cart-panel .cart-quantity-controls button:focus-visible,
+.cart-panel .cart-remove-button:focus-visible,
+.cart-panel .buy-button.cart-checkout-button:focus-visible,
+.search-panel .search-suggestions button:focus-visible,
+.reviews-section .review-rating-star:focus-visible,
+.navbar .menu-button:focus-visible,
+.contact-quick-action:focus-visible {
+  transition: var(--motion-micro-transition);
+}
+
+.bf-btn:active:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]),
+.hero .hero-order-link.buy-button:active,
+a.hero-order-link:not(.checkout-submit-button):active,
+.bouquet-order-link:active,
+.favorites-buy-button:active,
+.search-order-button:active,
+.catalog-search-empty-button:active,
+.catalog-placeholder-button:active,
+.buy-button.catalog-placeholder-button:active,
+.review-submit-button:active,
+.bouquet-favorite-button:active,
+.catalog-v1-icon-button:active,
+.catalog-v11-product-heart:active,
+.catalog-v11-product-choose:active,
+.search-panel .search-favorite-button:active,
+.luxury-catalog-panel .catalog-search-favorite-button:active,
+.favorites-panel .favorites-remove-button:active,
+.luxury-catalog-panel .catalog-v1-row:active,
+.luxury-catalog-panel .catalog-v1-subrow:active,
+.cart-panel .cart-quantity-controls button:active,
+.cart-panel .cart-remove-button:active,
+.cart-panel .buy-button.cart-checkout-button:active,
+.search-panel .search-suggestions button:active,
+.reviews-section .review-rating-star:active,
+.navbar .menu-button:active,
+.contact-quick-action:active {
+  transform: translateY(0) scale(var(--motion-scale-active));
+}
+
+.search-panel .search-clear-button:active,
+.luxury-catalog-panel .search-clear-button:active {
+  transform: translateY(-50%) scale(var(--motion-scale-active));
+}
+
+/* Disabled / loading — smooth opacity handoff */
+.bf-btn:disabled,
+.bf-btn.is-disabled,
+.bf-btn[disabled],
+.bf-btn.is-loading,
+.bf-btn[aria-busy="true"],
+.hero .hero-order-link.buy-button:disabled,
+.hero .hero-order-link.buy-button.is-disabled,
+.hero .hero-order-link.buy-button[disabled],
+.hero .hero-order-link.buy-button.is-loading,
+.hero .hero-order-link.buy-button[aria-busy="true"],
+.bouquet-order-link:disabled,
+.bouquet-order-link.is-disabled,
+.bouquet-order-link[disabled],
+.favorites-buy-button:disabled,
+.favorites-buy-button.is-disabled,
+.favorites-buy-button[disabled],
+.search-order-button:disabled,
+.search-order-button.is-disabled,
+.search-order-button[disabled],
+.catalog-search-empty-button:disabled,
+.catalog-placeholder-button:disabled,
+.review-submit-button:disabled,
+.bouquet-favorite-button:disabled,
+.catalog-v1-icon-button:disabled,
+.catalog-v11-product-heart:disabled,
+.catalog-v11-product-choose:disabled,
+.reviews-section .review-rating-star:disabled {
+  transition: var(--motion-micro-transition);
+}
+
+/* --- Inputs: focus / border / shadow / placeholder --- */
+
+.bf-input,
+.bf-input--dropdown-trigger,
+.bf-input--dropdown-option,
+.search-panel .search-panel-control input,
+.luxury-catalog-panel .luxury-catalog-search input,
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input,
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input,
+.reviews-section .review-field > input,
+.reviews-section .review-field > textarea {
+  transition: var(--motion-input-transition);
+}
+
+.bf-input::placeholder,
+.bf-input::-webkit-input-placeholder,
+.bf-input::-moz-placeholder,
+.search-panel .search-panel-control input::placeholder,
+.luxury-catalog-panel .luxury-catalog-search input::placeholder,
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input::placeholder,
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input::placeholder,
+.reviews-section .review-field > input::placeholder,
+.reviews-section .review-field > textarea::placeholder {
+  transition:
+    opacity var(--motion-duration-fast) var(--motion-ease-soft),
+    color var(--motion-duration-fast) var(--motion-ease-soft);
+}
+
+.bf-input:focus-visible::placeholder,
+.search-panel .search-panel-control input:focus-visible::placeholder,
+.luxury-catalog-panel .luxury-catalog-search input:focus-visible::placeholder,
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input:focus-visible::placeholder,
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input:focus-visible::placeholder,
+.reviews-section .review-field > input:focus-visible::placeholder,
+.reviews-section .review-field > textarea:focus-visible::placeholder {
+  opacity: 0.56;
+}
+
+/* --- Icons: opacity / filter timing --- */
+
+.bouquet-favorite-button svg,
+.catalog-v1-icon-button svg,
+.catalog-v11-product-heart svg,
+.catalog-v11-product-choose svg,
+.search-panel .search-favorite-button svg,
+.luxury-catalog-panel .catalog-search-favorite-button svg,
+.favorites-panel .favorites-remove-button svg,
+.search-panel .search-clear-button svg,
+.luxury-catalog-panel .search-clear-button svg,
+.contact-quick-action-icon svg,
+.contact-quick-action-icon {
+  transition: var(--motion-icon-transition);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contact-quick-action:hover .contact-quick-action-icon,
+  .contact-quick-action:focus-visible .contact-quick-action-icon {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+.contact-quick-action:active .contact-quick-action-icon {
+  opacity: 0.88;
+  transform: scale(var(--motion-scale-active));
+}
+
+.bouquet-favorite-button.active svg,
+.catalog-v11-product-heart.active svg,
+.search-panel .search-favorite-button.active svg,
+.luxury-catalog-panel .catalog-search-favorite-button.active svg {
+  opacity: 1;
+}
+
+/* --- Badges / counters --- */
+
+.favorites-panel-actions .favorite-count-badge,
+.cart-panel-actions .cart-count-badge,
+.my-order-status-badge,
+.review-demo-badge {
+  transition: var(--motion-badge-transition);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .favorites-panel-actions:hover .favorite-count-badge,
+  .cart-panel-actions:hover .cart-count-badge {
+    transform: scale(var(--motion-scale-hover));
+  }
+}
+
+/* --- Chips / tags --- */
+
+.catalog-v11-chip,
+.luxury-catalog-chip,
+.search-panel .search-suggestions button {
+  transition: var(--motion-chip-transition);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .catalog-v11-chip:hover:not(.is-active),
+  .luxury-catalog-chip:hover {
+    transform: translateY(var(--motion-lift-sm)) scale(var(--motion-scale-hover));
+  }
+}
+
+.catalog-v11-chip:active,
+.luxury-catalog-chip:active {
+  transform: scale(var(--motion-scale-active));
+}
+
+/* --- Links: underline + opacity --- */
+
+.navbar .nav-center a {
+  transition: var(--motion-link-transition);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.18em;
+}
+
+.navbar .nav-center a:hover,
+.navbar .nav-center a:focus-visible {
+  text-decoration-color: currentColor;
+  opacity: 1;
+}
+
+/* --- Reduced motion: micro-interactions --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-btn,
+  .buy-button,
+  .bouquet-favorite-button,
+  .catalog-v11-chip,
+  .catalog-v11-product-heart,
+  .search-panel .search-clear-button,
+  .luxury-catalog-panel .search-clear-button,
+  .navbar .nav-center a,
+  .favorites-panel-actions .favorite-count-badge,
+  .cart-panel-actions .cart-count-badge {
+    transition: none !important;
+  }
+
+  .bf-btn:hover,
+  .buy-button:hover,
+  .bouquet-favorite-button:hover,
+  .catalog-v11-chip:hover,
+  .catalog-v11-product-heart:hover,
+  .favorites-panel-actions:hover .favorite-count-badge,
+  .cart-panel-actions:hover .cart-count-badge,
+  .bf-btn:active,
+  .buy-button:active,
+  .bouquet-favorite-button:active,
+  .catalog-v11-chip:active,
+  .catalog-v11-product-heart:active {
+    transform: none !important;
+  }
+
+  .search-panel .search-clear-button:hover,
+  .luxury-catalog-panel .search-clear-button:hover,
+  .search-panel .search-clear-button:active,
+  .luxury-catalog-panel .search-clear-button:active {
+    transform: translateY(-50%) !important;
+  }
+
+  .contact-quick-actions {
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* ============================================================
+   T6.6 — Loading & skeleton motion system
+   Unified shimmer, pulse, spinner, async, and empty→loaded motion.
+   Motion tokens only. Visual CSS — no JSX / logic changes.
+   ============================================================ */
+
+:root {
+  --motion-loading-duration: var(--motion-duration-slow);
+  --motion-loading-duration-base: var(--motion-duration-base);
+  --motion-loading-duration-fast: var(--motion-duration-fast);
+
+  --motion-loading-transition:
+    opacity var(--motion-loading-duration-fast) var(--motion-ease-soft),
+    transform var(--motion-loading-duration-base) var(--motion-ease-premium),
+    filter var(--motion-loading-duration-fast) var(--motion-ease-soft),
+    background-color var(--motion-loading-duration-fast) var(--motion-ease-soft),
+    background-position var(--motion-loading-duration) var(--motion-ease-standard);
+
+  --motion-loading-shimmer-gradient: linear-gradient(
+    90deg,
+    rgba(245, 244, 242, 0.36) 0%,
+    rgba(255, 255, 255, 0.72) 50%,
+    rgba(245, 244, 242, 0.36) 100%
+  );
+}
+
+/* --- Loading keyframes (motion tokens) --- */
+
+@keyframes bf-loading-shimmer-keyframes {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes bf-loading-pulse-keyframes {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: calc(var(--motion-scale-active) * 0.735);
+  }
+}
+
+@keyframes bf-loading-spin-keyframes {
+  from {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+
+  to {
+    transform: rotate(360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes bf-loading-empty-enter-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    transform: translateY(var(--motion-lift-sm));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bf-loading-content-enter-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    transform: translateY(var(--motion-lift-sm))
+      scale(var(--motion-scale-active));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bf-loading-fade-in-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- Foundation utilities (opt-in) --- */
+
+.bf-skeleton,
+.bf-shimmer {
+  background-image: var(--motion-loading-shimmer-gradient);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: bf-loading-shimmer-keyframes var(--motion-loading-duration)
+    var(--motion-ease-standard) infinite;
+}
+
+.bf-loading-pulse {
+  animation: bf-loading-pulse-keyframes var(--motion-loading-duration)
+    var(--motion-ease-soft) infinite;
+  transition: var(--motion-loading-transition);
+}
+
+.bf-spinner {
+  display: inline-block;
+  transform-origin: center center;
+  animation: bf-loading-spin-keyframes var(--motion-loading-duration-base)
+    linear infinite;
+  transition: opacity var(--motion-loading-duration-fast) var(--motion-ease-soft);
+}
+
+.bf-loaded-enter {
+  animation: bf-loading-content-enter-keyframes var(--motion-loading-duration-base)
+    var(--motion-ease-premium) both;
+}
+
+/* --- Skeleton surfaces: cards / product placeholders --- */
+
+.search-result-image-fallback,
+.catalog-v11-product-fallback,
+.favorites-empty-icon,
+.search-empty-icon,
+.my-order-empty-mark,
+.checkout-empty-icon,
+.catalog-placeholder-copy {
+  transition: var(--motion-loading-transition);
+}
+
+.search-result-image-fallback,
+.catalog-v11-product-fallback {
+  background-image: var(--motion-loading-shimmer-gradient);
+  background-size: 200% 100%;
+  animation: bf-loading-shimmer-keyframes var(--motion-loading-duration)
+    var(--motion-ease-standard) infinite;
+}
+
+/* --- Empty / idle / placeholder states --- */
+
+.favorites-empty,
+.cart-empty,
+.search-empty,
+.search-idle-state,
+.search-empty-state,
+.my-order-empty-card,
+.catalog-search-empty,
+.luxury-catalog-empty,
+.reviews-empty,
+.checkout-empty-state {
+  transition: var(--motion-loading-transition);
+  animation: bf-loading-empty-enter-keyframes var(--motion-loading-duration-base)
+    var(--motion-ease-premium) both;
+}
+
+.favorites-empty-icon,
+.search-empty-icon,
+.my-order-empty-mark,
+.checkout-empty-icon {
+  animation: bf-loading-pulse-keyframes var(--motion-loading-duration)
+    var(--motion-ease-soft) infinite;
+}
+
+/* --- Loaded content: empty → data --- */
+
+.search-panel .search-result-card,
+.search-panel .search-results-meta,
+.favorites-panel-grid > *,
+.cart-panel-list > *,
+.luxury-catalog-panel .luxury-catalog-result-card,
+.luxury-catalog-panel .catalog-v11-product-card,
+.catalog-v11-results > *,
+.checkout-section .checkout-item,
+.my-order-panel .my-order-card,
+.my-order-panel .my-order-card-premium,
+.reviews-grid > .review-card:not(.bf-reveal-up) {
+  transition: var(--motion-loading-transition);
+  animation: bf-loading-content-enter-keyframes var(--motion-loading-duration-base)
+    var(--motion-ease-premium) both;
+}
+
+/* --- Async: loading / fetching / submitting --- */
+
+.bf-btn.is-loading,
+.bf-btn[aria-busy="true"],
+.hero .hero-order-link.buy-button.is-loading,
+.hero .hero-order-link.buy-button[aria-busy="true"],
+.bouquet-order-link.is-loading,
+.bouquet-order-link[aria-busy="true"],
+.favorites-buy-button.is-loading,
+.favorites-buy-button[aria-busy="true"],
+.search-order-button.is-loading,
+.search-order-button[aria-busy="true"],
+.checkout-section .checkout-submit-button[aria-busy="true"] {
+  transition: var(--motion-loading-transition);
+  animation: bf-loading-pulse-keyframes var(--motion-loading-duration)
+    var(--motion-ease-soft) infinite;
+  cursor: wait;
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"][aria-busy="true"] input,
+.checkout-section#checkout .checkout-field-wide [role="combobox"][aria-busy="true"] input {
+  transition: var(--motion-loading-transition);
+  animation: bf-loading-pulse-keyframes var(--motion-loading-duration)
+    var(--motion-ease-soft) infinite;
+}
+
+#checkout.checkout-section
+  .checkout-field-wide
+  [role="combobox"][aria-busy="true"]
+  > p[role="status"],
+.checkout-section#checkout
+  .checkout-field-wide
+  [role="combobox"][aria-busy="true"]
+  > p[role="status"] {
+  animation: bf-loading-fade-in-keyframes var(--motion-loading-duration-base)
+    var(--motion-ease-soft) both;
+}
+
+/* --- Dropdown enter: see T6.7.1 bf-dropdown-enter --- */
+
+/* --- Legacy reveal helper --- */
+
+.reveal-card {
+  animation: bf-loading-content-enter-keyframes var(--motion-loading-duration-base)
+    var(--motion-ease-premium) both;
+}
+
+/* --- Reduced motion: loading --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-skeleton,
+  .bf-shimmer,
+  .bf-loading-pulse,
+  .bf-spinner,
+  .bf-loaded-enter,
+  .search-result-image-fallback,
+  .catalog-v11-product-fallback,
+  .favorites-empty,
+  .cart-empty,
+  .search-empty,
+  .search-idle-state,
+  .search-empty-state,
+  .my-order-empty-card,
+  .catalog-search-empty,
+  .luxury-catalog-empty,
+  .reviews-empty,
+  .checkout-empty-state,
+  .favorites-empty-icon,
+  .search-empty-icon,
+  .my-order-empty-mark,
+  .checkout-empty-icon,
+  .search-panel .search-result-card,
+  .favorites-panel-grid > *,
+  .cart-panel-list > *,
+  .luxury-catalog-panel .luxury-catalog-result-card,
+  .luxury-catalog-panel .catalog-v11-product-card,
+  .checkout-section .checkout-item,
+  .bf-btn.is-loading,
+  .bf-btn[aria-busy="true"],
+  .checkout-section .checkout-submit-button[aria-busy="true"],
+  #checkout.checkout-section .checkout-field-wide [role="combobox"][aria-busy="true"] input,
+  .checkout-section#checkout .checkout-field-wide [role="combobox"][aria-busy="true"] input,
+  #checkout-address-suggestions,
+  #checkout.checkout-section .checkout-dropdown-menu,
+  .checkout-section#checkout .checkout-dropdown-menu,
+  .reveal-card {
+    animation: none !important;
+    background-position: 0 0 !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ============================================================
+   T6.7.1 — Overlay & menu motion cleanup
+   CSS-only unification after T6.7 audit.
+   Enter only — no exit / route / JSX changes.
+   ============================================================ */
+
+@keyframes bf-dropdown-enter-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    transform: translateY(var(--motion-lift-sm)) scale(var(--motion-scale-active));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bf-overlay-item-enter-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+    transform: scale(var(--motion-scale-active));
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bf-menu-link-enter-keyframes {
+  from {
+    opacity: var(--motion-opacity-enter);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- 1. Mobile menu enter (navbar) --- */
+
+.menu-overlay {
+  transition: var(--motion-panel-transition);
+  animation: bf-panel-overlay-in-keyframes var(--motion-duration-panel)
+    var(--motion-ease-premium) forwards;
+}
+
+.mobile-menu {
+  transition: var(--motion-panel-transition);
+  animation: bf-panel-content-in-keyframes var(--motion-duration-panel)
+    var(--motion-ease-premium) forwards;
+}
+
+.mobile-menu a {
+  animation: bf-menu-link-enter-keyframes var(--motion-duration-base)
+    var(--motion-ease-soft) both;
+}
+
+.mobile-menu a:nth-child(1) {
+  animation-delay: calc(var(--motion-duration-fast) * 0.5);
+}
+
+.mobile-menu a:nth-child(2) {
+  animation-delay: var(--motion-duration-fast);
+}
+
+.mobile-menu a:nth-child(3) {
+  animation-delay: calc(var(--motion-duration-fast) * 1.5);
+}
+
+.mobile-menu a:nth-child(4) {
+  animation-delay: calc(var(--motion-duration-fast) * 2);
+}
+
+.mobile-menu a:nth-child(5) {
+  animation-delay: calc(var(--motion-duration-fast) * 2.5);
+}
+
+/* --- 2. Contact quick actions — subtle stagger (no Y stack with T6.4) --- */
+
+.contact-quick-action {
+  opacity: var(--motion-opacity-enter);
+  transform: scale(var(--motion-scale-active));
+  animation: bf-overlay-item-enter-keyframes var(--motion-duration-base)
+    var(--motion-ease-premium) forwards;
+}
+
+.contact-quick-action-telegram {
+  animation-delay: calc(var(--motion-duration-fast) * 0.15);
+}
+
+.contact-quick-action-instagram {
+  animation-delay: calc(var(--motion-duration-fast) * 0.4);
+}
+
+.contact-quick-action-whatsapp {
+  animation-delay: calc(var(--motion-duration-fast) * 0.55);
+}
+
+.contact-quick-action-phone {
+  animation-delay: calc(var(--motion-duration-fast) * 0.7);
+}
+
+/* --- 3. Dropdown enter consolidation --- */
+
+#checkout-address-suggestions,
+#checkout.checkout-section .checkout-dropdown-menu,
+.checkout-section#checkout .checkout-dropdown-menu {
+  animation: bf-dropdown-enter-keyframes var(--motion-duration-fast)
+    var(--motion-ease-premium) both;
+}
+
+/* --- 5. Hero decorative loops — easing retokenize only --- */
+
+.hero::before {
+  animation: heroZoom 24s var(--motion-ease-soft) infinite alternate;
+}
+
+.hero-content {
+  animation: heroFloat 4s var(--motion-ease-soft) infinite;
+}
+
+.hero-title {
+  animation: luxuryPulse 4s var(--motion-ease-soft) infinite;
+}
+
+/* --- Reduced motion: overlay & menu cleanup --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-overlay,
+  .mobile-menu,
+  .mobile-menu a,
+  .contact-quick-action,
+  .contact-quick-action-telegram,
+  .contact-quick-action-instagram,
+  .contact-quick-action-whatsapp,
+  .contact-quick-action-phone,
+  #checkout-address-suggestions,
+  #checkout.checkout-section .checkout-dropdown-menu,
+  .checkout-section#checkout .checkout-dropdown-menu,
+  .hero::before,
+  .hero-content,
+  .hero-title {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .contact-quick-actions {
+    transform: translateX(-50%) !important;
+  }
+}

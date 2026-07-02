@@ -1,0 +1,269 @@
+.page {
+  min-height: 100vh;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.52), transparent 42%),
+    linear-gradient(180deg, #f3ece2 0%, #ede3d4 100%);
+  color: #2f2a24;
+}
+
+.authShell,
+.dashboardShell {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 252, 247, 0.92);
+  box-shadow: 0 24px 64px rgba(47, 42, 36, 0.1);
+  overflow: hidden;
+}
+
+.authShell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+}
+
+.authHero,
+.authForm,
+.dashboardShell {
+  padding: 28px;
+}
+
+.authHero {
+  display: grid;
+  align-content: end;
+  min-height: 420px;
+  background:
+    linear-gradient(160deg, rgba(47, 42, 36, 0.96), rgba(110, 84, 48, 0.88));
+  color: #fffaf2;
+}
+
+.dashboardShell {
+  display: grid;
+  gap: 18px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #8a6b3d;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 10px 0 0;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1;
+}
+
+.lead {
+  max-width: 60ch;
+  margin: 14px 0 0;
+  color: rgba(255, 250, 242, 0.82);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.authForm {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  color: #8a6b3d;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid rgba(138, 107, 61, 0.26);
+  border-radius: 8px;
+  padding: 0 14px;
+  background: #fffaf2;
+  color: #2f2a24;
+  font: inherit;
+}
+
+.primaryButton,
+.secondaryButton,
+.sectionCard {
+  border-radius: 8px;
+  font: inherit;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid #2f2a24;
+  background: #2f2a24;
+  color: #fffaf2;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  background: transparent;
+  color: #2f2a24;
+}
+
+.error {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(176, 42, 42, 0.2);
+  border-radius: 8px;
+  background: #fff1f1;
+  color: #8e2020;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.hint,
+.smallHint {
+  margin: 0;
+  color: #75695c;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sectionGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sectionCard {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  background: #fffdf8;
+  color: #2f2a24;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sectionCardActive {
+  border-color: rgba(138, 107, 61, 0.42);
+  box-shadow: 0 10px 28px rgba(47, 42, 36, 0.06);
+}
+
+.sectionTitle,
+.previewTitle {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.sectionDescription,
+.previewDescription,
+.previewStatus {
+  margin: 0;
+  color: #75695c;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.previewCard {
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid rgba(138, 107, 61, 0.14);
+  border-radius: 8px;
+  background: #fffaf2;
+}
+
+.contentShell {
+  display: grid;
+}
+
+.placeholderPanel {
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid rgba(138, 107, 61, 0.14);
+  border-radius: 8px;
+  background: #fffaf2;
+}
+
+.previewEyebrow {
+  margin: 0;
+  color: #8a6b3d;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.placeholderEyebrow {
+  margin: 0;
+  color: #8a6b3d;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.placeholderTitle {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.placeholderDescription,
+.placeholderStatus {
+  margin: 0;
+  color: #75695c;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 960px) {
+  .authShell {
+    grid-template-columns: 1fr;
+  }
+
+  .authHero {
+    min-height: 240px;
+  }
+
+  .sectionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px;
+  }
+
+  .authHero,
+  .authForm,
+  .dashboardShell {
+    padding: 20px;
+  }
+
+  .sectionGrid {
+    grid-template-columns: 1fr;
+  }
+}

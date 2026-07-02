@@ -1,0 +1,58 @@
+.section {
+  padding-top: 56px;
+  padding-bottom: 56px;
+}
+
+.staticCopy {
+  color: var(--champagne-text, #2f2a24);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.lead {
+  margin: 0;
+}
+
+.highlight {
+  margin: 10px 0 0;
+  font-weight: 600;
+}
+
+.zoneList {
+  margin-top: 12px;
+}
+
+.zoneListTitle {
+  margin: 0 0 6px;
+  color: var(--champagne-muted, #75695c);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.zoneList ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.zoneList li + li {
+  margin-top: 4px;
+}
+
+.sameDay {
+  margin: 12px 0 0;
+}
+
+.checkoutNote {
+  margin: 10px 0 0;
+  color: var(--champagne-muted, #75695c);
+  font-size: 0.84rem;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding-top: 44px;
+    padding-bottom: 44px;
+  }
+}

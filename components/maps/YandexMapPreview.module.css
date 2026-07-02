@@ -1,0 +1,50 @@
+/* ==================================================
+SECTION: MAP
+РАЗДЕЛ: Карта
+Purpose (EN): Yandex map preview shell and loading overlays
+Назначение (RU): Оболочка карты Yandex и оверлеи загрузки
+================================================== */
+.yandexMapShell {
+  position: relative;
+  overflow: hidden;
+  min-height: 360px;
+  border: 1px solid var(--bf-border);
+  border-radius: 16px;
+  background: #eef3f8;
+  box-shadow: var(--bf-shadow-soft);
+}
+
+/* ==================================================
+SECTION: MAP
+РАЗДЕЛ: Холст карты
+Purpose (EN): Map canvas
+Назначение (RU): Холст карты
+================================================== */
+.yandexMapContainer {
+  width: 100%;
+  min-height: 360px;
+}
+
+/* ==================================================
+SECTION: OVERLAYS
+РАЗДЕЛ: Оверлеи загрузки и ошибок
+Purpose (EN): Loading and error overlays
+Назначение (RU): Оверлеи загрузки и ошибок
+================================================== */
+.yandexMapOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+
+.yandexMapError {
+  color: #b4235a;
+}

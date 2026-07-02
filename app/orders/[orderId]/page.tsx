@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: My Order — Order Details Page
+// РАЗДЕЛ: Мой заказ — страница деталей заказа
+//
+// Purpose (EN): Client page for a single order — details, status management, payment proof preview, and line items.
+//
+// Назначение (RU): Клиентская страница одного заказа — детали, управление статусом, превью чека и позиции.
+// ==================================================
+
 "use client";
 
 import Link from "next/link";

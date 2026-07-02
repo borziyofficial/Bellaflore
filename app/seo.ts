@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: SEO Configuration
+// РАЗДЕЛ: SEO-конфигурация
+//
+// Purpose (EN): Shared SEO constants — titles, descriptions, keywords, site URL helpers, and landing page registry.
+//
+// Назначение (RU): Общие SEO-константы — заголовки, описания, ключевые слова, URL-хелперы и реестр лендингов.
+// ==================================================
+
 export const homepageTitle =
   "Bellaflore — доставка премиальных букетов и цветов в Москве";
 

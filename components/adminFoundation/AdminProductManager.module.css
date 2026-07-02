@@ -1,0 +1,474 @@
+.manager {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid rgba(138, 107, 61, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 250, 242, 0.96));
+  box-shadow: 0 10px 28px rgba(47, 42, 36, 0.05);
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #8a6b3d;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 8px 0 0;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.05;
+}
+
+.lead {
+  max-width: 62ch;
+  margin: 12px 0 0;
+  color: #75695c;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.newButton,
+.actionButton,
+.saveButton,
+.secondaryActionButton {
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.newButton,
+.saveButton {
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid #2f2a24;
+  background: #2f2a24;
+  color: #fffaf2;
+}
+
+.secondaryActionButton {
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid #2f2a24;
+  background: transparent;
+  color: #2f2a24;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.metaPill {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(138, 107, 61, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #5d5246;
+  font-size: 13px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.95fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.listColumn,
+.formColumn {
+  min-width: 0;
+}
+
+.listColumn {
+  display: grid;
+  gap: 14px;
+}
+
+.listHeader,
+.formHeader {
+  display: grid;
+  gap: 6px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.sectionNote {
+  margin: 0;
+  color: #75695c;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.productList {
+  display: grid;
+  gap: 12px;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filterButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(138, 107, 61, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 250, 242, 0.82);
+  color: #4b4136;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.filterButtonActive {
+  border-color: rgba(138, 107, 61, 0.5);
+  background: #2f2a24;
+  color: #fffaf2;
+}
+
+.card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.cardActive {
+  border-color: rgba(138, 107, 61, 0.38);
+  box-shadow: 0 10px 22px rgba(47, 42, 36, 0.06);
+}
+
+.cardTop {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.photoPlaceholder {
+  display: grid;
+  place-items: center;
+  min-height: 92px;
+  border: 1px solid rgba(138, 107, 61, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(138, 107, 61, 0.16), rgba(255, 255, 255, 0.84));
+  color: #68563e;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.photoPreview {
+  overflow: hidden;
+  min-height: 92px;
+  border: 1px solid rgba(138, 107, 61, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.photoPreviewImage {
+  display: block;
+  width: 92px;
+  height: 92px;
+  object-fit: cover;
+}
+
+.cardBody {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.productName {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.productPrice {
+  margin: 0;
+  color: #2f2a24;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.cardMeta,
+.flagRow,
+.buttonRow,
+.toggleGrid,
+.choiceRow,
+.splitRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.metaTag,
+.flag {
+  padding: 6px 10px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 250, 242, 0.9);
+  color: #5d5246;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.statusDraft {
+  background: rgba(244, 237, 226, 0.96);
+  color: #7c5f2b;
+}
+
+.statusPublished {
+  background: rgba(227, 247, 231, 0.9);
+  color: #22663b;
+}
+
+.statusHidden {
+  background: rgba(255, 236, 236, 0.94);
+  color: #9b2525;
+}
+
+.seoReady {
+  background: rgba(227, 247, 231, 0.9);
+  color: #22663b;
+}
+
+.seoIncomplete {
+  background: rgba(244, 237, 226, 0.96);
+  color: #7c5f2b;
+}
+
+.seoScoreFlag {
+  background: rgba(255, 255, 255, 0.82);
+  color: #5f564d;
+}
+
+.quickActionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.buttonRow {
+  align-items: center;
+}
+
+.actionButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(138, 107, 61, 0.22);
+  background: rgba(255, 250, 242, 0.9);
+  color: #2f2a24;
+}
+
+.metaLine {
+  margin: 0;
+  color: #75695c;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.formColumn {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  color: #4b4136;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fieldError {
+  color: #8e2020;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid rgba(138, 107, 61, 0.22);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: #2f2a24;
+  font: inherit;
+}
+
+.input {
+  min-height: 46px;
+  padding: 0 14px;
+}
+
+.textarea {
+  min-height: 112px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+.choiceBlock {
+  display: grid;
+  gap: 10px;
+}
+
+.choiceLabel {
+  color: #4b4136;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.choiceButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(138, 107, 61, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 250, 242, 0.9);
+  color: #2f2a24;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.choiceButtonActive {
+  border-color: rgba(138, 107, 61, 0.5);
+  background: #2f2a24;
+  color: #fffaf2;
+}
+
+.toggleGrid {
+  gap: 12px;
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #4b4136;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: #2f2a24;
+}
+
+.formPlaceholder {
+  display: grid;
+  gap: 8px;
+  min-height: 240px;
+  place-content: center;
+  padding: 20px;
+  border: 1px dashed rgba(138, 107, 61, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 250, 242, 0.72);
+  text-align: center;
+}
+
+.placeholderTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.placeholderText {
+  margin: 0;
+  color: #75695c;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .manager {
+    padding: 18px;
+  }
+
+  .headerRow {
+    flex-direction: column;
+  }
+
+  .newButton {
+    width: 100%;
+  }
+
+  .cardTop {
+    grid-template-columns: 1fr;
+  }
+
+  .photoPlaceholder {
+    min-height: 110px;
+  }
+
+  .toggleGrid,
+  .splitRow {
+    flex-direction: column;
+  }
+
+  .choiceRow {
+    width: 100%;
+  }
+
+.choiceButton {
+  flex: 1 1 0;
+}
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .saveButton,
+  .secondaryActionButton {
+    width: 100%;
+  }
+}

@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: SEO Landing Page
+// РАЗДЕЛ: SEO-лендинг
+//
+// Purpose (EN): Dynamic SEO landing pages — static params, per-slug metadata, and hero content from seo.ts registry.
+//
+// Назначение (RU): Динамические SEO-лендинги — static params, метаданные по slug и hero-контент из реестра seo.ts.
+// ==================================================
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 

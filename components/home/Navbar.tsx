@@ -5,7 +5,6 @@
 "use client";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import styles from "@/components/home/Navbar.module.css";
 import {
   type MouseEvent as ReactMouseEvent,
@@ -87,7 +86,6 @@ export function Navbar({
                 {item.label}
               </a>
             ))}
-            <ThemeToggle variant="menu" />
           </div>
         </>
       )}

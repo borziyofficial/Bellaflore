@@ -1,0 +1,189 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Live route monitoring panel styles
+Назначение (RU): Стили панели мониторинга маршрутов
+================================================== */
+.monitoringSection {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(247, 251, 255, 0.82), rgba(255, 255, 255, 0.94)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.monitoringHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.monitoringHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.monitoringMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.monitoringList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.monitoringCard {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.monitoringCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.monitoringCardTop strong {
+  color: var(--bf-heading);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.gpsStatus {
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.monitoringDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.monitoringDetails div {
+  display: grid;
+  gap: 4px;
+}
+
+.monitoringDetails dt {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.monitoringDetails dd {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.movementMoving {
+  background: rgba(52, 168, 83, 0.16);
+  color: #1e7e34;
+}
+
+.movementStopped {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.movementUnknown {
+  background: rgba(154, 160, 166, 0.2);
+  color: #5f6368;
+}
+
+.deviationOnRoute {
+  background: rgba(52, 168, 83, 0.16);
+  color: #1e7e34;
+}
+
+.deviationSlight {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.deviationOffRoute {
+  background: rgba(217, 48, 37, 0.14);
+  color: #b42318;
+}
+
+.deviationUnknown {
+  background: rgba(154, 160, 166, 0.2);
+  color: #5f6368;
+}
+
+.monitoringNotice {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.warningList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.warningList li {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(217, 48, 37, 0.1);
+  color: #b42318;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.monitoringEmpty {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.monitoringUpdatedAt {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 700;
+}

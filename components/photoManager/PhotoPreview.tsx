@@ -15,7 +15,7 @@ export function PhotoPreview() {
           <>
             {/* eslint-disable-next-line @next/next/no-img-element -- local objectURL preview only */}
             <img
-              src={previewPhoto.objectUrl}
+              src={previewPhoto.objectUrl || undefined}
               alt={previewPhoto.seo.imageAlt || previewPhoto.fileName}
               className={styles.previewImage}
             />

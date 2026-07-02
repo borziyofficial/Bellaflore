@@ -1,3 +1,13 @@
+// ==================================================
+// SECTION: MY ORDER
+// РАЗДЕЛ: Мой заказ
+//
+// Purpose (EN):
+// Page section wrapper for customer order status
+//
+// Назначение (RU):
+// Обёртка секции «Мой заказ» на странице
+// ==================================================
 import type { ReactNode } from "react";
 
 type OrdersSectionProps = {

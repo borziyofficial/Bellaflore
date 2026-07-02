@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: Admin — CRM Clients List
+// РАЗДЕЛ: Admin — список CRM-клиентов
+//
+// Purpose (EN): Protected admin CRM clients index — searchable list of customer profiles from backend orders.
+//
+// Назначение (RU): Защищённый индекс CRM-клиентов admin — поисковый список профилей из backend-заказов.
+// ==================================================
+
 "use client";
 
 import Link from "next/link";

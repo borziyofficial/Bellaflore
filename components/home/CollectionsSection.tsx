@@ -8,7 +8,8 @@ import { filterHomeCatalogProducts } from "@/components/catalog/filterHomeCatalo
 import {
   homeCatalogCategoryChips,
   homeCatalogSearchPlaceholder,
-  homeCatalogSubtitle,
+  homeCatalogSubtitleLine1,
+  homeCatalogSubtitleLine2,
   homeCatalogTitle,
 } from "@/components/catalog/homeCatalogConfig";
 import type { HomeCatalogSectionId } from "@/components/catalog/homeCatalogSections";
@@ -146,7 +147,11 @@ export function CollectionsSection({
     <section id="collections" className={styles.section}>
       <header className={`${styles.header} bf-reveal bf-reveal-up`}>
         <h2>{homeCatalogTitle}</h2>
-        <p className={styles.subtitle}>{homeCatalogSubtitle}</p>
+        <p className={styles.subtitle}>
+          {homeCatalogSubtitleLine1}
+          <br />
+          {homeCatalogSubtitleLine2}
+        </p>
       </header>
 
       <div className={`${styles.toolbar} bf-reveal bf-reveal-up`}>

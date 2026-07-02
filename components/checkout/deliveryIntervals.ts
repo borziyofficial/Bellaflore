@@ -1,3 +1,11 @@
+// ==================================================
+// SECTION: CHECKOUT
+// РАЗДЕЛ: Оформление заказа
+//
+// Purpose (EN): Checkout form validation, payload building, and order preview.
+//
+// Назначение (RU): Валидация формы, сбор payload и превью заказа при оформлении.
+// ==================================================
 export type DeliveryInterval = {
   label: string;
   startMinutes: number;
@@ -12,6 +20,15 @@ export const deliveryIntervals: DeliveryInterval[] = [
   { label: "21:00–23:00", startMinutes: 21 * 60, endMinutes: 23 * 60 },
 ];
 
+
+// ==================================================
+// SECTION: HELPERS
+// РАЗДЕЛ: Вспомогательные функции
+//
+// Purpose (EN): Private helper functions used within this module.
+//
+// Назначение (RU): Приватные вспомогательные функции модуля.
+// ==================================================
 function formatDateInputValue(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -20,6 +37,15 @@ function formatDateInputValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+
+// ==================================================
+// SECTION: API
+// РАЗДЕЛ: Публичный API
+//
+// Purpose (EN): Public exported functions and constants.
+//
+// Назначение (RU): Публичные экспортируемые функции и константы.
+// ==================================================
 export function getAvailableDeliveryIntervals(
   deliveryDate: string,
   now: Date,

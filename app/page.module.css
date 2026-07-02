@@ -1,3 +1,12 @@
+/* ==================================================
+SECTION: Legacy Next.js Starter Page Styles
+РАЗДЕЛ: Устаревшие стили стартовой страницы Next.js
+
+Purpose (EN): Unused starter template styles — kept for reference; main storefront uses globals.css.
+
+Назначение (RU): Неиспользуемые стили стартового шаблона — сохранены для справки; основная витрина использует globals.css.
+================================================== */
+
 .page {
   --background: #f2ece3;
   --foreground: #faf7f2;

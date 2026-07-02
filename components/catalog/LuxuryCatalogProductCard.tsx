@@ -1,6 +1,6 @@
 // ==================================================
 // SECTION: LUXURY CATALOG PRODUCT CARD
-// РАЗДЕЛ: Премиальная карточка товара (Stage 57A)
+// РАЗДЕЛ: Pearl Luxury card v2 (Stage 58)
 // ==================================================
 "use client";
 
@@ -10,13 +10,14 @@ import {
 } from "@/components/catalog/filterHomeCatalogProducts";
 import styles from "@/components/catalog/LuxuryCatalogProductCard.module.css";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
-import { ProductSizeSelector } from "@/components/product/ProductSizeSelector";
+import { ProductSizePickerSheet } from "@/components/product/ProductSizePickerSheet";
 import {
   getProductExperienceData,
   getProductSizeVariant,
 } from "@/components/product/productExperienceCatalog";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
+import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
 import { useMemo, useState, type MouseEvent, type PointerEvent, type TouchEvent } from "react";
 
 function ensureBuyButtonClearOfBottomNav(button: HTMLButtonElement) {
@@ -74,14 +75,12 @@ export function LuxuryCatalogProductCard({
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
     experienceData.defaultSizeId,
   );
+  const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
   const categoryLabel = getProductCategoryHint(product);
   const description = getProductCardDescription(product);
-  const fromPriceRub = useMemo(
-    () =>
-      Math.min(...experienceData.sizeVariants.map((variant) => variant.priceRub)),
-    [experienceData.sizeVariants],
-  );
+  const selectedSizeLabel = getProductSizeRuLabel(selectedSizeId);
+  const hasMultipleSizes = experienceData.sizeVariants.length > 1;
 
   const openProduct = () => {
     onProductOpen?.(product.id);
@@ -165,20 +164,25 @@ export function LuxuryCatalogProductCard({
         ) : null}
 
         <p className={styles.price}>
-          от {formatPrice(fromPriceRub)}
+          {hasMultipleSizes ? "от " : ""}
+          {formatPrice(selectedVariant.priceRub)}
         </p>
 
-        <ProductSizeSelector
-          layout="compact"
-          variants={experienceData.sizeVariants}
-          selectedSizeId={selectedSizeId}
-          onSelectSize={setSelectedSizeId}
-          formatPrice={formatPrice}
-          visibleSizeIds={["S", "M", "L", "XL"]}
-          compactOptionColumns={4}
-          showSelectedPrice={false}
-          ariaLabel={`Размеры для ${product.title}`}
-        />
+        {hasMultipleSizes ? (
+          <button
+            type="button"
+            className={styles.sizePicker}
+            onClick={() => setSizeSheetOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={sizeSheetOpen}
+          >
+            <span className={styles.sizePickerLabel}>Размер</span>
+            <span className={styles.sizePickerValue}>
+              {selectedSizeLabel}
+              <span aria-hidden="true"> ▼</span>
+            </span>
+          </button>
+        ) : null}
 
         <button
           type="button"
@@ -186,11 +190,21 @@ export function LuxuryCatalogProductCard({
           onPointerDown={handleBuyPointerDown}
           onClick={handleBuyClick}
           onTouchEnd={handleBuyTouchEnd}
-          aria-label={`Купить ${product.title} в размере ${selectedVariant.label}`}
+          aria-label={`Купить ${product.title} в размере ${selectedSizeLabel}`}
         >
           Купить
         </button>
       </div>
+
+      <ProductSizePickerSheet
+        open={sizeSheetOpen}
+        variants={experienceData.sizeVariants}
+        selectedSizeId={selectedSizeId}
+        formatPrice={formatPrice}
+        visibleSizeIds={["S", "M", "L", "XL"]}
+        onSelect={setSelectedSizeId}
+        onClose={() => setSizeSheetOpen(false)}
+      />
     </article>
   );
 }

@@ -1,0 +1,73 @@
+.toggleRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(176, 141, 87, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.34);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggleLabel {
+  color: var(--champagne-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.toggleControl {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.toggleInput {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.toggleTrack {
+  display: inline-flex;
+  align-items: center;
+  width: 48px;
+  height: 28px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid rgba(176, 141, 87, 0.24);
+  background: rgba(255, 255, 255, 0.72);
+  transition:
+    background-color 0.28s ease,
+    border-color 0.28s ease;
+}
+
+.toggleThumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(155, 112, 118, 0.38);
+  transform: translateX(0);
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.28s ease;
+}
+
+.toggleInput:checked + .toggleTrack {
+  background: rgba(234, 214, 214, 0.72);
+  border-color: rgba(155, 112, 118, 0.34);
+}
+
+.toggleInput:checked + .toggleTrack .toggleThumb {
+  transform: translateX(20px);
+  background: #9b7076;
+}
+
+.toggleInput:focus-visible + .toggleTrack {
+  outline: 2px solid rgba(155, 112, 118, 0.42);
+  outline-offset: 2px;
+}

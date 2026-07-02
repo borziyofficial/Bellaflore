@@ -1,0 +1,207 @@
+/* ==================================================
+SECTION: ADDRESS SEARCH
+РАЗДЕЛ: Поиск адреса
+Purpose (EN): Styles for checkout address intelligence input
+Назначение (RU): Стили умного ввода адреса
+================================================== */
+.root {
+  position: relative;
+  display: grid;
+  gap: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(176, 141, 87, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+  color: inherit;
+  font: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: rgba(176, 141, 87, 0.34);
+  box-shadow: 0 0 0 2px rgba(234, 214, 214, 0.28);
+}
+
+.helper {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.secondaryHelper,
+.loadingHint {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.loadingHint {
+  color: #b45309;
+}
+
+.emptyState {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.suggestionPriority .suggestionRegion {
+  color: #b45309;
+}
+
+.loading .input {
+  border-color: rgba(180, 83, 9, 0.35);
+}
+
+.warnings,
+.errors {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.warnings {
+  color: #b45309;
+}
+
+.errors {
+  color: #b42318;
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: min(240px, var(--suggest-max-h, 42vh));
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+  border: 0.5px solid rgba(255, 244, 220, 0.42);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(253, 251, 247, 0.96));
+  box-shadow:
+    0 14px 34px rgba(9, 8, 7, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.suggestion {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.suggestion:hover,
+.suggestionActive {
+  background: rgba(234, 214, 214, 0.22);
+}
+
+.suggestionLabel {
+  min-width: 0;
+  color: var(--champagne-text, #2f2a24);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.suggestionRegion {
+  min-width: 0;
+  color: var(--champagne-muted, #75695c);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: normal;
+}
+
+.suggestionCity {
+  min-width: 0;
+  color: rgba(117, 105, 92, 0.82);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.suggestionSource {
+  color: rgba(117, 105, 92, 0.72);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.selected .helper {
+  color: #15803d;
+}
+
+.needs-more-details .helper,
+.ambiguous .helper {
+  color: #b45309;
+}
+
+.unsupported .helper,
+.unsupported .errors {
+  color: #b42318;
+}
+
+.suggestions-available .helper,
+.ambiguous .helper {
+  color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+  .input {
+    padding: 10px 12px;
+    font-size: 15px;
+    color: #3d3630;
+  }
+
+  .helper,
+  .emptyState,
+  .loadingHint {
+    font-size: 0.72rem;
+    color: #75695c;
+  }
+
+  .suggestions {
+    max-height: min(180px, var(--suggest-max-h, 32vh));
+  }
+
+  .suggestionLabel {
+    font-size: 0.8rem;
+    color: #3d3630;
+  }
+
+  .suggestionRegion {
+    font-size: 0.68rem;
+  }
+
+  .suggestionCity {
+    font-size: 0.64rem;
+  }
+}

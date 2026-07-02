@@ -1,3 +1,20 @@
+// ==================================================
+// SECTION: APP LIB
+// РАЗДЕЛ: Библиотека приложения
+//
+// Purpose (EN): Shared server-side utilities used by app routes and pages.
+//
+// Назначение (RU): Общие серверные утилиты для маршрутов и страниц приложения.
+// ==================================================
+// ==================================================
+// SECTION: CRM Domain Types & Helpers
+// РАЗДЕЛ: CRM-домен — типы и хелперы
+//
+// Purpose (EN): CRM order lifecycle types, customer/address models, and status label helpers.
+//
+// Назначение (RU): Типы жизненного цикла CRM-заказа, модели клиента/адреса и хелперы меток статусов.
+// ==================================================
+
 export type CrmOrderStatus =
   | "newOrder"
   | "accepted"
@@ -8,6 +25,15 @@ export type CrmOrderStatus =
   | "delivered"
   | "completed";
 
+
+// ==================================================
+// SECTION: TYPES
+// РАЗДЕЛ: Типы
+//
+// Purpose (EN): Exported type and interface definitions.
+//
+// Назначение (RU): Экспортируемые типы и интерфейсы.
+// ==================================================
 export type CrmPaymentStatus = "paid" | "unpaid" | "partiallyPaid";
 
 export type CrmCourierAvailability = "available" | "busy" | "offline";
@@ -79,6 +105,15 @@ export type CrmRoutePlan = {
   stops: CrmRouteStop[];
 };
 
+
+// ==================================================
+// SECTION: API
+// РАЗДЕЛ: Публичный API
+//
+// Purpose (EN): Public exported functions and constants.
+//
+// Назначение (RU): Публичные экспортируемые функции и константы.
+// ==================================================
 export const crmOrderStatusLabels: Record<CrmOrderStatus, string> = {
   newOrder: "Новый заказ",
   accepted: "Принят",

@@ -125,6 +125,35 @@
   color: rgba(61, 49, 38, 0.92);
 }
 
+.sizePicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--bf-ui-border, rgba(232, 220, 220, 0.76));
+  border-radius: 14px;
+  background: rgba(255, 252, 250, 0.92);
+  color: var(--bf-ui-text, #3d3126);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sizePickerLabel {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(61, 49, 38, 0.56);
+}
+
+.sizePickerValue {
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .buyButton {
   margin-top: 2px;
   min-height: 42px;

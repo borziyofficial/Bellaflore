@@ -1,0 +1,282 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Delivery planner layout styles
+Назначение (RU): Стили планировщика доставки
+================================================== */
+.plannerSection {
+  display: grid;
+  gap: 20px;
+}
+
+.plannerSummary {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 248, 0.72), rgba(255, 255, 255, 0.92)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.plannerSummaryHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.plannerSummaryMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.workloadList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workloadBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.workloadLevel {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.workloadLevelLow {
+  background: rgba(88, 166, 120, 0.16);
+  color: #2f6b45;
+}
+
+.workloadLevelMedium {
+  background: rgba(242, 180, 88, 0.2);
+  color: #8a5a12;
+}
+
+.workloadLevelHigh {
+  background: rgba(142, 32, 32, 0.14);
+  color: #8e2020;
+}
+
+.daySection {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background: var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.daySectionTitle {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.intervalSection {
+  display: grid;
+  gap: 10px;
+}
+
+.intervalHeading {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.deliveryList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.deliveryCardItem {
+  display: grid;
+  gap: 10px;
+}
+
+.deliveryCardButton {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 14px;
+  background: var(--bf-surface-soft);
+  box-shadow: var(--bf-shadow-soft);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.deliveryCardButton:hover {
+  border-color: rgba(242, 134, 164, 0.42);
+  box-shadow: var(--bf-shadow);
+  transform: translateY(-1px);
+}
+
+.deliveryCardConflict {
+  border-color: rgba(142, 32, 32, 0.34);
+  background: rgba(255, 247, 247, 0.92);
+}
+
+.deliveryCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.deliveryCardTop strong {
+  color: var(--bf-heading);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface);
+  color: var(--bf-heading);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.deliveryMeta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.deliveryMeta div {
+  display: grid;
+  gap: 3px;
+}
+
+.deliveryMeta span {
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.deliveryMeta strong {
+  color: var(--bf-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.conflictList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.conflictBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(142, 32, 32, 0.12);
+  color: #8e2020;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.emptyState {
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed var(--bf-border);
+  border-radius: 12px;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.emptyInterval {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.deliveryZoneMapSection,
+.lazyMapSection {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background: var(--bf-surface);
+}
+
+.lazyMapHeader {
+  display: grid;
+  gap: 6px;
+}
+
+.lazyMapLead {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.lazyMapStub {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--bf-border);
+  border-radius: 12px;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}

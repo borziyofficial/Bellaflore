@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: Sitemap Generator
+// РАЗДЕЛ: Генератор sitemap
+//
+// Purpose (EN): Next.js sitemap route — homepage and SEO landing page URLs for search engines.
+//
+// Назначение (RU): Маршрут sitemap Next.js — URL главной и SEO-лендингов для поисковых систем.
+// ==================================================
+
 import type { MetadataRoute } from "next";
 
 import { absoluteUrl, seoLandingPages } from "./seo";

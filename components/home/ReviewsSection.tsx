@@ -1,3 +1,13 @@
+// ==================================================
+// SECTION: REVIEWS
+// РАЗДЕЛ: Отзывы
+//
+// Purpose (EN):
+// Customer reviews summary, form, and review grid
+//
+// Назначение (RU):
+// Блок отзывов: сводка, форма и список
+// ==================================================
 "use client";
 
 import {
@@ -44,13 +54,29 @@ export function ReviewsSection({
 }: ReviewsSectionProps) {
   return (
     <section className="reviews-section" aria-labelledby="reviews-title">
-      <div className="section-header">
+      {/* ==================================================
+SECTION: REVIEWS
+РАЗДЕЛ: Заголовок секции и примечание о демо-отзывах
+Purpose (EN): Section header and demo disclaimer
+Назначение (RU): Заголовок секции и примечание о демо-отзывах
+================================================== */}
+      <div className="section-header bf-reveal bf-reveal-up">
         <span>Отзывы</span>
         <h2 id="reviews-title">Отзывы клиентов</h2>
+        <p className="reviews-demo-note">
+          Локальные демо-отзывы для предпросмотра. Не являются проверенными
+          отзывами реальных клиентов.
+        </p>
       </div>
 
       <div className="reviews-shell">
-        <div className="reviews-summary-card">
+        {/* ==================================================
+SECTION: REVIEWS
+РАЗДЕЛ: Карточки средней оценки и количества отзывов
+Purpose (EN): Average rating and total count cards
+Назначение (RU): Карточки средней оценки и количества отзывов
+================================================== */}
+        <div className="reviews-summary-card bf-reveal bf-reveal-fade">
           <div className="reviews-score">
             <span>Средняя оценка</span>
             <strong>{averageReviewRatingLabel}</strong>
@@ -61,10 +87,16 @@ export function ReviewsSection({
           <div className="reviews-count-card">
             <span>Всего отзывов</span>
             <strong>{reviewsCount}</strong>
-            <p>Отзывы сохраняются локально до подключения модерации.</p>
+            <p>Локальные демо-отзывы до подключения модерации.</p>
           </div>
         </div>
 
+        {/* ==================================================
+SECTION: REVIEW FORM
+РАЗДЕЛ: Форма отправки нового отзыва
+Purpose (EN): Submit a new customer review
+Назначение (RU): Форма отправки нового отзыва
+================================================== */}
         <form className="review-form-card" onSubmit={handleReviewSubmit}>
           <div className="review-form-header">
             <span>Bellaflore Concierge</span>
@@ -83,6 +115,12 @@ export function ReviewsSection({
               required
             />
           </label>
+          {/* ==================================================
+SECTION: REVIEW STARS
+РАЗДЕЛ: Интерактивный выбор оценки от 1 до 5
+Purpose (EN): Interactive 1–5 star rating picker
+Назначение (RU): Интерактивный выбор оценки от 1 до 5
+================================================== */}
           <div className="review-field">
             <span>Оценка</span>
             <div className="review-rating-control" aria-label="Оценка от 1 до 5">
@@ -126,15 +164,24 @@ export function ReviewsSection({
           </button>
         </form>
 
+        {/* ==================================================
+SECTION: REVIEWS
+РАЗДЕЛ: Пустое состояние или сетка карточек отзывов
+Purpose (EN): Empty state or review card grid
+Назначение (RU): Пустое состояние или сетка карточек отзывов
+================================================== */}
         {reviews.length === 0 ? (
           <p className="reviews-empty">Пока нет отзывов</p>
         ) : (
-          <div className="reviews-grid">
+          <div className="reviews-grid bf-reveal-stagger">
             {reviews.map((review) => (
-              <article className="review-card" key={review.id}>
+              <article className="review-card bf-reveal-up" key={review.id}>
                 <div className="review-card-header">
                   <div>
                     <span>{review.createdAtDisplay}</span>
+                    {review.id.startsWith("demo-") && (
+                      <span className="review-demo-badge">Локальный пример</span>
+                    )}
                     <h3>{review.name}</h3>
                   </div>
                   <strong aria-label={`Оценка ${review.rating} из 5`}>

@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: Admin — CRM Client Detail (clients route)
+// РАЗДЕЛ: Admin — детали CRM-клиента (маршрут clients)
+//
+// Purpose (EN): Protected admin CRM client detail under /admin/crm/clients/[phone] with order history.
+//
+// Назначение (RU): Защищённая деталь CRM-клиента admin по /admin/crm/clients/[phone] с историей заказов.
+// ==================================================
+
 "use client";
 
 import Link from "next/link";

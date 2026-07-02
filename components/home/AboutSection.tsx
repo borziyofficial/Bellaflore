@@ -1,11 +1,33 @@
+// ==================================================
+// SECTION: HERO
+// РАЗДЕЛ: Главный экран
+//
+// Purpose (EN):
+// About section with brand story
+//
+// Назначение (RU):
+// Секция «О нас» с историей бренда
+// ==================================================
 export function AboutSection() {
   return (
     <section id="about" className="about">
-      <div className="section-header">
+      {/* ==================================================
+SECTION: HERO
+РАЗДЕЛ: Заголовок секции
+Purpose (EN): Section header
+Назначение (RU): Заголовок секции
+================================================== */}
+      <div className="section-header bf-reveal bf-reveal-up">
         <span>О нас</span>
         <h2>BellaFlore</h2>
       </div>
-      <div className="about-card">
+      {/* ==================================================
+SECTION: HERO
+РАЗДЕЛ: Карточка с описанием бренда
+Purpose (EN): Brand story card
+Назначение (RU): Карточка с описанием бренда
+================================================== */}
+      <div className="about-card bf-reveal bf-reveal-up">
         <p>
           BellaFlore — премиальная доставка цветов в Москве.
           Мы создаём авторские композиции из свежих цветов

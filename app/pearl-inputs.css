@@ -1,0 +1,1184 @@
+/* ==================================================
+SECTION: Pearl Inputs — Token Foundation
+РАЗДЕЛ: Pearl Inputs — базовые токены
+
+Purpose (EN): Input layout, color, and focus tokens plus opt-in foundation classes. No selector overrides or component changes.
+
+Назначение (RU): Токены полей ввода (layout, цвет, focus) и opt-in foundation-классы. Без переопределения селекторов и компонентов.
+================================================== */
+
+:root {
+  /* --- Layout --- */
+  --input-height: 3rem;
+  --input-radius: 0.875rem;
+  --input-padding-x: 1rem;
+  --input-padding-y: 0.8125rem;
+
+  /* --- Typography (bridge to pearl-typography) --- */
+  --input-font: var(--type-body) / var(--leading-normal) var(--font-body);
+  --input-label-size: var(--type-label);
+
+  /* --- Colors --- */
+  --input-placeholder-color: #5f5c58;
+  --input-text-color: var(--text-strong);
+  --input-border: var(--border);
+  --input-border-hover: rgba(186, 184, 180, 0.52);
+  --input-border-focus: rgba(186, 184, 180, 0.62);
+  --input-bg: var(--surface-glass);
+
+  /* --- Elevation & motion --- */
+  --input-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  --input-shadow-focus: var(--shadow-card), 0 0 0 2px var(--surface),
+    0 0 0 4px rgba(186, 184, 180, 0.42);
+  --input-transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+
+  /* --- Variants --- */
+  --textarea-min-height: 8.25rem;
+  --dropdown-radius: 0.875rem;
+
+  /* --- State tokens (foundation classes) --- */
+  --input-bg-disabled: rgba(243, 242, 240, 0.72);
+  --input-bg-readonly: rgba(250, 250, 250, 0.82);
+  --input-border-invalid: rgba(155, 77, 87, 0.48);
+  --input-shadow-invalid: 0 0 0 2px var(--surface),
+    0 0 0 4px rgba(155, 77, 87, 0.22);
+  --input-text-disabled: #6a6764;
+}
+
+/* ============================================================
+   Foundation classes — opt-in semantic API (no JSX migration yet)
+   ============================================================ */
+
+.bf-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--input-height);
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  box-shadow: var(--input-shadow);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  text-align: left;
+  outline: none;
+  transition: var(--input-transition);
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Placeholder --- */
+
+.bf-input::placeholder {
+  color: var(--input-placeholder-color);
+  opacity: 1;
+}
+
+.bf-input::-webkit-input-placeholder {
+  color: var(--input-placeholder-color);
+}
+
+.bf-input::-moz-placeholder {
+  color: var(--input-placeholder-color);
+  opacity: 1;
+}
+
+/* --- Hover --- */
+
+.bf-input:hover:not(:disabled):not(:read-only):not(.is-invalid):not([aria-invalid="true"]) {
+  border-color: var(--input-border-hover);
+}
+
+/* --- Focus-visible --- */
+
+.bf-input:focus-visible:not(.is-invalid):not([aria-invalid="true"]) {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+}
+
+/* --- Disabled --- */
+
+.bf-input:disabled,
+.bf-input.is-disabled,
+.bf-input[disabled] {
+  opacity: 1;
+  background: var(--input-bg-disabled);
+  color: var(--input-text-disabled);
+  border-color: var(--input-border);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.bf-input:disabled::placeholder,
+.bf-input.is-disabled::placeholder,
+.bf-input[disabled]::placeholder {
+  color: var(--input-text-disabled);
+}
+
+/* --- Readonly --- */
+
+.bf-input:read-only,
+.bf-input.is-readonly,
+.bf-input[readonly] {
+  background: var(--input-bg-readonly);
+  border-color: var(--input-border);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* --- Invalid --- */
+
+.bf-input.is-invalid,
+.bf-input[aria-invalid="true"] {
+  border-color: var(--input-border-invalid);
+}
+
+.bf-input.is-invalid:focus-visible,
+.bf-input[aria-invalid="true"]:focus-visible {
+  box-shadow: var(--input-shadow-invalid);
+}
+
+/* --- Textarea variant --- */
+
+.bf-input--textarea,
+textarea.bf-input {
+  min-height: var(--textarea-min-height);
+  resize: vertical;
+  line-height: var(--leading-normal);
+}
+
+/* --- Select variant --- */
+
+.bf-input--select,
+select.bf-input {
+  padding-right: calc(var(--input-padding-x) + 1.25rem);
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.125rem) calc(50% - 0.125rem),
+    calc(100% - 0.75rem) calc(50% - 0.125rem);
+  background-size: 0.375rem 0.375rem, 0.375rem 0.375rem;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.bf-input--select:disabled,
+select.bf-input:disabled {
+  cursor: not-allowed;
+}
+
+/* --- Dropdown trigger variant (visual shell for custom menus) --- */
+
+.bf-input--dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bf-input--dropdown:disabled,
+.bf-input--dropdown.is-disabled,
+.bf-input--dropdown[disabled] {
+  cursor: not-allowed;
+}
+
+.bf-input--dropdown-menu {
+  border: 1px solid var(--input-border);
+  border-radius: var(--dropdown-radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.bf-input--dropdown-option {
+  display: block;
+  width: 100%;
+  min-height: var(--input-height);
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid transparent;
+  border-radius: calc(var(--dropdown-radius) - 2px);
+  background: transparent;
+  color: var(--input-text-color);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  text-align: left;
+  cursor: pointer;
+  transition: var(--input-transition);
+}
+
+.bf-input--dropdown-option:hover:not(:disabled),
+.bf-input--dropdown-option:focus-visible {
+  border-color: var(--input-border-hover);
+  background: var(--input-bg);
+  outline: none;
+}
+
+.bf-input--dropdown-option.is-selected {
+  border-color: var(--input-border-focus);
+  background: var(--input-bg);
+  box-shadow: var(--input-shadow);
+}
+
+/* --- Field label helper (optional companion) --- */
+
+.bf-field-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  color: var(--input-text-color);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  font-weight: var(--weight-label);
+  line-height: var(--leading-snug);
+}
+
+/* ============================================================
+   T4.2 — Storefront input migration (CSS override layer)
+   Scope: search panel, catalog search, reviews, checkout text
+   fields. Pearl tokens only. No dropdown/date/address logic.
+   ============================================================ */
+
+/* --- 1. Search panel --- */
+
+.search-panel .search-panel-control {
+  position: relative;
+}
+
+.search-panel .search-panel-control input {
+  width: 100%;
+  min-height: var(--input-height);
+  padding: var(--input-padding-y) calc(var(--input-padding-x) + 2.5rem)
+    var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  box-shadow: var(--input-shadow);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  outline: none;
+  transition: var(--input-transition);
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-text-fill-color: var(--input-text-color);
+}
+
+.search-panel .search-panel-control input::placeholder {
+  color: var(--input-placeholder-color);
+  opacity: 1;
+}
+
+.search-panel .search-panel-control input:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]) {
+  border-color: var(--input-border-hover);
+}
+
+.search-panel .search-panel-control input:focus-visible:not([aria-invalid="true"]) {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+}
+
+.search-panel .search-panel-control input:disabled,
+.search-panel .search-panel-control input[disabled] {
+  background: var(--input-bg-disabled);
+  color: var(--input-text-disabled);
+  border-color: var(--input-border);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.search-panel .search-panel-control input:read-only,
+.search-panel .search-panel-control input[readonly] {
+  background: var(--input-bg-readonly);
+  box-shadow: none;
+  cursor: default;
+}
+
+.search-panel .search-panel-control input[aria-invalid="true"] {
+  border-color: var(--input-border-invalid);
+}
+
+.search-panel .search-panel-control input[aria-invalid="true"]:focus-visible {
+  box-shadow: var(--input-shadow-invalid);
+}
+
+.search-panel .search-panel-control .search-clear-button {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+}
+
+/* --- 2. Catalog search --- */
+
+.luxury-catalog-panel .luxury-catalog-search,
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search,
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search {
+  position: relative;
+}
+
+.luxury-catalog-panel .luxury-catalog-search input,
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input,
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input {
+  width: 100%;
+  min-height: var(--input-height);
+  padding: var(--input-padding-y) calc(var(--input-padding-x) + 2.5rem)
+    var(--input-padding-y) calc(var(--input-padding-x) + 1.75rem);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  box-shadow: var(--input-shadow);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  outline: none;
+  transition: var(--input-transition);
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-text-fill-color: var(--input-text-color);
+}
+
+.luxury-catalog-panel .luxury-catalog-search input::placeholder,
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input::placeholder,
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input::placeholder {
+  color: var(--input-placeholder-color);
+  opacity: 1;
+}
+
+.luxury-catalog-panel .luxury-catalog-search input:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]),
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]),
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]) {
+  border-color: var(--input-border-hover);
+}
+
+.luxury-catalog-panel .luxury-catalog-search input:focus-visible:not([aria-invalid="true"]),
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input:focus-visible:not([aria-invalid="true"]),
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input:focus-visible:not([aria-invalid="true"]) {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+}
+
+.luxury-catalog-panel .luxury-catalog-search input:disabled,
+.luxury-catalog-panel .luxury-catalog-search input[disabled],
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input:disabled,
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input[disabled],
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input:disabled,
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input[disabled] {
+  background: var(--input-bg-disabled);
+  color: var(--input-text-disabled);
+  border-color: var(--input-border);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.luxury-catalog-panel .luxury-catalog-search input:read-only,
+.luxury-catalog-panel .luxury-catalog-search input[readonly],
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input:read-only,
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search input[readonly],
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input:read-only,
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search input[readonly] {
+  background: var(--input-bg-readonly);
+  box-shadow: none;
+  cursor: default;
+}
+
+.luxury-catalog-panel .luxury-catalog-search .search-clear-button,
+.luxury-catalog-panel .catalog-v1-search.luxury-catalog-search .search-clear-button,
+.luxury-catalog-panel .catalog-v11-search.luxury-catalog-search .search-clear-button {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+}
+
+/* --- 3. Reviews --- */
+
+.reviews-section .review-field > span {
+  color: var(--input-text-color);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  font-weight: var(--weight-label);
+  line-height: var(--leading-snug);
+}
+
+.reviews-section .review-field > input,
+.reviews-section .review-field > textarea {
+  width: 100%;
+  min-height: var(--input-height);
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  box-shadow: var(--input-shadow);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-normal);
+  outline: none;
+  transition: var(--input-transition);
+  -webkit-appearance: none;
+  appearance: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.reviews-section .review-field > textarea {
+  min-height: var(--textarea-min-height);
+  resize: vertical;
+}
+
+.reviews-section .review-field > input::placeholder,
+.reviews-section .review-field > textarea::placeholder {
+  color: var(--input-placeholder-color);
+  opacity: 1;
+}
+
+.reviews-section .review-field > input:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]),
+.reviews-section .review-field > textarea:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]) {
+  border-color: var(--input-border-hover);
+}
+
+.reviews-section .review-field > input:focus-visible:not([aria-invalid="true"]),
+.reviews-section .review-field > textarea:focus-visible:not([aria-invalid="true"]) {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+}
+
+.reviews-section .review-field > input:disabled,
+.reviews-section .review-field > input[disabled],
+.reviews-section .review-field > textarea:disabled,
+.reviews-section .review-field > textarea[disabled] {
+  background: var(--input-bg-disabled);
+  color: var(--input-text-disabled);
+  border-color: var(--input-border);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.reviews-section .review-field > input:read-only,
+.reviews-section .review-field > input[readonly],
+.reviews-section .review-field > textarea:read-only,
+.reviews-section .review-field > textarea[readonly] {
+  background: var(--input-bg-readonly);
+  box-shadow: none;
+  cursor: default;
+}
+
+.reviews-section .review-field > input[aria-invalid="true"],
+.reviews-section .review-field > textarea[aria-invalid="true"],
+.reviews-section .review-field > input:invalid,
+.reviews-section .review-field > textarea:invalid {
+  border-color: var(--input-border-invalid);
+}
+
+.reviews-section .review-field > input[aria-invalid="true"]:focus-visible,
+.reviews-section .review-field > textarea[aria-invalid="true"]:focus-visible,
+.reviews-section .review-field > input:invalid:focus-visible,
+.reviews-section .review-field > textarea:invalid:focus-visible {
+  box-shadow: var(--input-shadow-invalid);
+}
+
+.reviews-section .review-form-message {
+  color: var(--input-border-invalid);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  font-weight: var(--weight-label);
+  line-height: var(--leading-snug);
+}
+
+/* --- 4. Checkout text fields (direct children only — not address/dropdowns) --- */
+
+#checkout.checkout-section .checkout-field > span,
+.checkout-section#checkout .checkout-field > span {
+  color: var(--input-text-color);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  font-weight: var(--weight-label);
+  line-height: var(--leading-snug);
+  text-shadow: none;
+}
+
+#checkout.checkout-section .checkout-field > input,
+.checkout-section#checkout .checkout-field > input,
+#checkout.checkout-section .checkout-field > textarea,
+.checkout-section#checkout .checkout-field > textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--input-height);
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  box-shadow: var(--input-shadow);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-normal);
+  outline: none;
+  transition: var(--input-transition);
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-text-fill-color: var(--input-text-color);
+}
+
+#checkout.checkout-section .checkout-field > textarea,
+.checkout-section#checkout .checkout-field > textarea {
+  min-height: var(--textarea-min-height);
+  resize: vertical;
+}
+
+#checkout.checkout-section .checkout-field > input::placeholder,
+.checkout-section#checkout .checkout-field > input::placeholder,
+#checkout.checkout-section .checkout-field > textarea::placeholder,
+.checkout-section#checkout .checkout-field > textarea::placeholder {
+  color: var(--input-placeholder-color);
+  opacity: 1;
+  -webkit-text-fill-color: var(--input-placeholder-color);
+}
+
+#checkout.checkout-section .checkout-field > input:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]),
+.checkout-section#checkout .checkout-field > input:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]),
+#checkout.checkout-section .checkout-field > textarea:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]),
+.checkout-section#checkout .checkout-field > textarea:hover:not(:disabled):not(:read-only):not([aria-invalid="true"]) {
+  border-color: var(--input-border-hover);
+}
+
+#checkout.checkout-section .checkout-field > input:focus-visible:not([aria-invalid="true"]),
+.checkout-section#checkout .checkout-field > input:focus-visible:not([aria-invalid="true"]),
+#checkout.checkout-section .checkout-field > textarea:focus-visible:not([aria-invalid="true"]),
+.checkout-section#checkout .checkout-field > textarea:focus-visible:not([aria-invalid="true"]) {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+  background: var(--input-bg);
+}
+
+#checkout.checkout-section .checkout-field > input:disabled,
+.checkout-section#checkout .checkout-field > input:disabled,
+#checkout.checkout-section .checkout-field > input[disabled],
+.checkout-section#checkout .checkout-field > input[disabled],
+#checkout.checkout-section .checkout-field > textarea:disabled,
+.checkout-section#checkout .checkout-field > textarea:disabled,
+#checkout.checkout-section .checkout-field > textarea[disabled],
+.checkout-section#checkout .checkout-field > textarea[disabled] {
+  background: var(--input-bg-disabled);
+  color: var(--input-text-disabled);
+  border-color: var(--input-border);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-field > input:read-only,
+.checkout-section#checkout .checkout-field > input:read-only,
+#checkout.checkout-section .checkout-field > input[readonly],
+.checkout-section#checkout .checkout-field > input[readonly],
+#checkout.checkout-section .checkout-field > textarea:read-only,
+.checkout-section#checkout .checkout-field > textarea:read-only,
+#checkout.checkout-section .checkout-field > textarea[readonly],
+.checkout-section#checkout .checkout-field > textarea[readonly] {
+  background: var(--input-bg-readonly);
+  box-shadow: none;
+  cursor: default;
+}
+
+#checkout.checkout-section .checkout-field > input[aria-invalid="true"],
+.checkout-section#checkout .checkout-field > input[aria-invalid="true"],
+#checkout.checkout-section .checkout-field > textarea[aria-invalid="true"],
+.checkout-section#checkout .checkout-field > textarea[aria-invalid="true"] {
+  border-color: var(--input-border-invalid);
+}
+
+#checkout.checkout-section .checkout-field > input[aria-invalid="true"]:focus-visible,
+.checkout-section#checkout .checkout-field > input[aria-invalid="true"]:focus-visible,
+#checkout.checkout-section .checkout-field > textarea[aria-invalid="true"]:focus-visible,
+.checkout-section#checkout .checkout-field > textarea[aria-invalid="true"]:focus-visible {
+  box-shadow: var(--input-shadow-invalid);
+}
+
+#checkout.checkout-section .checkout-field-error,
+.checkout-section#checkout .checkout-field-error {
+  color: var(--input-border-invalid);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  font-weight: var(--weight-label);
+  line-height: var(--leading-snug);
+}
+
+/* ============================================================
+   T4.3 — Pearl dropdown system (checkout storefront)
+   Visual override only. Date/interval logic untouched.
+   Uses T4.1 input tokens. Loads after pearl-buttons.css.
+   Dropdown enter motion: pearl-motion.css T6.7.1 (bf-dropdown-enter).
+   ============================================================ */
+
+#checkout.checkout-section .checkout-choice-group.checkout-dropdown-group > span,
+.checkout-section#checkout .checkout-choice-group.checkout-dropdown-group > span {
+  color: var(--input-text-color);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  font-weight: var(--weight-label);
+  line-height: var(--leading-snug);
+  text-shadow: none;
+}
+
+#checkout.checkout-section .checkout-dropdown,
+.checkout-section#checkout .checkout-dropdown {
+  position: relative;
+}
+
+#checkout.checkout-section .checkout-dropdown-trigger,
+.checkout-section#checkout .checkout-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: var(--input-height);
+  margin-top: 0;
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  box-shadow: var(--input-shadow);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-snug);
+  text-align: left;
+  text-shadow: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: var(--input-transition);
+  -webkit-tap-highlight-color: transparent;
+  transform: none;
+}
+
+#checkout.checkout-section .checkout-dropdown-trigger > span:first-child,
+.checkout-section#checkout .checkout-dropdown-trigger > span:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#checkout.checkout-section .checkout-dropdown-caret,
+.checkout-section#checkout .checkout-dropdown-caret {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  color: var(--input-placeholder-color);
+  font-size: 0.6875rem;
+  line-height: 1;
+  transition: var(--input-transition);
+}
+
+#checkout.checkout-section .checkout-dropdown-trigger:hover:not(:disabled):not([aria-disabled="true"]),
+.checkout-section#checkout .checkout-dropdown-trigger:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--input-border-hover);
+  box-shadow: var(--input-shadow);
+  transform: none;
+}
+
+#checkout.checkout-section .checkout-dropdown-trigger:focus-visible,
+.checkout-section#checkout .checkout-dropdown-trigger:focus-visible {
+  outline: none;
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+}
+
+#checkout.checkout-section .checkout-dropdown-trigger[aria-expanded="true"],
+.checkout-section#checkout .checkout-dropdown-trigger[aria-expanded="true"] {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+}
+
+#checkout.checkout-section .checkout-dropdown-trigger[aria-expanded="true"] .checkout-dropdown-caret,
+.checkout-section#checkout .checkout-dropdown-trigger[aria-expanded="true"] .checkout-dropdown-caret {
+  color: var(--input-text-color);
+  transform: rotate(180deg);
+}
+
+#checkout.checkout-section .checkout-dropdown-trigger:active:not(:disabled),
+.checkout-section#checkout .checkout-dropdown-trigger:active:not(:disabled) {
+  transform: none;
+  box-shadow: var(--input-shadow);
+}
+
+#checkout.checkout-section .checkout-dropdown-trigger:disabled,
+.checkout-section#checkout .checkout-dropdown-trigger:disabled,
+#checkout.checkout-section .checkout-dropdown-trigger[disabled],
+.checkout-section#checkout .checkout-dropdown-trigger[disabled] {
+  background: var(--input-bg-disabled);
+  color: var(--input-text-disabled);
+  border-color: var(--input-border);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-dropdown-menu,
+.checkout-section#checkout .checkout-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  z-index: 24;
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.375rem;
+  border: 1px solid var(--input-border);
+  border-radius: var(--dropdown-radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  transform-origin: top center;
+  overflow: hidden;
+}
+
+#checkout.checkout-section .checkout-dropdown-option,
+.checkout-section#checkout .checkout-dropdown-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--input-height);
+  margin: 0;
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid transparent;
+  border-radius: calc(var(--dropdown-radius) - 2px);
+  background: transparent;
+  color: var(--input-text-color);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-snug);
+  text-align: left;
+  text-shadow: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: var(--input-transition);
+  transform: none;
+}
+
+#checkout.checkout-section .checkout-dropdown-option:hover,
+.checkout-section#checkout .checkout-dropdown-option:hover,
+#checkout.checkout-section .checkout-dropdown-option:focus-visible,
+.checkout-section#checkout .checkout-dropdown-option:focus-visible {
+  border-color: var(--input-border-hover);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  outline: none;
+  box-shadow: var(--input-shadow);
+  transform: none;
+}
+
+#checkout.checkout-section .checkout-dropdown-option:active,
+.checkout-section#checkout .checkout-dropdown-option:active {
+  transform: none;
+  box-shadow: var(--input-shadow);
+  background: var(--input-bg-readonly);
+}
+
+#checkout.checkout-section .checkout-dropdown-option.selected,
+.checkout-section#checkout .checkout-dropdown-option.selected,
+#checkout.checkout-section .checkout-dropdown-option[aria-selected="true"],
+.checkout-section#checkout .checkout-dropdown-option[aria-selected="true"] {
+  border-color: var(--input-border-focus);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  box-shadow: var(--input-shadow);
+  font-weight: var(--weight-label);
+}
+
+#checkout.checkout-section .checkout-dropdown-option.selected:hover,
+.checkout-section#checkout .checkout-dropdown-option.selected:hover,
+#checkout.checkout-section .checkout-dropdown-option[aria-selected="true"]:hover,
+.checkout-section#checkout .checkout-dropdown-option[aria-selected="true"]:hover {
+  border-color: var(--input-border-focus);
+  background: var(--input-bg);
+  box-shadow: var(--input-shadow-focus);
+}
+
+#checkout.checkout-section .checkout-dropdown-date-input,
+.checkout-section#checkout .checkout-dropdown-date-input {
+  display: block;
+  padding: 0.125rem 0.125rem 0;
+}
+
+#checkout.checkout-section .checkout-dropdown-date-input input,
+.checkout-section#checkout .checkout-dropdown-date-input input {
+  width: 100%;
+  min-height: var(--input-height);
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border);
+  border-radius: calc(var(--dropdown-radius) - 2px);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  box-shadow: var(--input-shadow);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  outline: none;
+  transition: var(--input-transition);
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-text-fill-color: var(--input-text-color);
+}
+
+#checkout.checkout-section .checkout-dropdown-date-input input:hover:not(:disabled),
+.checkout-section#checkout .checkout-dropdown-date-input input:hover:not(:disabled) {
+  border-color: var(--input-border-hover);
+}
+
+#checkout.checkout-section .checkout-dropdown-date-input input:focus-visible,
+.checkout-section#checkout .checkout-dropdown-date-input input:focus-visible {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+}
+
+#checkout.checkout-section .checkout-dropdown-empty,
+.checkout-section#checkout .checkout-dropdown-empty {
+  margin: 0;
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border);
+  border-radius: var(--dropdown-radius);
+  background: var(--input-bg-readonly);
+  color: var(--input-placeholder-color);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-normal);
+  text-shadow: none;
+}
+
+/* ============================================================
+   T4.4 — Validation, helper & address suggestion system
+   Visual override only. No JS / geocoder / validation logic changes.
+   Uses existing Pearl input tokens only.
+   ============================================================ */
+
+/* --- Shared validation helpers (storefront) --- */
+
+.search-panel .search-helper-text,
+#checkout.checkout-section .checkout-field-description,
+.checkout-section#checkout .checkout-field-description {
+  margin: 0;
+  color: var(--input-placeholder-color);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-normal);
+}
+
+#checkout.checkout-section .checkout-field:has(> input[required]) > span::after,
+.checkout-section#checkout .checkout-field:has(> input[required]) > span::after,
+#checkout.checkout-section .checkout-field:has(> textarea[required]) > span::after,
+.checkout-section#checkout .checkout-field:has(> textarea[required]) > span::after,
+#checkout.checkout-section .checkout-field-wide:has([required]) > span::after,
+.checkout-section#checkout .checkout-field-wide:has([required]) > span::after,
+.reviews-section .review-field:has(> input[required]) > span::after,
+.reviews-section .review-field:has(> textarea[required]) > span::after {
+  content: " *";
+  color: var(--input-border-invalid);
+  font-weight: var(--weight-label);
+}
+
+/* --- Invalid / error (visual) --- */
+
+.search-panel .search-panel-control input.is-invalid,
+.search-panel .search-panel-control input[aria-invalid="true"],
+.luxury-catalog-panel .luxury-catalog-search input.is-invalid,
+.luxury-catalog-panel .luxury-catalog-search input[aria-invalid="true"],
+.reviews-section .review-field > input.is-invalid,
+.reviews-section .review-field > textarea.is-invalid,
+#checkout.checkout-section .checkout-field > input.is-invalid,
+#checkout.checkout-section .checkout-field > textarea.is-invalid,
+.checkout-section#checkout .checkout-field > input.is-invalid,
+.checkout-section#checkout .checkout-field > textarea.is-invalid {
+  border-color: var(--input-border-invalid);
+}
+
+.search-panel .search-panel-control input.is-invalid:focus-visible,
+.search-panel .search-panel-control input[aria-invalid="true"]:focus-visible,
+.luxury-catalog-panel .luxury-catalog-search input.is-invalid:focus-visible,
+.luxury-catalog-panel .luxury-catalog-search input[aria-invalid="true"]:focus-visible,
+.reviews-section .review-field > input.is-invalid:focus-visible,
+.reviews-section .review-field > textarea.is-invalid:focus-visible,
+.reviews-section .review-field > input[aria-invalid="true"]:focus-visible,
+.reviews-section .review-field > textarea[aria-invalid="true"]:focus-visible,
+#checkout.checkout-section .checkout-field > input.is-invalid:focus-visible,
+#checkout.checkout-section .checkout-field > textarea.is-invalid:focus-visible,
+#checkout.checkout-section .checkout-field > input[aria-invalid="true"]:focus-visible,
+#checkout.checkout-section .checkout-field > textarea[aria-invalid="true"]:focus-visible,
+.checkout-section#checkout .checkout-field > input.is-invalid:focus-visible,
+.checkout-section#checkout .checkout-field > textarea.is-invalid:focus-visible,
+.checkout-section#checkout .checkout-field > input[aria-invalid="true"]:focus-visible,
+.checkout-section#checkout .checkout-field > textarea[aria-invalid="true"]:focus-visible {
+  border-color: var(--input-border-invalid);
+  box-shadow: var(--input-shadow-invalid);
+}
+
+#checkout.checkout-section .checkout-field > input:disabled[aria-invalid="true"],
+#checkout.checkout-section .checkout-field > textarea:disabled[aria-invalid="true"],
+.checkout-section#checkout .checkout-field > input:disabled[aria-invalid="true"],
+.checkout-section#checkout .checkout-field > textarea:disabled[aria-invalid="true"],
+.reviews-section .review-field > input:disabled[aria-invalid="true"],
+.reviews-section .review-field > textarea:disabled[aria-invalid="true"] {
+  border-color: var(--input-border-invalid);
+  background: var(--input-bg-disabled);
+  color: var(--input-text-disabled);
+  box-shadow: none;
+}
+
+#checkout.checkout-section .checkout-field-error,
+.checkout-section#checkout .checkout-field-error,
+.reviews-section .review-form-message[role="status"] {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--input-border-invalid);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  font-weight: var(--weight-label);
+  line-height: var(--leading-snug);
+}
+
+/* --- Success (visual — valid filled fields) --- */
+
+#checkout.checkout-section .checkout-field > input.is-valid,
+#checkout.checkout-section .checkout-field > textarea.is-valid,
+.checkout-section#checkout .checkout-field > input.is-valid,
+.checkout-section#checkout .checkout-field > textarea.is-valid,
+.reviews-section .review-field > input.is-valid,
+.reviews-section .review-field > textarea.is-valid {
+  border-color: var(--input-border-focus);
+}
+
+#checkout.checkout-section .checkout-field > input.is-valid:focus-visible,
+#checkout.checkout-section .checkout-field > textarea.is-valid:focus-visible,
+.checkout-section#checkout .checkout-field > input.is-valid:focus-visible,
+.checkout-section#checkout .checkout-field > textarea.is-valid:focus-visible,
+.reviews-section .review-field > input.is-valid:focus-visible,
+.reviews-section .review-field > textarea.is-valid:focus-visible {
+  box-shadow: var(--input-shadow-focus);
+}
+
+#checkout.checkout-section .checkout-field > input[aria-invalid="false"]:not(:placeholder-shown):not(:focus-visible),
+.checkout-section#checkout .checkout-field > input[aria-invalid="false"]:not(:placeholder-shown):not(:focus-visible),
+#checkout.checkout-section .checkout-field > textarea[aria-invalid="false"]:not(:placeholder-shown):not(:focus-visible),
+.checkout-section#checkout .checkout-field > textarea[aria-invalid="false"]:not(:placeholder-shown):not(:focus-visible) {
+  border-color: var(--input-border-focus);
+}
+
+/* --- Warning (visual — helper / alert copy) --- */
+
+#checkout.checkout-section .checkout-delivery-alert:not(.checkout-delivery-alert-error),
+.checkout-section#checkout .checkout-delivery-alert:not(.checkout-delivery-alert-error) {
+  color: var(--input-text-color);
+  border-color: var(--input-border-hover);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  line-height: var(--leading-normal);
+}
+
+#checkout.checkout-section .checkout-delivery-alert-error,
+.checkout-section#checkout .checkout-delivery-alert-error {
+  color: var(--input-border-invalid);
+  border-color: var(--input-border-invalid);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  line-height: var(--leading-normal);
+}
+
+/* --- Address intelligence (attribute / id hooks — no CSS module edits) --- */
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"],
+.checkout-section#checkout .checkout-field-wide [role="combobox"] {
+  position: relative;
+  display: grid;
+  gap: 0.5rem;
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] input[aria-label="Адрес доставки"],
+.checkout-section#checkout .checkout-field-wide [role="combobox"] input[autocomplete="street-address"] {
+  width: 100%;
+  min-height: var(--input-height);
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  background: var(--input-bg);
+  color: var(--input-text-color);
+  box-shadow: var(--input-shadow);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  outline: none;
+  transition: var(--input-transition);
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-text-fill-color: var(--input-text-color);
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] input[aria-label="Адрес доставки"]::placeholder,
+.checkout-section#checkout .checkout-field-wide [role="combobox"] input[autocomplete="street-address"]::placeholder {
+  color: var(--input-placeholder-color);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] input[aria-label="Адрес доставки"]:hover:not(:disabled):not([aria-invalid="true"]),
+.checkout-section#checkout .checkout-field-wide [role="combobox"] input[autocomplete="street-address"]:hover:not(:disabled):not([aria-invalid="true"]) {
+  border-color: var(--input-border-hover);
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] input[aria-label="Адрес доставки"]:focus-visible:not([aria-invalid="true"]),
+.checkout-section#checkout .checkout-field-wide [role="combobox"] input[autocomplete="street-address"]:focus-visible:not([aria-invalid="true"]) {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] input[aria-label="Адрес доставки"][aria-invalid="true"],
+.checkout-section#checkout .checkout-field-wide [role="combobox"] input[autocomplete="street-address"][aria-invalid="true"],
+#checkout.checkout-section .checkout-field-wide [role="combobox"] input[aria-label="Адрес доставки"].is-invalid,
+.checkout-section#checkout .checkout-field-wide [role="combobox"] input[autocomplete="street-address"].is-invalid {
+  border-color: var(--input-border-invalid);
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] input[aria-label="Адрес доставки"][aria-invalid="true"]:focus-visible,
+.checkout-section#checkout .checkout-field-wide [role="combobox"] input[autocomplete="street-address"][aria-invalid="true"]:focus-visible {
+  box-shadow: var(--input-shadow-invalid);
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] input[aria-label="Адрес доставки"]:disabled,
+.checkout-section#checkout .checkout-field-wide [role="combobox"] input[autocomplete="street-address"]:disabled,
+#checkout.checkout-section .checkout-field-wide [role="combobox"] input[aria-label="Адрес доставки"][aria-invalid="true"]:disabled,
+.checkout-section#checkout .checkout-field-wide [role="combobox"] input[autocomplete="street-address"][aria-invalid="true"]:disabled {
+  background: var(--input-bg-disabled);
+  color: var(--input-text-disabled);
+  border-color: var(--input-border-invalid);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"][aria-busy="true"] input[aria-label="Адрес доставки"],
+.checkout-section#checkout .checkout-field-wide [role="combobox"][aria-busy="true"] input[autocomplete="street-address"] {
+  border-color: var(--input-border-hover);
+  box-shadow: var(--input-shadow);
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] > p[role="status"],
+.checkout-section#checkout .checkout-field-wide [role="combobox"] > p[role="status"] {
+  margin: 0;
+  color: var(--input-placeholder-color);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-normal);
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"]:has(input[aria-invalid="false"]:not(:placeholder-shown)) > p[role="status"]:first-of-type,
+.checkout-section#checkout .checkout-field-wide [role="combobox"]:has(input[aria-invalid="false"]:not(:placeholder-shown)) > p[role="status"]:first-of-type {
+  color: var(--input-text-color);
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] > p[role="status"] + p[role="status"],
+.checkout-section#checkout .checkout-field-wide [role="combobox"] > p[role="status"] + p[role="status"] {
+  color: var(--input-text-color);
+  border-left: 2px solid var(--input-border-hover);
+  padding-left: 0.625rem;
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] > ul:not(#checkout-address-suggestions),
+.checkout-section#checkout .checkout-field-wide [role="combobox"] > ul:not(#checkout-address-suggestions) {
+  margin: 0;
+  padding-left: 1.125rem;
+  color: var(--input-border-invalid);
+  font-family: var(--font-body);
+  font-size: var(--input-label-size);
+  line-height: var(--leading-normal);
+  list-style: disc;
+}
+
+#checkout.checkout-section .checkout-field-wide [role="combobox"] > ul:not(#checkout-address-suggestions) li,
+.checkout-section#checkout .checkout-field-wide [role="combobox"] > ul:not(#checkout-address-suggestions) li {
+  color: inherit;
+}
+
+/* --- Address suggestions list (visual — positioning stays in CSS module) --- */
+
+#checkout-address-suggestions {
+  z-index: 24;
+  margin: 0;
+  padding: 0.375rem;
+  list-style: none;
+  border: 1px solid var(--input-border);
+  border-radius: var(--dropdown-radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  transform-origin: top center;
+  overflow: hidden;
+}
+
+#checkout-address-suggestions li + li {
+  border-top: 1px solid var(--input-border);
+}
+
+#checkout-address-suggestions button[role="option"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: var(--input-height);
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid transparent;
+  border-radius: calc(var(--dropdown-radius) - 2px);
+  background: transparent;
+  color: var(--input-text-color);
+  font: var(--input-font);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-snug);
+  text-align: left;
+  cursor: pointer;
+  transition: var(--input-transition);
+}
+
+#checkout-address-suggestions button[role="option"] span:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#checkout-address-suggestions button[role="option"] span:last-child {
+  flex: 0 0 auto;
+  color: var(--input-placeholder-color);
+  font-size: var(--input-label-size);
+  line-height: var(--leading-snug);
+}
+
+#checkout-address-suggestions button[role="option"]:hover,
+#checkout-address-suggestions button[role="option"]:focus-visible {
+  border-color: var(--input-border-hover);
+  background: var(--input-bg);
+  box-shadow: var(--input-shadow);
+  outline: none;
+}
+
+#checkout-address-suggestions button[role="option"]:active {
+  background: var(--input-bg-readonly);
+  box-shadow: var(--input-shadow);
+}
+
+#checkout-address-suggestions button[role="option"][aria-selected="true"] {
+  border-color: var(--input-border-focus);
+  background: var(--input-bg);
+  box-shadow: var(--input-shadow-focus);
+  font-weight: var(--weight-label);
+}
+
+#checkout-address-suggestions button[role="option"][aria-selected="true"]:hover,
+#checkout-address-suggestions button[role="option"][aria-selected="true"]:focus-visible {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus);
+}

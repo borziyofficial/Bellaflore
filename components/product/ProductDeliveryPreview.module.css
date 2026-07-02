@@ -1,0 +1,34 @@
+.preview {
+  display: grid;
+  gap: 8px;
+}
+
+.line,
+.lineHighlight {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  margin: 0;
+  color: var(--champagne-text, var(--bf-text));
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.lineHighlight {
+  color: #2f6b3f;
+  font-weight: 600;
+}
+
+.line span:first-child,
+.lineHighlight span:first-child {
+  color: #2f6b3f;
+  font-weight: 700;
+}
+
+.note {
+  margin: 0;
+  color: var(--champagne-muted, var(--bf-muted));
+  font-size: 13px;
+  line-height: 1.45;
+}

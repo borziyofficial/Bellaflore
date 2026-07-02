@@ -1,6 +1,6 @@
 // ==================================================
 // SECTION: HOME CATALOG
-// РАЗДЕЛ: Каталог на главной — chips (Stage 57A)
+// РАЗДЕЛ: Каталог на главной — Pearl Luxury v2 (Stage 58)
 // ==================================================
 
 export type HomeCatalogCategoryChip = {
@@ -13,12 +13,13 @@ export const homeCatalogCategoryChips: HomeCatalogCategoryChip[] = [
   { id: "roses", label: "Розы" },
   { id: "peonies", label: "Пионы" },
   { id: "hydrangeas", label: "Гортензии" },
+  { id: "author", label: "Авторские" },
   { id: "baskets", label: "Корзины" },
   { id: "boxes", label: "Коробки" },
-  { id: "new", label: "Новинки" },
 ];
 
 export const homeCatalogSearchPlaceholder = "Найти букет или цветы…";
 
 export const homeCatalogTitle = "Выберите букет";
-export const homeCatalogSubtitle = "Свежие букеты с доставкой сегодня";
+export const homeCatalogSubtitleLine1 = "Самые красивые композиции";
+export const homeCatalogSubtitleLine2 = "с доставкой сегодня";

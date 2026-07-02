@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: My Order — Orders List Page
+// РАЗДЕЛ: Мой заказ — страница списка заказов
+//
+// Purpose (EN): Client page that fetches and displays all backend orders with links to order details.
+//
+// Назначение (RU): Клиентская страница загрузки и отображения всех backend-заказов со ссылками на детали.
+// ==================================================
+
 "use client";
 
 import Link from "next/link";

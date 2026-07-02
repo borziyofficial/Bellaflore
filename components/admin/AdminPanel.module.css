@@ -1,0 +1,519 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Admin panel shell layout styles
+Назначение (RU): Стили оболочки админ-панели
+================================================== */
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Оболочка админ-панели
+Purpose (EN): Panel shell layout
+Назначение (RU): Оболочка админ-панели
+================================================== */
+.adminShell {
+  min-height: 100vh;
+  background: var(--bf-bg);
+  color: var(--bf-text);
+}
+
+.adminMobileHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--bf-border);
+  background: var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.adminMobileTitle {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.adminMenuButton,
+.adminCloseButton {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.adminBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  border: 0;
+  background: rgba(47, 37, 34, 0.34);
+  cursor: pointer;
+}
+
+.adminLayout {
+  display: grid;
+  min-height: calc(100vh - 73px);
+}
+
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Боковая навигация
+Purpose (EN): Sidebar navigation
+Назначение (RU): Боковая навигация
+================================================== */
+.adminSidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  width: min(280px, 86vw);
+  height: 100vh;
+  padding: 20px 16px;
+  border-right: 1px solid var(--bf-border);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 248, 0.98), rgba(255, 255, 255, 0.98)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow);
+  transform: translateX(-105%);
+  transition: transform 220ms ease;
+}
+
+.adminSidebarOpen {
+  transform: translateX(0);
+}
+
+.adminSidebarHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.adminBrandEyebrow {
+  margin: 0;
+  color: var(--bf-champagne);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.adminBrandTitle {
+  margin: 6px 0 0;
+  color: var(--bf-heading);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.adminNav {
+  display: grid;
+  gap: 8px;
+}
+
+.adminNavItem {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--bf-text-secondary);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.adminNavItem:hover {
+  border-color: var(--bf-border);
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+}
+
+.adminNavItemActive {
+  border-color: var(--bf-border);
+  background: linear-gradient(180deg, var(--bf-pink-soft), rgba(255, 255, 255, 0.92));
+  color: var(--bf-heading);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Основная область контента
+Purpose (EN): Main content area
+Назначение (RU): Основная область контента
+================================================== */
+.adminContent {
+  padding: 20px 16px 28px;
+}
+
+.adminPlaceholder {
+  min-height: 320px;
+  padding: 24px;
+  border: 1px dashed var(--bf-border);
+  border-radius: var(--bf-radius);
+  background: var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.adminPlaceholderEyebrow {
+  margin: 0;
+  color: var(--bf-champagne);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.adminPlaceholderTitle {
+  margin: 8px 0 0;
+  color: var(--bf-heading);
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.adminPlaceholderText {
+  margin: 12px 0 0;
+  max-width: 560px;
+  color: var(--bf-text-secondary);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.adminOrdersSection {
+  display: grid;
+  gap: 18px;
+}
+
+.adminOrdersHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.adminOrdersCount {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.adminOrdersEmpty,
+.adminOrdersCard {
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background: var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.adminOrdersEmpty {
+  display: grid;
+  gap: 6px;
+  padding: 24px;
+}
+
+.adminOrdersEmpty p {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.adminOrdersEmpty span {
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+}
+
+.adminOrdersList {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adminOrdersCardButton,
+.adminOrdersCard {
+  width: 100%;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background: var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.adminOrdersCardButton {
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.adminOrdersCardButton:hover {
+  border-color: rgba(242, 134, 164, 0.42);
+  box-shadow: var(--bf-shadow);
+  transform: translateY(-1px);
+}
+
+.adminOrdersCard {
+  padding: 18px;
+}
+
+.adminOrdersCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.adminOrdersCardTop strong {
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.adminOrdersStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.adminOrdersMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.adminOrdersMetaGrid div {
+  display: grid;
+  gap: 4px;
+}
+
+.adminOrdersMetaGrid span {
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.adminOrdersMetaGrid strong {
+  color: var(--bf-text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.adminOrderDetailsSection {
+  display: grid;
+  gap: 18px;
+}
+
+.adminOrderDetailsBack {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.adminOrderDetailsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.adminOrderDetailsCard {
+  padding: 20px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background: var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.adminOrderDetailsSubheading {
+  margin: 0 0 14px;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.adminOrderDetailsMuted {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+}
+
+.adminOrderDetailsWideField {
+  grid-column: 1 / -1;
+}
+
+.adminOrderTimeline {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adminOrderTimeline li {
+  padding: 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 14px;
+  background: var(--bf-surface-soft);
+}
+
+.adminOrderTimelineTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.adminOrderTimelineTop strong {
+  color: var(--bf-heading);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.adminOrderTimelineTop span {
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.adminOrderTimeline li p {
+  margin: 4px 0 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.adminOrderDetailsCurrentStatus {
+  color: var(--bf-heading);
+}
+
+.adminStatusActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.adminStatusActionButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease;
+}
+
+.adminStatusActionButton:hover:not(:disabled) {
+  border-color: rgba(242, 134, 164, 0.42);
+  background: linear-gradient(180deg, var(--bf-pink-soft), rgba(255, 255, 255, 0.92));
+}
+
+.adminStatusActionButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.adminStatusActionButtonActive {
+  border-color: rgba(242, 134, 164, 0.42);
+  background: linear-gradient(180deg, var(--bf-pink-soft), rgba(255, 255, 255, 0.92));
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.adminOrderDetailsError {
+  margin: 12px 0 0;
+  color: #8e2020;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.adminOrderDetailsNotice {
+  margin: 12px 0 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.adminCourierAssignLabel {
+  margin: 14px 0 0;
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+@media (min-width: 1024px) {
+  .adminMobileHeader {
+    display: none;
+  }
+
+  .adminLayout {
+    grid-template-columns: 280px minmax(0, 1fr);
+    min-height: 100vh;
+  }
+
+  .adminSidebar {
+    position: sticky;
+    top: 0;
+    transform: none;
+    width: auto;
+  }
+
+  .adminCloseButton {
+    display: none;
+  }
+
+  .adminContent {
+    padding: 28px 28px 36px;
+  }
+}

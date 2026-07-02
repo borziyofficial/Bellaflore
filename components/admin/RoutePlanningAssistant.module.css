@@ -1,0 +1,227 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Route planning assistant styles
+Назначение (RU): Стили ассистента планирования маршрутов
+================================================== */
+.routePlanningSection {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 248, 0.72), rgba(255, 255, 255, 0.92)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.routePlanningHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.routePlanningMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.summaryCard {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.summaryCard span {
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.summaryCard strong {
+  color: var(--bf-heading);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.courierRouteBlock {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 14px;
+  background: var(--bf-surface);
+}
+
+.courierRouteTitle {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.routeGroupTitle {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.routeStopList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.routeStopButton {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.routeStopButton:hover {
+  border-color: rgba(242, 134, 164, 0.42);
+  box-shadow: var(--bf-shadow-soft);
+  transform: translateY(-1px);
+}
+
+.routeStopButtonWarning {
+  border-color: rgba(142, 32, 32, 0.28);
+  background: rgba(255, 247, 247, 0.92);
+}
+
+.routeStopTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.routeStopIdentity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.routePosition {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--bf-surface);
+  color: var(--bf-heading);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.routeStopTop strong {
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface);
+  color: var(--bf-heading);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.routeStopMeta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.routeStopMeta div {
+  display: grid;
+  gap: 2px;
+}
+
+.routeStopMeta span {
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.routeStopMeta strong {
+  color: var(--bf-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.warningList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.warningBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(142, 32, 32, 0.12);
+  color: #8e2020;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.emptyRoute {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.completedStop {
+  opacity: 0.82;
+}

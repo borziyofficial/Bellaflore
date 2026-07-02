@@ -1,0 +1,538 @@
+/* ==================================================
+SECTION: MAP
+РАЗДЕЛ: Карта
+Purpose (EN): Geographic map preview styles
+Назначение (RU): Стили географического превью карты
+================================================== */
+.geographicMapSection {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(247, 251, 255, 0.82), rgba(255, 255, 255, 0.94)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.geographicMapHeader {
+  display: grid;
+  gap: 6px;
+}
+
+.geographicMapHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.geographicMapMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.summaryCard {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.summaryCard span {
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.summaryCard strong {
+  color: var(--bf-heading);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.legendRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.legendSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+  flex-shrink: 0;
+}
+
+.routeLinesControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.routeLinesToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.routeLinesFilter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.routeLinesFilter select {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--bf-border);
+  border-radius: 10px;
+  background: var(--bf-surface);
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.buildRoadRoutesButton {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(107, 191, 89, 0.35);
+  border-radius: 12px;
+  background: rgba(107, 191, 89, 0.12);
+  color: #2f7d24;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.buildRoadRoutesButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.roadRouteNotice {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(88, 166, 120, 0.28);
+  border-radius: 12px;
+  background: rgba(88, 166, 120, 0.12);
+  color: #2f6b45;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.roadRouteWarning {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(242, 169, 59, 0.35);
+  border-radius: 12px;
+  background: rgba(242, 169, 59, 0.12);
+  color: #7a4d00;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.routeLinesSummary {
+  display: grid;
+  gap: 10px;
+}
+
+.routeLinesSummaryHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.routeLinesSummaryEmpty {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.routeLinesSummaryList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.routeLinesSummaryItem {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.routeLinesSummaryTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.routeLinesSummaryTop strong {
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.routeLinesSummaryMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.routeLineStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.routeLineStatusReady {
+  background: rgba(88, 166, 120, 0.16);
+  color: #2f6b45;
+}
+
+.routeLineStatusIncomplete {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.routeLineStatusEmpty {
+  background: rgba(154, 160, 166, 0.2);
+  color: #5f6368;
+}
+
+.roadRouteStatusReady {
+  background: rgba(88, 166, 120, 0.16);
+  color: #2f6b45;
+}
+
+.roadRouteStatusIncomplete {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.roadRouteStatusFallback {
+  background: rgba(74, 144, 217, 0.16);
+  color: #245f9a;
+}
+
+.roadRouteStatusError {
+  background: rgba(142, 32, 32, 0.14);
+  color: #8e2020;
+}
+
+.roadRouteStatusCached {
+  background: rgba(74, 144, 217, 0.16);
+  color: #245f9a;
+}
+
+.routeLinesSummaryWarning {
+  margin: 0;
+  color: #7a4d00;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.mapShell {
+  position: relative;
+}
+
+.mapControls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  display: flex;
+  gap: 8px;
+}
+
+.mapControls button {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--bf-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.mapViewport {
+  position: relative;
+  overflow: hidden;
+  min-height: 360px;
+  border: 1px solid var(--bf-border);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(74, 144, 217, 0.08), transparent 42%),
+    radial-gradient(circle at 80% 70%, rgba(232, 93, 138, 0.08), transparent 38%),
+    #eef3f8;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.mapViewportPanning {
+  cursor: grabbing;
+}
+
+.mapTransformLayer {
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.mapCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mapBackground {
+  fill: #e8eef5;
+}
+
+.mapGrid line {
+  stroke: rgba(80, 96, 120, 0.12);
+  stroke-width: 1;
+}
+
+.mapMarker {
+  cursor: pointer;
+}
+
+.mapMarkerRing {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.mapMarkerSelected .mapMarkerRing {
+  stroke: rgba(20, 28, 40, 0.85);
+  stroke-width: 2.5;
+}
+
+.markerPopup {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+  width: min(320px, calc(100% - 24px));
+  padding: 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--bf-shadow-soft);
+  pointer-events: none;
+}
+
+.markerPopupHint {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.markerPopupList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.markerPopupList div {
+  display: grid;
+  gap: 2px;
+}
+
+.markerPopupList dt {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.markerPopupList dd {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.mapEmptyState {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+
+.needsGeocodingSection {
+  display: grid;
+  gap: 10px;
+}
+
+.needsGeocodingHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.needsGeocodingEmpty {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.needsGeocodingList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.needsGeocodingButton {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.needsGeocodingButton:hover {
+  border-color: rgba(74, 144, 217, 0.35);
+  box-shadow: var(--bf-shadow-soft);
+  transform: translateY(-1px);
+}
+
+.needsGeocodingTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.needsGeocodingTop strong {
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.needsGeocodingAddress {
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.statusFound {
+  background: rgba(107, 191, 89, 0.16);
+  color: #2f7d24;
+}
+
+.statusPending {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.statusNotFound {
+  background: rgba(154, 160, 166, 0.2);
+  color: #5f6368;
+}
+
+.statusError {
+  background: rgba(232, 93, 138, 0.16);
+  color: #b4235a;
+}
+
+.statusCached {
+  background: rgba(74, 144, 217, 0.16);
+  color: #245f9a;
+}

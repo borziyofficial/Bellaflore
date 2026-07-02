@@ -1,0 +1,101 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Smart dispatch recommendation styles
+Назначение (RU): Стили рекомендаций умной диспетчеризации
+================================================== */
+.smartDispatchBlock {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(242, 134, 164, 0.32);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 247, 248, 0.92), rgba(255, 255, 255, 0.96)),
+    var(--bf-surface);
+}
+
+.smartDispatchTitle {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.smartDispatchRecommended {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.smartDispatchLabel {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reasonList,
+.workloadList,
+.warningList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--bf-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.warningList {
+  padding-left: 0;
+  list-style: none;
+  color: #8e2020;
+}
+
+.workloadRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.assignButton {
+  justify-self: start;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--bf-pink-soft), rgba(255, 255, 255, 0.92));
+  color: var(--bf-heading);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.assignButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.smartDispatchNotice {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.smartDispatchError {
+  margin: 0;
+  color: #8e2020;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}

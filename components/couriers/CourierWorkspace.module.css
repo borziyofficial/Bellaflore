@@ -1,0 +1,395 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Courier workspace layout and order card styles
+Назначение (RU): Стили рабочего места курьера
+================================================== */
+.workspaceShell {
+  min-height: 100vh;
+  padding: 20px 16px 32px;
+  background: var(--bf-bg);
+  color: var(--bf-text);
+}
+
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Заголовок рабочего места
+Purpose (EN): Workspace header
+Назначение (RU): Заголовок рабочего места
+================================================== */
+.workspaceHeader {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.workspaceEyebrow {
+  margin: 0;
+  color: var(--bf-champagne);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspaceTitle {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: clamp(28px, 5vw, 36px);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.workspaceSubtitle {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.selectorCard,
+.sectionCard,
+/* ==================================================
+SECTION: MY ORDER
+РАЗДЕЛ: Карточка заказа курьера
+Purpose (EN): Courier order card
+Назначение (RU): Карточка заказа курьера
+================================================== */
+.orderCard {
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background: var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.selectorCard,
+.sectionCard {
+  padding: 18px;
+}
+
+.selectorCard {
+  margin-bottom: 16px;
+}
+
+.selectorLabel {
+  margin: 0 0 12px;
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.courierSelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.courierSelectorButton,
+.actionButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.courierSelectorButtonActive {
+  border-color: rgba(242, 134, 164, 0.42);
+  background: linear-gradient(180deg, var(--bf-pink-soft), rgba(255, 255, 255, 0.92));
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.sectionCard {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sectionHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.sectionCount {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ordersList {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orderCard {
+  padding: 16px;
+}
+
+.orderCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.orderCardTop strong {
+  color: var(--bf-heading);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.orderBadges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.statusBadge,
+.newOrderBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.statusBadge {
+  border: 1px solid var(--bf-border);
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+}
+
+.newOrderBadge {
+  border: 1px solid rgba(242, 134, 164, 0.42);
+  background: linear-gradient(
+    180deg,
+    var(--bf-pink-soft),
+    rgba(255, 255, 255, 0.92)
+  );
+  color: var(--bf-heading);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.metaGrid div {
+  display: grid;
+  gap: 4px;
+}
+
+.metaGrid span {
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metaGrid strong {
+  color: var(--bf-text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.orderActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.actionButton:disabled,
+.courierSelectorButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.emptyState {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.notice {
+  margin: 12px 0 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: #8e2020;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ==================================================
+SECTION: MAP
+РАЗДЕЛ: Карточка геолокации
+Purpose (EN): Live location card
+Назначение (RU): Карточка геолокации
+================================================== */
+.locationCard {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background: var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.locationMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.locationActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shareLocationButton,
+.mockLocationButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.shareLocationButton {
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  background: rgba(74, 144, 217, 0.12);
+  color: #245f9a;
+}
+
+.mockLocationButton {
+  border: 1px solid var(--bf-border);
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+}
+
+.shareLocationButton:disabled,
+.mockLocationButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.locationStatusRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.locationStatusLabel {
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.locationStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.locationStatusActive {
+  background: rgba(88, 166, 120, 0.16);
+  color: #2f6b45;
+}
+
+.locationStatusDenied,
+.locationStatusError {
+  background: rgba(142, 32, 32, 0.14);
+  color: #8e2020;
+}
+
+.locationStatusUnavailable {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.locationStatusIdle {
+  background: rgba(154, 160, 166, 0.2);
+  color: #5f6368;
+}
+
+.locationNotice {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.locationDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.locationDetails div {
+  display: grid;
+  gap: 4px;
+}
+
+.locationDetails dt {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.locationDetails dd {
+  margin: 0;
+  color: var(--bf-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (min-width: 1024px) {
+  .workspaceShell {
+    padding: 28px 28px 40px;
+  }
+}

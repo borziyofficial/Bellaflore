@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: Admin — Orders Management Page
+// РАЗДЕЛ: Admin — страница управления заказами
+//
+// Purpose (EN): Protected admin orders table — fetch backend orders and update order status via PATCH.
+//
+// Назначение (RU): Защищённая таблица заказов admin — загрузка backend-заказов и обновление статуса через PATCH.
+// ==================================================
+
 "use client";
 
 import Link from "next/link";

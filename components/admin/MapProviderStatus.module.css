@@ -1,0 +1,169 @@
+/* ==================================================
+SECTION: MAP
+РАЗДЕЛ: Карта
+Purpose (EN): Map provider status badge styles
+Назначение (RU): Стили индикатора провайдера карт
+================================================== */
+.providerStatusSection {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.9), rgba(255, 255, 255, 0.96)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.providerStatusHeader {
+  display: grid;
+  gap: 6px;
+}
+
+.providerStatusHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.providerStatusMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.statusCard {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.statusCard span {
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.statusCard strong {
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.valueConfigured {
+  color: #2f7d24;
+}
+
+.valueMissing {
+  color: #b4235a;
+}
+
+.valueWarning {
+  color: #9a6400;
+}
+
+.valueReady {
+  color: #2f7d24;
+}
+
+.fallbackWarning {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(242, 169, 59, 0.35);
+  border-radius: 12px;
+  background: rgba(242, 169, 59, 0.12);
+  color: #7a4d00;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.fallbackInfo {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(74, 144, 217, 0.22);
+  border-radius: 12px;
+  background: rgba(74, 144, 217, 0.08);
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.fallbackInfo code,
+.fallbackWarning code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--bf-heading);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.capabilitiesSection {
+  display: grid;
+  gap: 10px;
+}
+
+.capabilitiesHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.capabilitiesList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.capabilityItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.capabilityName {
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.capabilityState {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.capabilityEnabled .capabilityState {
+  color: #2f7d24;
+}
+
+.capabilityDisabled .capabilityState {
+  color: var(--bf-muted);
+}

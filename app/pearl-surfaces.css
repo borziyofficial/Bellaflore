@@ -1,0 +1,692 @@
+/* ==================================================
+SECTION: Pearl Surfaces — Token Foundation
+РАЗДЕЛ: Pearl Surfaces — базовые токены
+
+Purpose (EN): Surface tiers, radius, shadow tokens, and opt-in foundation classes. No component migration yet.
+
+Назначение (RU): Уровни поверхностей, radius, shadow-токены и opt-in foundation-классы. Миграция компонентов пока не выполнена.
+================================================== */
+
+:root {
+  /* --- Surface tiers --- */
+  --surface-1: var(--surface);
+  --surface-2: #f5f4f2;
+  --surface-3: #ffffff;
+  --surface-4: var(--background);
+  --surface-overlay: rgba(45, 44, 42, 0.14);
+  --surface-glass: rgba(252, 251, 249, 0.88);
+  --surface-elevated: #ffffff;
+
+  /* --- Radius --- */
+  --radius-xs: 0.625rem;
+  --radius-sm: 0.875rem;
+  --radius-md: 1.125rem;
+  --radius-lg: 1.375rem;
+  --radius-xl: 1.5rem;
+  --radius-pill: 999px;
+
+  /* --- Shadow --- */
+  --shadow-soft: 0 8px 24px rgba(45, 44, 42, 0.06);
+  --shadow-card: 0 16px 40px rgba(45, 44, 42, 0.08);
+  --shadow-elevated: 0 20px 56px rgba(45, 44, 42, 0.1);
+  --shadow-overlay: 0 12px 40px rgba(45, 44, 42, 0.12);
+  --shadow-modal: 0 24px 64px rgba(45, 44, 42, 0.14);
+
+  /* --- Border --- */
+  --border-soft: rgba(186, 184, 180, 0.22);
+  --border-glass: rgba(186, 184, 180, 0.28);
+  --border-focus: rgba(186, 184, 180, 0.62);
+  --border-active: rgba(186, 184, 180, 0.48);
+
+  /* --- Glass (backdrop recipes) --- */
+  --glass-light: blur(16px) saturate(1.04);
+  --glass-medium: blur(24px) saturate(1.05);
+  --glass-heavy: blur(32px) saturate(1.04);
+
+  /* --- Surface composition helpers --- */
+  --surface-glass-fill: linear-gradient(
+    180deg,
+    rgba(252, 251, 249, 0.92) 0%,
+    rgba(245, 244, 242, 0.78) 100%
+  );
+  --surface-glass-fill-strong: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.94) 0%,
+    rgba(250, 249, 247, 0.86) 100%
+  );
+  --surface-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  --surface-inset-edge: inset 0 0 0 0.5px rgba(255, 255, 255, 0.4);
+
+  /* --- Motion --- */
+  --motion-duration: 0.28s;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --surface-transition:
+    transform var(--motion-duration) var(--motion-ease),
+    box-shadow var(--motion-duration) var(--motion-ease),
+    border-color var(--motion-duration) var(--motion-ease),
+    background var(--motion-duration) var(--motion-ease),
+    opacity var(--motion-duration) var(--motion-ease),
+    backdrop-filter var(--motion-duration) var(--motion-ease),
+    -webkit-backdrop-filter var(--motion-duration) var(--motion-ease);
+
+  /* --- Elevation model --- */
+  --elevation-lift-hover: -3px;
+  --elevation-lift-active: -1px;
+  --elevation-lift-compact: -2px;
+  --shadow-surface-default: var(--shadow-soft), var(--surface-inset-highlight),
+    var(--surface-inset-edge);
+  --shadow-surface-hover: var(--shadow-elevated), var(--surface-inset-highlight);
+  --shadow-surface-active: var(--shadow-soft), var(--surface-inset-highlight);
+  --shadow-surface-floating: var(--shadow-card), var(--surface-inset-highlight),
+    var(--surface-inset-edge);
+  --shadow-surface-modal: var(--shadow-modal), var(--surface-inset-highlight),
+    var(--surface-inset-edge);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --surface-glass: rgba(252, 251, 249, 0.9);
+    --surface-overlay: rgba(45, 44, 42, 0.16);
+  }
+}
+
+/* ============================================================
+   Foundation classes — opt-in semantic API (no JSX migration yet)
+   ============================================================ */
+
+.bf-surface {
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-surface-default);
+  transition: var(--surface-transition);
+}
+
+.bf-surface-2 {
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition: var(--surface-transition);
+}
+
+.bf-surface-3 {
+  background: var(--surface-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  transition: var(--surface-transition);
+}
+
+.bf-surface-glass {
+  background: var(--surface-glass-fill), var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-surface-default);
+  backdrop-filter: var(--glass-medium);
+  -webkit-backdrop-filter: var(--glass-medium);
+  transition: var(--surface-transition);
+}
+
+.bf-surface-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-elevated), var(--surface-inset-highlight);
+  transition: var(--surface-transition);
+}
+
+.bf-surface-panel {
+  background: var(--surface-glass-fill-strong), var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-surface-modal);
+  backdrop-filter: var(--glass-heavy);
+  -webkit-backdrop-filter: var(--glass-heavy);
+  transition: var(--surface-transition);
+}
+
+.bf-surface-overlay {
+  background: var(--surface-overlay);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+  transition: var(--surface-transition);
+}
+
+.bf-surface-empty {
+  background: var(--surface-glass-fill), var(--surface-glass);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft), var(--surface-inset-highlight);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+  transition: var(--surface-transition);
+}
+
+/* --- Interactive states (foundation classes only) --- */
+
+.bf-surface.is-elevated,
+.bf-surface-glass.is-elevated,
+.bf-surface-2.is-elevated {
+  box-shadow: var(--shadow-elevated), var(--surface-inset-highlight);
+}
+
+.bf-surface.is-active,
+.bf-surface-glass.is-active,
+.bf-surface-elevated.is-active {
+  border-color: var(--border-active);
+}
+
+.bf-surface:focus-within,
+.bf-surface-glass:focus-within,
+.bf-surface-elevated:focus-within,
+.bf-surface-panel:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-card), var(--surface-inset-highlight),
+    0 0 0 2px var(--surface-1), 0 0 0 4px rgba(186, 184, 180, 0.28);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bf-surface.is-interactive:hover,
+  .bf-surface-glass.is-interactive:hover,
+  .bf-surface-elevated.is-interactive:hover,
+  .bf-surface-2.is-interactive:hover {
+    border-color: var(--border-active);
+    box-shadow: var(--shadow-surface-hover);
+    transform: translateY(var(--elevation-lift-hover));
+  }
+}
+
+/* ============================================================
+   T5.2 — Public home surface migration
+   Visual overrides only. Pearl surface tokens.
+   Excludes: panels, checkout, orders, admin, mobile nav, buttons, inputs.
+   ============================================================ */
+
+/* --- Shared pearl glass card recipe (home tier) --- */
+
+.bouquet-card,
+.delivery-card,
+.about-card,
+.contact-card,
+.reviews-summary-card,
+.review-form-card,
+.review-card,
+.catalog-v11-product-card,
+.luxury-catalog-result-card,
+.contact-link {
+  background: var(--surface-glass-fill), var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-soft), var(--surface-inset-highlight),
+    var(--surface-inset-edge);
+  backdrop-filter: var(--glass-medium);
+  -webkit-backdrop-filter: var(--glass-medium);
+  transition: var(--surface-transition);
+}
+
+/* --- Product / bouquet cards --- */
+
+.bouquet-card {
+  border-radius: var(--radius-xl);
+}
+
+.catalog-v11-product-card {
+  border-radius: var(--radius-lg);
+  background: var(--surface-glass-fill), var(--surface-3);
+}
+
+.luxury-catalog-result-card {
+  border-radius: var(--radius-sm);
+  background: var(--surface-glass-fill), var(--surface-2);
+  box-shadow: var(--shadow-soft), var(--surface-inset-highlight);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+}
+
+/* --- Delivery cards --- */
+
+.delivery-card {
+  border-radius: var(--radius-xl);
+}
+
+/* --- About / contact cards --- */
+
+.about-card,
+.contact-card {
+  border-radius: var(--radius-xl);
+}
+
+.contact-link {
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass-fill), var(--surface-glass);
+}
+
+/* --- Review cards --- */
+
+.reviews-summary-card,
+.review-form-card,
+.review-card {
+  border-radius: var(--radius-xl);
+}
+
+/* --- Section shells --- */
+
+.bouquets,
+.delivery,
+.about,
+.contact,
+.reviews-section {
+  background: var(--surface-4);
+}
+
+/* ============================================================
+   T5.3 — Panel & empty-state surface migration
+   Visual overrides only. Pearl surface tokens.
+   Excludes: checkout, orders cards, admin, mobile nav, buttons, inputs.
+   ============================================================ */
+
+/* --- Panel shells --- */
+
+.favorites-panel,
+.cart-panel,
+.search-panel,
+.my-order-panel,
+.catalog-placeholder-panel,
+.luxury-catalog-panel:not(.catalog-v1-panel) {
+  background: var(--surface-glass-fill-strong), var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal), var(--surface-inset-highlight),
+    var(--surface-inset-edge);
+  backdrop-filter: var(--glass-heavy);
+  -webkit-backdrop-filter: var(--glass-heavy);
+  transition: var(--surface-transition);
+}
+
+.catalog-v1-panel.luxury-catalog-panel {
+  background: var(--surface-1);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* --- Overlay / popup scrims --- */
+
+.favorites-panel-overlay,
+.search-panel-overlay,
+.cart-panel-overlay,
+.my-order-panel-overlay,
+.catalog-placeholder-overlay,
+.luxury-catalog-overlay {
+  background: var(--surface-overlay);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+}
+
+.catalog-v1-overlay {
+  background: var(--surface-1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* --- Panel row / item surfaces --- */
+
+.favorites-panel-card,
+.favorites-panel-bouquet-card,
+.search-result-card,
+.cart-panel-item,
+.cart-panel-summary {
+  background: var(--surface-glass-fill), var(--surface-glass);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft), var(--surface-inset-highlight);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+  transition: var(--surface-transition);
+}
+
+.favorites-panel-card,
+.search-result-card,
+.cart-panel-item {
+  border-radius: var(--radius-md);
+}
+
+.favorites-panel-bouquet-card {
+  border-radius: var(--radius-lg);
+}
+
+.cart-panel-summary {
+  border-radius: var(--radius-xl);
+}
+
+/* --- Thumbnail / media placeholders (surface only) --- */
+
+.favorites-panel-image,
+.cart-panel-image,
+.search-result-image {
+  background: var(--surface-2);
+}
+
+.search-result-image-fallback {
+  background: var(--surface-glass-fill), var(--surface-2);
+  border: 1px solid var(--border-soft);
+}
+
+/* --- Empty states --- */
+
+.favorites-empty,
+.cart-empty,
+.search-empty,
+.search-idle-state,
+.search-empty-state,
+.my-order-empty-card,
+.catalog-search-empty,
+.luxury-catalog-empty,
+.reviews-empty {
+  background: var(--surface-glass-fill), var(--surface-glass);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft), var(--surface-inset-highlight);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+  transition: var(--surface-transition);
+}
+
+.favorites-empty-icon,
+.search-empty-icon,
+.my-order-empty-mark {
+  background: var(--surface-glass-fill), var(--surface-2);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-soft), var(--surface-inset-highlight);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+}
+
+/* ============================================================
+   T5.4 — Pearl component polish
+   Unified motion, elevation, glass, and interactive states.
+   Visual overrides only.
+   ============================================================ */
+
+/* --- Elevation: default tier --- */
+
+.bouquet-card,
+.delivery-card,
+.about-card,
+.contact-card,
+.contact-link,
+.reviews-summary-card,
+.review-form-card,
+.review-card,
+.catalog-v11-product-card,
+.luxury-catalog-result-card,
+.favorites-panel-card,
+.favorites-panel-bouquet-card,
+.search-result-card,
+.cart-panel-item,
+.cart-panel-summary,
+.favorites-empty,
+.cart-empty,
+.search-empty,
+.search-idle-state,
+.search-empty-state,
+.my-order-empty-card,
+.catalog-search-empty,
+.luxury-catalog-empty,
+.reviews-empty {
+  box-shadow: var(--shadow-surface-default);
+  transition: var(--surface-transition);
+}
+
+.favorites-panel,
+.cart-panel,
+.search-panel,
+.my-order-panel,
+.catalog-placeholder-panel,
+.luxury-catalog-panel:not(.catalog-v1-panel) {
+  box-shadow: var(--shadow-surface-modal);
+}
+
+.favorites-panel-overlay,
+.search-panel-overlay,
+.cart-panel-overlay,
+.my-order-panel-overlay,
+.catalog-placeholder-overlay,
+.luxury-catalog-overlay {
+  transition: var(--surface-transition);
+}
+
+/* --- Glass tier consistency --- */
+
+.bouquet-card,
+.delivery-card,
+.about-card,
+.contact-card,
+.contact-link,
+.reviews-summary-card,
+.review-form-card,
+.review-card {
+  backdrop-filter: var(--glass-medium);
+  -webkit-backdrop-filter: var(--glass-medium);
+}
+
+.catalog-v11-product-card,
+.favorites-panel-bouquet-card {
+  backdrop-filter: var(--glass-medium);
+  -webkit-backdrop-filter: var(--glass-medium);
+}
+
+.luxury-catalog-result-card,
+.favorites-panel-card,
+.search-result-card,
+.cart-panel-item,
+.cart-panel-summary,
+.favorites-empty,
+.cart-empty,
+.search-empty,
+.search-idle-state,
+.search-empty-state,
+.my-order-empty-card,
+.catalog-search-empty,
+.luxury-catalog-empty,
+.reviews-empty,
+.favorites-empty-icon,
+.search-empty-icon,
+.my-order-empty-mark {
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+}
+
+/* --- Interactive hover (pointer devices) --- */
+
+@media (hover: hover) and (pointer: fine) {
+  .bouquet-card:hover,
+  .catalog-v11-product-card:hover,
+  .delivery-card:hover,
+  .contact-link:hover,
+  .review-card:hover,
+  .search-result-card:hover,
+  .favorites-panel-card:hover,
+  .favorites-panel-bouquet-card:hover {
+    border-color: var(--border-active);
+    box-shadow: var(--shadow-surface-hover);
+    transform: translateY(var(--elevation-lift-hover));
+    backdrop-filter: var(--glass-medium);
+    -webkit-backdrop-filter: var(--glass-medium);
+  }
+
+  .luxury-catalog-result-card:hover {
+    border-color: var(--border-active);
+    box-shadow: var(--shadow-surface-floating);
+    transform: translateY(var(--elevation-lift-compact));
+  }
+}
+
+/* --- Active / pressed --- */
+
+.bouquet-card:active,
+.catalog-v11-product-card:active,
+.delivery-card:active,
+.contact-link:active,
+.review-card:active,
+.search-result-card:active,
+.favorites-panel-card:active,
+.favorites-panel-bouquet-card:active,
+.luxury-catalog-result-card:active {
+  transform: translateY(var(--elevation-lift-active));
+  box-shadow: var(--shadow-surface-active);
+  border-color: var(--border-active);
+}
+
+/* --- Floating / elevated tier (summary blocks) --- */
+
+.cart-panel-summary,
+.reviews-summary-card {
+  box-shadow: var(--shadow-surface-floating);
+}
+
+/* ============================================================
+   T5.5 — Final QA consolidation & gap closure
+   Closes remaining storefront surface gaps for Pearl Theme v1.0 freeze.
+   Visual overrides only. globals.css legacy blocks retained (still referenced).
+   ============================================================ */
+
+/* --- Section shells (remaining) --- */
+
+.checkout-section,
+#checkout.checkout-section {
+  background: var(--surface-4);
+}
+
+/* --- Checkout surfaces (visual only) --- */
+
+.checkout-form-card,
+.checkout-summary,
+.checkout-item,
+.checkout-empty-state,
+.delivery-zone-card {
+  background: var(--surface-glass-fill), var(--surface-glass);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-surface-default);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+  transition: var(--surface-transition);
+}
+
+.checkout-form-card {
+  border-color: var(--border-glass);
+  border-radius: var(--radius-xl);
+  backdrop-filter: var(--glass-medium);
+  -webkit-backdrop-filter: var(--glass-medium);
+}
+
+.checkout-summary {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-surface-floating);
+}
+
+.checkout-item,
+.checkout-empty-state,
+.delivery-zone-card {
+  border-radius: var(--radius-lg);
+}
+
+.checkout-empty-icon {
+  background: var(--surface-glass-fill), var(--surface-2);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-soft), var(--surface-inset-highlight);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+}
+
+/* --- My Orders (card surfaces, not logic) --- */
+
+.my-order-card,
+.my-order-card-premium {
+  background: var(--surface-glass-fill), var(--surface-glass);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-surface-default);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+  transition: var(--surface-transition);
+}
+
+.my-order-card-premium .my-order-details div {
+  background: var(--surface-glass-fill), var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-soft);
+  transition: var(--surface-transition);
+}
+
+/* --- Catalog collection / category surfaces --- */
+
+.smart-catalog-group,
+.catalog-category-card {
+  background: var(--surface-glass-fill), var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-surface-default);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+  transition: var(--surface-transition);
+}
+
+.catalog-v11-chip:not(.is-active) {
+  background: var(--surface-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-soft);
+  transition: var(--surface-transition);
+}
+
+/* --- Nested home/card surfaces --- */
+
+.bouquet-info {
+  background: var(--surface-glass-fill), var(--surface-1);
+  border-top: 1px solid var(--border-soft);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: var(--surface-transition);
+}
+
+.reviews-score,
+.reviews-count-card {
+  background: var(--surface-glass-fill), var(--surface-glass);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: var(--glass-light);
+  -webkit-backdrop-filter: var(--glass-light);
+  transition: var(--surface-transition);
+}
+
+/* --- T5.5 elevation pass (new surfaces) --- */
+
+.checkout-form-card,
+.checkout-summary,
+.checkout-item,
+.checkout-empty-state,
+.delivery-zone-card,
+.my-order-card,
+.my-order-card-premium,
+.smart-catalog-group,
+.catalog-category-card,
+.reviews-score,
+.reviews-count-card {
+  box-shadow: var(--shadow-surface-default);
+}
+
+.checkout-summary {
+  box-shadow: var(--shadow-surface-floating);
+}
+
+/* ============================================================
+   Pearl Theme v1.0 — SURFACE FREEZE MARKER
+   Storefront surface system complete through T5.5.
+   Next: T6 — Premium Motion System (globals legacy cleanup deferred).
+   ============================================================ */

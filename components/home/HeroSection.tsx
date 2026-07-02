@@ -26,7 +26,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
           className={`buy-button hero-order-link ${styles.primaryAction}`}
           onClick={onOrderBouquet}
         >
-          Заказать букет
+          Выбрать букет
         </button>
       </div>
     </main>

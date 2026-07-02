@@ -1,0 +1,217 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Traffic ETA assistant styles
+Назначение (RU): Стили ассистента ETA с пробками
+================================================== */
+.trafficEtaSection {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 244, 0.9), rgba(255, 255, 255, 0.96)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.trafficEtaHeader {
+  display: grid;
+  gap: 6px;
+}
+
+.trafficEtaHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.trafficEtaMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.trafficEtaActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.refreshTrafficButton {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(242, 169, 59, 0.35);
+  border-radius: 12px;
+  background: rgba(242, 169, 59, 0.12);
+  color: #9a6400;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.refreshTrafficButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.trafficEtaNotice {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(88, 166, 120, 0.28);
+  border-radius: 12px;
+  background: rgba(88, 166, 120, 0.12);
+  color: #2f6b45;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.trafficEtaWarning {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(242, 169, 59, 0.35);
+  border-radius: 12px;
+  background: rgba(242, 169, 59, 0.12);
+  color: #7a4d00;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.trafficEtaEmpty {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.trafficEtaList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trafficEtaItem {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.trafficEtaItemTop {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.legendSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+  flex-shrink: 0;
+}
+
+.trafficEtaItemTop strong {
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.delayLevelBadge,
+.cacheBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.delayLevelNone {
+  background: rgba(154, 160, 166, 0.2);
+  color: #5f6368;
+}
+
+.delayLevelLow {
+  background: rgba(74, 144, 217, 0.16);
+  color: #245f9a;
+}
+
+.delayLevelMedium {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.delayLevelHigh {
+  background: rgba(142, 32, 32, 0.14);
+  color: #8e2020;
+}
+
+.cacheBadge {
+  background: rgba(74, 144, 217, 0.16);
+  color: #245f9a;
+}
+
+.trafficEtaMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.trafficEtaMetrics div {
+  display: grid;
+  gap: 2px;
+}
+
+.trafficEtaMetrics span {
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.trafficEtaMetrics strong {
+  color: var(--bf-text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.localFallbackNote {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.warningList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.warningList li {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(242, 169, 59, 0.1);
+  color: #7a4d00;
+  font-size: 12px;
+  font-weight: 700;
+}

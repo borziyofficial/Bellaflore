@@ -1,0 +1,146 @@
+/* ==================================================
+SECTION: Pearl Theme — Foundation Layer
+РАЗДЕЛ: Pearl Theme — базовый слой
+
+Purpose (EN): Visual design tokens and main-UI button styling. Checkout selectors are intentionally excluded.
+
+Назначение (RU): Визуальные design-токены и стили основных кнопок UI. Селекторы checkout намеренно исключены.
+================================================== */
+
+:root {
+  --background: #f3f2f0;
+  --surface: #fafafa;
+  --surface-glass: rgba(252, 251, 249, 0.88);
+  --border: rgba(186, 184, 180, 0.38);
+
+  /* Strong premium neutrals — solid, no opacity washes */
+  --text-strong: #1c1b19;
+  --text-main: #282726;
+  --text-secondary: #3a3836;
+  --text-label: #484542;
+  --text-muted: #484542;
+  --text-accent: #5a4e42;
+
+  /* Contacts — solid readable stack (Fix 2.0) */
+  --text-contact-heading: #121110;
+  --text-contact-body: #181716;
+  --text-contact-label: #3a3836;
+
+  /* Legacy readable aliases → strong stack */
+  --text-readable-primary: var(--text-strong);
+  --text-readable-secondary: var(--text-main);
+  --text-readable-label: var(--text-label);
+  --text-readable-meta: var(--text-secondary);
+  --text-readable-accent: var(--text-accent);
+
+  --button-bg: linear-gradient(180deg, #f2f1ef 0%, #e6e4e1 100%);
+  --button-bg-hover: linear-gradient(180deg, #f7f6f4 0%, #ebe9e6 100%);
+  --button-text: var(--text-strong);
+  --shadow-soft: 0 8px 24px rgba(45, 44, 42, 0.06);
+  --shadow-card: 0 16px 40px rgba(45, 44, 42, 0.08);
+
+  --bf-bg: var(--background);
+  --bf-surface: var(--surface);
+  --bf-surface-soft: #f5f4f2;
+  --bf-text: var(--text-main);
+  --bf-text-secondary: var(--text-secondary);
+  --bf-muted: var(--text-secondary);
+  --bf-heading: var(--text-strong);
+  --bf-border: var(--border);
+  --bf-card: var(--surface);
+  --bf-shadow: var(--shadow-card);
+  --bf-shadow-soft: var(--shadow-soft);
+  --bf-type-heading: var(--text-strong);
+  --bf-type-body: var(--text-main);
+  --bf-type-secondary: var(--text-secondary);
+  --bf-type-muted: var(--text-label);
+  --champagne-background: var(--background);
+  --champagne-section: var(--background);
+  --champagne-card: var(--surface);
+  --champagne-text: var(--text-main);
+  --champagne-muted: var(--text-secondary);
+  --champagne-border: var(--border);
+  --champagne-shadow: var(--shadow-card);
+  --champagne-shadow-soft: var(--shadow-soft);
+  --champagne-gold: var(--text-label);
+  --champagne-gold-hover: var(--text-strong);
+  --bf-gold-accent: var(--text-label);
+  --bf-champagne: var(--text-label);
+  --glass-surface: var(--surface-glass);
+  --glass-border: var(--border);
+  --glass-gold-line: rgba(186, 184, 180, 0.24);
+  --glass-gold-glow: rgba(230, 228, 225, 0.32);
+  --glass-border-warm: rgba(186, 184, 180, 0.22);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --background: #f3f2f0;
+    --surface: #fafafa;
+    --surface-glass: rgba(252, 251, 249, 0.9);
+    --border: rgba(186, 184, 180, 0.38);
+    --text-strong: #1c1b19;
+    --text-main: #282726;
+    --text-secondary: #3a3836;
+    --text-label: #484542;
+    --text-muted: #484542;
+    --text-contact-heading: #121110;
+    --text-contact-body: #181716;
+    --text-contact-label: #3a3836;
+    --bf-bg: var(--background);
+    --bf-surface: var(--surface);
+    --bf-text: var(--text-contact-body);
+    --champagne-text: var(--text-contact-body);
+    --champagne-muted: var(--text-contact-label);
+    --bf-champagne: var(--text-label);
+    --champagne-gold: var(--text-label);
+  }
+}
+
+/* Main UI action buttons — pearl gray (checkout submit excluded) */
+.buy-button:not(.checkout-submit-button),
+.bouquet-order-link,
+.hero-order-link.buy-button,
+a.hero-order-link:not(.checkout-submit-button),
+.favorites-buy-button,
+.my-order-empty-button,
+.luxury-catalog-buy-button,
+.catalog-placeholder-button,
+.search-order-button,
+.review-submit-button,
+.cart-checkout-button {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  text-shadow: none;
+}
+
+.buy-button:not(.checkout-submit-button):hover,
+.bouquet-order-link:hover,
+.hero-order-link.buy-button:hover,
+a.hero-order-link:not(.checkout-submit-button):hover,
+.favorites-buy-button:hover,
+.my-order-empty-button:hover,
+.luxury-catalog-buy-button:hover,
+.catalog-placeholder-button:hover,
+.search-order-button:hover,
+.review-submit-button:hover,
+.cart-checkout-button:hover {
+  background: var(--button-bg-hover);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+}
+
+.mobile-bottom-nav-primary,
+.mobile-bottom-nav .mobile-bottom-nav-primary {
+  color: var(--button-text);
+  border-color: var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(245, 244, 242, 0.48)),
+    var(--button-bg);
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.nav-center a:hover {
+  color: var(--text-secondary);
+}

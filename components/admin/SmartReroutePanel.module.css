@@ -1,0 +1,237 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Smart reroute panel styles
+Назначение (RU): Стили панели умного перенаправления
+================================================== */
+.panelSection {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 244, 0.9), rgba(255, 255, 255, 0.96)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.panelHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.panelHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.panelMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filterButton {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.filterButtonActive {
+  border-color: rgba(74, 144, 217, 0.35);
+  background: rgba(74, 144, 217, 0.12);
+  color: #245f9a;
+}
+
+.suggestionList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestionCard {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.suggestionTop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.priorityBadge,
+.typeBadge,
+.confidenceBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.priorityCritical {
+  background: rgba(142, 32, 32, 0.14);
+  color: #8e2020;
+}
+
+.priorityHigh {
+  background: rgba(217, 48, 37, 0.14);
+  color: #b42318;
+}
+
+.priorityMedium {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.priorityLow {
+  background: rgba(154, 160, 166, 0.2);
+  color: #5f6368;
+}
+
+.typeBadge {
+  background: rgba(74, 144, 217, 0.12);
+  color: #245f9a;
+  text-transform: none;
+}
+
+.confidenceBadge {
+  background: rgba(88, 166, 120, 0.14);
+  color: #2f6b45;
+  text-transform: none;
+}
+
+.suggestionTitle {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.suggestionReason {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.suggestionMeta {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.suggestionMeta div {
+  display: grid;
+  gap: 2px;
+}
+
+.suggestionMeta dt {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.suggestionMeta dd {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.detailsPanel,
+.previewPanel {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.detailsText,
+.previewText {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.previewLabel {
+  margin: 0 0 4px;
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.suggestionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestionActions button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 10px;
+  background: var(--bf-surface);
+  color: var(--bf-heading);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.dismissButton {
+  border-color: rgba(154, 160, 166, 0.35) !important;
+  color: var(--bf-text-secondary) !important;
+}
+
+.emptyState {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.generatedAt {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 700;
+}

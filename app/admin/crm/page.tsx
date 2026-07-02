@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: Admin — CRM Customers Page
+// РАЗДЕЛ: Admin — страница CRM-клиентов
+//
+// Purpose (EN): Protected admin CRM view — aggregates backend orders into customer profiles by phone number.
+//
+// Назначение (RU): Защищённый CRM admin — агрегирует backend-заказы в профили клиентов по номеру телефона.
+// ==================================================
+
 "use client";
 
 import Link from "next/link";

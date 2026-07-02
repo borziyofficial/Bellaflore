@@ -1,0 +1,161 @@
+.hub {
+  display: grid;
+  gap: 6px;
+  min-height: 0;
+}
+
+.menu {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+}
+
+.menuRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 0.5px solid rgba(255, 244, 220, 0.36);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.34);
+  color: #2f2a24;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menuRow:active {
+  transform: scale(0.99);
+  background: rgba(234, 214, 214, 0.2);
+}
+
+.menuRowLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.menuRowHint {
+  flex-shrink: 0;
+  max-width: 42%;
+  color: #75695c;
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.section {
+  display: grid;
+  gap: 6px;
+  min-height: 0;
+}
+
+.sectionExpanded {
+  min-height: 0;
+}
+
+.sectionHeader {
+  display: grid;
+  gap: 3px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding-bottom: 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 253, 248, 0.98) 78%,
+    rgba(255, 253, 248, 0)
+  );
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 0.5px solid rgba(255, 244, 220, 0.42);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.48);
+  color: #3d3630;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.backButton:active {
+  transform: scale(0.98);
+  background: rgba(234, 214, 214, 0.22);
+}
+
+.backButtonIcon {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.backButtonLabel {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: #2f2a24;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.sectionBody {
+  min-height: 0;
+}
+
+.closeRow {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 0.5px solid rgba(255, 244, 220, 0.36);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.32);
+  color: #2f2a24;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.closeRow:active {
+  transform: scale(0.98);
+  background: rgba(234, 214, 214, 0.18);
+}
+
+@media (max-width: 768px) {
+  .hub {
+    gap: 5px;
+  }
+
+  .menuRow {
+    min-height: 34px;
+    padding: 7px 9px;
+  }
+
+  .menuRowLabel {
+    font-size: 11px;
+  }
+
+  .backButton {
+    min-height: 38px;
+    padding: 7px 12px;
+  }
+}

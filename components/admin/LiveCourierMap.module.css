@@ -1,0 +1,326 @@
+/* ==================================================
+SECTION: MAP
+РАЗДЕЛ: Карта
+Purpose (EN): Live courier map marker and control styles
+Назначение (RU): Стили карты живых курьеров
+================================================== */
+.liveCourierControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.liveCourierControlToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.liveCourierControlField {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.liveCourierControlField select {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--bf-border);
+  border-radius: 10px;
+  background: var(--bf-surface);
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.liveCourierControlField select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.liveCourierRefreshButton {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  border-radius: 10px;
+  background: rgba(74, 144, 217, 0.12);
+  color: #245f9a;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.liveCourierRefreshMeta {
+  margin: 0;
+  flex-basis: 100%;
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.liveCourierSection {
+  display: grid;
+  gap: 12px;
+}
+
+.liveCourierHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.liveCourierHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.liveCourierMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.liveCourierSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+.liveCourierSummaryCard {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.liveCourierSummaryCard span {
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.liveCourierSummaryCard strong {
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.liveCourierLegendRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.liveCourierLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.liveCourierLegendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.liveCourierList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.liveCourierListItem {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.liveCourierListTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.liveCourierColorSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.liveCourierListTop strong {
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.liveCourierBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.liveCourierBadgeOnline {
+  background: rgba(52, 168, 83, 0.16);
+  color: #1e7e34;
+}
+
+.liveCourierBadgeRecent {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.liveCourierBadgeOffline {
+  background: rgba(154, 160, 166, 0.2);
+  color: #5f6368;
+}
+
+.liveCourierBadgeError {
+  background: rgba(217, 48, 37, 0.14);
+  color: #b42318;
+}
+
+.liveCourierListMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.liveCourierEmpty {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.liveCourierMarker {
+  cursor: pointer;
+}
+
+.liveCourierMarkerSelected .liveCourierMarkerRing {
+  stroke: rgba(20, 28, 40, 0.85);
+  stroke-width: 2.5;
+}
+
+.liveCourierMarkerBody {
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 2;
+}
+
+.liveCourierMarkerRing {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.liveCourierMarkerBadge {
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
+.liveCourierMarkerLabel {
+  fill: rgba(20, 28, 40, 0.92);
+  font-size: 10px;
+  font-weight: 800;
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.liveCourierMarkerMeta {
+  fill: rgba(80, 96, 120, 0.92);
+  font-size: 9px;
+  font-weight: 700;
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.liveCourierPopup {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+  width: min(320px, calc(100% - 24px));
+  padding: 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--bf-shadow-soft);
+  pointer-events: none;
+}
+
+.liveCourierPopupHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.liveCourierPopupList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.liveCourierPopupList div {
+  display: grid;
+  gap: 2px;
+}
+
+.liveCourierPopupList dt {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.liveCourierPopupList dd {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}

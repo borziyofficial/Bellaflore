@@ -1,5 +1,31 @@
+// ==================================================
+// SECTION: APP LIB
+// РАЗДЕЛ: Библиотека приложения
+//
+// Purpose (EN): Shared server-side utilities used by app routes and pages.
+//
+// Назначение (RU): Общие серверные утилиты для маршрутов и страниц приложения.
+// ==================================================
+// ==================================================
+// SECTION: Reviews Domain Types & Helpers
+// РАЗДЕЛ: Домен отзывов — типы и хелперы
+//
+// Purpose (EN): Review submission types, moderation status, and in-memory review store helpers for the storefront.
+//
+// Назначение (RU): Типы отправки отзывов, статус модерации и in-memory хелперы хранилища отзывов для витрины.
+// ==================================================
+
 export type ReviewRating = 1 | 2 | 3 | 4 | 5;
 
+
+// ==================================================
+// SECTION: TYPES
+// РАЗДЕЛ: Типы
+//
+// Purpose (EN): Exported type and interface definitions.
+//
+// Назначение (RU): Экспортируемые типы и интерфейсы.
+// ==================================================
 export type ReviewModerationStatus = "pending" | "approved" | "rejected";
 
 export type ReviewPhoto = {
@@ -38,6 +64,15 @@ export type ReviewValidationResult = {
   errors: string[];
 };
 
+
+// ==================================================
+// SECTION: API
+// РАЗДЕЛ: Публичный API
+//
+// Purpose (EN): Public exported functions and constants.
+//
+// Назначение (RU): Публичные экспортируемые функции и константы.
+// ==================================================
 export const reviewModerationStatusLabels: Record<
   ReviewModerationStatus,
   string

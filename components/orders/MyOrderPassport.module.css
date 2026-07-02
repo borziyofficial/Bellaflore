@@ -1,0 +1,146 @@
+.sectionTitle {
+  margin: 0;
+  padding: 10px 12px 6px;
+  color: #3d3630;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.trackingNote {
+  margin: 0;
+  padding: 8px 12px 10px;
+  color: #75695c;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.passport {
+  display: grid;
+  gap: 0;
+  border: 0.5px solid rgba(255, 244, 220, 0.42);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.72), rgba(255, 253, 248, 0.48)),
+    rgba(253, 251, 247, 0.36);
+  box-shadow:
+    0 8px 22px rgba(9, 8, 7, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 9px 12px;
+  border-bottom: 0.5px solid rgba(255, 244, 220, 0.28);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.label {
+  color: #75695c;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.value {
+  color: #2f2a24;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: right;
+  word-break: break-word;
+}
+
+.totalRow {
+  background: rgba(234, 214, 214, 0.12);
+}
+
+.totalValue {
+  color: #2f2a24;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.empty {
+  display: grid;
+  gap: 10px;
+  padding: 16px 14px;
+  border: 0.5px solid rgba(255, 244, 220, 0.42);
+  border-radius: 16px;
+  background: rgba(255, 253, 248, 0.52);
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0;
+  color: #2f2a24;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.emptyCopy {
+  margin: 0;
+  color: #75695c;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.emptyActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.emptyButton {
+  min-height: 40px;
+  padding: 10px 12px;
+  border: 0.5px solid rgba(255, 244, 220, 0.42);
+  border-radius: 999px;
+  background: rgba(234, 214, 214, 0.22);
+  color: #2f2a24;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.emptyButtonSecondary {
+  background: rgba(255, 255, 255, 0.42);
+}
+
+@media (max-width: 768px) {
+  .label {
+    font-size: 10px;
+  }
+
+  .value,
+  .totalValue {
+    font-size: 11px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding: 8px 12px;
+  }
+
+  .value,
+  .totalValue {
+    text-align: left;
+  }
+}

@@ -1,3 +1,82 @@
+.checkoutV2Card {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.checkoutV2Flow {
+  display: grid;
+  gap: 14px;
+}
+
+.checkoutV2Block {
+  display: grid;
+  gap: 12px;
+  padding: 18px 16px;
+  border: 0.5px solid var(--bf-ui-border, rgba(176, 141, 87, 0.18));
+  border-radius: 20px;
+  background: var(--bf-ui-surface-soft, rgba(255, 255, 255, 0.42));
+}
+
+.checkoutV2BlockTitle {
+  margin: 0;
+  color: var(--champagne-text, #2f2a24);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.checkoutV2TodayBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 0.5px solid rgba(155, 112, 118, 0.28);
+  background: rgba(234, 214, 214, 0.22);
+  color: var(--champagne-text, #2f2a24);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.checkoutV2Summary {
+  gap: 14px;
+}
+
+.checkoutV2SummaryRows {
+  display: grid;
+  gap: 10px;
+}
+
+.checkoutV2SummaryRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--champagne-text, #2f2a24);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.checkoutV2SummaryRow strong {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.checkoutV2SummaryTotal {
+  padding-top: 10px;
+  border-top: 1px solid rgba(176, 141, 87, 0.14);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.checkoutV2SummaryTotal strong {
+  font-size: 18px;
+}
+
 .checkoutPaymentInfo {
   display: grid;
   gap: 12px;

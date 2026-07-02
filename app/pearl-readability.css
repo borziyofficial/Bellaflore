@@ -1,0 +1,409 @@
+/* ==================================================
+SECTION: Pearl Readability — Final Contrast Layer
+РАЗДЕЛ: Pearl Readability — финальный слой контраста
+
+Purpose (EN): Final contrast fixes for Contacts, Reviews, Checkout, and Order Summary. Solid premium neutrals only.
+
+Назначение (RU): Финальные правки контраста для Contacts, Reviews, Checkout и Order Summary. Только solid premium-нейтрали.
+================================================== */
+
+/* --- Shared section chrome --- */
+
+.reviews-section .section-header span,
+#contact .section-header span,
+#checkout.checkout-section .checkout-card-header span,
+.checkout-section#checkout .checkout-card-header span {
+  color: var(--text-label);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+.reviews-section .section-header h2,
+#contact .section-header h2,
+#checkout.checkout-section .checkout-card-header h3,
+.checkout-section#checkout .checkout-card-header h3 {
+  color: var(--text-strong);
+  font-weight: var(--weight-heading);
+  text-shadow: none;
+  opacity: 1;
+}
+
+/* --- Reviews --- */
+
+.reviews-section .reviews-demo-note {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: var(--weight-body);
+  line-height: var(--leading-normal);
+  opacity: 1;
+}
+
+.reviews-section .reviews-score span,
+.reviews-section .reviews-count-card span,
+.reviews-section .review-form-header span,
+.reviews-section .review-field > span,
+.reviews-section .review-card-header span:not(.review-demo-badge) {
+  color: var(--text-label);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+.reviews-section .reviews-score strong,
+.reviews-section .reviews-count-card strong {
+  color: var(--text-strong);
+  font-weight: var(--weight-heading);
+  opacity: 1;
+}
+
+.reviews-section .review-form-header h3,
+.reviews-section .review-card-header h3 {
+  color: var(--text-strong);
+  font-weight: var(--weight-heading);
+  opacity: 1;
+}
+
+.reviews-section .reviews-count-card p,
+.reviews-section .review-card p,
+.reviews-section .reviews-empty,
+.reviews-section .review-form-message {
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: var(--weight-body);
+  line-height: var(--leading-relaxed);
+  opacity: 1;
+}
+
+.reviews-section .reviews-score p {
+  color: var(--text-accent);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+.reviews-section .review-card-header strong {
+  color: var(--text-accent);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+.reviews-section .review-demo-badge {
+  color: var(--text-label);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+.reviews-section .review-field > input,
+.reviews-section .review-field > textarea {
+  color: var(--text-strong);
+  -webkit-text-fill-color: var(--text-strong);
+  font-weight: var(--weight-body);
+  opacity: 1;
+}
+
+.reviews-section .review-field > input::placeholder,
+.reviews-section .review-field > textarea::placeholder {
+  color: #5f5c58;
+  opacity: 1;
+  -webkit-text-fill-color: #5f5c58;
+}
+
+/* Rating stars — see pearl-mobile-qa.css */
+
+/* --- Contact (Fix 2.0 — solid premium neutrals) --- */
+
+#contact .section-header h2 {
+  color: var(--text-contact-heading);
+  font-weight: var(--weight-heading);
+  text-shadow: none;
+  opacity: 1;
+}
+
+#contact .section-header span {
+  color: var(--text-contact-label);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+#contact .contact-intro {
+  color: var(--text-contact-body);
+  font-weight: 600;
+  line-height: var(--leading-relaxed);
+  opacity: 1;
+}
+
+#contact .contact-link {
+  color: var(--text-contact-body);
+  font-weight: 600;
+  line-height: var(--leading-relaxed);
+  opacity: 1;
+}
+
+#contact .contact-link span {
+  color: var(--text-contact-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  opacity: 1;
+}
+
+/* --- Checkout form + Order Summary --- */
+
+#checkout.checkout-section .checkout-field > span,
+.checkout-section#checkout .checkout-field > span,
+#checkout.checkout-section .checkout-choice-group > span,
+.checkout-section#checkout .checkout-choice-group > span,
+#checkout.checkout-section .checkout-choice-group.checkout-dropdown-group > span,
+.checkout-section#checkout .checkout-choice-group.checkout-dropdown-group > span {
+  color: var(--text-strong);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-field > input,
+.checkout-section#checkout .checkout-field > input,
+#checkout.checkout-section .checkout-field > textarea,
+.checkout-section#checkout .checkout-field > textarea {
+  color: var(--text-strong);
+  -webkit-text-fill-color: var(--text-strong);
+  font-weight: var(--weight-body);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-field > input::placeholder,
+.checkout-section#checkout .checkout-field > input::placeholder,
+#checkout.checkout-section .checkout-field > textarea::placeholder,
+.checkout-section#checkout .checkout-field > textarea::placeholder {
+  color: #5f5c58;
+  opacity: 1;
+  -webkit-text-fill-color: #5f5c58;
+}
+
+#checkout.checkout-section .checkout-dropdown-trigger,
+.checkout-section#checkout .checkout-dropdown-trigger,
+#checkout.checkout-section .checkout-dropdown-trigger > span:first-child,
+.checkout-section#checkout .checkout-dropdown-trigger > span:first-child {
+  color: var(--text-strong);
+  font-weight: var(--weight-body);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-choice-button,
+.checkout-section#checkout .checkout-choice-button,
+#checkout.checkout-section .checkout-interval-button,
+.checkout-section#checkout .checkout-interval-button {
+  color: var(--text-main);
+  font-weight: var(--weight-button);
+}
+
+#checkout.checkout-section .checkout-choice-button.selected,
+.checkout-section#checkout .checkout-choice-button.selected,
+#checkout.checkout-section .checkout-interval-button.selected,
+.checkout-section#checkout .checkout-interval-button.selected {
+  color: var(--text-strong);
+}
+
+#checkout.checkout-section .checkout-empty-summary,
+.checkout-section#checkout .checkout-empty-summary,
+#checkout.checkout-section .checkout-note,
+.checkout-section#checkout .checkout-note,
+#checkout.checkout-section .checkout-delivery-alert:not(.checkout-delivery-alert-error),
+.checkout-section#checkout .checkout-delivery-alert:not(.checkout-delivery-alert-error) {
+  color: var(--text-secondary);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-normal);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-item strong,
+.checkout-section#checkout .checkout-item strong,
+#checkout.checkout-section .checkout-empty-title,
+.checkout-section#checkout .checkout-empty-title {
+  color: var(--text-strong);
+  font-weight: var(--weight-heading);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-item span,
+.checkout-section#checkout .checkout-item span,
+#checkout.checkout-section .checkout-empty-copy,
+.checkout-section#checkout .checkout-empty-copy {
+  color: var(--text-main);
+  font-size: 0.9375rem;
+  font-weight: var(--weight-body);
+  line-height: var(--leading-normal);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-item dt,
+.checkout-section#checkout .checkout-item dt,
+#checkout.checkout-section .checkout-total-row span,
+.checkout-section#checkout .checkout-total-row span,
+#checkout.checkout-section .checkout-submit-row span,
+.checkout-section#checkout .checkout-submit-row span {
+  color: var(--text-secondary);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-item dd,
+.checkout-section#checkout .checkout-item dd,
+#checkout.checkout-section .checkout-total-row strong,
+.checkout-section#checkout .checkout-total-row strong,
+#checkout.checkout-section .checkout-submit-row strong,
+.checkout-section#checkout .checkout-submit-row strong {
+  color: var(--text-strong);
+  font-weight: var(--weight-price);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-success p,
+.checkout-section#checkout .checkout-success p {
+  color: var(--text-main);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-normal);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-success strong,
+.checkout-section#checkout .checkout-success strong {
+  color: var(--text-strong);
+  font-weight: var(--weight-heading);
+  opacity: 1;
+}
+
+/* Order preview (checkout summary companion) */
+
+#checkout.checkout-section .checkout-preview-item strong,
+.checkout-section#checkout .checkout-preview-item strong,
+#checkout.checkout-section .checkout-preview-details dd,
+.checkout-section#checkout .checkout-preview-details dd,
+#checkout.checkout-section .checkout-preview-comment p,
+.checkout-section#checkout .checkout-preview-comment p {
+  color: var(--text-strong);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+#checkout.checkout-section .checkout-preview-item span,
+.checkout-section#checkout .checkout-preview-item span,
+#checkout.checkout-section .checkout-preview-details dt,
+.checkout-section#checkout .checkout-preview-details dt,
+#checkout.checkout-section .checkout-preview-comment span,
+.checkout-section#checkout .checkout-preview-comment span,
+#checkout.checkout-section .checkout-preview-empty,
+.checkout-section#checkout .checkout-preview-empty {
+  color: var(--text-main);
+  font-weight: var(--weight-body);
+  opacity: 1;
+}
+
+/* Delivery zone + validation (checkout) */
+
+#checkout.checkout-section .delivery-zone-info > span,
+.checkout-section#checkout .delivery-zone-info > span {
+  color: var(--text-label);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+#checkout.checkout-section .delivery-zone-info h4,
+.checkout-section#checkout .delivery-zone-info h4 {
+  color: var(--text-strong);
+  font-weight: var(--weight-heading);
+  opacity: 1;
+}
+
+#checkout.checkout-section .delivery-zone-info dt,
+.checkout-section#checkout .delivery-zone-info dt {
+  color: var(--text-secondary);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+#checkout.checkout-section .delivery-zone-info dd,
+.checkout-section#checkout .delivery-zone-info dd {
+  color: var(--text-strong);
+  font-weight: var(--weight-label);
+  opacity: 1;
+}
+
+#checkout.checkout-section .delivery-zone-status-unknown,
+.checkout-section#checkout .delivery-zone-status-unknown,
+#checkout.checkout-section .delivery-zone-warnings,
+.checkout-section#checkout .delivery-zone-warnings,
+#checkout.checkout-section .delivery-zone-live-preview,
+.checkout-section#checkout .delivery-zone-live-preview,
+#checkout.checkout-section .delivery-zone-preview-awaiting,
+.checkout-section#checkout .delivery-zone-preview-awaiting,
+#checkout.checkout-section .delivery-zone-prompt,
+.checkout-section#checkout .delivery-zone-prompt,
+#checkout.checkout-section .delivery-zone-summary,
+.checkout-section#checkout .delivery-zone-summary {
+  color: var(--text-main);
+  font-weight: var(--weight-body);
+  opacity: 1;
+}
+
+/* --- Mobile: kill legacy dark-theme text on pearl light surfaces --- */
+
+@media (max-width: 768px) {
+  #contact .contact-card {
+    color: var(--text-contact-body);
+    opacity: 1;
+  }
+
+  #contact .contact-intro,
+  #contact .contact-link {
+    color: var(--text-contact-body);
+    font-weight: 600;
+    -webkit-text-fill-color: var(--text-contact-body);
+    opacity: 1;
+  }
+
+  #contact .section-header h2 {
+    color: var(--text-contact-heading);
+    opacity: 1;
+  }
+
+  #contact .section-header span,
+  #contact .contact-link span {
+    color: var(--text-contact-label);
+    font-weight: 600;
+    opacity: 1;
+  }
+
+  .reviews-section .reviews-demo-note,
+  .reviews-section .review-card p,
+  .reviews-section .reviews-empty,
+  .reviews-section .review-form-message,
+  .reviews-section .reviews-count-card p,
+  .reviews-section .review-field > input,
+  .reviews-section .review-field > textarea,
+  #checkout.checkout-section .checkout-item span,
+  .checkout-section#checkout .checkout-item span,
+  #checkout.checkout-section .checkout-empty-copy,
+  .checkout-section#checkout .checkout-empty-copy {
+    color: var(--text-main);
+    -webkit-text-fill-color: var(--text-main);
+    opacity: 1;
+  }
+
+  .reviews-section .section-header h2,
+  .reviews-section .review-card-header h3,
+  .reviews-section .review-form-header h3,
+  #checkout.checkout-section .checkout-card-header h3,
+  .checkout-section#checkout .checkout-card-header h3,
+  #checkout.checkout-section .checkout-item strong,
+  .checkout-section#checkout .checkout-item strong {
+    color: var(--text-strong);
+    opacity: 1;
+  }
+
+  .reviews-section .reviews-score span,
+  .reviews-section .reviews-count-card span,
+  .reviews-section .review-form-header span,
+  .reviews-section .review-card-header span:not(.review-demo-badge),
+  #checkout.checkout-section .checkout-card-header span,
+  .checkout-section#checkout .checkout-card-header span {
+    color: var(--text-label);
+    opacity: 1;
+  }
+}

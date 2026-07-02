@@ -1,0 +1,246 @@
+/* Production Yandex delivery map */
+.deliveryZoneMapShell {
+  display: grid;
+  gap: 10px;
+}
+
+.deliveryZoneMapShellCheckout {
+  gap: 8px;
+}
+
+.deliveryZoneMapFrame {
+  position: relative;
+  overflow: hidden;
+  min-height: 240px;
+  border: 1px solid rgba(176, 141, 87, 0.12);
+  border-radius: 16px;
+  background: #eef1f4;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.checkoutMapFrame {
+  height: 220px;
+  min-height: 200px;
+  max-height: 260px;
+}
+
+.homeMapFrame {
+  min-height: 320px;
+  height: 360px;
+  max-height: 420px;
+}
+
+.homeMapFrame .yandexMapContainer {
+  height: 100%;
+  min-height: 280px;
+}
+
+.adminMapFrame {
+  min-height: 320px;
+  height: 380px;
+}
+
+.yandexMapContainer {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  touch-action: pan-x pan-y pinch-zoom;
+}
+
+.yandexMapOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(238, 241, 244, 0.72);
+  pointer-events: none;
+}
+
+.yandexMapOverlayError {
+  pointer-events: auto;
+  padding: 12px;
+  align-content: center;
+}
+
+.mapLoadErrorWrap,
+.mapLoadErrorWrapCompact {
+  display: grid;
+  gap: 6px;
+  width: min(100%, 320px);
+}
+
+.mapLoadErrorDetail,
+.mapLoadErrorDetailCompact {
+  margin: 0;
+  color: #9a3412;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.mapLoadErrorDetailCompact {
+  font-size: 10px;
+  text-align: left;
+}
+
+.mapLoadError {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(176, 141, 87, 0.2);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--champagne-muted, #75695c);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.mapLoadErrorCompact,
+.mapLoadError.mapLoadErrorCompact {
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
+  box-shadow: none;
+}
+
+.mapRevealHost {
+  animation: mapRevealIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes mapRevealIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.mapExpandGate {
+  display: grid;
+  gap: 10px;
+}
+
+.mapExpandRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid rgba(176, 141, 87, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+}
+
+.mapExpandIcon {
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.deliverySelectionCard {
+  padding: 12px 14px;
+  border: 1px solid rgba(212, 176, 106, 0.32);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04)),
+    rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 24px rgba(9, 8, 7, 0.1);
+}
+
+.deliverySelectionCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.deliverySelectionCardHeaderOk {
+  color: #34a853;
+}
+
+.deliverySelectionCardHeaderWarn {
+  color: #e57373;
+}
+
+.deliverySelectionCheck {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+.deliverySelectionCardHeaderOk .deliverySelectionCheck {
+  background: rgba(52, 165, 83, 0.16);
+  color: #34a853;
+}
+
+.deliverySelectionCardHeaderWarn .deliverySelectionCheck {
+  background: rgba(229, 115, 115, 0.16);
+  color: #e57373;
+}
+
+.deliverySelectionRows {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.deliverySelectionRow {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+.deliverySelectionRow dt {
+  margin: 0;
+  color: var(--champagne-muted, #94a3b8);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.deliverySelectionRow dd {
+  margin: 0;
+  color: var(--champagne-text, #f8fafc);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .checkoutMapFrame {
+    height: 210px;
+    min-height: 190px;
+  }
+
+  .homeMapFrame {
+    min-height: 280px;
+    height: 300px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapRevealHost {
+    animation: none;
+  }
+}

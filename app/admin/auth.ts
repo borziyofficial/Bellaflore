@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: Admin — Session Auth Helpers
+// РАЗДЕЛ: Admin — хелперы сессионной авторизации
+//
+// Purpose (EN): Client-side admin session storage keys, paths, and read/write helpers for login gate.
+//
+// Назначение (RU): Ключи хранения admin-сессии на клиенте, пути и хелперы чтения/записи для проверки входа.
+// ==================================================
+
 export const ADMIN_SESSION_STORAGE_KEY = "bellaflore.admin.session";
 export const ADMIN_SESSION_VALUE = "authenticated";
 export const ADMIN_LOGIN_PATH = "/admin/login";
@@ -25,3 +34,4 @@ export function storeAdminSession(): void {
     throw new Error("Admin session storage is unavailable.");
   }
 }
+

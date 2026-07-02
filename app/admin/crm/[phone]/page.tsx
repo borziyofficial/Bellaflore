@@ -1,3 +1,12 @@
+// ==================================================
+// SECTION: Admin — CRM Customer Detail (by phone)
+// РАЗДЕЛ: Admin — детали CRM-клиента (по телефону)
+//
+// Purpose (EN): Protected admin CRM detail page for a single customer identified by phone route param.
+//
+// Назначение (RU): Защищённая страница CRM admin с деталями одного клиента по phone-параметру маршрута.
+// ==================================================
+
 "use client";
 
 import Link from "next/link";

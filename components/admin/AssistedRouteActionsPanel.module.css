@@ -1,0 +1,347 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Assisted route actions panel styles
+Назначение (RU): Стили панели действий по маршрутам
+================================================== */
+.panelSection {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 244, 0.9), rgba(255, 255, 255, 0.96)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.panelHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.panelHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.panelMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.toolbarRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filterButton {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.filterButtonActive {
+  border-color: rgba(74, 144, 217, 0.35);
+  background: rgba(74, 144, 217, 0.12);
+  color: #245f9a;
+}
+
+.undoButton {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(242, 169, 59, 0.35);
+  border-radius: 10px;
+  background: rgba(242, 169, 59, 0.12);
+  color: #9a6400;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.undoButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.suggestionList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestionCard {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.suggestionTop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.priorityBadge,
+.typeBadge,
+.confidenceBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.priorityCritical {
+  background: rgba(142, 32, 32, 0.14);
+  color: #8e2020;
+}
+
+.priorityHigh {
+  background: rgba(217, 48, 37, 0.14);
+  color: #b42318;
+}
+
+.priorityMedium {
+  background: rgba(242, 169, 59, 0.18);
+  color: #9a6400;
+}
+
+.priorityLow {
+  background: rgba(154, 160, 166, 0.2);
+  color: #5f6368;
+}
+
+.typeBadge {
+  background: rgba(74, 144, 217, 0.12);
+  color: #245f9a;
+  text-transform: none;
+}
+
+.confidenceBadge {
+  background: rgba(88, 166, 120, 0.14);
+  color: #2f6b45;
+  text-transform: none;
+}
+
+.suggestionTitle {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.suggestionReason {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.previewPanel {
+  display: grid;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.previewLabel {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.previewList,
+.confirmList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.previewList div,
+.confirmList div {
+  display: grid;
+  gap: 2px;
+}
+
+.previewList dt,
+.confirmList dt {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.previewList dd,
+.confirmList dd {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.changeList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--bf-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.confirmationWarning {
+  margin: 0;
+  color: #9a6400;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.confirmBlock {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(217, 48, 37, 0.25);
+  border-radius: 12px;
+  background: rgba(217, 48, 37, 0.06);
+}
+
+.confirmHeading {
+  margin: 0;
+  color: #b42318;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.confirmText {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.blockedReason {
+  margin: 0;
+  color: #b42318;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.confirmActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.confirmActions button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 10px;
+  background: var(--bf-surface);
+  color: var(--bf-heading);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.finalApplyButton {
+  border-color: rgba(217, 48, 37, 0.35) !important;
+  background: rgba(217, 48, 37, 0.12) !important;
+  color: #b42318 !important;
+}
+
+.finalApplyButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.suggestionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestionActions button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 10px;
+  background: var(--bf-surface);
+  color: var(--bf-heading);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.applyButton {
+  border-color: rgba(88, 166, 120, 0.35) !important;
+  background: rgba(88, 166, 120, 0.12) !important;
+  color: #2f6b45 !important;
+}
+
+.applyButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dismissButton {
+  border-color: rgba(154, 160, 166, 0.35) !important;
+  color: var(--bf-text-secondary) !important;
+}
+
+.emptyState {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.generatedAt {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 700;
+}

@@ -1,0 +1,54 @@
+.intelligencePanel {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgba(176, 141, 87, 0.18);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.intelligenceHeadline {
+  margin: 0;
+  color: var(--champagne-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.intelligenceChecklist {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checklistItemDone,
+.checklistItemPending,
+.checklistItemError {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.checklistItemDone {
+  color: var(--champagne-text);
+}
+
+.checklistItemPending {
+  color: var(--champagne-muted);
+}
+
+.checklistItemError {
+  color: #9b4d4d;
+}
+
+.checklistItemDone span:first-child,
+.checklistItemPending span:first-child,
+.checklistItemError span:first-child {
+  color: var(--rose-accent);
+  font-weight: 700;
+}

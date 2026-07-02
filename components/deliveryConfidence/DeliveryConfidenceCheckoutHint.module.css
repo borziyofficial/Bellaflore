@@ -1,0 +1,49 @@
+/* ==================================================
+SECTION: DELIVERY
+РАЗДЕЛ: Доставка
+Purpose (EN): Checkout delivery confidence hint styles
+Назначение (RU): Стили подсказок уверенности доставки
+================================================== */
+/* ==================================================
+SECTION: DELIVERY
+РАЗДЕЛ: Группа подсказок доставки
+Purpose (EN): Hint message group
+Назначение (RU): Группа подсказок доставки
+================================================== */
+.hintGroup {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.hintApplied {
+  color: #15803d;
+}
+
+.hintPending {
+  color: var(--text-secondary);
+}
+
+.hintRestriction {
+  color: #b45309;
+}
+
+.secondaryHint {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .hint {
+    font-size: 0.8rem;
+  }
+}

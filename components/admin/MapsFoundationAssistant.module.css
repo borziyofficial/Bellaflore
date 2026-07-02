@@ -1,0 +1,231 @@
+/* ==================================================
+SECTION: MAP
+РАЗДЕЛ: Карта
+Purpose (EN): Maps foundation assistant styles
+Назначение (RU): Стили ассистента картографической базы
+================================================== */
+.mapsFoundationSection {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 248, 0.72), rgba(255, 255, 255, 0.92)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.mapsFoundationHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.mapsFoundationMeta {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.summaryCard {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+}
+
+.summaryCard span {
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.summaryCard strong {
+  color: var(--bf-heading);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.pointList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pointButton {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.pointButton:hover {
+  border-color: rgba(242, 134, 164, 0.42);
+  box-shadow: var(--bf-shadow-soft);
+  transform: translateY(-1px);
+}
+
+.pointTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pointTop strong {
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.statusFound {
+  background: rgba(88, 166, 120, 0.16);
+  color: #2f6b45;
+}
+
+.statusPending {
+  background: rgba(242, 180, 88, 0.2);
+  color: #8a5a12;
+}
+
+.statusNotFound,
+.statusError {
+  background: rgba(142, 32, 32, 0.14);
+  color: #8e2020;
+}
+
+.statusCached {
+  background: rgba(74, 144, 217, 0.16);
+  color: #245f9a;
+}
+
+.statusBadgeGroup {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.geocodeActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+.geocodeButton {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  border-radius: 12px;
+  background: rgba(74, 144, 217, 0.12);
+  color: #245f9a;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.geocodeButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.geocodeHint {
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.geocodeNotice {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(88, 166, 120, 0.28);
+  border-radius: 12px;
+  background: rgba(88, 166, 120, 0.12);
+  color: #2f6b45;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.geocodeError {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(142, 32, 32, 0.22);
+  border-radius: 12px;
+  background: rgba(142, 32, 32, 0.08);
+  color: #8e2020;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pointMeta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.pointMeta div {
+  display: grid;
+  gap: 2px;
+}
+
+.pointMeta span {
+  color: var(--bf-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pointMeta strong {
+  color: var(--bf-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.emptyState {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}

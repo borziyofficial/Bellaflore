@@ -1,0 +1,100 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Dashboard metrics and card styles
+Назначение (RU): Стили дашборда и карточек метрик
+================================================== */
+.dashboardSection {
+  display: grid;
+  gap: 20px;
+}
+
+.dashboardHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dashboardSummary {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.metricCard {
+  display: grid;
+  gap: 10px;
+  min-height: 132px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 248, 0.72), rgba(255, 255, 255, 0.92)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+  backdrop-filter: blur(10px);
+}
+
+.metricCardLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.metricCardIcon {
+  flex-shrink: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.metricCardValue {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: clamp(24px, 4vw, 30px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.metricCardHint {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .metricsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .metricsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .metricCard {
+    min-height: 140px;
+    padding: 20px;
+  }
+}

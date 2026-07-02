@@ -1,5 +1,22 @@
+// ==================================================
+// SECTION: ORDERS
+// РАЗДЕЛ: Заказы
+//
+// Purpose (EN): Order formatting, lookup, and utility helpers for the app layer.
+//
+// Назначение (RU): Форматирование, поиск и утилиты заказов на уровне приложения.
+// ==================================================
 export type PaymentStatus = "PENDING" | "PAID" | "REFUNDED";
 
+
+// ==================================================
+// SECTION: TYPES
+// РАЗДЕЛ: Типы
+//
+// Purpose (EN): Exported type and interface definitions.
+//
+// Назначение (RU): Экспортируемые типы и интерфейсы.
+// ==================================================
 export type OrderStatus =
   | "NEW"
   | "CONFIRMED"
@@ -46,8 +63,26 @@ export type BackendOrderCreatePayload = {
   created_at: string;
 };
 
+
+// ==================================================
+// SECTION: API
+// РАЗДЕЛ: Публичный API
+//
+// Purpose (EN): Public exported functions and constants.
+//
+// Назначение (RU): Публичные экспортируемые функции и константы.
+// ==================================================
 export const BACKEND_REQUEST_TIMEOUT_MS = 10_000;
 
+
+// ==================================================
+// SECTION: HELPERS
+// РАЗДЕЛ: Вспомогательные функции
+//
+// Purpose (EN): Private helper functions used within this module.
+//
+// Назначение (RU): Приватные вспомогательные функции модуля.
+// ==================================================
 const DEVELOPMENT_BACKEND_API_BASE_URL = "http://127.0.0.1:8000";
 
 export const paymentStatusLabels: Record<PaymentStatus, string> = {

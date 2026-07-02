@@ -162,7 +162,7 @@ export function SeoIntelligenceDashboard({ draft }: SeoIntelligenceDashboardProp
           <article className={styles.previewCard}>
             <p className={styles.previewLabel}>OpenGraph Preview</p>
             <div className={styles.ogPreview}>
-              {mainPhoto ? (
+              {mainPhoto?.objectUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element -- local objectURL */
                 <img
                   src={mainPhoto.objectUrl}

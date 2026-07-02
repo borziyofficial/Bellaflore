@@ -1,0 +1,1398 @@
+/* ==================================================
+SECTION: Pearl Buttons — Token Foundation
+РАЗДЕЛ: Pearl Buttons — базовые токены
+
+Purpose (EN): Button layout, color, and motion tokens plus storefront migration layers. Checkout, orders, admin, and mobile nav excluded.
+
+Назначение (RU): Токены кнопок (layout, цвет, motion) и слои миграции витрины. Checkout, заказы, admin и mobile nav исключены.
+================================================== */
+
+:root {
+  /* --- Layout --- */
+  --button-height: 3.25rem;
+  --button-height-md: 2.75rem;
+  --button-height-sm: 2.25rem;
+  --button-radius: 999px;
+  --button-radius-md: 0.875rem;
+  --button-padding-x: 2.625rem;
+  --button-padding-y: 1.125rem;
+  --button-padding-x-md: 1.5rem;
+  --button-padding-y-md: 0.75rem;
+  --button-padding-x-sm: 0.875rem;
+  --button-padding-y-sm: 0.5rem;
+
+  /* --- Typography (bridge to pearl-typography) --- */
+  --button-font-size: var(--type-button);
+  --button-font-size-sm: var(--type-button-sm);
+  --button-font-weight: var(--weight-button);
+
+  /* --- Motion & elevation --- */
+  --button-transition: transform 0.2s ease, box-shadow 0.2s ease,
+    background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    opacity 0.2s ease;
+  --button-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  --button-shadow-hover: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  --button-shadow-pressed: inset 0 2px 4px rgba(45, 44, 42, 0.08);
+  --button-border: var(--border);
+
+  /* --- Colors (Pearl — canonical in pearl-theme.css) --- */
+  /* --button-bg, --button-bg-hover, --button-text */
+
+  /* --- States --- */
+  --button-disabled: rgba(61, 60, 58, 0.48);
+  --button-disabled-bg: linear-gradient(180deg, #eceae8 0%, #e2e0dd 100%);
+  --button-focus: rgba(186, 184, 180, 0.42);
+  --button-focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--button-focus);
+  --button-loading-opacity: 0.72;
+
+  /* --- Secondary variant --- */
+  --button-secondary-bg: var(--surface-glass);
+  --button-secondary-bg-hover: var(--surface);
+  --button-secondary-text: var(--text-main);
+  --button-secondary-border: var(--border);
+  --button-secondary-shadow: var(--shadow-soft);
+
+  /* --- Ghost variant --- */
+  --button-ghost-bg: transparent;
+  --button-ghost-bg-hover: rgba(250, 250, 250, 0.72);
+  --button-ghost-text: var(--text-main);
+  --button-ghost-text-hover: var(--text-muted);
+  --button-ghost-border: transparent;
+
+  /* --- Icon variant --- */
+  --button-icon-size: 2.5rem;
+  --button-icon-size-lg: 3.25rem;
+  --button-icon-size-sm: 2.125rem;
+  --button-icon-bg: var(--surface-glass);
+  --button-icon-bg-hover: var(--surface);
+  --button-icon-bg-active: rgba(243, 242, 240, 0.92);
+  --button-icon-border: var(--border);
+  --button-icon-text: var(--text-main);
+  --button-icon-shadow: var(--shadow-soft);
+}
+
+/* ==================================================
+SECTION: Pearl Buttons — Foundation Classes
+РАЗДЕЛ: Pearl Buttons — foundation-классы
+
+Purpose (EN): Opt-in semantic button API (.bf-btn) — no JSX migration required yet.
+
+Назначение (RU): Opt-in semantic API кнопок (.bf-btn) — миграция JSX пока не требуется.
+================================================== */
+
+.bf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--button-height);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  border-radius: var(--button-radius);
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: var(--button-shadow);
+  font-family: var(--font-body);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  line-height: var(--leading-snug);
+  text-decoration: none;
+  text-shadow: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.bf-btn--primary {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow);
+}
+
+.bf-btn--primary:hover:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]) {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-bg-hover);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.bf-btn--secondary {
+  min-height: var(--button-height-md);
+  padding: var(--button-padding-y-md) var(--button-padding-x-md);
+  border-radius: var(--button-radius-md);
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border-color: var(--button-secondary-border);
+  box-shadow: var(--button-secondary-shadow);
+}
+
+.bf-btn--secondary:hover:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]) {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-secondary-bg-hover);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.bf-btn--ghost {
+  min-height: var(--button-height-md);
+  padding: var(--button-padding-y-md) var(--button-padding-x-md);
+  border-radius: var(--button-radius-md);
+  background: var(--button-ghost-bg);
+  color: var(--button-ghost-text);
+  border-color: var(--button-ghost-border);
+  box-shadow: none;
+}
+
+.bf-btn--ghost:hover:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]) {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-ghost-bg-hover);
+  color: var(--button-ghost-text-hover);
+}
+
+.bf-btn--icon {
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+  min-height: var(--button-icon-size);
+  padding: 0;
+  border-radius: 50%;
+  background: var(--button-icon-bg);
+  color: var(--button-icon-text);
+  border-color: var(--button-icon-border);
+  box-shadow: var(--button-icon-shadow);
+}
+
+.bf-btn--icon:hover:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]) {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-icon-bg-hover);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.bf-btn--icon-lg {
+  width: var(--button-icon-size-lg);
+  height: var(--button-icon-size-lg);
+  min-height: var(--button-icon-size-lg);
+}
+
+.bf-btn--icon-sm {
+  width: var(--button-icon-size-sm);
+  height: var(--button-icon-size-sm);
+  min-height: var(--button-icon-size-sm);
+}
+
+/* --- Shared states --- */
+
+.bf-btn:focus {
+  outline: none;
+}
+
+.bf-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--button-focus-ring), var(--button-shadow);
+}
+
+.bf-btn--ghost:focus-visible {
+  box-shadow: var(--button-focus-ring);
+}
+
+.bf-btn:active:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.bf-btn--ghost:active:not(:disabled):not(.is-disabled):not(.is-loading):not([aria-busy="true"]) {
+  box-shadow: none;
+}
+
+.bf-btn:disabled,
+.bf-btn.is-disabled,
+.bf-btn[disabled] {
+  opacity: var(--button-disabled);
+  background: var(--button-disabled-bg);
+  color: var(--button-text);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.bf-btn.is-loading,
+.bf-btn[aria-busy="true"] {
+  opacity: var(--button-loading-opacity);
+  cursor: wait;
+  pointer-events: none;
+}
+
+/* ==================================================
+SECTION: Pearl Buttons — Storefront Migration (T3.2)
+РАЗДЕЛ: Pearl Buttons — миграция витрины (T3.2)
+
+Purpose (EN): CSS override layer for Hero, product cards, catalog, favorites, search, empty states, and contact hub.
+
+Назначение (RU): CSS-слой переопределений для Hero, карточек, каталога, избранного, поиска, empty states и contact hub.
+================================================== */
+
+/* --- Primary text CTAs (unified pearl pill) --- */
+
+.hero .hero-order-link.buy-button,
+a.hero-order-link:not(.checkout-submit-button),
+.bouquet-order-link,
+.favorites-buy-button,
+.search-order-button,
+.catalog-search-empty-button,
+.catalog-placeholder-button,
+.buy-button.catalog-placeholder-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--button-height);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  border-radius: var(--button-radius);
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: var(--button-shadow);
+  font-family: var(--font-body);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  line-height: var(--leading-snug);
+  text-decoration: none;
+  text-shadow: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hero .hero-order-link.buy-button:hover,
+a.hero-order-link:not(.checkout-submit-button):hover,
+.bouquet-order-link:hover,
+.favorites-buy-button:hover,
+.search-order-button:hover,
+.catalog-search-empty-button:hover,
+.catalog-placeholder-button:hover,
+.buy-button.catalog-placeholder-button:hover {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-bg-hover);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.hero .hero-order-link.buy-button:focus-visible,
+a.hero-order-link:not(.checkout-submit-button):focus-visible,
+.bouquet-order-link:focus-visible,
+.favorites-buy-button:focus-visible,
+.search-order-button:focus-visible,
+.catalog-search-empty-button:focus-visible,
+.catalog-placeholder-button:focus-visible,
+.buy-button.catalog-placeholder-button:focus-visible {
+  outline: none;
+  box-shadow: var(--button-focus-ring), var(--button-shadow);
+}
+
+.hero .hero-order-link.buy-button:active,
+a.hero-order-link:not(.checkout-submit-button):active,
+.bouquet-order-link:active,
+.favorites-buy-button:active,
+.search-order-button:active,
+.catalog-search-empty-button:active,
+.catalog-placeholder-button:active,
+.buy-button.catalog-placeholder-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.hero .hero-order-link.buy-button:disabled,
+.hero .hero-order-link.buy-button.is-disabled,
+.hero .hero-order-link.buy-button[disabled],
+a.hero-order-link:not(.checkout-submit-button):disabled,
+.bouquet-order-link:disabled,
+.bouquet-order-link.is-disabled,
+.bouquet-order-link[disabled],
+.favorites-buy-button:disabled,
+.favorites-buy-button.is-disabled,
+.favorites-buy-button[disabled],
+.search-order-button:disabled,
+.search-order-button.is-disabled,
+.search-order-button[disabled],
+.catalog-search-empty-button:disabled,
+.catalog-search-empty-button.is-disabled,
+.catalog-search-empty-button[disabled],
+.catalog-placeholder-button:disabled,
+.catalog-placeholder-button.is-disabled,
+.catalog-placeholder-button[disabled] {
+  opacity: var(--button-disabled);
+  background: var(--button-disabled-bg);
+  color: var(--button-text);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.hero .hero-order-link.buy-button.is-loading,
+.hero .hero-order-link.buy-button[aria-busy="true"],
+.bouquet-order-link.is-loading,
+.bouquet-order-link[aria-busy="true"],
+.favorites-buy-button.is-loading,
+.favorites-buy-button[aria-busy="true"],
+.search-order-button.is-loading,
+.search-order-button[aria-busy="true"] {
+  opacity: var(--button-loading-opacity);
+  cursor: wait;
+  pointer-events: none;
+}
+
+/* --- Icon buttons (product + catalog) --- */
+
+.bouquet-favorite-button,
+.catalog-v1-icon-button,
+.catalog-v11-product-heart,
+.catalog-v11-product-choose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--button-icon-border);
+  border-radius: 50%;
+  background: var(--button-icon-bg);
+  color: var(--button-icon-text);
+  box-shadow: var(--button-icon-shadow);
+  text-shadow: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.bouquet-favorite-button {
+  width: var(--button-icon-size-lg);
+  height: var(--button-icon-size-lg);
+}
+
+.catalog-v1-icon-button,
+.catalog-v11-product-heart {
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+}
+
+.catalog-v11-product-choose {
+  width: var(--button-icon-size-sm);
+  height: var(--button-icon-size-sm);
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: var(--button-shadow);
+}
+
+.bouquet-favorite-button:hover,
+.bouquet-favorite-button:focus-visible,
+.catalog-v1-icon-button:hover,
+.catalog-v1-icon-button:focus-visible,
+.catalog-v11-product-heart:hover,
+.catalog-v11-product-heart:focus-visible,
+.catalog-v11-product-choose:hover,
+.catalog-v11-product-choose:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-icon-bg-hover);
+  border-color: var(--button-icon-border);
+  box-shadow: var(--button-shadow-hover);
+  outline: none;
+}
+
+.catalog-v11-product-choose:hover,
+.catalog-v11-product-choose:focus-visible {
+  background: var(--button-bg-hover);
+}
+
+.bouquet-favorite-button:active,
+.catalog-v1-icon-button:active,
+.catalog-v11-product-heart:active,
+.catalog-v11-product-choose:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.bouquet-favorite-button.active,
+.catalog-v11-product-heart.active {
+  color: #ff2d55;
+  background: var(--button-icon-bg-active);
+  border-color: var(--button-icon-border);
+  box-shadow: var(--button-icon-shadow);
+}
+
+.bouquet-favorite-button:disabled,
+.bouquet-favorite-button.is-disabled,
+.bouquet-favorite-button[disabled],
+.catalog-v1-icon-button:disabled,
+.catalog-v1-icon-button.is-disabled,
+.catalog-v1-icon-button[disabled],
+.catalog-v11-product-heart:disabled,
+.catalog-v11-product-heart.is-disabled,
+.catalog-v11-product-heart[disabled],
+.catalog-v11-product-choose:disabled,
+.catalog-v11-product-choose.is-disabled,
+.catalog-v11-product-choose[disabled] {
+  opacity: var(--button-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+}
+
+/* --- Catalog navigation rows (ghost pearl) --- */
+
+.luxury-catalog-panel .catalog-v1-subrow,
+.luxury-catalog-panel .catalog-v1-row {
+  border: 1px solid transparent;
+  border-radius: var(--button-radius-md);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-weight: var(--weight-label);
+  transition: var(--button-transition);
+}
+
+.luxury-catalog-panel .catalog-v1-subrow:hover,
+.luxury-catalog-panel .catalog-v1-subrow:focus-visible,
+.luxury-catalog-panel .catalog-v1-row:hover,
+.luxury-catalog-panel .catalog-v1-row:focus-visible {
+  transform: translateY(-1px);
+  background: var(--button-ghost-bg-hover);
+  border-color: var(--button-border);
+  color: var(--text-main);
+  outline: none;
+  box-shadow: var(--button-shadow);
+}
+
+.luxury-catalog-panel .catalog-v1-subrow:active,
+.luxury-catalog-panel .catalog-v1-row:active {
+  transform: translateY(0) scale(0.99);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.luxury-catalog-panel .catalog-v1-subrow:focus-visible,
+.luxury-catalog-panel .catalog-v1-row:focus-visible {
+  box-shadow: var(--button-focus-ring);
+}
+
+/* --- Contact quick actions (pearl icon tiles, no gold/champagne) --- */
+
+.contact-quick-action {
+  transition: var(--button-transition);
+}
+
+.contact-quick-action::before {
+  display: none;
+  content: none;
+}
+
+.contact-quick-action-icon {
+  border: 1px solid var(--button-icon-border);
+  border-radius: var(--button-radius-md);
+  background: var(--button-icon-bg);
+  color: var(--button-icon-text);
+  box-shadow: var(--button-icon-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: var(--button-transition);
+}
+
+.contact-quick-action-icon svg {
+  filter: none;
+}
+
+.contact-quick-action-label {
+  color: var(--surface);
+  font-family: var(--font-body);
+  font-size: var(--type-micro);
+  font-weight: var(--weight-label);
+  text-shadow: none;
+}
+
+.contact-quick-action-telegram .contact-quick-action-icon,
+.contact-quick-action-instagram .contact-quick-action-icon,
+.contact-quick-action-whatsapp .contact-quick-action-icon,
+.contact-quick-action-phone .contact-quick-action-icon {
+  border-color: var(--button-icon-border);
+  background: var(--button-icon-bg);
+  box-shadow: var(--button-icon-shadow);
+}
+
+.contact-quick-action:hover,
+.contact-quick-action:focus-visible {
+  outline: none;
+  filter: none;
+  color: var(--surface);
+}
+
+.contact-quick-action:hover .contact-quick-action-icon,
+.contact-quick-action:focus-visible .contact-quick-action-icon {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-icon-bg-hover);
+  border-color: var(--button-icon-border);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.contact-quick-action:active .contact-quick-action-icon {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.contact-quick-action:focus-visible .contact-quick-action-icon {
+  box-shadow: var(--button-focus-ring), var(--button-icon-shadow);
+}
+
+.contact-quick-action:disabled,
+.contact-quick-action.is-disabled,
+.contact-quick-action[disabled] {
+  opacity: var(--button-disabled);
+  pointer-events: none;
+}
+
+/* ============================================================
+   T3.3 — Panel & checkout choice button migration
+   Scope: cart panel, search panel, checkout choices (visual),
+   reviews. Pearl palette only.
+   Excludes: checkout-submit, orders, admin, courier, mobile nav.
+   ============================================================ */
+
+/* --- Cart panel --- */
+
+.cart-panel .cart-quantity-controls button,
+.cart-panel .cart-remove-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: none;
+  min-height: var(--button-height-sm);
+  padding: var(--button-padding-y-sm) var(--button-padding-x-sm);
+  border: 1px solid var(--button-secondary-border);
+  border-radius: var(--button-radius);
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  box-shadow: var(--button-secondary-shadow);
+  font-family: var(--font-body);
+  font-size: var(--button-font-size-sm);
+  font-weight: var(--button-font-weight);
+  line-height: var(--leading-snug);
+  text-shadow: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cart-panel .cart-quantity-controls button:hover,
+.cart-panel .cart-quantity-controls button:focus-visible,
+.cart-panel .cart-remove-button:hover,
+.cart-panel .cart-remove-button:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-secondary-bg-hover);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow-hover);
+  outline: none;
+}
+
+.cart-panel .cart-quantity-controls button:active,
+.cart-panel .cart-remove-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.cart-panel .cart-quantity-controls button:focus-visible,
+.cart-panel .cart-remove-button:focus-visible {
+  box-shadow: var(--button-focus-ring), var(--button-secondary-shadow);
+}
+
+.cart-panel .cart-quantity-controls button:disabled,
+.cart-panel .cart-quantity-controls button.is-disabled,
+.cart-panel .cart-quantity-controls button[disabled],
+.cart-panel .cart-remove-button:disabled,
+.cart-panel .cart-remove-button.is-disabled,
+.cart-panel .cart-remove-button[disabled] {
+  opacity: var(--button-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.cart-panel .buy-button.cart-checkout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  min-height: var(--button-height);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  border-radius: var(--button-radius);
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: var(--button-shadow);
+  font-family: var(--font-body);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  line-height: var(--leading-snug);
+  text-decoration: none;
+  text-shadow: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cart-panel .buy-button.cart-checkout-button:hover {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-bg-hover);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.cart-panel .buy-button.cart-checkout-button:focus-visible {
+  outline: none;
+  box-shadow: var(--button-focus-ring), var(--button-shadow);
+}
+
+.cart-panel .buy-button.cart-checkout-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.cart-panel .buy-button.cart-checkout-button:disabled,
+.cart-panel .buy-button.cart-checkout-button.is-disabled,
+.cart-panel .buy-button.cart-checkout-button[disabled] {
+  opacity: var(--button-disabled);
+  background: var(--button-disabled-bg);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- Search panel --- */
+
+.search-panel .search-clear-button,
+.search-panel .search-favorite-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+  max-width: none;
+  min-height: var(--button-icon-size);
+  padding: 0;
+  border: 1px solid var(--button-icon-border);
+  border-radius: 50%;
+  background: var(--button-icon-bg);
+  color: var(--button-icon-text);
+  box-shadow: var(--button-icon-shadow);
+  font-size: inherit;
+  line-height: 1;
+  text-shadow: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.search-panel .search-clear-button:hover,
+.search-panel .search-clear-button:focus-visible,
+.search-panel .search-favorite-button:hover,
+.search-panel .search-favorite-button:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-icon-bg-hover);
+  border-color: var(--button-icon-border);
+  box-shadow: var(--button-shadow-hover);
+  outline: none;
+}
+
+.search-panel .search-clear-button:active,
+.search-panel .search-favorite-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.search-panel .search-favorite-button.active {
+  color: #ff2d55;
+  background: var(--button-icon-bg-active);
+  border-color: var(--button-icon-border);
+  box-shadow: var(--button-icon-shadow);
+}
+
+.search-panel .search-favorite-button.active svg {
+  fill: currentColor;
+}
+
+.search-panel .search-order-button {
+  flex: 1;
+  width: auto;
+  max-width: none;
+}
+
+/* --- Checkout choice & dropdown (visual only, submit excluded) --- */
+
+.checkout-section .checkout-choice-button,
+.checkout-section .checkout-interval-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  min-height: var(--button-height-md);
+  padding: var(--button-padding-y-md) var(--button-padding-x-md);
+  border: 1px solid var(--button-secondary-border);
+  border-radius: var(--button-radius-md);
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  box-shadow: var(--button-secondary-shadow);
+  font-family: var(--font-body);
+  font-size: var(--button-font-size-sm);
+  font-weight: var(--button-font-weight);
+  line-height: var(--leading-snug);
+  letter-spacing: normal;
+  text-shadow: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.checkout-section .checkout-choice-button:hover,
+.checkout-section .checkout-choice-button:focus-visible,
+.checkout-section .checkout-interval-button:hover,
+.checkout-section .checkout-interval-button:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-secondary-bg-hover);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow-hover);
+  outline: none;
+}
+
+.checkout-section .checkout-choice-button:active,
+.checkout-section .checkout-interval-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.checkout-section .checkout-choice-button.selected,
+.checkout-section .checkout-interval-button.selected {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow);
+}
+
+.checkout-section .checkout-choice-button.selected:hover,
+.checkout-section .checkout-interval-button.selected:hover {
+  background: var(--button-bg-hover);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.checkout-section .checkout-choice-button:focus-visible,
+.checkout-section .checkout-interval-button:focus-visible {
+  box-shadow: var(--button-focus-ring), var(--button-secondary-shadow);
+}
+
+.checkout-section .checkout-choice-button.selected:focus-visible,
+.checkout-section .checkout-interval-button.selected:focus-visible {
+  box-shadow: var(--button-focus-ring), var(--button-shadow);
+}
+
+.checkout-section .checkout-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: var(--button-height-md);
+  margin-top: 0;
+  padding: var(--button-padding-y-md) var(--button-padding-x-md);
+  border: 1px solid var(--button-border);
+  border-radius: var(--button-radius-md);
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  box-shadow: var(--button-secondary-shadow);
+  font-family: var(--font-body);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  line-height: var(--leading-snug);
+  text-align: left;
+  text-shadow: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.checkout-section .checkout-dropdown-trigger:hover {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-secondary-bg-hover);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.checkout-section .checkout-dropdown-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--button-focus-ring), var(--button-secondary-shadow);
+}
+
+.checkout-section .checkout-dropdown-trigger:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.checkout-section .checkout-dropdown-caret {
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  line-height: 1;
+}
+
+.checkout-section .checkout-dropdown-menu {
+  border: 1px solid var(--button-border);
+  border-radius: var(--button-radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.checkout-section .checkout-dropdown-option {
+  width: 100%;
+  min-height: var(--button-height-sm);
+  margin-top: 0;
+  padding: var(--button-padding-y-sm) var(--button-padding-x-sm);
+  border: 1px solid transparent;
+  border-radius: calc(var(--button-radius-md) - 2px);
+  background: transparent;
+  color: var(--button-secondary-text);
+  font-family: var(--font-body);
+  font-size: var(--button-font-size-sm);
+  font-weight: var(--button-font-weight);
+  line-height: var(--leading-snug);
+  text-align: left;
+  text-shadow: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+}
+
+.checkout-section .checkout-dropdown-option:hover,
+.checkout-section .checkout-dropdown-option:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--button-border);
+  background: var(--button-ghost-bg-hover);
+  color: var(--text-main);
+  outline: none;
+  box-shadow: var(--button-shadow);
+}
+
+.checkout-section .checkout-dropdown-option:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.checkout-section .checkout-dropdown-option.selected {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow);
+}
+
+.checkout-section .checkout-dropdown-option.selected:hover {
+  background: var(--button-bg-hover);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.checkout-section .checkout-dropdown-date-input input {
+  border: 1px solid var(--button-border);
+  border-radius: calc(var(--button-radius-md) - 2px);
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  -webkit-text-fill-color: var(--button-secondary-text);
+  font-family: var(--font-body);
+}
+
+/* --- Reviews --- */
+
+.reviews-section .review-submit-button,
+.buy-button.review-submit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--button-height-md);
+  margin-top: 0.125rem;
+  padding: var(--button-padding-y-md) var(--button-padding-x-md);
+  border-radius: var(--button-radius);
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: var(--button-shadow);
+  font-family: var(--font-body);
+  font-size: var(--button-font-size-sm);
+  font-weight: var(--button-font-weight);
+  line-height: var(--leading-snug);
+  text-shadow: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.reviews-section .review-submit-button:hover,
+.buy-button.review-submit-button:hover {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-bg-hover);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.reviews-section .review-submit-button:focus-visible,
+.buy-button.review-submit-button:focus-visible {
+  outline: none;
+  box-shadow: var(--button-focus-ring), var(--button-shadow);
+}
+
+.reviews-section .review-submit-button:active,
+.buy-button.review-submit-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.reviews-section .review-submit-button:disabled,
+.reviews-section .review-submit-button.is-disabled,
+.reviews-section .review-submit-button[disabled],
+.buy-button.review-submit-button:disabled,
+.buy-button.review-submit-button.is-disabled,
+.buy-button.review-submit-button[disabled] {
+  opacity: var(--button-disabled);
+  background: var(--button-disabled-bg);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.reviews-section .review-rating-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--button-height-sm);
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--button-secondary-border);
+  border-radius: var(--button-radius-md);
+  background: var(--button-secondary-bg);
+  color: var(--text-muted);
+  font-size: 1.1875rem;
+  line-height: 1;
+  box-shadow: var(--button-secondary-shadow);
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.reviews-section .review-rating-star:hover,
+.reviews-section .review-rating-star:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-secondary-bg-hover);
+  border-color: var(--button-border);
+  color: var(--text-main);
+  box-shadow: var(--button-shadow-hover);
+  outline: none;
+}
+
+.reviews-section .review-rating-star:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.reviews-section .review-rating-star.active {
+  color: var(--button-text);
+  border-color: var(--button-border);
+  background: var(--button-bg);
+  box-shadow: var(--button-shadow);
+}
+
+.reviews-section .review-rating-star.active:hover,
+.reviews-section .review-rating-star.active:focus-visible {
+  background: var(--button-bg-hover);
+  box-shadow: var(--button-shadow-hover);
+}
+
+.reviews-section .review-rating-star:focus-visible {
+  box-shadow: var(--button-focus-ring), var(--button-secondary-shadow);
+}
+
+.reviews-section .review-rating-star.active:focus-visible {
+  box-shadow: var(--button-focus-ring), var(--button-shadow);
+}
+
+.reviews-section .review-rating-star:disabled,
+.reviews-section .review-rating-star.is-disabled,
+.reviews-section .review-rating-star[disabled] {
+  opacity: var(--button-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+}
+
+/* ============================================================
+   T3.4 — Icon & secondary button system (final pearl layer)
+   Unified size, radius, border, hover, active, focus, shadow.
+   Excludes: checkout-submit, orders, admin, courier, mobile nav.
+   ============================================================ */
+
+/* --- Unified icon button base (40px circle) --- */
+
+.cart-panel .cart-panel-close,
+.search-panel .search-panel-close,
+.catalog-placeholder-panel .search-panel-close,
+.luxury-catalog-panel .catalog-v1-icon-button,
+.luxury-catalog-panel .search-clear-button,
+.bouquet-favorite-button,
+.catalog-v11-product-heart,
+.search-panel .search-clear-button,
+.search-panel .search-favorite-button,
+.luxury-catalog-panel .catalog-search-favorite-button,
+.favorites-panel .favorites-card-heart-button,
+.favorites-panel .favorites-remove-button,
+#contact-quick-actions .contact-quick-action-icon,
+.contact-quick-actions .contact-quick-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+  min-width: var(--button-icon-size);
+  min-height: var(--button-icon-size);
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--button-icon-border);
+  border-radius: 50%;
+  background: var(--button-icon-bg);
+  color: var(--button-icon-text);
+  box-shadow: var(--button-icon-shadow);
+  font-family: var(--font-body);
+  font-size: inherit;
+  line-height: 1;
+  text-shadow: none;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  filter: none;
+}
+
+.luxury-catalog-panel .catalog-v1-icon-button svg,
+.search-panel .search-favorite-button svg,
+.luxury-catalog-panel .catalog-search-favorite-button svg,
+.favorites-panel .favorites-card-heart-button svg,
+.favorites-panel .favorites-remove-button svg,
+.bouquet-favorite-button svg,
+.catalog-v11-product-heart svg {
+  fill: none;
+  stroke: currentColor;
+  filter: none;
+}
+
+/* --- Unified icon hover / focus / active --- */
+
+.cart-panel .cart-panel-close:hover,
+.cart-panel .cart-panel-close:focus-visible,
+.search-panel .search-panel-close:hover,
+.search-panel .search-panel-close:focus-visible,
+.catalog-placeholder-panel .search-panel-close:hover,
+.catalog-placeholder-panel .search-panel-close:focus-visible,
+.luxury-catalog-panel .catalog-v1-icon-button:hover,
+.luxury-catalog-panel .catalog-v1-icon-button:focus-visible,
+.luxury-catalog-panel .search-clear-button:hover,
+.luxury-catalog-panel .search-clear-button:focus-visible,
+.bouquet-favorite-button:hover,
+.bouquet-favorite-button:focus-visible,
+.catalog-v11-product-heart:hover,
+.catalog-v11-product-heart:focus-visible,
+.search-panel .search-clear-button:hover,
+.search-panel .search-clear-button:focus-visible,
+.search-panel .search-favorite-button:hover,
+.search-panel .search-favorite-button:focus-visible,
+.luxury-catalog-panel .catalog-search-favorite-button:hover,
+.luxury-catalog-panel .catalog-search-favorite-button:focus-visible,
+.favorites-panel .favorites-card-heart-button:hover,
+.favorites-panel .favorites-card-heart-button:focus-visible,
+.favorites-panel .favorites-remove-button:hover,
+.favorites-panel .favorites-remove-button:focus-visible,
+.contact-quick-action:hover .contact-quick-action-icon,
+.contact-quick-action:focus-visible .contact-quick-action-icon {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-icon-bg-hover);
+  border-color: var(--button-icon-border);
+  color: var(--button-icon-text);
+  box-shadow: var(--button-shadow-hover);
+  outline: none;
+}
+
+.cart-panel .cart-panel-close:active,
+.search-panel .search-panel-close:active,
+.catalog-placeholder-panel .search-panel-close:active,
+.luxury-catalog-panel .catalog-v1-icon-button:active,
+.luxury-catalog-panel .search-clear-button:active,
+.bouquet-favorite-button:active,
+.catalog-v11-product-heart:active,
+.search-panel .search-clear-button:active,
+.search-panel .search-favorite-button:active,
+.luxury-catalog-panel .catalog-search-favorite-button:active,
+.favorites-panel .favorites-card-heart-button:active,
+.favorites-panel .favorites-remove-button:active,
+.contact-quick-action:active .contact-quick-action-icon {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.cart-panel .cart-panel-close:focus-visible,
+.search-panel .search-panel-close:focus-visible,
+.catalog-placeholder-panel .search-panel-close:focus-visible,
+.luxury-catalog-panel .catalog-v1-icon-button:focus-visible,
+.luxury-catalog-panel .search-clear-button:focus-visible,
+.bouquet-favorite-button:focus-visible,
+.catalog-v11-product-heart:focus-visible,
+.search-panel .search-clear-button:focus-visible,
+.search-panel .search-favorite-button:focus-visible,
+.luxury-catalog-panel .catalog-search-favorite-button:focus-visible,
+.favorites-panel .favorites-card-heart-button:focus-visible,
+.favorites-panel .favorites-remove-button:focus-visible,
+.contact-quick-action:focus-visible .contact-quick-action-icon {
+  box-shadow: var(--button-focus-ring), var(--button-icon-shadow);
+}
+
+/* --- Favorite toggle active (semantic rose, pearl surface) --- */
+
+.bouquet-favorite-button.active,
+.catalog-v11-product-heart.active,
+.search-panel .search-favorite-button.active,
+.luxury-catalog-panel .catalog-search-favorite-button.active,
+.favorites-panel .favorites-card-heart-button.active {
+  color: #ff2d55;
+  background: var(--button-icon-bg-active);
+  border-color: var(--button-icon-border);
+  box-shadow: var(--button-icon-shadow);
+}
+
+.bouquet-favorite-button.active svg,
+.catalog-v11-product-heart.active svg,
+.search-panel .search-favorite-button.active svg,
+.luxury-catalog-panel .catalog-search-favorite-button.active svg,
+.favorites-panel .favorites-card-heart-button.active svg {
+  fill: currentColor;
+}
+
+/* --- Icon disabled-ready --- */
+
+.cart-panel .cart-panel-close:disabled,
+.cart-panel .cart-panel-close.is-disabled,
+.cart-panel .cart-panel-close[disabled],
+.search-panel .search-panel-close:disabled,
+.search-panel .search-panel-close.is-disabled,
+.search-panel .search-panel-close[disabled],
+.luxury-catalog-panel .catalog-v1-icon-button:disabled,
+.luxury-catalog-panel .catalog-v1-icon-button.is-disabled,
+.luxury-catalog-panel .catalog-v1-icon-button[disabled],
+.bouquet-favorite-button:disabled,
+.bouquet-favorite-button.is-disabled,
+.bouquet-favorite-button[disabled],
+.catalog-v11-product-heart:disabled,
+.catalog-v11-product-heart.is-disabled,
+.catalog-v11-product-heart[disabled],
+.search-panel .search-favorite-button:disabled,
+.search-panel .search-favorite-button.is-disabled,
+.search-panel .search-favorite-button[disabled],
+.favorites-panel .favorites-card-heart-button:disabled,
+.favorites-panel .favorites-card-heart-button.is-disabled,
+.favorites-panel .favorites-card-heart-button[disabled] {
+  opacity: var(--button-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- Contact social icons (pearl tiles, no gold/champagne) --- */
+
+.contact-quick-action-telegram,
+.contact-quick-action-instagram,
+.contact-quick-action-whatsapp,
+.contact-quick-action-phone {
+  color: var(--button-icon-text);
+}
+
+.contact-quick-action-telegram .contact-quick-action-icon,
+.contact-quick-action-instagram .contact-quick-action-icon,
+.contact-quick-action-whatsapp .contact-quick-action-icon,
+.contact-quick-action-phone .contact-quick-action-icon {
+  border-color: var(--button-icon-border);
+  background: var(--button-icon-bg);
+  box-shadow: var(--button-icon-shadow);
+}
+
+.contact-quick-action-telegram .contact-quick-action-icon svg,
+.contact-quick-action-instagram .contact-quick-action-icon svg,
+.contact-quick-action-whatsapp .contact-quick-action-icon svg,
+.contact-quick-action-phone .contact-quick-action-icon svg {
+  filter: none;
+}
+
+/* --- Secondary / ghost actions --- */
+
+.navbar .menu-button {
+  position: relative;
+  z-index: 100000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: auto;
+  min-height: var(--button-height-sm);
+  margin: 0 0 0 auto;
+  padding: var(--button-padding-y-sm) var(--button-padding-x-sm);
+  border: 1px solid var(--button-secondary-border);
+  border-radius: var(--button-radius);
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  box-shadow: var(--button-secondary-shadow);
+  font-family: var(--font-body);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: var(--tracking-label);
+  line-height: var(--leading-snug);
+  text-transform: uppercase;
+  text-shadow: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  appearance: none;
+  pointer-events: auto;
+  overflow: visible;
+}
+
+.navbar .menu-button::before,
+.navbar .menu-button::after {
+  display: none;
+  content: none;
+}
+
+.navbar .menu-button:hover,
+.navbar .menu-button:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-secondary-bg-hover);
+  border-color: var(--button-border);
+  color: var(--button-secondary-text);
+  box-shadow: var(--button-shadow-hover);
+  outline: none;
+}
+
+.navbar .menu-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.navbar .menu-button:focus-visible {
+  box-shadow: var(--button-focus-ring), var(--button-secondary-shadow);
+}
+
+.navbar .menu-button:disabled,
+.navbar .menu-button.is-disabled,
+.navbar .menu-button[disabled] {
+  opacity: var(--button-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.search-panel .search-suggestions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: none;
+  min-height: var(--button-height-sm);
+  padding: var(--button-padding-y-sm) var(--button-padding-x-sm);
+  border: 1px solid var(--button-secondary-border);
+  border-radius: var(--button-radius);
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  box-shadow: var(--button-secondary-shadow);
+  font-family: var(--font-body);
+  font-size: var(--button-font-size-sm);
+  font-weight: var(--button-font-weight);
+  line-height: var(--leading-snug);
+  text-shadow: none;
+  cursor: pointer;
+  transition: var(--button-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.search-panel .search-suggestions button:hover,
+.search-panel .search-suggestions button:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  background: var(--button-secondary-bg-hover);
+  border-color: var(--button-border);
+  color: var(--text-main);
+  box-shadow: var(--button-shadow-hover);
+  outline: none;
+}
+
+.search-panel .search-suggestions button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+.search-panel .search-suggestions button:focus-visible {
+  box-shadow: var(--button-focus-ring), var(--button-secondary-shadow);
+}
+
+.search-panel .search-suggestions button:disabled,
+.search-panel .search-suggestions button.is-disabled,
+.search-panel .search-suggestions button[disabled] {
+  opacity: var(--button-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Catalog search clear — absolute positioning preserved */
+.luxury-catalog-panel .search-clear-button,
+.search-panel .search-clear-button {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+}
+
+.luxury-catalog-panel .search-clear-button:hover,
+.luxury-catalog-panel .search-clear-button:focus-visible,
+.search-panel .search-clear-button:hover,
+.search-panel .search-clear-button:focus-visible {
+  transform: translateY(calc(-50% - 2px)) scale(1.01);
+}
+
+.luxury-catalog-panel .search-clear-button:active,
+.search-panel .search-clear-button:active {
+  transform: translateY(-50%) scale(0.98);
+}
+
+/* Close button glyph sizing */
+.cart-panel .cart-panel-close,
+.search-panel .search-panel-close,
+.catalog-placeholder-panel .search-panel-close {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.luxury-catalog-panel .catalog-v1-icon-button.catalog-v1-close {
+  font-size: 1.625rem;
+  font-weight: 300;
+}

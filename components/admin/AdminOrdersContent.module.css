@@ -1,0 +1,231 @@
+/* ==================================================
+SECTION: ADMIN
+РАЗДЕЛ: Админ-панель
+Purpose (EN): Orders list and filter styles
+Назначение (RU): Стили списка и фильтров заказов
+================================================== */
+.crmControls {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 248, 0.72), rgba(255, 255, 255, 0.92)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.searchInput {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.searchInput::placeholder {
+  color: var(--bf-muted);
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.filterField {
+  display: grid;
+  gap: 6px;
+}
+
+.filterLabel {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.filterSelect {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--bf-border);
+  border-radius: 12px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.resultsSummary {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.filteredEmpty {
+  display: grid;
+  gap: 6px;
+  padding: 24px;
+  border: 1px solid var(--bf-border);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background: var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.filteredEmpty p {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.filteredEmpty span {
+  color: var(--bf-text-secondary);
+  font-size: 14px;
+}
+
+.selectionControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.selectionButton,
+.bulkActionButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.selectionButton:disabled,
+.bulkActionButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.bulkActionBar {
+  display: grid;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px solid rgba(242, 134, 164, 0.42);
+  border-radius: calc(var(--bf-radius) - 6px);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 248, 0.92), rgba(255, 255, 255, 0.96)),
+    var(--bf-surface);
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.bulkActionHeading {
+  margin: 0;
+  color: var(--bf-heading);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.bulkActionRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+}
+
+.bulkActionGroup {
+  display: grid;
+  gap: 6px;
+  min-width: min(100%, 180px);
+}
+
+.bulkActionLabel {
+  margin: 0;
+  color: var(--bf-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bulkCancelButton {
+  border-color: rgba(142, 32, 32, 0.28);
+  color: #8e2020;
+}
+
+.bulkNotice {
+  margin: 0;
+  color: var(--bf-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.bulkError {
+  margin: 0;
+  color: #8e2020;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.orderRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.orderSelect {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 18px;
+}
+
+.orderCheckbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--bf-pink, #f286a4);
+  cursor: pointer;
+}
+
+.viewSwitcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.viewSwitcherButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--bf-border);
+  border-radius: 999px;
+  background: var(--bf-surface-soft);
+  color: var(--bf-heading);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.viewSwitcherButtonActive {
+  border-color: rgba(242, 134, 164, 0.42);
+  background: linear-gradient(180deg, var(--bf-pink-soft), rgba(255, 255, 255, 0.92));
+  box-shadow: var(--bf-shadow-soft);
+}
+
+.orderOpenButton {
+  width: 100%;
+  text-align: left;
+}
