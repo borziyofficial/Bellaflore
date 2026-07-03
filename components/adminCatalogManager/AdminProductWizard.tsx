@@ -264,9 +264,9 @@ export function AdminProductWizard({
         </button>
         <div>
           <p className={styles.formEyebrow}>
-            {mode === "create" ? "Новый товар" : "Редактирование товара"}
+            {mode === "create" ? "Advanced Product Editor" : "Редактирование товара"}
           </p>
-          <h2 className={styles.wizardTitle}>Мастер товара</h2>
+          <h2 className={styles.wizardTitle}>Расширенный редактор</h2>
         </div>
       </header>
 

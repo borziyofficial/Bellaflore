@@ -232,6 +232,7 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
         <FastProductCreate
           key="create-fast"
           initialForm={formSeed}
+          buildPreviewRecord={buildPreviewRecord}
           onSaveDraft={(form) => {
             void handleSaveDraft(form);
           }}

@@ -1,25 +1,19 @@
 // ==================================================
-// SECTION: Admin Catalog Manager — fast product create
-// РАЗДЕЛ: Быстрое создание товара (1 экран)
+// SECTION: Admin Catalog Manager — fast product create V2
+// РАЗДЕЛ: Быстрое создание товара (premium mobile)
 // ==================================================
 "use client";
 
-import Image from "next/image";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { AdminProductPreviewCard } from "@/components/adminCatalogManager/AdminProductPreviewCard";
+import { FastCategoryPicker } from "@/components/adminCatalogManager/FastCategoryPicker";
+import { FastPhotoUpload } from "@/components/adminCatalogManager/FastPhotoUpload";
 import type {
   AdminProductFormErrors,
   AdminProductFormState,
   MockAiBundle,
 } from "@/components/adminCatalogManager/adminCatalogTypes";
-import {
-  createAdminCustomCategory,
-  getAdminProductCategories,
-} from "@/components/adminCatalogManager/adminCustomCategories";
-import {
-  fileToDataUrl,
-  persistProductImageFile,
-  shouldUseUnoptimizedImage,
-} from "@/components/adminCatalogManager/adminImagePersistence";
+import { recordCategoryUse } from "@/components/adminCatalogManager/adminCategoryPreferences";
 import {
   prepareAdminProductFormForPublish,
   validateAdminProductForm,
@@ -33,13 +27,14 @@ import {
 import { slugifyProductTitle } from "@/components/adminCatalogManager/adminCatalogRecordUtils";
 import { generateMockAiBundle } from "@/components/adminCatalogManager/mockAiAssistant";
 import { resolveAiHint } from "@/components/adminCatalogManager/mockAiHintUtils";
-import type { CatalogCategoryRecord } from "@/components/catalogEngine/catalogTypes";
+import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import styles from "@/components/adminCatalogManager/FastProductCreate.module.css";
 
 const SIZE_IDS = ["S", "M", "L", "XL"] as const;
 
 type FastProductCreateProps = {
   initialForm: AdminProductFormState;
+  buildPreviewRecord: (form: AdminProductFormState) => CatalogProductRecord;
   onPublish: (form: AdminProductFormState) => void;
   onSaveDraft: (form: AdminProductFormState) => void;
   onCancel: () => void;
@@ -59,6 +54,7 @@ function getInitialBasePrice(form: AdminProductFormState): string {
 
 export function FastProductCreate({
   initialForm,
+  buildPreviewRecord,
   onPublish,
   onSaveDraft,
   onCancel,
@@ -66,89 +62,36 @@ export function FastProductCreate({
   isSaving = false,
   imageStorageWarning = null,
 }: FastProductCreateProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState(initialForm);
   const [basePrice, setBasePrice] = useState(getInitialBasePrice(initialForm));
   const [errors, setErrors] = useState<AdminProductFormErrors>({});
-  const [uploadNote, setUploadNote] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [categories, setCategories] = useState<CatalogCategoryRecord[]>(() =>
-    getAdminProductCategories(),
-  );
-  const [showNewCategory, setShowNewCategory] = useState(false);
-  const [newCategoryTitle, setNewCategoryTitle] = useState("");
-  const [categoryError, setCategoryError] = useState<string | null>(null);
   const [aiBundle, setAiBundle] = useState<MockAiBundle | null>(null);
   const [aiPreviews, setAiPreviews] = useState<AiFieldPreview[]>([]);
   const [aiSelection, setAiSelection] = useState<Set<AiSuggestionFieldKey>>(
     new Set(),
   );
   const [aiSheetOpen, setAiSheetOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [statusNote, setStatusNote] = useState<string | null>(null);
 
   const updateForm = useCallback((patch: Partial<AdminProductFormState>) => {
     setForm((current) => ({ ...current, ...patch }));
   }, []);
 
-  const refreshCategories = useCallback(() => {
-    setCategories(getAdminProductCategories());
-  }, []);
+  const previewForm = useMemo(
+    () => prepareAdminProductFormForPublish(form, basePrice),
+    [form, basePrice],
+  );
+  const previewRecord = useMemo(
+    () => buildPreviewRecord(previewForm),
+    [buildPreviewRecord, previewForm],
+  );
 
-  const handleImageFile = async (file: File | null) => {
-    if (!file || !file.type.startsWith("image/")) {
-      setUploadNote("Выберите изображение (JPEG, PNG, WebP).");
-      return;
-    }
-
-    setUploadNote(null);
-    setIsUploading(true);
-
-    try {
-      const instantPreview = await fileToDataUrl(file);
-      updateForm({
-        mainImageUrl: instantPreview,
-        mainImageTemporary: true,
-        mainImageStorage: "none",
-      });
-
-      const persisted = await persistProductImageFile(file);
-      updateForm({
-        mainImageUrl: persisted.url,
-        mainImageStorage: persisted.storage,
-        mainImageTemporary: false,
-      });
-      setUploadNote("Фото загружено.");
-    } catch (error) {
-      setUploadNote(
-        error instanceof Error
-          ? error.message
-          : "Не удалось загрузить изображение.",
-      );
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleCreateCategory = () => {
-    setCategoryError(null);
-
-    try {
-      const created = createAdminCustomCategory(newCategoryTitle);
-      refreshCategories();
-      updateForm({ categoryId: created.id });
-      setNewCategoryTitle("");
-      setShowNewCategory(false);
-    } catch (error) {
-      setCategoryError(
-        error instanceof Error ? error.message : "Не удалось создать категорию.",
-      );
-    }
-  };
-
-  const buildPublishForm = (): AdminProductFormState => {
-    const withPrice = prepareAdminProductFormForPublish(form, basePrice);
-    return { ...withPrice, status: "published" };
-  };
+  const buildPublishForm = (): AdminProductFormState => ({
+    ...prepareAdminProductFormForPublish(form, basePrice),
+    status: "published",
+  });
 
   const submitPublish = () => {
     const publishForm = buildPublishForm();
@@ -162,6 +105,7 @@ export function FastProductCreate({
       return;
     }
 
+    recordCategoryUse(publishForm.categoryId);
     onPublish(publishForm);
   };
 
@@ -181,6 +125,7 @@ export function FastProductCreate({
     }
 
     onSaveDraft(draftForm);
+    setStatusNote("Черновик сохранён.");
   };
 
   const runAiSuggest = async () => {
@@ -195,7 +140,7 @@ export function FastProductCreate({
       const previews = buildAiFieldPreviews(form, bundle);
 
       if (previews.length === 0) {
-        setUploadNote("AI не нашёл новых подсказок для пустых полей.");
+        setStatusNote("AI не нашёл новых подсказок для пустых полей.");
         return;
       }
 
@@ -230,8 +175,12 @@ export function FastProductCreate({
       );
     }
 
+    if (aiSelection.has("categoryId")) {
+      recordCategoryUse(nextForm.categoryId);
+    }
+
     setAiSheetOpen(false);
-    setUploadNote("AI-подсказки применены.");
+    setStatusNote("AI-подсказки применены.");
   };
 
   const toggleAiField = (key: AiSuggestionFieldKey, checked: boolean) => {
@@ -246,217 +195,96 @@ export function FastProductCreate({
     });
   };
 
-  const categoryOptions = useMemo(
-    () => categories.filter((category) => category.isActive),
-    [categories],
-  );
-
   return (
     <>
       <div className={styles.shell}>
         <header className={styles.header}>
-          <div className={styles.headerMain}>
-            <button type="button" className={styles.backButton} onClick={onCancel}>
-              ← Назад
-            </button>
-            <p className={styles.eyebrow}>Быстрое добавление</p>
+          <button type="button" className={styles.backButton} onClick={onCancel}>
+            ← Назад
+          </button>
+          <div className={styles.headerCopy}>
+            <p className={styles.eyebrow}>Fast Mode</p>
             <h1 className={styles.title}>Новый товар</h1>
           </div>
-          <div className={styles.headerActions}>
-            <button
-              type="button"
-              className={styles.advancedLink}
-              onClick={() => onSwitchToAdvanced(form)}
-            >
-              Расширенный режим
-            </button>
-          </div>
+          <button
+            type="button"
+            className={styles.advancedLink}
+            onClick={() => onSwitchToAdvanced(form)}
+          >
+            Open Advanced Editor
+          </button>
         </header>
 
         {imageStorageWarning ? (
           <p className={styles.warning}>{imageStorageWarning}</p>
         ) : null}
+        {statusNote ? <p className={styles.note}>{statusNote}</p> : null}
 
         <div className={styles.form}>
-          <section className={styles.photoSection} aria-label="Фото товара">
-            <div className={styles.photoFrame}>
-              {form.mainImageUrl ? (
-                <Image
-                  src={form.mainImageUrl}
-                  alt={form.mainImageAlt || form.title || "Фото товара"}
-                  fill
-                  sizes="(max-width: 560px) 100vw, 400px"
-                  className={styles.photoImage}
-                  unoptimized={shouldUseUnoptimizedImage(form.mainImageUrl)}
-                />
-              ) : (
-                <div className={styles.photoEmpty}>
-                  <span className={styles.photoIcon} aria-hidden="true">
-                    📷
-                  </span>
-                  <span>Добавьте фото букета — это первый шаг</span>
-                </div>
-              )}
-            </div>
-
-            <div className={styles.photoActions}>
-              <button
-                type="button"
-                className={styles.uploadButton}
-                onClick={() => inputRef.current?.click()}
-                disabled={isUploading}
-              >
-                {isUploading
-                  ? "Загрузка…"
-                  : form.mainImageUrl
-                    ? "Заменить фото"
-                    : "Загрузить фото"}
-              </button>
-              {form.mainImageUrl ? (
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  onClick={() =>
-                    updateForm({
-                      mainImageUrl: "",
-                      mainImageStorage: "none",
-                      mainImageTemporary: false,
-                    })
-                  }
-                >
-                  Удалить
-                </button>
-              ) : null}
-            </div>
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              className={styles.hiddenInput}
-              onChange={(event) => {
-                void handleImageFile(event.target.files?.[0] ?? null);
-                event.target.value = "";
-              }}
+          <div className={styles.card}>
+            <FastPhotoUpload
+              imageUrl={form.mainImageUrl}
+              imageAlt={form.mainImageAlt || form.title}
+              onImageChange={(patch) => updateForm(patch)}
+              onAiSuggest={() => void runAiSuggest()}
+              isAiLoading={isAiLoading}
+              error={errors.mainImageUrl}
             />
-            {errors.mainImageUrl ? (
-              <p className={styles.error}>{errors.mainImageUrl}</p>
-            ) : null}
-            {uploadNote ? <p className={styles.note}>{uploadNote}</p> : null}
-          </section>
-
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Название</span>
-            <input
-              className={styles.input}
-              value={form.title}
-              placeholder="Например: Букет из 25 роз"
-              onChange={(event) => {
-                const title = event.target.value;
-                updateForm({
-                  title,
-                  slug:
-                    !form.slug.trim() || form.slug === slugifyProductTitle(form.title)
-                      ? slugifyProductTitle(title)
-                      : form.slug,
-                });
-              }}
-            />
-            {errors.title ? <span className={styles.error}>{errors.title}</span> : null}
-          </label>
-
-          <div className={styles.categoryRow}>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Категория</span>
-              <select
-                className={styles.select}
-                value={form.categoryId}
-                onChange={(event) => updateForm({ categoryId: event.target.value })}
-              >
-                {categoryOptions.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.title}
-                  </option>
-                ))}
-              </select>
-              {errors.categoryId ? (
-                <span className={styles.error}>{errors.categoryId}</span>
-              ) : null}
-            </label>
-
-            {!showNewCategory ? (
-              <button
-                type="button"
-                className={styles.secondaryButton}
-                onClick={() => setShowNewCategory(true)}
-              >
-                + Новая категория
-              </button>
-            ) : (
-              <div className={styles.newCategoryBox}>
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Название категории</span>
-                  <input
-                    className={styles.input}
-                    value={newCategoryTitle}
-                    placeholder="Например: Тюльпаны"
-                    onChange={(event) => setNewCategoryTitle(event.target.value)}
-                  />
-                </label>
-                {categoryError ? (
-                  <p className={styles.error}>{categoryError}</p>
-                ) : null}
-                <div className={styles.inlineActions}>
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={() => {
-                      setShowNewCategory(false);
-                      setNewCategoryTitle("");
-                      setCategoryError(null);
-                    }}
-                  >
-                    Отмена
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.uploadButton}
-                    onClick={handleCreateCategory}
-                  >
-                    Сохранить
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Цена, ₽</span>
-            <input
-              className={`${styles.input} ${styles.priceInput}`}
-              inputMode="numeric"
-              placeholder="4500"
-              value={basePrice}
-              onChange={(event) => setBasePrice(event.target.value)}
-            />
-            {errors.sizePrices ? (
-              <span className={styles.error}>{errors.sizePrices}</span>
-            ) : null}
-          </label>
+          <div className={styles.card}>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Название</span>
+              <input
+                className={styles.input}
+                value={form.title}
+                placeholder="Букет из 25 роз"
+                onChange={(event) => {
+                  const title = event.target.value;
+                  updateForm({
+                    title,
+                    slug:
+                      !form.slug.trim() || form.slug === slugifyProductTitle(form.title)
+                        ? slugifyProductTitle(title)
+                        : form.slug,
+                  });
+                }}
+              />
+              {errors.title ? <span className={styles.error}>{errors.title}</span> : null}
+            </label>
 
-          <button
-            type="button"
-            className={styles.aiButton}
-            onClick={() => void runAiSuggest()}
-            disabled={isAiLoading}
-          >
-            {isAiLoading ? "AI думает…" : "✨ AI заполнить"}
-          </button>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Категория</span>
+              <FastCategoryPicker
+                value={form.categoryId}
+                onChange={(categoryId) => {
+                  recordCategoryUse(categoryId);
+                  updateForm({ categoryId });
+                }}
+                error={errors.categoryId}
+              />
+            </div>
 
-          <details className={styles.details}>
-            <summary className={styles.detailsSummary}>Дополнительно</summary>
-            <div className={styles.detailsBody}>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Цена, ₽</span>
+              <input
+                className={`${styles.input} ${styles.priceInput}`}
+                inputMode="numeric"
+                placeholder="4500"
+                value={basePrice}
+                onChange={(event) => setBasePrice(event.target.value)}
+              />
+              {errors.sizePrices ? (
+                <span className={styles.error}>{errors.sizePrices}</span>
+              ) : null}
+            </label>
+          </div>
+
+          <details className={styles.advanced}>
+            <summary className={styles.advancedSummary}>Advanced</summary>
+            <div className={styles.advancedBody}>
               <label className={styles.field}>
-                <span className={styles.fieldLabel}>Краткое описание</span>
+                <span className={styles.fieldLabel}>Описание</span>
                 <textarea
                   className={styles.textarea}
                   rows={3}
@@ -480,10 +308,11 @@ export function FastProductCreate({
               <div className={styles.sizeGrid}>
                 {SIZE_IDS.map((sizeId) => (
                   <label key={sizeId} className={styles.field}>
-                    <span className={styles.fieldLabel}>{sizeId} · ₽</span>
+                    <span className={styles.fieldLabel}>{sizeId}</span>
                     <input
                       className={styles.input}
                       inputMode="numeric"
+                      placeholder="₽"
                       value={form.sizePrices[sizeId]}
                       onChange={(event) =>
                         updateForm({
@@ -517,7 +346,30 @@ export function FastProductCreate({
               </label>
 
               <label className={styles.field}>
-                <span className={styles.fieldLabel}>URL (slug)</span>
+                <span className={styles.fieldLabel}>SEO-заголовок</span>
+                <input
+                  className={styles.input}
+                  value={form.seoTitle}
+                  placeholder="Авто при публикации"
+                  onChange={(event) => updateForm({ seoTitle: event.target.value })}
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>SEO-описание</span>
+                <textarea
+                  className={styles.textarea}
+                  rows={3}
+                  value={form.seoDescription}
+                  placeholder="Авто при публикации"
+                  onChange={(event) =>
+                    updateForm({ seoDescription: event.target.value })
+                  }
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Slug</span>
                 <input
                   className={styles.input}
                   value={form.seoSlug || form.slug}
@@ -529,30 +381,7 @@ export function FastProductCreate({
               </label>
 
               <label className={styles.field}>
-                <span className={styles.fieldLabel}>SEO-заголовок</span>
-                <input
-                  className={styles.input}
-                  value={form.seoTitle}
-                  placeholder="Заполнится автоматически"
-                  onChange={(event) => updateForm({ seoTitle: event.target.value })}
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>SEO-описание</span>
-                <textarea
-                  className={styles.textarea}
-                  rows={3}
-                  value={form.seoDescription}
-                  placeholder="Заполнится автоматически"
-                  onChange={(event) =>
-                    updateForm({ seoDescription: event.target.value })
-                  }
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Alt-текст фото</span>
+                <span className={styles.fieldLabel}>Alt-текст</span>
                 <input
                   className={styles.input}
                   value={form.seoImageAlt || form.mainImageAlt}
@@ -564,48 +393,98 @@ export function FastProductCreate({
                   }
                 />
               </label>
+
+              <details className={styles.technicalBlock}>
+                <summary className={styles.technicalSummary}>Technical data</summary>
+                <pre className={styles.technicalPre}>
+                  {JSON.stringify(
+                    {
+                      slug: form.seoSlug || form.slug,
+                      seoTitle: form.seoTitle,
+                      seoDescription: form.seoDescription,
+                      availability: form.availability,
+                    },
+                    null,
+                    2,
+                  )}
+                </pre>
+              </details>
             </div>
           </details>
         </div>
 
-        <div className={styles.fixedBar}>
+        <footer className={styles.fixedBar}>
           <div className={styles.fixedBarInner}>
-            <button
-              type="button"
-              className={styles.publishButton}
-              onClick={submitPublish}
-              disabled={isSaving}
-            >
-              {isSaving ? "Публикация…" : "Опубликовать"}
-            </button>
             <button
               type="button"
               className={styles.draftButton}
               onClick={submitDraft}
               disabled={isSaving}
             >
-              Сохранить черновик
+              Save Draft
+            </button>
+            <button
+              type="button"
+              className={styles.previewButton}
+              onClick={() => setPreviewOpen(true)}
+            >
+              Preview
+            </button>
+            <button
+              type="button"
+              className={styles.publishButton}
+              onClick={submitPublish}
+              disabled={isSaving}
+            >
+              {isSaving ? "…" : "Publish"}
             </button>
           </div>
-        </div>
+        </footer>
       </div>
 
-      {aiSheetOpen ? (
-        <div className={styles.aiOverlay} role="presentation">
-          <section className={styles.aiSheet} aria-label="AI подсказки">
-            <div className={styles.aiSheetHeader}>
-              <h2 className={styles.aiSheetTitle}>AI подсказки</h2>
+      {previewOpen ? (
+        <div
+          className={styles.sheetOverlay}
+          role="presentation"
+          onClick={() => setPreviewOpen(false)}
+        >
+          <section
+            className={styles.previewSheet}
+            role="dialog"
+            aria-label="Preview"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className={styles.sheetHeader}>
+              <h2 className={styles.sheetTitle}>Preview</h2>
               <button
                 type="button"
-                className={styles.secondaryButton}
+                className={styles.sheetClose}
+                onClick={() => setPreviewOpen(false)}
+              >
+                ×
+              </button>
+            </header>
+            <AdminProductPreviewCard product={previewRecord} />
+          </section>
+        </div>
+      ) : null}
+
+      {aiSheetOpen ? (
+        <div className={styles.sheetOverlay} role="presentation">
+          <section className={styles.aiSheet} aria-label="AI Suggest">
+            <header className={styles.sheetHeader}>
+              <h2 className={styles.sheetTitle}>✨ AI Suggest</h2>
+              <button
+                type="button"
+                className={styles.sheetClose}
                 onClick={() => setAiSheetOpen(false)}
               >
-                Закрыть
+                ×
               </button>
-            </div>
+            </header>
             <p className={styles.note}>
-              Отмечены только пустые поля. Заполненные значения не перезаписываются
-              без вашего выбора.
+              Выберите поля для применения. Заполненные значения не перезаписываются
+              автоматически.
             </p>
             <ul className={styles.aiFieldList}>
               {aiPreviews.map((preview) => (
@@ -621,12 +500,8 @@ export function FastProductCreate({
                     {preview.label}
                   </label>
                   <div className={styles.aiFieldValues}>
-                    {preview.currentValue ? (
-                      <span>Текущее: {preview.currentValue}</span>
-                    ) : (
-                      <span>Текущее: пусто</span>
-                    )}
-                    <span>Предложение: {preview.suggestedValue}</span>
+                    <span>{preview.currentValue || "Пусто"}</span>
+                    <span>→ {preview.suggestedValue}</span>
                   </div>
                 </li>
               ))}
@@ -636,7 +511,7 @@ export function FastProductCreate({
               className={styles.aiApplyButton}
               onClick={applyAiSelection}
             >
-              Применить выбранное
+              Apply selected
             </button>
           </section>
         </div>

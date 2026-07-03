@@ -7,7 +7,7 @@
 import Image from "next/image";
 import { shouldUseUnoptimizedImage } from "@/components/adminCatalogManager/adminImagePersistence";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
-import { CATALOG_CATEGORY_BY_ID } from "@/components/catalogEngine/categoriesCatalog";
+import { resolveAdminCategoryTitle } from "@/components/adminCatalogManager/adminCustomCategories";
 import styles from "@/components/adminCatalogManager/AdminCatalogManager.module.css";
 
 type AdminProductPreviewCardProps = {
@@ -27,8 +27,7 @@ export function AdminProductPreviewCard({ product }: AdminProductPreviewCardProp
   const maxPrice = product.sizes.length
     ? Math.max(...product.sizes.map((size) => size.priceRub))
     : product.basePriceRub;
-  const categoryTitle =
-    CATALOG_CATEGORY_BY_ID[product.categoryIds[0] ?? ""]?.title ?? "Каталог";
+  const categoryTitle = resolveAdminCategoryTitle(product.categoryIds[0] ?? "");
 
   return (
     <section className={styles.previewCard} aria-label="Превью карточки товара">
