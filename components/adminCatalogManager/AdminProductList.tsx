@@ -119,7 +119,85 @@ export function AdminProductList({
         </select>
       </div>
 
-      <div className={styles.tableWrap}>
+      <div className={styles.mobileCardList}>
+        {filteredProducts.map((product) => {
+          const image =
+            product.images.find((item) => item.isPrimary) ?? product.images[0];
+          const categoryTitle =
+            CATALOG_CATEGORY_BY_ID[product.categoryIds[0] ?? ""]?.title ?? "—";
+          const statusLabel = getAdminProductStatusLabel(product);
+
+          return (
+            <article className={styles.mobileCard} key={product.id}>
+              <div className={styles.mobileCardTop}>
+                <div className={styles.tableThumb}>
+                  {image?.url ? (
+                    <Image
+                      src={image.url}
+                      alt={image.alt || product.title}
+                      fill
+                      sizes="48px"
+                      className={styles.tableThumbImage}
+                      unoptimized={image.url.startsWith("blob:")}
+                    />
+                  ) : (
+                    <span className={styles.tableThumbFallback}>BF</span>
+                  )}
+                </div>
+                <div className={styles.mobileCardBody}>
+                  <p className={styles.tableTitle}>{product.title}</p>
+                  <p className={styles.tableMeta}>{product.slug}</p>
+                  <span
+                    className={`${styles.statusBadge} ${
+                      product.status === "ARCHIVED"
+                        ? styles.statusArchived
+                        : product.isPublished
+                          ? styles.statusPublished
+                          : styles.statusDraft
+                    }`}
+                  >
+                    {statusLabel}
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.mobileCardRow}>
+                <p className={styles.mobileCardLabel}>Категория</p>
+                <span>{categoryTitle}</span>
+              </div>
+              <div className={styles.mobileCardRow}>
+                <p className={styles.mobileCardLabel}>Цена от</p>
+                <strong>{formatPrice(product.basePriceRub)} ₽</strong>
+              </div>
+
+              <div className={styles.mobileCardActions}>
+                <button
+                  type="button"
+                  className={styles.ghostButton}
+                  onClick={() => onEdit(product.id)}
+                >
+                  ✏️ Редактировать
+                </button>
+                {product.status !== "ARCHIVED" ? (
+                  <button
+                    type="button"
+                    className={styles.ghostButton}
+                    onClick={() => onArchive(product.id)}
+                  >
+                    🗑 Архивировать
+                  </button>
+                ) : null}
+              </div>
+            </article>
+          );
+        })}
+
+        {filteredProducts.length === 0 ? (
+          <p className={styles.emptyState}>Товары не найдены.</p>
+        ) : null}
+      </div>
+
+      <div className={`${styles.tableWrap} ${styles.desktopTableWrap}`}>
         <table className={styles.table}>
           <thead>
             <tr>

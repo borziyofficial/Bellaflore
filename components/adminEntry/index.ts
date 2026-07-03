@@ -35,3 +35,9 @@ export {
 export type { AdminNavigationItem } from "@/components/adminEntry/adminNavigationItems";
 
 export { AdminNavigationShell } from "@/components/adminEntry/AdminNavigationShell";
+export { AdminAppShell } from "@/components/adminEntry/AdminAppShell";
+export {
+  ADMIN_APP_NAV_ITEMS,
+  resolveAdminAppNavId,
+} from "@/components/adminEntry/adminAppNavigation";
+export type { AdminAppNavId, AdminAppNavItem } from "@/components/adminEntry/adminAppNavigation";

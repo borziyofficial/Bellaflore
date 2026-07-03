@@ -21,7 +21,11 @@ import {
 import { useAdminCatalogManager } from "@/components/adminCatalogManager/useAdminCatalogManager";
 import styles from "@/components/adminCatalogManager/AdminCatalogManager.module.css";
 
-export function AdminCatalogManager() {
+type AdminCatalogManagerProps = {
+  embedded?: boolean;
+};
+
+export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerProps) {
   const {
     products,
     isReady,
@@ -143,24 +147,30 @@ export function AdminCatalogManager() {
 
   if (!isReady) {
     return (
-      <div className={styles.shell}>
+      <div className={embedded ? styles.embeddedRoot : styles.shell}>
         <p className={styles.loading}>Загрузка каталога…</p>
       </div>
     );
   }
 
   return (
-    <div className={styles.shell}>
-      <header className={styles.topBar}>
-        <div className={styles.topBarMain}>
-          <Link href="/admin" className={styles.backLink}>
-            ← Панель администратора
-          </Link>
-          <p className={styles.topMeta}>
-            {products.length} товаров · {publishedCount} опубликовано
-          </p>
-        </div>
-      </header>
+    <div className={embedded ? styles.embeddedRoot : styles.shell}>
+      {!embedded ? (
+        <header className={styles.topBar}>
+          <div className={styles.topBarMain}>
+            <Link href="/admin" className={styles.backLink}>
+              ← Панель администратора
+            </Link>
+            <p className={styles.topMeta}>
+              {products.length} товаров · {publishedCount} опубликовано
+            </p>
+          </div>
+        </header>
+      ) : (
+        <p className={styles.topMeta}>
+          {products.length} товаров · {publishedCount} опубликовано
+        </p>
+      )}
 
       {loadError ? <p className={styles.errorBanner}>{loadError}</p> : null}
       {imageStorageWarning ? (

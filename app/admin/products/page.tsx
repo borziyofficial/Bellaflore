@@ -5,12 +5,14 @@
 "use client";
 
 import { AdminCatalogManager } from "@/components/adminCatalogManager/AdminCatalogManager";
-import { AdminEntryGate } from "@/components/adminEntry/AdminEntryGate";
+import { AdminAppShell, AdminEntryGate } from "@/components/adminEntry";
 
 export default function AdminProductsPage() {
   return (
     <AdminEntryGate route="/admin">
-      <AdminCatalogManager />
+      <AdminAppShell title="Товары">
+        <AdminCatalogManager embedded />
+      </AdminAppShell>
     </AdminEntryGate>
   );
 }

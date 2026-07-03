@@ -261,6 +261,62 @@
   color: var(--admin-muted);
 }
 
+.embeddedRoot {
+  display: grid;
+  gap: 12px;
+}
+
+.mobileCardList {
+  display: none;
+}
+
+.mobileCard {
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow);
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.mobileCardTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.mobileCardBody {
+  display: grid;
+  gap: 8px;
+}
+
+.mobileCardRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mobileCardLabel {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mobileCardActions {
+  display: grid;
+  gap: 8px;
+}
+
+.desktopTableWrap {
+  display: block;
+}
+
 .formLayout {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
@@ -992,6 +1048,17 @@
   .sizeGrid,
   .imagePreviewGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .desktopTableWrap {
+    display: none;
+  }
+
+  .mobileCardList {
+    display: grid;
+    gap: 10px;
   }
 }
 

@@ -55,18 +55,10 @@ export const BELLAFLORE_MODULE_SECTIONS: AdminModuleSection[] = [
     href: "/admin/delivery",
   },
   {
-    id: "catalog",
-    title: "Каталог",
-    description: "Структура категорий и витрины",
-    statusLabel: "Скоро",
-    disabled: true,
-  },
-  {
-    id: "homepage",
-    title: "Контент главной",
-    description: "Hero, подборки и промо-блоки",
-    statusLabel: "Скоро",
-    disabled: true,
+    id: "clients",
+    title: "Клиенты",
+    description: "CRM и история заказов",
+    href: "/admin/crm/clients",
   },
 ];
 

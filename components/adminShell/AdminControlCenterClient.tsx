@@ -5,12 +5,18 @@
 "use client";
 
 import { AdminEntryGate } from "@/components/adminEntry";
-import { AdminShell } from "@/components/adminShell/AdminShell";
+import { AdminAppShell } from "@/components/adminEntry/AdminAppShell";
+import { AdminDashboardHome } from "@/components/adminShell/AdminDashboardHome";
+import { useAdminModule } from "@/components/adminShell/useAdminModule";
 
 export function AdminControlCenterClient() {
+  const [activeModuleId] = useAdminModule();
+
   return (
     <AdminEntryGate route="/admin">
-      <AdminShell />
+      <AdminAppShell title="Дашборд">
+        <AdminDashboardHome activeModuleId={activeModuleId} />
+      </AdminAppShell>
     </AdminEntryGate>
   );
 }
