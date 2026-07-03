@@ -6,7 +6,8 @@
 
 .heading {
   margin: 0;
-  color: var(--champagne-text, var(--bf-text));
+  color: var(--text-light, #ededed);
+  font-family: var(--font-brand, "Playfair Display", serif);
   font-size: clamp(18px, 3.4vw, 22px);
   font-weight: 600;
 }
@@ -22,9 +23,9 @@
   gap: 12px;
   align-items: center;
   padding: 12px 14px;
-  border: 1px solid rgba(176, 141, 87, 0.18);
+  border: 1px solid rgba(212, 175, 55, 0.22);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.42);
+  background: #333333;
   transition:
     border-color 0.22s ease,
     background-color 0.22s ease,
@@ -32,8 +33,8 @@
 }
 
 .cardSelected {
-  border-color: rgba(155, 112, 118, 0.52);
-  background: linear-gradient(180deg, #fff8f9 0%, #f9edf0 100%);
+  border-color: rgba(212, 175, 55, 0.52);
+  background: rgba(212, 175, 55, 0.12);
 }
 
 .emoji {
@@ -49,14 +50,16 @@
 
 .title {
   margin: 0;
-  color: var(--champagne-text, var(--bf-text));
+  color: var(--text-light, #ededed);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   font-weight: 600;
 }
 
 .description {
   margin: 0;
-  color: var(--champagne-muted, var(--bf-muted));
+  color: rgba(237, 237, 237, 0.62);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   line-height: 1.35;
 }
@@ -67,17 +70,20 @@
   padding: 0 12px;
   border: 0;
   border-radius: 999px;
-  background: rgba(155, 112, 118, 0.12);
-  color: var(--rose-accent, #9b7076);
-  font: inherit;
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--gold-light, #f5d98c);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .toggleSelected {
-  background: rgba(155, 112, 118, 0.88);
-  color: #fff;
+  background: var(
+    --bf-gold-gradient,
+    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
+  );
+  color: #1a1a1a;
 }
 
 @keyframes productFadeIn {

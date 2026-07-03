@@ -20,12 +20,10 @@
   gap: 10px;
   align-items: center;
   padding: 12px 12px;
-  border: 1px solid rgba(176, 141, 87, 0.22);
+  border: 1px solid rgba(212, 175, 55, 0.22);
   border-radius: 20px;
-  background: rgba(255, 252, 250, 0.96);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 12px 32px rgba(62, 44, 36, 0.14);
+  background: var(--bg-secondary, #2a2a2a);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 }
 
 .priceBlock {
@@ -36,7 +34,8 @@
 
 .priceMeta {
   margin: 0;
-  color: var(--champagne-text, var(--bf-text));
+  color: var(--gold-light, #f5d98c);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 15px;
   font-weight: 700;
   line-height: 1.15;
@@ -44,7 +43,8 @@
 
 .deliveryNote {
   margin: 0;
-  color: rgba(61, 49, 38, 0.58);
+  color: rgba(237, 237, 237, 0.58);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 11px;
   line-height: 1.25;
   white-space: nowrap;
@@ -59,17 +59,17 @@
   min-width: 46px;
   min-height: 46px;
   padding: 0;
-  border: 1px solid rgba(176, 141, 87, 0.22);
+  border: 1px solid rgba(212, 175, 55, 0.28);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.72);
-  color: rgba(61, 49, 38, 0.78);
+  background: #333333;
+  color: var(--text-light, #ededed);
   cursor: pointer;
 }
 
 .iconButtonActive {
-  border-color: rgba(155, 112, 118, 0.52);
-  background: rgba(247, 227, 232, 0.88);
-  color: rgba(155, 112, 118, 0.92);
+  border-color: rgba(212, 175, 55, 0.52);
+  background: rgba(212, 175, 55, 0.16);
+  color: var(--gold-light, #f5d98c);
 }
 
 .heartIcon {
@@ -79,15 +79,18 @@
 }
 
 .buyButton {
-  min-height: 46px;
+  min-height: var(--bf-button-height, 44px);
   padding: 0 18px;
   border: 0;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #b8848d 0%, #9b7076 100%);
-  color: #fff;
-  font: inherit;
+  border-radius: var(--bf-button-radius, 999px);
+  background: var(
+    --bf-gold-gradient,
+    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
+  );
+  color: #1a1a1a;
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
 }

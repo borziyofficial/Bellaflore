@@ -14,9 +14,10 @@ Purpose (EN): Styles for checkout address intelligence input
   width: 100%;
   padding: 11px 13px;
   border-radius: 14px;
-  border: 1px solid rgba(176, 141, 87, 0.18);
-  background: rgba(255, 255, 255, 0.72);
-  color: inherit;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  background: var(--bf-ui-input-bg, #333333);
+  color: var(--text-light, #ededed);
+  font-family: var(--font-body, Inter, sans-serif);
   font: inherit;
 }
 
@@ -93,12 +94,9 @@ Purpose (EN): Styles for checkout address intelligence input
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: 14px;
-  border: 0.5px solid rgba(255, 244, 220, 0.42);
-  background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(253, 251, 247, 0.96));
-  box-shadow:
-    0 14px 34px rgba(9, 8, 7, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  background: var(--bg-secondary, #2a2a2a);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
 }
 
 .suggestion {
@@ -116,7 +114,7 @@ Purpose (EN): Styles for checkout address intelligence input
 
 .suggestion:hover,
 .suggestionActive {
-  background: rgba(234, 214, 214, 0.22);
+  background: rgba(212, 175, 55, 0.12);
 }
 
 .suggestionLabel {
@@ -178,14 +176,14 @@ Purpose (EN): Styles for checkout address intelligence input
   .input {
     padding: 10px 12px;
     font-size: 15px;
-    color: #3d3630;
+    color: var(--text-light, #ededed);
   }
 
   .helper,
   .emptyState,
   .loadingHint {
     font-size: 0.72rem;
-    color: #75695c;
+    color: rgba(237, 237, 237, 0.62);
   }
 
   .suggestions {
@@ -194,7 +192,7 @@ Purpose (EN): Styles for checkout address intelligence input
 
   .suggestionLabel {
     font-size: 0.8rem;
-    color: #3d3630;
+    color: var(--text-light, #ededed);
   }
 
   .suggestionRegion {

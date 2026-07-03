@@ -212,10 +212,31 @@ html[data-theme="dark-luxury"] .hero {
 }
 
 html[data-theme="dark-luxury"] .hero-subtitle {
-  color: rgba(237, 237, 237, 0.72);
+  color: rgba(237, 237, 237, 0.82);
   font-family: var(--font-body);
 }
 
 html[data-theme="dark-luxury"] .menu-overlay {
   background: rgba(0, 0, 0, 0.55);
+}
+
+/* --- Hero dark overlay & gold title --- */
+html[data-theme="dark-luxury"] .hero::after {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12) 0%, transparent 48%),
+    linear-gradient(
+      180deg,
+      rgba(26, 26, 26, 0.18) 0%,
+      rgba(26, 26, 26, 0.62) 48%,
+      rgba(26, 26, 26, 0.88) 100%
+    );
+}
+
+html[data-theme="dark-luxury"] .hero-title {
+  color: var(--gold-light);
+  background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold-dark) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 8px 20px rgba(212, 175, 55, 0.18));
 }
