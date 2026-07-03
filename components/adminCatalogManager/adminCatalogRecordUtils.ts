@@ -2,6 +2,7 @@
 // SECTION: Admin Catalog Manager — record utilities
 // РАЗДЕЛ: Утилиты записей каталога
 // ==================================================
+import { resolveAdminCategoryById } from "@/components/adminCatalogManager/adminCustomCategories";
 import { CATALOG_CATEGORY_BY_ID } from "@/components/catalogEngine/categoriesCatalog";
 import { CATALOG_ENGINE_VERSION } from "@/components/catalogEngine/catalogBootstrap";
 import type {
@@ -46,6 +47,7 @@ export function createEmptyAdminProductForm(): AdminProductFormState {
     composition: "",
     tags: "",
     status: "draft",
+    availability: "in_stock",
     sizePrices: { S: "", M: "", L: "", XL: "" },
     isFeatured: false,
     isNew: false,
@@ -144,7 +146,7 @@ function buildSearchIndexText(product: CatalogProductRecord): string {
     product.tags.join(" "),
     product.searchTerms.join(" "),
     product.categoryIds
-      .map((id) => CATALOG_CATEGORY_BY_ID[id]?.title ?? "")
+      .map((id) => resolveAdminCategoryById(id)?.title ?? CATALOG_CATEGORY_BY_ID[id]?.title ?? "")
       .join(" "),
   ]
     .join(" ")
@@ -171,7 +173,9 @@ export function adminFormToCatalogUpsertInput(
   const images = buildImages(normalizedForm);
   const primaryImageUrl = images[0]?.url ?? "";
   const tags = parseTagsInput(normalizedForm.tags);
-  const category = CATALOG_CATEGORY_BY_ID[normalizedForm.categoryId];
+  const category =
+    resolveAdminCategoryById(normalizedForm.categoryId) ??
+    CATALOG_CATEGORY_BY_ID[normalizedForm.categoryId];
   const isPublished = normalizedForm.status === "published";
   const seoBundle = buildProductSeoBundle({
     title: normalizedForm.title.trim(),
@@ -214,7 +218,7 @@ export function adminFormToCatalogUpsertInput(
     sizes,
     images,
     basePriceRub,
-    availability: "in_stock",
+    availability: normalizedForm.availability ?? "in_stock",
     status: isPublished ? "ACTIVE" : "DRAFT",
     isPublished,
     isFeatured: normalizedForm.isFeatured,
@@ -305,6 +309,7 @@ export function catalogRecordToAdminForm(
     composition: product.metadata.composition ?? "",
     tags: formatTagsInput(product.tags),
     status: product.status === "ARCHIVED" ? "draft" : status,
+    availability: product.availability ?? "in_stock",
     sizePrices,
     isFeatured: product.isFeatured,
     isNew: product.isNew,

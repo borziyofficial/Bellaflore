@@ -106,6 +106,7 @@ export function storedProductToAdminForm(
     composition: product.composition,
     tags: product.tags.join(", "),
     status: product.status === "published" ? "published" : "draft",
+    availability: "in_stock",
     sizePrices,
     isFeatured: product.isFeatured,
     isNew: product.isNew,

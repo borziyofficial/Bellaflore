@@ -10,7 +10,7 @@ import type { AdminProductStatusFilter } from "@/components/adminCatalogManager/
 import {
   getAdminProductStatusLabel,
 } from "@/components/adminCatalogManager/adminCatalogRecordUtils";
-import { CATALOG_CATEGORY_BY_ID } from "@/components/catalogEngine/categoriesCatalog";
+import { resolveAdminCategoryTitle } from "@/components/adminCatalogManager/adminCustomCategories";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import styles from "@/components/adminCatalogManager/AdminCatalogManager.module.css";
 
@@ -37,9 +37,10 @@ export function AdminProductList({
 
   const categories = useMemo(() => {
     const ids = new Set(products.flatMap((product) => product.categoryIds));
-    return Array.from(ids)
-      .map((id) => CATALOG_CATEGORY_BY_ID[id])
-      .filter(Boolean);
+    return Array.from(ids).map((id) => ({
+      id,
+      title: resolveAdminCategoryTitle(id),
+    }));
   }, [products]);
 
   const filteredProducts = useMemo(() => {
@@ -97,13 +98,11 @@ export function AdminProductList({
           onChange={(event) => setCategoryFilter(event.target.value)}
         >
           <option value="all">Все категории</option>
-          {categories.map((category) =>
-            category ? (
-              <option key={category.id} value={category.id}>
-                {category.title}
-              </option>
-            ) : null,
-          )}
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.title}
+            </option>
+          ))}
         </select>
         <select
           className={styles.select}
@@ -123,8 +122,9 @@ export function AdminProductList({
         {filteredProducts.map((product) => {
           const image =
             product.images.find((item) => item.isPrimary) ?? product.images[0];
-          const categoryTitle =
-            CATALOG_CATEGORY_BY_ID[product.categoryIds[0] ?? ""]?.title ?? "—";
+          const categoryTitle = resolveAdminCategoryTitle(
+            product.categoryIds[0] ?? "",
+          );
           const statusLabel = getAdminProductStatusLabel(product);
 
           return (
@@ -212,8 +212,9 @@ export function AdminProductList({
             {filteredProducts.map((product) => {
               const image =
                 product.images.find((item) => item.isPrimary) ?? product.images[0];
-              const categoryTitle =
-                CATALOG_CATEGORY_BY_ID[product.categoryIds[0] ?? ""]?.title ?? "—";
+              const categoryTitle = resolveAdminCategoryTitle(
+                product.categoryIds[0] ?? "",
+              );
               const statusLabel = getAdminProductStatusLabel(product);
 
               return (

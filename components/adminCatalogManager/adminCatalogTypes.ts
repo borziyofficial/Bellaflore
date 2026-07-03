@@ -22,6 +22,7 @@ export type AdminProductFormState = {
   composition: string;
   tags: string;
   status: AdminProductFormStatus;
+  availability: "in_stock" | "out_of_stock" | "coming_soon" | "made_to_order";
   sizePrices: Record<CatalogProductSizeId, string>;
   isFeatured: boolean;
   isNew: boolean;
@@ -80,4 +81,4 @@ export type MockAiBundle = {
   seo: MockSeoSuggestion;
 };
 
-export type AdminCatalogView = "list" | "create" | "edit";
+export type AdminCatalogView = "list" | "create-fast" | "create" | "edit";

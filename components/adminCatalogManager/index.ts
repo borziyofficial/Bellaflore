@@ -1,4 +1,5 @@
 export { AdminCatalogManager } from "@/components/adminCatalogManager/AdminCatalogManager";
+export { FastProductCreate } from "@/components/adminCatalogManager/FastProductCreate";
 export { AdminProductWizard } from "@/components/adminCatalogManager/AdminProductWizard";
 export { useAdminCatalogManager } from "@/components/adminCatalogManager/useAdminCatalogManager";
 export { AdminProductSeoAiPanel } from "@/components/adminCatalogManager/AdminProductSeoAiPanel";

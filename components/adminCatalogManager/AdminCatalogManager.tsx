@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AdminProductForm } from "@/components/adminCatalogManager/AdminProductForm";
+import { FastProductCreate } from "@/components/adminCatalogManager/FastProductCreate";
 import { AdminProductList } from "@/components/adminCatalogManager/AdminProductList";
 import { AdminPublishSuccessPanel } from "@/components/adminCatalogManager/AdminPublishSuccessPanel";
 import type {
@@ -58,6 +59,14 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
     setPublishedProduct(null);
     setActionError(null);
     setFormSeed(createEmptyAdminProductForm());
+    setEditingId(null);
+    setView("create-fast");
+  };
+
+  const openAdvancedCreate = (form: AdminProductFormState = formSeed) => {
+    setPublishedProduct(null);
+    setActionError(null);
+    setFormSeed(form);
     setEditingId(null);
     setView("create");
   };
@@ -219,6 +228,25 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
             }}
           />
         </div>
+      ) : view === "create-fast" ? (
+        <FastProductCreate
+          key="create-fast"
+          initialForm={formSeed}
+          onSaveDraft={(form) => {
+            void handleSaveDraft(form);
+          }}
+          onPublish={(form) => {
+            void handlePublish(form);
+          }}
+          onCancel={() => {
+            setPublishedProduct(null);
+            setView("list");
+            setEditingId(null);
+          }}
+          onSwitchToAdvanced={openAdvancedCreate}
+          isSaving={isSaving}
+          imageStorageWarning={imageStorageWarning}
+        />
       ) : (
         <AdminProductForm
           key={editingId ?? "create"}

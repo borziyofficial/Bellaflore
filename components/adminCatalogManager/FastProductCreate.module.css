@@ -1,0 +1,399 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 120px);
+  max-width: 560px;
+  margin: 0 auto;
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.headerMain {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #8a6b3d;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.headerActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.backButton,
+.advancedLink {
+  min-height: 44px;
+  border: 1px solid rgba(138, 107, 61, 0.2);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: #fff;
+  color: #2f2a24;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.advancedLink {
+  color: #8a6b3d;
+  background: rgba(138, 107, 61, 0.08);
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.photoSection {
+  display: grid;
+  gap: 10px;
+}
+
+.photoFrame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #efe6da 0%, #f8f2ea 100%);
+  border: 1.5px dashed rgba(138, 107, 61, 0.35);
+}
+
+.photoImage {
+  object-fit: cover;
+}
+
+.photoEmpty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #75695c;
+  font-weight: 600;
+}
+
+.photoIcon {
+  font-size: 32px;
+}
+
+.photoActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.uploadButton,
+.secondaryButton {
+  min-height: 52px;
+  border-radius: 14px;
+  border: 1px solid rgba(138, 107, 61, 0.22);
+  background: #fff;
+  color: #2f2a24;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.uploadButton {
+  grid-column: 1 / -1;
+  background: linear-gradient(145deg, #3a342d 0%, #2f2a24 100%);
+  color: #fffaf2;
+  border-color: transparent;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #51463a;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid rgba(138, 107, 61, 0.2);
+  border-radius: 14px;
+  background: #fffcf7;
+  color: #2f2a24;
+  padding: 14px 16px;
+  font: inherit;
+  font-size: 16px;
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.priceInput {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.categoryRow {
+  display: grid;
+  gap: 10px;
+}
+
+.newCategoryBox {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(138, 107, 61, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.inlineActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.aiButton {
+  min-height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(47, 107, 79, 0.28);
+  background: rgba(47, 107, 79, 0.08);
+  color: #2f6b4f;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.aiButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.details {
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  overflow: hidden;
+}
+
+.detailsSummary {
+  list-style: none;
+  cursor: pointer;
+  padding: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #2f2a24;
+}
+
+.detailsSummary::-webkit-details-marker {
+  display: none;
+}
+
+.detailsBody {
+  display: grid;
+  gap: 14px;
+  padding: 0 16px 16px;
+}
+
+.sizeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.error {
+  margin: 0;
+  color: #8e2020;
+  font-size: 13px;
+}
+
+.note {
+  margin: 0;
+  color: #75695c;
+  font-size: 13px;
+}
+
+.warning {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(184, 134, 11, 0.12);
+  color: #8a6b00;
+  font-size: 13px;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.fixedBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, transparent, rgba(243, 236, 226, 0.96) 24%);
+  backdrop-filter: blur(8px);
+}
+
+.fixedBarInner {
+  max-width: 560px;
+  margin: 0 auto;
+  display: grid;
+  gap: 8px;
+}
+
+.publishButton {
+  min-height: 56px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #8a6b3d 0%, #6f5128 100%);
+  color: #fff;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(111, 81, 40, 0.28);
+}
+
+.publishButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.draftButton {
+  min-height: 44px;
+  border: 1px solid rgba(138, 107, 61, 0.22);
+  border-radius: 12px;
+  background: #fff;
+  color: #51463a;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.aiOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  align-items: end;
+  background: rgba(47, 42, 36, 0.42);
+}
+
+.aiSheet {
+  max-height: 85dvh;
+  overflow: auto;
+  border-radius: 20px 20px 0 0;
+  background: #fffcf7;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  gap: 14px;
+}
+
+.aiSheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.aiSheetTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.aiFieldList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aiFieldItem {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  background: #fff;
+}
+
+.aiFieldLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.aiFieldValues {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: #75695c;
+}
+
+.aiApplyButton {
+  min-height: 52px;
+  border: 0;
+  border-radius: 14px;
+  background: #2f6b4f;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .fixedBar {
+    position: sticky;
+    padding-left: 0;
+    padding-right: 0;
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .shell {
+    padding-bottom: 24px;
+  }
+}
