@@ -67,9 +67,9 @@
 }
 
 .iconButtonActive {
-  border-color: rgba(212, 175, 55, 0.52);
-  background: rgba(212, 175, 55, 0.16);
-  color: var(--gold-light, #f5d98c);
+  border-color: rgba(230, 57, 70, 0.45);
+  background: rgba(230, 57, 70, 0.12);
+  color: #e63946;
 }
 
 .heartIcon {

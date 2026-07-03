@@ -73,11 +73,12 @@
 }
 
 .favoriteActive {
-  color: var(--gold-light, #f5d98c);
+  color: #e63946;
 }
 
 .favoriteActive svg {
-  fill: currentColor;
+  fill: #e63946;
+  stroke: #e63946;
 }
 
 .info {
@@ -145,49 +146,15 @@
 }
 
 .actionRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
   gap: 8px;
   margin-top: auto;
   padding-top: 4px;
 }
 
-.sizePicker {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  min-height: var(--bf-button-height, 44px);
-  padding: 0 12px;
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  border-radius: var(--bf-button-radius, 999px);
-  background: #333333;
-  color: var(--text-light, #ededed);
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.sizePickerValue {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.singleSize {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--bf-button-height, 44px);
-  color: rgba(237, 237, 237, 0.62);
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.orderButton {
+.buyButton {
+  flex: 1 1 auto;
   min-height: var(--bf-button-height, 44px);
   padding: 0 16px;
   border: 0;
@@ -203,6 +170,124 @@
   line-height: 1;
   cursor: pointer;
   scroll-margin-bottom: calc(148px + env(safe-area-inset-bottom));
+}
+
+.sizePopoverWrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.chevronButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 44px;
+  min-height: var(--bf-button-height, 44px);
+  padding: 0 10px;
+  border: 1px solid rgba(212, 175, 55, 0.32);
+  border-radius: var(--bf-button-radius, 999px);
+  background: #333333;
+  color: rgba(237, 237, 237, 0.82);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.chevronButtonOpen {
+  border-color: rgba(212, 175, 55, 0.52);
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.chevronSize {
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.chevronIcon {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.2s ease;
+}
+
+.chevronButtonOpen .chevronIcon {
+  transform: rotate(180deg);
+}
+
+.sizePopover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 5;
+  display: grid;
+  gap: 4px;
+  min-width: 132px;
+  padding: 6px;
+  border: 1px solid rgba(212, 175, 55, 0.24);
+  border-radius: 12px;
+  background: rgba(26, 26, 26, 0.98);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.42);
+  animation: sizePopoverIn 0.18s ease;
+}
+
+.sizeOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(237, 237, 237, 0.78);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.sizeOption span:last-child {
+  color: var(--gold-light, #f5d98c);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.sizeOptionActive {
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--text-light, #ededed);
+}
+
+@keyframes sizePopoverIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.singleSize {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--bf-button-height, 44px);
+  padding: 0 4px;
+  color: rgba(237, 237, 237, 0.62);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {

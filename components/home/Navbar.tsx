@@ -21,6 +21,7 @@ type NavbarProps = {
   navigationItems: NavigationItem[];
   scrolled: boolean;
   menuOpen: boolean;
+  elevated?: boolean;
   onToggleMenu: () => void;
   onCloseMenu: () => void;
   onNavigate?: (href: string) => void;
@@ -30,6 +31,7 @@ export function Navbar({
   navigationItems,
   scrolled,
   menuOpen,
+  elevated = false,
   onToggleMenu,
   onCloseMenu,
   onNavigate,
@@ -55,7 +57,9 @@ export function Navbar({
 
   return (
     <>
-      <nav className={`navbar ${styles.navbar} ${scrolled ? "scrolled" : ""}`}>
+      <nav
+        className={`navbar ${styles.navbar} ${scrolled ? "scrolled" : ""} ${elevated ? "navbar-elevated" : ""}`}
+      >
         <BrandLogo variant="nav" className={`logo ${styles.logo}`} />
 
         <div className="nav-center">
@@ -86,7 +90,7 @@ export function Navbar({
           aria-expanded={menuOpen}
           aria-controls="mobile-navigation"
         >
-          <span aria-hidden="true">{menuOpen ? "✕" : "≡"}</span>
+          <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
           МЕНЮ
         </button>
       </nav>

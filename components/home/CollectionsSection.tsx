@@ -127,7 +127,8 @@ export function CollectionsSection({
           <input
             id="home-catalog-search"
             ref={searchInputRef}
-            type="search"
+            type="text"
+            inputMode="search"
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder={homeCatalogSearchPlaceholder}
@@ -142,7 +143,9 @@ export function CollectionsSection({
               onClick={clearSearch}
               aria-label="Очистить поиск"
             >
-              ×
+              <svg aria-hidden="true" viewBox="0 0 12 12">
+                <path d="M3 3l6 6M9 3 3 9" />
+              </svg>
             </button>
           ) : null}
         </label>

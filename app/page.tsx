@@ -615,11 +615,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (
-      !favoritesPanelOpen &&
-      !contactHubOpen &&
-      !closingBottomNavPanel
-    ) {
+    if (!contactHubOpen && !closingBottomNavPanel) {
       return;
     }
 
@@ -629,7 +625,7 @@ export default function Home() {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [closingBottomNavPanel, contactHubOpen, favoritesPanelOpen]);
+  }, [closingBottomNavPanel, contactHubOpen]);
 
   useEffect(() => {
     const syncTimer = window.setTimeout(() => {
@@ -2148,16 +2144,15 @@ export default function Home() {
 
           Назначение (RU): Верхняя навигация со состоянием скролла и переключателем мобильного меню.
           ================================================== */}
-      {publicAppView === "catalog" ? (
-        <Navbar
+      <Navbar
           navigationItems={navigationItems}
           scrolled={scrolled}
           menuOpen={menuOpen}
+          elevated={Boolean(activeProductExperience)}
           onToggleMenu={() => setMenuOpen((prev) => !prev)}
           onCloseMenu={closeMenu}
           onNavigate={handleTopNavNavigate}
         />
-      ) : null}
 
       {/* ==================================================
           SECTION: Hero
@@ -2286,26 +2281,24 @@ export default function Home() {
 
           Назначение (RU): Фиксированная нижняя панель mobile — каталог, избранное, контакты, мой заказ и главная.
           ================================================== */}
-      {publicAppView === "catalog" ? (
-        <MobileBottomNav
-          bottomNavCompact={bottomNavCompact}
-          bottomNavAction={bottomNavAction}
-          contactHubOpen={contactHubOpen}
-          favoritesPanelOpen={favoritesPanelOpen}
-          myOrderPanelOpen={myOrderPanelOpen}
-          favoriteBouquetIds={favoriteBouquetIds}
-          handleSearchNavClick={handleSearchNavClick}
-          handleSearchNavTouchEnd={handleSearchNavTouchEnd}
-          handleContactNavClick={handleContactNavClick}
-          handleContactNavTouchEnd={handleContactNavTouchEnd}
-          handleFavoritesNavClick={handleFavoritesNavClick}
-          handleFavoritesNavTouchEnd={handleFavoritesNavTouchEnd}
-          handleMyOrderNavClick={handleMyOrderNavClick}
-          handleMyOrderNavTouchEnd={handleMyOrderNavTouchEnd}
-          handleHomeNavClick={handleHomeNavClick}
-          handleHomeNavTouchEnd={handleHomeNavTouchEnd}
-        />
-      ) : null}
+      <MobileBottomNav
+        bottomNavCompact={bottomNavCompact}
+        bottomNavAction={bottomNavAction}
+        contactHubOpen={contactHubOpen}
+        favoritesPanelOpen={favoritesPanelOpen}
+        myOrderPanelOpen={myOrderPanelOpen}
+        favoriteBouquetIds={favoriteBouquetIds}
+        handleSearchNavClick={handleSearchNavClick}
+        handleSearchNavTouchEnd={handleSearchNavTouchEnd}
+        handleContactNavClick={handleContactNavClick}
+        handleContactNavTouchEnd={handleContactNavTouchEnd}
+        handleFavoritesNavClick={handleFavoritesNavClick}
+        handleFavoritesNavTouchEnd={handleFavoritesNavTouchEnd}
+        handleMyOrderNavClick={handleMyOrderNavClick}
+        handleMyOrderNavTouchEnd={handleMyOrderNavTouchEnd}
+        handleHomeNavClick={handleHomeNavClick}
+        handleHomeNavTouchEnd={handleHomeNavTouchEnd}
+      />
 
       {/* ==================================================
           SECTION: Contact Hub

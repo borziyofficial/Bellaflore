@@ -8,68 +8,81 @@
   background: rgba(0, 0, 0, 0.62);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
+  overscroll-behavior: contain;
+  touch-action: none;
 }
 
 .sheet {
   display: flex;
   flex-direction: column;
-  width: min(440px, 100%);
+  width: min(400px, 100%);
   max-height: 100%;
   min-height: 0;
   overflow: hidden;
-  padding: 18px;
+  padding: 14px 16px 16px;
   border: 1px solid rgba(212, 175, 55, 0.22);
   border-radius: 16px;
   background: var(--bg-secondary, #2a2a2a);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
   color: var(--text-light, #ededed);
+  touch-action: pan-y;
+}
+
+.dragHandle {
+  display: none;
 }
 
 .header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .eyebrow {
   display: block;
   color: var(--gold-light, #f5d98c);
   font-family: var(--font-brand, "Playfair Display", serif);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: 10px;
+  letter-spacing: 0.16em;
   line-height: 1.3;
   text-transform: uppercase;
 }
 
 .title {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   color: var(--text-light, #ededed);
   font-family: var(--font-brand, "Playfair Display", serif);
-  font-size: clamp(26px, 7vw, 34px);
+  font-size: clamp(22px, 6vw, 28px);
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.05;
 }
 
-.count {
-  min-width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(212, 175, 55, 0.32);
+.countInline {
+  color: rgba(237, 237, 237, 0.52);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 0.72em;
+  font-weight: 500;
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid rgba(212, 175, 55, 0.28);
   border-radius: 999px;
   background: #333333;
   color: var(--gold-light, #f5d98c);
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .grid {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   min-height: 0;
   overflow-y: auto;
   padding-right: 2px;
@@ -79,10 +92,10 @@
 .card {
   position: relative;
   display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(212, 175, 55, 0.18);
   border-radius: 12px;
   background: var(--bg-primary, #1a1a1a);
 }
@@ -91,7 +104,7 @@
   position: relative;
   aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #333333;
 }
 
@@ -104,7 +117,7 @@
 .info {
   display: grid;
   align-content: start;
-  gap: 7px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -112,7 +125,7 @@
   margin: 0;
   color: var(--text-light, #ededed);
   font-family: var(--font-brand, "Playfair Display", serif);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.18;
 }
@@ -121,22 +134,23 @@
   margin: 0;
   color: var(--gold-light, #f5d98c);
   font-family: var(--font-body, Inter, sans-serif);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .actions {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 6px;
   align-items: center;
+  margin-top: 2px;
 }
 
 .sizeButton,
 .orderButton,
 .removeButton {
-  min-height: var(--bf-button-height, 44px);
-  border-radius: var(--bf-button-radius, 999px);
+  min-height: 36px;
+  border-radius: 999px;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 11px;
   font-weight: 600;
@@ -144,11 +158,10 @@
 }
 
 .sizeButton {
-  padding: 0 12px;
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 0 10px;
+  border: 1px solid rgba(212, 175, 55, 0.28);
   background: #333333;
-  color: var(--text-light, #ededed);
-  text-align: left;
+  color: rgba(237, 237, 237, 0.82);
 }
 
 .orderButton {
@@ -162,19 +175,29 @@
 }
 
 .removeButton {
-  width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
   padding: 0;
-  border: 1px solid rgba(212, 175, 55, 0.22);
-  background: #333333;
-  color: var(--gold-light, #f5d98c);
+  border: 0;
+  background: transparent;
+  color: #e63946;
+}
+
+.removeButton svg {
+  width: 18px;
+  height: 18px;
+  fill: #e63946;
+  stroke: #e63946;
 }
 
 .empty {
   display: grid;
   place-items: center;
-  gap: 8px;
-  min-height: 220px;
-  padding: 26px 18px;
+  gap: 6px;
+  min-height: 180px;
+  padding: 20px 16px;
   text-align: center;
   color: var(--text-light, #ededed);
 }
@@ -186,16 +209,16 @@
 .emptyTitle {
   margin: 0;
   font-family: var(--font-brand, "Playfair Display", serif);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .emptyCopy {
-  max-width: 260px;
+  max-width: 240px;
   margin: 0;
   color: rgba(237, 237, 237, 0.62);
   font-family: var(--font-body, Inter, sans-serif);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -207,8 +230,17 @@
 
   .sheet {
     width: 100%;
-    max-height: 82dvh;
+    max-height: 78dvh;
     border-radius: 16px 16px 0 0;
-    padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    padding: 10px 14px calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .dragHandle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 0 auto 10px;
+    border-radius: 999px;
+    background: rgba(212, 175, 55, 0.34);
   }
 }

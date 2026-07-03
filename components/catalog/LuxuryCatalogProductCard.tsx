@@ -10,7 +10,6 @@ import {
 } from "@/components/catalog/filterHomeCatalogProducts";
 import styles from "@/components/catalog/LuxuryCatalogProductCard.module.css";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
-import { ProductSizePickerSheet } from "@/components/product/ProductSizePickerSheet";
 import {
   getProductExperienceData,
   getProductSizeVariant,
@@ -18,7 +17,15 @@ import {
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
-import { useMemo, useState, type MouseEvent, type PointerEvent, type TouchEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent,
+  type PointerEvent,
+  type TouchEvent,
+} from "react";
 
 function ensureBuyButtonClearOfBottomNav(button: HTMLButtonElement) {
   if (typeof window === "undefined" || window.innerWidth > 768) {
@@ -77,12 +84,31 @@ export function LuxuryCatalogProductCard({
       ? "M"
       : experienceData.defaultSizeId,
   );
-  const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
+  const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
   const categoryLabel = getProductCategoryHint(product);
   const description = getProductCardDescription(product);
   const selectedSizeLabel = getProductSizeRuLabel(selectedSizeId);
   const hasMultipleSizes = experienceData.sizeVariants.length > 1;
+  const visibleVariants = experienceData.sizeVariants.filter((variant) =>
+    ["S", "M", "L", "XL"].includes(variant.sizeId),
+  );
+
+  useEffect(() => {
+    if (!sizePopoverOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: globalThis.PointerEvent) => {
+      if (!popoverRef.current?.contains(event.target as Node)) {
+        setSizePopoverOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [sizePopoverOpen]);
 
   const openProduct = () => {
     onProductOpen?.(product.id);
@@ -112,6 +138,11 @@ export function LuxuryCatalogProductCard({
       selectedVariant.sizeId,
       selectedVariant.priceRub,
     );
+  };
+
+  const handleSizeSelect = (sizeId: ProductSizeId) => {
+    setSelectedSizeId(sizeId);
+    setSizePopoverOpen(false);
   };
 
   return (
@@ -170,43 +201,58 @@ export function LuxuryCatalogProductCard({
         </div>
 
         <div className={styles.actionRow}>
-          {hasMultipleSizes ? (
-            <button
-              type="button"
-              className={styles.sizePicker}
-              onClick={() => setSizeSheetOpen(true)}
-              aria-haspopup="dialog"
-              aria-expanded={sizeSheetOpen}
-            >
-              <span className={styles.sizePickerValue}>Размер</span>
-              <span aria-hidden="true">▼</span>
-            </button>
-          ) : (
-            <span className={styles.singleSize}>{selectedSizeLabel}</span>
-          )}
-
           <button
             type="button"
-            className={styles.orderButton}
+            className={styles.buyButton}
             onPointerDown={handleBuyPointerDown}
             onClick={handleBuyClick}
             onTouchEnd={handleBuyTouchEnd}
-            aria-label={`Заказать ${product.title} в размере ${selectedSizeLabel}`}
+            aria-label={`Купить ${product.title} в размере ${selectedSizeLabel}`}
           >
-            Заказать
+            Купить
           </button>
+
+          {hasMultipleSizes ? (
+            <div className={styles.sizePopoverWrap} ref={popoverRef}>
+              <button
+                type="button"
+                className={`${styles.chevronButton} ${sizePopoverOpen ? styles.chevronButtonOpen : ""}`}
+                onClick={() => setSizePopoverOpen((open) => !open)}
+                aria-haspopup="listbox"
+                aria-expanded={sizePopoverOpen}
+                aria-label={`Размер ${selectedSizeLabel}`}
+              >
+                <span className={styles.chevronSize}>{selectedSizeLabel}</span>
+                <svg aria-hidden="true" viewBox="0 0 12 12" className={styles.chevronIcon}>
+                  <path d="M3 4.5 6 7.5 9 4.5" />
+                </svg>
+              </button>
+
+              {sizePopoverOpen ? (
+                <div className={styles.sizePopover} role="listbox" aria-label="Выбор размера">
+                  {visibleVariants.map((variant) => (
+                    <button
+                      key={variant.sizeId}
+                      type="button"
+                      role="option"
+                      aria-selected={variant.sizeId === selectedSizeId}
+                      className={`${styles.sizeOption} ${
+                        variant.sizeId === selectedSizeId ? styles.sizeOptionActive : ""
+                      }`}
+                      onClick={() => handleSizeSelect(variant.sizeId)}
+                    >
+                      <span>{getProductSizeRuLabel(variant.sizeId)}</span>
+                      <span>{formatPrice(variant.priceRub)}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <span className={styles.singleSize}>{selectedSizeLabel}</span>
+          )}
         </div>
       </div>
-
-      <ProductSizePickerSheet
-        open={sizeSheetOpen}
-        variants={experienceData.sizeVariants}
-        selectedSizeId={selectedSizeId}
-        formatPrice={formatPrice}
-        visibleSizeIds={["S", "M", "L", "XL"]}
-        onSelect={setSelectedSizeId}
-        onClose={() => setSizeSheetOpen(false)}
-      />
     </article>
   );
 }

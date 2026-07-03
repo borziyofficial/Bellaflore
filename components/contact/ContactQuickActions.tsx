@@ -27,7 +27,7 @@ export function ContactQuickActions({
       >
         <div className={styles.grid}>
           <a
-            className={`${styles.action} contact-quick-action contact-quick-action-telegram`}
+            className={`${styles.action} ${styles.telegram} contact-quick-action contact-quick-action-telegram`}
             href="https://t.me/"
             target="_blank"
             rel="noopener noreferrer"
@@ -46,7 +46,7 @@ export function ContactQuickActions({
             </span>
           </a>
           <a
-            className={`${styles.action} contact-quick-action contact-quick-action-instagram`}
+            className={`${styles.action} ${styles.instagram} contact-quick-action contact-quick-action-instagram`}
             href="https://instagram.com/"
             target="_blank"
             rel="noopener noreferrer"
@@ -66,7 +66,7 @@ export function ContactQuickActions({
             </span>
           </a>
           <a
-            className={`${styles.action} contact-quick-action contact-quick-action-whatsapp`}
+            className={`${styles.action} ${styles.whatsapp} contact-quick-action contact-quick-action-whatsapp`}
             href="https://wa.me/70000000000"
             target="_blank"
             rel="noopener noreferrer"
@@ -85,7 +85,7 @@ export function ContactQuickActions({
             </span>
           </a>
           <a
-            className={`${styles.action} contact-quick-action contact-quick-action-phone`}
+            className={`${styles.action} ${styles.phone} contact-quick-action contact-quick-action-phone`}
             href="tel:+70000000000"
             aria-label="Позвонить"
           >
