@@ -155,17 +155,19 @@ export function LuxuryCatalogProductCard({
       </div>
 
       <div className={styles.info}>
-        <p className={styles.category}>{categoryLabel}</p>
+        <div className={styles.contentBlock}>
+          <p className={styles.category}>{categoryLabel}</p>
 
-        <button type="button" className={styles.titleButton} onClick={openProduct}>
-          <h3 className={styles.title}>{product.title}</h3>
-        </button>
+          <button type="button" className={styles.titleButton} onClick={openProduct}>
+            <h3 className={styles.title}>{product.title}</h3>
+          </button>
 
-        {description ? (
-          <p className={styles.description}>{description}</p>
-        ) : null}
+          {description ? (
+            <p className={styles.description}>{description}</p>
+          ) : null}
 
-        <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
+          <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
+        </div>
 
         <div className={styles.actionRow}>
           {hasMultipleSizes ? (

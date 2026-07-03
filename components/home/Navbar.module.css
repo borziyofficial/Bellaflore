@@ -1,14 +1,19 @@
 .navbar {
   gap: 12px;
+  align-items: center;
 }
 
 .logo {
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
 }
 
 .menuButton {
   flex: 0 0 auto;
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
 }
 
 .mobileMenu {
@@ -19,20 +24,21 @@
 
 @media (max-width: 768px) {
   .navbar {
-    top: 10px;
-    width: min(92vw, 360px);
-    padding: 6px 10px 6px 14px;
-    min-height: 42px;
+    top: 0;
+    width: 100%;
+    max-width: none;
+    padding: 12px 16px;
+    min-height: 52px;
   }
 
   .logo {
-    font-size: 15px !important;
-    letter-spacing: 0.12em;
+    font-size: 16px !important;
+    letter-spacing: 0.08em;
   }
 
   .menuButton {
-    padding: 6px 11px !important;
-    min-height: 32px;
+    padding: 0 14px !important;
+    min-height: 44px;
     font-size: 10px !important;
     letter-spacing: 0.12em !important;
     gap: 6px !important;

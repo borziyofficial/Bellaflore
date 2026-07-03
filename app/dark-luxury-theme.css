@@ -1,0 +1,110 @@
+/* ==================================================
+   Dark Luxury Theme — Preview Branch
+   Catalog + Checkout storefront
+   ================================================== */
+
+:root,
+[data-theme="dark-luxury"],
+html[data-theme="dark-luxury"] {
+  /* Core palette */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2a2a2a;
+  --gold-light: #f5d98c;
+  --gold-dark: #d4af37;
+  --text-light: #ededed;
+
+  /* Typography */
+  --font-brand: var(--font-playfair, "Playfair Display", Georgia, serif);
+  --font-body: var(--font-inter, "Inter", system-ui, sans-serif);
+  --font-heading: var(--font-brand);
+  --font-ui: var(--font-body);
+
+  /* Unified gold CTA */
+  --bf-gold-gradient: linear-gradient(
+    180deg,
+    var(--gold-light) 0%,
+    var(--gold-dark) 100%
+  );
+  --bf-button-radius: 999px;
+  --bf-button-height: 44px;
+  --bf-card-radius: 16px;
+  --bf-card-padding: 20px;
+
+  /* Remap Pearl / UI system tokens */
+  --background: var(--bg-primary);
+  --surface: var(--bg-secondary);
+  --surface-glass: var(--bg-secondary);
+  --border: rgba(212, 175, 55, 0.22);
+
+  --text-strong: var(--text-light);
+  --text-main: var(--text-light);
+  --text-secondary: rgba(237, 237, 237, 0.72);
+  --text-label: rgba(237, 237, 237, 0.62);
+  --text-muted: rgba(237, 237, 237, 0.55);
+  --text-accent: var(--gold-light);
+
+  --bf-bg: var(--bg-primary);
+  --bf-surface: var(--bg-secondary);
+  --bf-surface-soft: var(--bg-secondary);
+  --bf-text: var(--text-light);
+  --bf-text-secondary: rgba(237, 237, 237, 0.72);
+  --bf-muted: rgba(237, 237, 237, 0.62);
+  --bf-heading: var(--text-light);
+  --bf-border: rgba(212, 175, 55, 0.2);
+  --bf-card: var(--bg-secondary);
+  --bf-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  --bf-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.28);
+
+  --bf-ui-bg: var(--bg-primary);
+  --bf-ui-surface: var(--bg-secondary);
+  --bf-ui-surface-soft: var(--bg-secondary);
+  --bf-ui-text: var(--text-light);
+  --bf-ui-text-muted: rgba(237, 237, 237, 0.62);
+  --bf-ui-border: rgba(212, 175, 55, 0.22);
+  --bf-ui-gold-1: var(--gold-dark);
+  --bf-ui-gold-2: var(--gold-light);
+  --bf-ui-gold-3: var(--gold-dark);
+  --bf-ui-input-bg: #333333;
+  --bf-ui-checkout-card: var(--bg-secondary);
+  --bf-ui-card-bg: var(--bg-secondary);
+
+  --champagne-background: var(--bg-primary);
+  --champagne-section: var(--bg-primary);
+  --champagne-card: var(--bg-secondary);
+  --champagne-text: var(--text-light);
+  --champagne-muted: rgba(237, 237, 237, 0.62);
+  --champagne-border: rgba(212, 175, 55, 0.22);
+  --champagne-gold: var(--gold-light);
+  --champagne-gold-hover: var(--gold-dark);
+
+  --glass-surface: var(--bg-secondary);
+  --glass-border: rgba(212, 175, 55, 0.22);
+  --glass-surface-strong: var(--bg-secondary);
+
+  --bf-brand-gold-1: var(--gold-light);
+  --bf-brand-gold-2: var(--gold-light);
+  --bf-brand-gold-3: var(--gold-dark);
+  --bf-brand-gold-4: var(--gold-dark);
+  --bf-brand-gold-5: var(--gold-dark);
+
+  --button-bg: var(--bf-gold-gradient);
+  --button-bg-hover: linear-gradient(180deg, #ffe9a8 0%, var(--gold-dark) 100%);
+  --button-text: #1a1a1a;
+
+  color-scheme: dark;
+}
+
+html[data-theme="dark-luxury"],
+html[data-theme="dark-luxury"] body {
+  background: var(--bg-primary);
+  color: var(--text-light);
+  font-family: var(--font-body);
+}
+
+html[data-theme="dark-luxury"] h1,
+html[data-theme="dark-luxury"] h2,
+html[data-theme="dark-luxury"] h3,
+html[data-theme="dark-luxury"] .bf-brand-logo {
+  font-family: var(--font-brand);
+  font-weight: 600;
+}

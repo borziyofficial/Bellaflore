@@ -18,7 +18,10 @@ import "./pearl-motion.css";
 import "./pearl-readability.css";
 import "./pearl-mobile-qa.css";
 import "./bellaflore-ui-system.css";
+import "./dark-luxury-theme.css";
+import "./dark-luxury-overrides.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { inter, playfairDisplay } from "@/lib/fonts";
 import {
   absoluteUrl,
   homepageDescription,
@@ -104,17 +107,24 @@ const jsonLd = {
   ],
 };
 
+const DARK_LUXURY_THEME = "dark-luxury" as const;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" suppressHydrationWarning data-theme="day">
-      <body>
+    <html
+      lang="ru"
+      suppressHydrationWarning
+      data-theme={DARK_LUXURY_THEME}
+      className={`${playfairDisplay.variable} ${inter.variable}`}
+    >
+      <body className={inter.className}>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{document.documentElement.dataset.theme="day";localStorage.setItem("bellaflore-ui-theme","day");localStorage.removeItem("bellaflore-ui-theme-manual");}catch(e){}})();`,
+            __html: `(function(){try{document.documentElement.dataset.theme="${DARK_LUXURY_THEME}";localStorage.setItem("bellaflore-ui-theme","${DARK_LUXURY_THEME}");localStorage.removeItem("bellaflore-ui-theme-manual");}catch(e){}})();`,
           }}
         />
         <script

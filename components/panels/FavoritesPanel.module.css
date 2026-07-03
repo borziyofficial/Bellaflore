@@ -5,7 +5,7 @@
   display: flex;
   justify-content: flex-end;
   padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  background: rgba(47, 42, 36, 0.14);
+  background: rgba(0, 0, 0, 0.62);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
@@ -18,10 +18,11 @@
   min-height: 0;
   overflow: hidden;
   padding: 18px;
-  border: 1px solid rgba(201, 169, 98, 0.28);
-  border-radius: 8px;
-  background: linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(248, 241, 229, 0.94));
-  box-shadow: 0 24px 70px rgba(61, 49, 38, 0.14);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 16px;
+  background: var(--bg-secondary, #2a2a2a);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  color: var(--text-light, #ededed);
 }
 
 .header {
@@ -34,7 +35,8 @@
 
 .eyebrow {
   display: block;
-  color: #9f7f35;
+  color: var(--gold-light, #f5d98c);
+  font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 11px;
   letter-spacing: 0.18em;
   line-height: 1.3;
@@ -43,8 +45,10 @@
 
 .title {
   margin: 8px 0 0;
-  color: #2f2a24;
+  color: var(--text-light, #ededed);
+  font-family: var(--font-brand, "Playfair Display", serif);
   font-size: clamp(26px, 7vw, 34px);
+  font-weight: 600;
   line-height: 1;
 }
 
@@ -54,12 +58,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(201, 169, 98, 0.32);
+  border: 1px solid rgba(212, 175, 55, 0.32);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
-  color: #6d5630;
+  background: #333333;
+  color: var(--gold-light, #f5d98c);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .grid {
@@ -76,18 +81,18 @@
   display: grid;
   grid-template-columns: 76px minmax(0, 1fr);
   gap: 12px;
-  padding: 8px;
-  border: 1px solid rgba(201, 169, 98, 0.2);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.64);
+  padding: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 12px;
+  background: var(--bg-primary, #1a1a1a);
 }
 
 .image {
   position: relative;
   aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 8px;
-  background: rgba(248, 241, 229, 0.9);
+  border-radius: 10px;
+  background: #333333;
 }
 
 .image img {
@@ -105,17 +110,19 @@
 
 .cardTitle {
   margin: 0;
-  color: #2f2a24;
+  color: var(--text-light, #ededed);
+  font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.18;
 }
 
 .price {
   margin: 0;
-  color: #3d3126;
+  color: var(--gold-light, #f5d98c);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 600;
 }
 
 .actions {
@@ -128,35 +135,38 @@
 .sizeButton,
 .orderButton,
 .removeButton {
-  min-height: 30px;
-  border-radius: 999px;
-  font: inherit;
+  min-height: var(--bf-button-height, 44px);
+  border-radius: var(--bf-button-radius, 999px);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 11px;
-  font-weight: 750;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .sizeButton {
-  padding: 6px 9px;
-  border: 1px solid rgba(201, 169, 98, 0.28);
-  background: rgba(255, 253, 248, 0.76);
-  color: #3d3126;
+  padding: 0 12px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: #333333;
+  color: var(--text-light, #ededed);
   text-align: left;
 }
 
 .orderButton {
-  padding: 6px 10px;
-  border: 1px solid rgba(201, 169, 98, 0.38);
-  background: rgba(201, 169, 98, 0.14);
-  color: #3d3126;
+  padding: 0 12px;
+  border: 0;
+  background: var(
+    --bf-gold-gradient,
+    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
+  );
+  color: #1a1a1a;
 }
 
 .removeButton {
-  width: 30px;
+  width: 44px;
   padding: 0;
-  border: 1px solid rgba(155, 112, 118, 0.18);
-  background: rgba(255, 255, 255, 0.58);
-  color: #9b7076;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  background: #333333;
+  color: var(--gold-light, #f5d98c);
 }
 
 .empty {
@@ -166,23 +176,25 @@
   min-height: 220px;
   padding: 26px 18px;
   text-align: center;
-  color: #2f2a24;
+  color: var(--text-light, #ededed);
 }
 
 .emptyMark {
-  color: #9f7f35;
+  color: var(--gold-light, #f5d98c);
 }
 
 .emptyTitle {
   margin: 0;
+  font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 17px;
-  font-weight: 750;
+  font-weight: 600;
 }
 
 .emptyCopy {
   max-width: 260px;
   margin: 0;
-  color: rgba(61, 49, 38, 0.62);
+  color: rgba(237, 237, 237, 0.62);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -196,7 +208,7 @@
   .sheet {
     width: 100%;
     max-height: 82dvh;
-    border-radius: 14px 14px 0 0;
+    border-radius: 16px 16px 0 0;
     padding-bottom: calc(18px + env(safe-area-inset-bottom));
   }
 }

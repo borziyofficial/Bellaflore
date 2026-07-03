@@ -1,4 +1,4 @@
-export type BellaFloreTheme = "day" | "night";
+export type BellaFloreTheme = "day" | "night" | "dark-luxury";
 
 export const THEME_STORAGE_KEY = "bellaflore-ui-theme";
 export const THEME_MANUAL_OVERRIDE_KEY = "bellaflore-ui-theme-manual";

@@ -1,0 +1,221 @@
+/* ==================================================
+   Dark Luxury — component & global overrides
+   Loaded last on preview/dark-theme branch
+   ================================================== */
+
+/* --- Navbar: sticky, opaque, aligned --- */
+html[data-theme="dark-luxury"] .navbar,
+html[data-theme="dark-luxury"] .navbar.scrolled {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-radius: 0;
+  border: 0;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+  background: var(--bg-primary) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark-luxury"] .logo,
+html[data-theme="dark-luxury"] .bf-brand-logo--nav {
+  font-family: var(--font-brand) !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+  letter-spacing: 0.08em !important;
+  color: var(--gold-light) !important;
+  -webkit-text-fill-color: var(--gold-light) !important;
+  background: none !important;
+  background-image: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="dark-luxury"] .menu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--bf-button-height);
+  padding: 0 16px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: var(--bf-button-radius);
+  background: transparent;
+  color: var(--gold-light);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+html[data-theme="dark-luxury"] .nav-center a {
+  color: var(--text-light);
+  font-family: var(--font-body);
+}
+
+html[data-theme="dark-luxury"] .mobile-menu {
+  background: var(--bg-secondary);
+  border-color: rgba(212, 175, 55, 0.22);
+}
+
+html[data-theme="dark-luxury"] .mobile-menu a {
+  color: var(--text-light);
+}
+
+/* --- Unified gold buttons --- */
+html[data-theme="dark-luxury"] .buy-button,
+html[data-theme="dark-luxury"] .orderButton,
+html[data-theme="dark-luxury"] .checkout-submit-button,
+html[data-theme="dark-luxury"] .favorites-buy-button,
+html[data-theme="dark-luxury"] .cart-checkout-button,
+html[data-theme="dark-luxury"] .hero-order-link,
+html[data-theme="dark-luxury"] .luxury-catalog-buy-button,
+html[data-theme="dark-luxury"] .product-sticky-buy-button,
+html[data-theme="dark-luxury"] .product-buy-panel-button {
+  min-height: var(--bf-button-height);
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--bf-button-radius);
+  background: var(--bf-gold-gradient) !important;
+  color: #1a1a1a !important;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.22);
+  text-shadow: none;
+}
+
+html[data-theme="dark-luxury"] .buy-button:hover,
+html[data-theme="dark-luxury"] .orderButton:hover,
+html[data-theme="dark-luxury"] .checkout-submit-button:hover:not(:disabled) {
+  background: var(--button-bg-hover) !important;
+}
+
+html[data-theme="dark-luxury"] .buy-button:disabled,
+html[data-theme="dark-luxury"] .checkout-submit-button:disabled {
+  opacity: 0.45;
+}
+
+/* --- Brand logo everywhere --- */
+html[data-theme="dark-luxury"] .bf-brand-logo {
+  font-family: var(--font-brand) !important;
+  font-weight: 600 !important;
+  background-image: none !important;
+  -webkit-text-fill-color: var(--gold-light) !important;
+  color: var(--gold-light) !important;
+  filter: none !important;
+}
+
+html[data-theme="dark-luxury"] .bf-brand-logo-crown {
+  color: var(--gold-dark) !important;
+  -webkit-text-fill-color: var(--gold-dark) !important;
+}
+
+/* --- Checkout v3 sheet --- */
+html[data-theme="dark-luxury"] .checkout-v3-overlay {
+  background: rgba(0, 0, 0, 0.62);
+}
+
+html[data-theme="dark-luxury"] .checkout-v3-sheet {
+  background: var(--bg-secondary);
+  border-color: rgba(212, 175, 55, 0.22);
+  color: var(--text-light);
+}
+
+html[data-theme="dark-luxury"] .checkout-v3-sheet h2,
+html[data-theme="dark-luxury"] .checkout-v3-eyebrow {
+  color: var(--text-light);
+}
+
+html[data-theme="dark-luxury"] .checkout-v3-close {
+  background: #333;
+  border-color: rgba(212, 175, 55, 0.28);
+  color: var(--gold-light);
+}
+
+/* --- Favorites / cart panels --- */
+html[data-theme="dark-luxury"] .favorites-panel,
+html[data-theme="dark-luxury"] .cart-panel,
+html[data-theme="dark-luxury"] .my-order-panel,
+html[data-theme="dark-luxury"] .profile-panel-sheet {
+  background: var(--bg-secondary) !important;
+  border-color: rgba(212, 175, 55, 0.22) !important;
+  color: var(--text-light) !important;
+}
+
+html[data-theme="dark-luxury"] .favorites-panel h2,
+html[data-theme="dark-luxury"] .cart-panel h2,
+html[data-theme="dark-luxury"] .my-order-panel h2 {
+  color: var(--text-light) !important;
+}
+
+/* --- Mobile bottom nav --- */
+html[data-theme="dark-luxury"] nav[aria-label="Быстрая мобильная навигация"] .glass,
+html[data-theme="dark-luxury"] .MobileBottomNav-module__KiDTHW__glass {
+  background: var(--bg-secondary) !important;
+  border-color: rgba(212, 175, 55, 0.22) !important;
+}
+
+html[data-theme="dark-luxury"] nav[aria-label="Быстрая мобильная навигация"] button,
+html[data-theme="dark-luxury"] nav[aria-label="Быстрая мобильная навигация"] a {
+  color: var(--text-light);
+  font-family: var(--font-body);
+}
+
+/* --- Hero / sections base text --- */
+html[data-theme="dark-luxury"] .hero,
+html[data-theme="dark-luxury"] #catalog,
+html[data-theme="dark-luxury"] .checkout-section,
+html[data-theme="dark-luxury"] .favorites-panel,
+html[data-theme="dark-luxury"] .my-order-panel {
+  color: var(--text-light);
+}
+
+html[data-theme="dark-luxury"] body {
+  background: var(--bg-primary);
+}
+
+/* --- Inputs --- */
+html[data-theme="dark-luxury"] input,
+html[data-theme="dark-luxury"] textarea,
+html[data-theme="dark-luxury"] select {
+  background: #333333;
+  border-color: rgba(212, 175, 55, 0.22);
+  color: var(--text-light);
+  font-family: var(--font-body);
+}
+
+html[data-theme="dark-luxury"] input::placeholder,
+html[data-theme="dark-luxury"] textarea::placeholder {
+  color: rgba(237, 237, 237, 0.42);
+}
+
+/* --- Product experience overlay --- */
+html[data-theme="dark-luxury"] .product-experience-page {
+  background: var(--bg-primary);
+  color: var(--text-light);
+}
+
+html[data-theme="dark-luxury"] .hero {
+  background: var(--bg-primary);
+  color: var(--text-light);
+}
+
+html[data-theme="dark-luxury"] .hero-subtitle {
+  color: rgba(237, 237, 237, 0.72);
+  font-family: var(--font-body);
+}
+
+html[data-theme="dark-luxury"] .menu-overlay {
+  background: rgba(0, 0, 0, 0.55);
+}

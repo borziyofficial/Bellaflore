@@ -16,7 +16,7 @@ import {
 
 export type { BellaFloreTheme };
 
-const PEARL_LUXURY_THEME: BellaFloreTheme = "day";
+const DARK_LUXURY_THEME = "dark-luxury" as BellaFloreTheme;
 
 type ThemeContextValue = {
   theme: BellaFloreTheme;
@@ -29,25 +29,26 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme] = useState<BellaFloreTheme>(PEARL_LUXURY_THEME);
+  const [theme] = useState<BellaFloreTheme>(DARK_LUXURY_THEME);
 
   useEffect(() => {
-    applyDocumentTheme(PEARL_LUXURY_THEME);
+    applyDocumentTheme(DARK_LUXURY_THEME);
     if (typeof window !== "undefined") {
+      window.localStorage.setItem("bellaflore-ui-theme", DARK_LUXURY_THEME);
       window.localStorage.removeItem("bellaflore-ui-theme-manual");
     }
   }, []);
 
   const setTheme = useCallback(() => {
-    applyDocumentTheme(PEARL_LUXURY_THEME);
+    applyDocumentTheme(DARK_LUXURY_THEME);
   }, []);
 
   const toggleTheme = useCallback(() => {
-    applyDocumentTheme(PEARL_LUXURY_THEME);
+    applyDocumentTheme(DARK_LUXURY_THEME);
   }, []);
 
   const resetToAutoTheme = useCallback(() => {
-    applyDocumentTheme(PEARL_LUXURY_THEME);
+    applyDocumentTheme(DARK_LUXURY_THEME);
   }, []);
 
   const value = useMemo(

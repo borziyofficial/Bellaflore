@@ -32,18 +32,12 @@
     position: absolute;
     inset: 2px 0;
     z-index: 0;
-    border: 0.5px solid rgba(255, 244, 220, 0.42);
+    border: 0.5px solid rgba(212, 175, 55, 0.22);
     border-radius: 999px;
-    background:
-      radial-gradient(circle at 50% -24%, rgba(253, 251, 247, 0.2), transparent 46%),
-      linear-gradient(180deg, rgba(255, 253, 248, 0.52), rgba(255, 253, 248, 0.28) 52%, rgba(253, 251, 247, 0.18)),
-      rgba(253, 251, 247, 0.22);
-    box-shadow:
-      0 14px 36px rgba(9, 8, 7, 0.14),
-      0 4px 12px rgba(9, 8, 7, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.55);
-    -webkit-backdrop-filter: blur(22px) saturate(1.18);
-    backdrop-filter: blur(22px) saturate(1.18);
+    background: var(--bg-secondary, #2a2a2a);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     pointer-events: none;
   }
 
@@ -55,7 +49,7 @@
     right: 16px;
     height: 1px;
     border-radius: 999px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.62), transparent);
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.35), transparent);
     pointer-events: none;
   }
 
@@ -71,7 +65,7 @@
     justify-content: center;
     gap: 0;
     padding: 0;
-    color: rgba(78, 58, 34, 0.86);
+    color: var(--text-light, #ededed);
     border: 1px solid transparent;
     border-radius: 999px;
     background: transparent;
