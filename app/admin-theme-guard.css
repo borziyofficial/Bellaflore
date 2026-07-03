@@ -1,0 +1,21 @@
+/* Admin routes must never inherit storefront dark-luxury global overrides. */
+
+html[data-theme="day"] body,
+html[data-theme="day"] [data-admin-route="true"] {
+  background: var(--background);
+  color: var(--text-main);
+}
+
+html[data-theme="day"] [data-admin-route="true"] input,
+html[data-theme="day"] [data-admin-route="true"] textarea,
+html[data-theme="day"] [data-admin-route="true"] select {
+  background: #fffaf2;
+  border-color: rgba(138, 107, 61, 0.28);
+  color: #2f2a24;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+html[data-theme="day"] [data-admin-route="true"] input::placeholder,
+html[data-theme="day"] [data-admin-route="true"] textarea::placeholder {
+  color: rgba(47, 42, 36, 0.45);
+}

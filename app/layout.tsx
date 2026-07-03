@@ -8,6 +8,7 @@
 // ==================================================
 
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import "./pearl-theme.css";
 import "./pearl-typography.css";
@@ -20,8 +21,10 @@ import "./pearl-mobile-qa.css";
 import "./bellaflore-ui-system.css";
 import "./dark-luxury-theme.css";
 import "./dark-luxury-overrides.css";
+import "./admin-theme-guard.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { inter, playfairDisplay } from "@/lib/fonts";
+import { resolveThemeForPathname } from "@/lib/theme/bellafloreAutoTheme";
 import {
   absoluteUrl,
   homepageDescription,
@@ -107,26 +110,28 @@ const jsonLd = {
   ],
 };
 
-const DARK_LUXURY_THEME = "dark-luxury" as const;
+const themeInitScript = `(function(){try{var p=location.pathname;var t=/^\\/admin(?:\\/|$)/.test(p)?"day":"dark-luxury";document.documentElement.dataset.theme=t;localStorage.setItem("bellaflore-ui-theme",t);localStorage.removeItem("bellaflore-ui-theme-manual");}catch(e){}})();`;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const requestHeaders = await headers();
+  const pathname = requestHeaders.get("x-pathname") ?? "";
+  const initialTheme = resolveThemeForPathname(pathname);
+
   return (
     <html
       lang="ru"
       suppressHydrationWarning
-      data-theme={DARK_LUXURY_THEME}
+      data-theme={initialTheme}
       className={`${playfairDisplay.variable} ${inter.variable}`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className={inter.className}>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{document.documentElement.dataset.theme="${DARK_LUXURY_THEME}";localStorage.setItem("bellaflore-ui-theme","${DARK_LUXURY_THEME}");localStorage.removeItem("bellaflore-ui-theme-manual");}catch(e){}})();`,
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

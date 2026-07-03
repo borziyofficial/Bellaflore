@@ -2,6 +2,7 @@
 
 import {
   applyDocumentTheme,
+  resolveThemeForPathname,
   type BellaFloreTheme,
 } from "@/lib/theme/bellafloreAutoTheme";
 import {
@@ -13,10 +14,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 
 export type { BellaFloreTheme };
-
-const DARK_LUXURY_THEME = "dark-luxury" as BellaFloreTheme;
 
 type ThemeContextValue = {
   theme: BellaFloreTheme;
@@ -29,27 +29,38 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme] = useState<BellaFloreTheme>(DARK_LUXURY_THEME);
+  const pathname = usePathname();
+  const routeTheme = resolveThemeForPathname(pathname);
+  const [theme, setThemeState] = useState<BellaFloreTheme>(routeTheme);
 
   useEffect(() => {
-    applyDocumentTheme(DARK_LUXURY_THEME);
+    setThemeState(routeTheme);
+    applyDocumentTheme(routeTheme);
+
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("bellaflore-ui-theme", DARK_LUXURY_THEME);
+      window.localStorage.setItem("bellaflore-ui-theme", routeTheme);
       window.localStorage.removeItem("bellaflore-ui-theme-manual");
     }
-  }, []);
+  }, [routeTheme]);
 
-  const setTheme = useCallback(() => {
-    applyDocumentTheme(DARK_LUXURY_THEME);
-  }, []);
+  const setTheme = useCallback(
+    (nextTheme: BellaFloreTheme) => {
+      const resolved = pathname.startsWith("/admin") ? "day" : nextTheme;
+      setThemeState(resolved);
+      applyDocumentTheme(resolved);
+    },
+    [pathname],
+  );
 
   const toggleTheme = useCallback(() => {
-    applyDocumentTheme(DARK_LUXURY_THEME);
-  }, []);
+    applyDocumentTheme(routeTheme);
+    setThemeState(routeTheme);
+  }, [routeTheme]);
 
   const resetToAutoTheme = useCallback(() => {
-    applyDocumentTheme(DARK_LUXURY_THEME);
-  }, []);
+    applyDocumentTheme(routeTheme);
+    setThemeState(routeTheme);
+  }, [routeTheme]);
 
   const value = useMemo(
     () => ({

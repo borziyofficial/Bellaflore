@@ -3,8 +3,6 @@
    Catalog + Checkout storefront
    ================================================== */
 
-:root,
-[data-theme="dark-luxury"],
 html[data-theme="dark-luxury"] {
   /* Core palette */
   --bg-primary: #1a1a1a;
