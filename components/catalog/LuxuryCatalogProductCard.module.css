@@ -148,6 +148,7 @@
 .actionRow {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   margin-top: auto;
   padding-top: 4px;
@@ -155,6 +156,8 @@
 
 .buyButton {
   flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
   min-height: var(--bf-button-height, 44px);
   padding: 0 16px;
   border: 0;
@@ -169,7 +172,22 @@
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.22);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    filter 0.16s ease;
   scroll-margin-bottom: calc(148px + env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color: transparent;
+}
+
+.buyButton:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 10px 24px rgba(212, 175, 55, 0.28);
+}
+
+.buyButton:active {
+  transform: scale(0.98);
 }
 
 .sizePopoverWrap {
@@ -181,41 +199,49 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  min-width: 44px;
-  min-height: var(--bf-button-height, 44px);
-  padding: 0 10px;
-  border: 1px solid rgba(212, 175, 55, 0.32);
-  border-radius: var(--bf-button-radius, 999px);
-  background: #333333;
-  color: rgba(237, 237, 237, 0.82);
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 1px solid rgba(212, 175, 55, 0.42);
+  border-radius: 999px;
+  background: rgba(26, 26, 26, 0.72);
+  color: var(--gold-light, #f5d98c);
   cursor: pointer;
   transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chevronButton:hover {
+  border-color: rgba(212, 175, 55, 0.62);
+  background: rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.14);
+}
+
+.chevronButton:active {
+  transform: scale(0.94);
 }
 
 .chevronButtonOpen {
-  border-color: rgba(212, 175, 55, 0.52);
-  background: rgba(212, 175, 55, 0.1);
-}
-
-.chevronSize {
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  border-color: rgba(212, 175, 55, 0.72);
+  background: rgba(212, 175, 55, 0.14);
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.18);
 }
 
 .chevronIcon {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.6;
+  stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease;
 }
 
 .chevronButtonOpen .chevronIcon {
@@ -225,69 +251,89 @@
 .sizePopover {
   position: absolute;
   right: 0;
-  bottom: calc(100% + 8px);
-  z-index: 5;
+  z-index: 8;
   display: grid;
-  gap: 4px;
-  min-width: 132px;
-  padding: 6px;
-  border: 1px solid rgba(212, 175, 55, 0.24);
+  gap: 2px;
+  min-width: 52px;
+  padding: 4px;
+  border: 1px solid rgba(212, 175, 55, 0.32);
   border-radius: 12px;
-  background: rgba(26, 26, 26, 0.98);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.42);
-  animation: sizePopoverIn 0.18s ease;
+  background:
+    linear-gradient(180deg, rgba(34, 34, 36, 0.98), rgba(18, 18, 20, 0.96));
+  backdrop-filter: blur(16px) saturate(1.08);
+  -webkit-backdrop-filter: blur(16px) saturate(1.08);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.42),
+    0 0 18px rgba(212, 175, 55, 0.08);
+  overflow: hidden;
+}
+
+.sizePopoverDown {
+  top: calc(100% + 6px);
+  animation: sizePopoverDownIn 0.15s ease both;
+}
+
+.sizePopoverUp {
+  bottom: calc(100% + 6px);
+  animation: sizePopoverUpIn 0.15s ease both;
 }
 
 .sizeOption {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: center;
   width: 100%;
-  padding: 8px 10px;
+  min-width: 44px;
+  min-height: 36px;
+  padding: 0 12px;
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: rgba(237, 237, 237, 0.78);
+  color: rgba(237, 237, 237, 0.82);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
-  font-weight: 400;
-  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1;
   cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.sizeOption span:last-child {
-  color: var(--gold-light, #f5d98c);
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.sizeOptionActive {
-  background: rgba(212, 175, 55, 0.12);
+.sizeOption:hover {
+  background: rgba(212, 175, 55, 0.08);
   color: var(--text-light, #ededed);
 }
 
-@keyframes sizePopoverIn {
+.sizeOptionActive {
+  background: rgba(212, 175, 55, 0.16);
+  color: var(--gold-light, #f5d98c);
+}
+
+@keyframes sizePopoverDownIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.singleSize {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--bf-button-height, 44px);
-  padding: 0 4px;
-  color: rgba(237, 237, 237, 0.62);
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 11px;
-  font-weight: 500;
+@keyframes sizePopoverUpIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {
@@ -305,5 +351,21 @@
 
   .title {
     font-size: 0.95rem;
+  }
+
+  .sizePopover {
+    max-width: calc(100vw - 24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buyButton,
+  .chevronButton,
+  .chevronIcon,
+  .sizeOption,
+  .sizePopoverDown,
+  .sizePopoverUp {
+    animation: none !important;
+    transition: none;
   }
 }

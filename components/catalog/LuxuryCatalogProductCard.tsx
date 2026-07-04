@@ -16,9 +16,9 @@ import {
 } from "@/components/product/productExperienceCatalog";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
-import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -80,20 +80,44 @@ export function LuxuryCatalogProductCard({
     [product],
   );
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
-    experienceData.sizeVariants.some((variant) => variant.sizeId === "M")
-      ? "M"
-      : experienceData.defaultSizeId,
+    experienceData.defaultSizeId,
   );
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
+  const [dropdownPlacement, setDropdownPlacement] = useState<"down" | "up">("down");
   const popoverRef = useRef<HTMLDivElement>(null);
+  const chevronRef = useRef<HTMLButtonElement>(null);
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
   const categoryLabel = getProductCategoryHint(product);
   const description = getProductCardDescription(product);
-  const selectedSizeLabel = getProductSizeRuLabel(selectedSizeId);
   const hasMultipleSizes = experienceData.sizeVariants.length > 1;
   const visibleVariants = experienceData.sizeVariants.filter((variant) =>
     ["S", "M", "L", "XL"].includes(variant.sizeId),
   );
+
+  useEffect(() => {
+    setSelectedSizeId(experienceData.defaultSizeId);
+    setSizePopoverOpen(false);
+  }, [experienceData.defaultSizeId, product.id]);
+
+  useLayoutEffect(() => {
+    if (!sizePopoverOpen || !chevronRef.current) {
+      return;
+    }
+
+    const buttonRect = chevronRef.current.getBoundingClientRect();
+    const bottomNav = document.querySelector<HTMLElement>(
+      'nav[aria-label="Быстрая мобильная навигация"]',
+    );
+    const navTop =
+      bottomNav?.getBoundingClientRect().top ?? window.innerHeight - 96;
+    const dropdownHeight = visibleVariants.length * 40 + 16;
+    const spaceBelow = navTop - buttonRect.bottom - 8;
+    const spaceAbove = buttonRect.top - 8;
+
+    setDropdownPlacement(
+      spaceBelow >= dropdownHeight || spaceBelow >= spaceAbove ? "down" : "up",
+    );
+  }, [sizePopoverOpen, visibleVariants.length]);
 
   useEffect(() => {
     if (!sizePopoverOpen) {
@@ -207,7 +231,7 @@ export function LuxuryCatalogProductCard({
             onPointerDown={handleBuyPointerDown}
             onClick={handleBuyClick}
             onTouchEnd={handleBuyTouchEnd}
-            aria-label={`Купить ${product.title} в размере ${selectedSizeLabel}`}
+            aria-label={`Купить ${product.title}`}
           >
             Купить
           </button>
@@ -215,21 +239,27 @@ export function LuxuryCatalogProductCard({
           {hasMultipleSizes ? (
             <div className={styles.sizePopoverWrap} ref={popoverRef}>
               <button
+                ref={chevronRef}
                 type="button"
                 className={`${styles.chevronButton} ${sizePopoverOpen ? styles.chevronButtonOpen : ""}`}
                 onClick={() => setSizePopoverOpen((open) => !open)}
                 aria-haspopup="listbox"
                 aria-expanded={sizePopoverOpen}
-                aria-label={`Размер ${selectedSizeLabel}`}
+                aria-label="Выбор размера"
               >
-                <span className={styles.chevronSize}>{selectedSizeLabel}</span>
                 <svg aria-hidden="true" viewBox="0 0 12 12" className={styles.chevronIcon}>
                   <path d="M3 4.5 6 7.5 9 4.5" />
                 </svg>
               </button>
 
               {sizePopoverOpen ? (
-                <div className={styles.sizePopover} role="listbox" aria-label="Выбор размера">
+                <div
+                  className={`${styles.sizePopover} ${
+                    dropdownPlacement === "up" ? styles.sizePopoverUp : styles.sizePopoverDown
+                  }`}
+                  role="listbox"
+                  aria-label="Размер"
+                >
                   {visibleVariants.map((variant) => (
                     <button
                       key={variant.sizeId}
@@ -241,16 +271,13 @@ export function LuxuryCatalogProductCard({
                       }`}
                       onClick={() => handleSizeSelect(variant.sizeId)}
                     >
-                      <span>{getProductSizeRuLabel(variant.sizeId)}</span>
-                      <span>{formatPrice(variant.priceRub)}</span>
+                      {variant.sizeId}
                     </button>
                   ))}
                 </div>
               ) : null}
             </div>
-          ) : (
-            <span className={styles.singleSize}>{selectedSizeLabel}</span>
-          )}
+          ) : null}
         </div>
       </div>
     </article>
