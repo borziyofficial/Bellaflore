@@ -8,17 +8,17 @@
     position: fixed;
     left: 0;
     right: 0;
-    bottom: calc(18px + env(safe-area-inset-bottom));
+    bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 2147483010;
-    width: min(94vw, 420px);
-    min-height: 74px;
+    width: min(90vw, 360px);
+    min-height: 58px;
     margin-inline: auto;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     gap: 0;
-    padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
-    border: 1px solid rgba(214, 174, 91, 0.55);
+    padding: 5px 12px calc(5px + env(safe-area-inset-bottom));
+    border: 1px solid rgba(214, 174, 91, 0.48);
     border-radius: 999px;
     background: linear-gradient(
       180deg,
@@ -26,8 +26,8 @@
       rgba(10, 9, 7, 0.96)
     );
     box-shadow:
-      0 14px 38px rgba(0, 0, 0, 0.55),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      0 10px 28px rgba(0, 0, 0, 0.48),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     pointer-events: auto;
@@ -48,13 +48,13 @@
     z-index: 1;
     flex: 1 1 0;
     min-width: 0;
-    max-width: 58px;
+    max-width: 54px;
     margin: 0;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    gap: 2px;
+    gap: 1px;
     padding: 0;
     color: #d4c4a8;
     border: 0;
@@ -81,15 +81,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 25px;
-    height: 25px;
+    width: 22px;
+    height: 22px;
     flex: 0 0 auto;
     pointer-events: none;
   }
 
   .item svg {
-    width: 25px;
-    height: 25px;
+    width: 22px;
+    height: 22px;
     flex: 0 0 auto;
     fill: none;
     stroke: currentColor;
@@ -117,7 +117,7 @@
     max-width: 100%;
     overflow: hidden;
     color: #d4c4a8;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 400;
     line-height: 1;
     text-align: center;
@@ -148,7 +148,7 @@
     z-index: 2;
     flex: 1 1 0;
     min-width: 0;
-    max-width: 64px;
+    max-width: 58px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -165,7 +165,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    gap: 2px;
+    gap: 1px;
     padding: 0;
     border: 0;
     background: transparent;
@@ -189,25 +189,25 @@
 
   .contactFab {
     position: relative;
-    top: -10px;
+    top: -6px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 46px;
-    height: 46px;
+    width: 38px;
+    height: 38px;
     border: 0;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 30%, #d9b26a, #9a7431 75%);
     box-shadow:
-      0 6px 14px rgba(0, 0, 0, 0.45),
-      0 0 0 4px rgba(10, 9, 7, 0.96);
+      0 4px 10px rgba(0, 0, 0, 0.4),
+      0 0 0 3px rgba(10, 9, 7, 0.96);
     color: #ffffff;
     pointer-events: none;
   }
 
   .contactFab svg {
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
     fill: #ffffff;
     stroke: none;
     pointer-events: none;
@@ -218,7 +218,7 @@
     max-width: 100%;
     overflow: hidden;
     color: #e8c874;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 400;
     line-height: 1;
     text-align: center;
@@ -248,36 +248,36 @@
   }
 
   .compact {
-    width: min(92vw, 400px);
-    min-height: 70px;
-    bottom: calc(14px + env(safe-area-inset-bottom));
-    padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+    width: min(88vw, 340px);
+    min-height: 54px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    padding: 4px 10px calc(4px + env(safe-area-inset-bottom));
     border-radius: 999px;
   }
 
   .compact .iconWrap {
-    width: 23px;
-    height: 23px;
+    width: 21px;
+    height: 21px;
   }
 
   .compact .item svg {
-    width: 23px;
-    height: 23px;
+    width: 21px;
+    height: 21px;
   }
 
   .compact .contactFab {
-    width: 42px;
-    height: 42px;
-    top: -8px;
+    width: 34px;
+    height: 34px;
+    top: -5px;
   }
 
   .compact .contactFab svg {
-    width: 16px;
-    height: 16px;
+    width: 13px;
+    height: 13px;
   }
 
   .compact .label,
   .compact .labelContact {
-    font-size: 9px;
+    font-size: 10px;
   }
 }
