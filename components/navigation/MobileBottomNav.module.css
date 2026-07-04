@@ -10,7 +10,7 @@
     right: 0;
     bottom: calc(18px + env(safe-area-inset-bottom));
     z-index: 2147483010;
-    width: min(94vw, 390px);
+    width: min(92vw, 360px);
     margin-inline: auto;
     display: flex;
     justify-content: space-between;
@@ -24,6 +24,7 @@
     pointer-events: auto;
     touch-action: manipulation;
     isolation: isolate;
+    overflow: visible;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     box-sizing: border-box;
@@ -38,7 +39,7 @@
     z-index: 1;
     flex: 1 1 0;
     min-width: 0;
-    max-width: 64px;
+    max-width: 58px;
     margin: 0;
     display: inline-flex;
     flex-direction: column;
@@ -55,6 +56,7 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     cursor: pointer;
+    box-shadow: none;
     transition:
       transform 0.12s ease,
       color 0.12s ease;
@@ -62,6 +64,7 @@
 
   .item:active {
     transform: scale(0.96);
+    background: transparent;
   }
 
   .iconWrap {
@@ -69,21 +72,19 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 35px;
-    height: 35px;
+    width: 22px;
+    height: 22px;
     flex: 0 0 auto;
-    font-size: 35px;
-    line-height: 1;
     pointer-events: none;
   }
 
   .item svg {
-    width: 35px;
-    height: 35px;
+    width: 22px;
+    height: 22px;
     flex: 0 0 auto;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.6;
+    stroke-width: 1.75;
     stroke-linecap: round;
     stroke-linejoin: round;
     pointer-events: none;
@@ -99,7 +100,7 @@
     max-width: 100%;
     overflow: hidden;
     color: #cfc7ba;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 400;
     line-height: 1;
     text-align: center;
@@ -111,6 +112,8 @@
   .item:focus-visible {
     color: #cfc7ba;
     background: transparent;
+    border: 0;
+    box-shadow: none;
     outline: none;
   }
 
@@ -122,12 +125,23 @@
     color: #e8c874;
   }
 
-  .itemContact {
+  .contactCluster {
     position: relative;
     z-index: 2;
     flex: 1 1 0;
     min-width: 0;
-    max-width: 72px;
+    max-width: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: visible;
+  }
+
+  .itemContact {
+    position: relative;
+    z-index: 2;
+    width: 100%;
     margin: 0;
     display: inline-flex;
     flex-direction: column;
@@ -141,15 +155,18 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     cursor: pointer;
+    box-shadow: none;
     transition: transform 0.12s ease;
   }
 
   .itemContact:active {
     transform: scale(0.96);
+    background: transparent;
   }
 
   .itemContact:focus-visible {
     outline: none;
+    background: transparent;
   }
 
   .contactFab {
@@ -167,7 +184,6 @@
       0 6px 14px rgba(0, 0, 0, 0.45),
       0 0 0 4px #0f0d09;
     color: #ffffff;
-    font-size: 18px;
     pointer-events: none;
   }
 
@@ -184,7 +200,7 @@
     max-width: 100%;
     overflow: hidden;
     color: #e8c874;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 400;
     line-height: 1;
     text-align: center;
@@ -214,20 +230,19 @@
   }
 
   .compact {
-    width: min(92vw, 370px);
+    width: min(90vw, 340px);
     bottom: calc(14px + env(safe-area-inset-bottom));
     padding: 3px 8px calc(2px + env(safe-area-inset-bottom));
   }
 
   .compact .iconWrap {
-    width: 30px;
-    height: 30px;
-    font-size: 30px;
+    width: 20px;
+    height: 20px;
   }
 
   .compact .item svg {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
   }
 
   .compact .contactFab {
@@ -243,6 +258,6 @@
 
   .compact .label,
   .compact .labelContact {
-    font-size: 10px;
+    font-size: 9px;
   }
 }
