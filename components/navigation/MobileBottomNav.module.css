@@ -11,13 +11,13 @@
     bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 2147483010;
     width: min(90vw, 360px);
-    min-height: 58px;
+    min-height: 64px;
     margin-inline: auto;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     gap: 0;
-    padding: 5px 12px calc(5px + env(safe-area-inset-bottom));
+    padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
     border: 1px solid rgba(214, 174, 91, 0.48);
     border-radius: 999px;
     background: linear-gradient(
@@ -48,7 +48,7 @@
     z-index: 1;
     flex: 1 1 0;
     min-width: 0;
-    max-width: 54px;
+    max-width: 52px;
     margin: 0;
     display: inline-flex;
     flex-direction: column;
@@ -81,15 +81,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 23px;
+    height: 23px;
     flex: 0 0 auto;
     pointer-events: none;
   }
 
   .item svg {
-    width: 22px;
-    height: 22px;
+    width: 23px;
+    height: 23px;
     flex: 0 0 auto;
     fill: none;
     stroke: currentColor;
@@ -114,7 +114,7 @@
 
   .label {
     display: block;
-    max-width: 100%;
+    max-width: 48px;
     overflow: hidden;
     color: #d4c4a8;
     font-size: 11px;
@@ -154,6 +154,7 @@
     align-items: center;
     justify-content: flex-end;
     overflow: visible;
+    min-height: 35px;
   }
 
   .itemContact {
@@ -165,8 +166,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    gap: 1px;
+    gap: 0;
     padding: 0;
+    padding-top: 21px;
     border: 0;
     background: transparent;
     color: #e8c874;
@@ -182,32 +184,38 @@
     background: transparent;
   }
 
+  .itemContact:active .contactFab {
+    transform: translate(-50%, -15px) scale(0.96);
+  }
+
   .itemContact:focus-visible {
     outline: none;
     background: transparent;
   }
 
   .contactFab {
-    position: relative;
-    top: -6px;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -15px);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 52px;
+    height: 52px;
     border: 0;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 30%, #d9b26a, #9a7431 75%);
     box-shadow:
-      0 4px 10px rgba(0, 0, 0, 0.4),
+      0 5px 12px rgba(0, 0, 0, 0.42),
       0 0 0 3px rgba(10, 9, 7, 0.96);
     color: #ffffff;
     pointer-events: none;
   }
 
   .contactFab svg {
-    width: 15px;
-    height: 15px;
+    width: 20px;
+    height: 20px;
     fill: #ffffff;
     stroke: none;
     pointer-events: none;
@@ -215,7 +223,7 @@
 
   .labelContact {
     display: block;
-    max-width: 100%;
+    max-width: 48px;
     overflow: hidden;
     color: #e8c874;
     font-size: 11px;
@@ -249,9 +257,9 @@
 
   .compact {
     width: min(88vw, 340px);
-    min-height: 54px;
+    min-height: 58px;
     bottom: calc(12px + env(safe-area-inset-bottom));
-    padding: 4px 10px calc(4px + env(safe-area-inset-bottom));
+    padding: 5px 10px calc(5px + env(safe-area-inset-bottom));
     border-radius: 999px;
   }
 
@@ -265,15 +273,23 @@
     height: 21px;
   }
 
+  .compact .itemContact {
+    padding-top: 18px;
+  }
+
   .compact .contactFab {
-    width: 34px;
-    height: 34px;
-    top: -5px;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -12px);
+  }
+
+  .compact .itemContact:active .contactFab {
+    transform: translate(-50%, -12px) scale(0.96);
   }
 
   .compact .contactFab svg {
-    width: 13px;
-    height: 13px;
+    width: 17px;
+    height: 17px;
   }
 
   .compact .label,
