@@ -127,10 +127,11 @@ export function MobileBottomNav({
       >
         <span className={navStyles.iconWrap} aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 4.2c-1.8 0-3.2 1.4-3.2 3.2 0 2 1.4 3.4 3.2 4.6 1.8-1.2 3.2-2.6 3.2-4.6 0-1.8-1.4-3.2-3.2-3.2Z" />
-            <path d="M9.6 8.1c-.6-1-.1-2 .8-2.4M14.4 8.1c.6-1 .1-2-.8-2.4" />
-            <path d="M12 11.8V18.2" />
-            <path d="M10.2 18.2h3.6" />
+            <path d="M12 4.5c-2.4 0-4.3 1.7-4.3 3.9 0 1.4.8 2.6 2.1 3.5-.5 1-.4 2 .4 2.8.8.8 1.9.9 2.8.9s2-.1 2.8-.9c.8-.8.9-1.8.4-2.8 1.3-.9 2.1-2.1 2.1-3.5 0-2.2-1.9-3.9-4.3-3.9Z" />
+            <path d="M12 14.7V20" />
+            <path d="M9.2 19.2c.9.7 1.8 1.1 2.8 1.1s1.9-.4 2.8-1.1" />
+            <path d="M10.2 7.8c-.4-.7-.2-1.5.4-1.9" />
+            <path d="M13.8 7.8c.4-.7.2-1.5-.4-1.9" />
           </svg>
         </span>
         <span className={navStyles.label}>Каталог</span>
@@ -152,8 +153,8 @@ export function MobileBottomNav({
           }
         >
           <span className={navStyles.contactFab} aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8.2 5.8c.6-.3 1.3-.1 1.6.5l1.1 2.3c.2.5.1 1-.3 1.4l-1 1a10.2 10.2 0 0 0 4.2 4.2l1-1c.4-.4.9-.5 1.4-.3l2.3 1.1c.6.3.8 1 .5 1.6l-1.1 2c-.4.7-1.1 1.1-1.9 1.1-5.8 0-10.5-4.7-10.5-10.5 0-.8.4-1.5 1.1-1.9Z" />
             </svg>
           </span>
           <span className={navStyles.labelContact}>Связь</span>
@@ -192,9 +193,8 @@ export function MobileBottomNav({
       >
         <span className={navStyles.iconWrap} aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8.2 9.2h7.6l-1 10.3H9.2L8.2 9.2Z" />
-            <path d="M9.8 9.2V7.4a2.2 2.2 0 0 1 4.4 0v1.8" />
-            <path d="M10.2 13.2h3.6" />
+            <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
+            <path d="M7.8 8.5h8.4l-1 10.2H8.8L7.8 8.5Z" />
           </svg>
           {cartItemCount > 0 && (
             <span className={navStyles.orderBadge} aria-hidden="true">
