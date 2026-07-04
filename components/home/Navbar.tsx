@@ -6,11 +6,7 @@
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import styles from "@/components/home/Navbar.module.css";
-import {
-  type MouseEvent as ReactMouseEvent,
-  type TouchEvent as ReactTouchEvent,
-  useRef,
-} from "react";
+import { useEffect, useState } from "react";
 
 type NavigationItem = {
   href: string;
@@ -20,45 +16,53 @@ type NavigationItem = {
 type NavbarProps = {
   navigationItems: NavigationItem[];
   scrolled: boolean;
-  menuOpen: boolean;
   elevated?: boolean;
-  onToggleMenu: () => void;
-  onCloseMenu: () => void;
   onNavigate?: (href: string) => void;
 };
 
 export function Navbar({
   navigationItems,
   scrolled,
-  menuOpen,
   elevated = false,
-  onToggleMenu,
-  onCloseMenu,
   onNavigate,
 }: NavbarProps) {
-  const lastMenuTouchRef = useRef(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleMenuClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
-    if (
-      lastMenuTouchRef.current > 0 &&
-      event.timeStamp - lastMenuTouchRef.current < 450
-    ) {
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) {
       return;
     }
 
-    onToggleMenu();
-  };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
 
-  const handleMenuTouchEnd = (event: ReactTouchEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    lastMenuTouchRef.current = event.timeStamp;
-    onToggleMenu();
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [menuOpen]);
+
+  const handleNavigate = (href: string) => {
+    setMenuOpen(false);
+
+    if (onNavigate) {
+      onNavigate(href);
+    }
   };
 
   return (
     <>
       <nav
-        className={`navbar ${styles.navbar} ${scrolled ? "scrolled" : ""} ${elevated ? "navbar-elevated" : ""}`}
+        className={`navbar ${styles.navbar} ${menuOpen ? styles.navbarMenuOpen : ""} ${scrolled ? "scrolled" : ""} ${elevated ? "navbar-elevated" : ""}`}
       >
         <BrandLogo variant="nav" className={`logo ${styles.logo}`} />
 
@@ -83,32 +87,38 @@ export function Navbar({
 
         <button
           type="button"
-          className={`menu-button ${styles.menuButton}`}
-          onClick={handleMenuClick}
-          onTouchEnd={handleMenuTouchEnd}
+          className={`menu-button ${styles.menuButton} ${menuOpen ? styles.menuButtonOpen : ""}`}
+          onClick={() => setMenuOpen((open) => !open)}
           aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
           aria-expanded={menuOpen}
-          aria-controls="mobile-navigation"
+          aria-controls={menuOpen ? "mobile-navigation" : undefined}
         >
           <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
           МЕНЮ
         </button>
       </nav>
-      {menuOpen && (
+      {menuOpen ? (
         <>
-          <div className="menu-overlay" onClick={onCloseMenu} />
-          <div className={`mobile-menu ${styles.mobileMenu}`} id="mobile-navigation">
+          <div
+            className={`menu-overlay ${styles.menuOverlay}`}
+            onClick={() => setMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div
+            className={`mobile-menu ${styles.mobileMenu}`}
+            id="mobile-navigation"
+            role="navigation"
+            aria-label="Мобильное меню"
+            onClick={(event) => event.stopPropagation()}
+          >
             {navigationItems.map((item) => (
               <a
                 href={item.href}
                 key={item.href}
+                className={styles.mobileMenuLink}
                 onClick={(event) => {
-                  if (onNavigate) {
-                    event.preventDefault();
-                    onNavigate(item.href);
-                  }
-
-                  onCloseMenu();
+                  event.preventDefault();
+                  handleNavigate(item.href);
                 }}
               >
                 {item.label}
@@ -116,7 +126,7 @@ export function Navbar({
             ))}
           </div>
         </>
-      )}
+      ) : null}
     </>
   );
 }

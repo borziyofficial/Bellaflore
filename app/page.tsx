@@ -52,9 +52,13 @@ import {
   type DeliveryDatePreset,
 } from "@/components/checkout/checkoutTypes";
 import { submitCheckoutOrderToTelegram } from "@/components/telegram/submitCheckoutOrderToTelegram";
+import { AboutSection } from "@/components/home/AboutSection";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
+import { ContactSection } from "@/components/home/ContactSection";
+import { DeliverySection } from "@/components/home/DeliverySection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { Navbar } from "@/components/home/Navbar";
+import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 import {
   BOTTOM_NAV_PANEL_CLOSE_MS,
@@ -90,10 +94,20 @@ import {
 } from "react";
 
 const navigationItems = [
-  { href: "#home", label: "ГЛАВНАЯ" },
-  { href: "#catalog", label: "КАТАЛОГ" },
-  { href: "#contact", label: "СВЯЗЬ" },
+  { href: "#home", label: "Главная" },
+  { href: "#catalog", label: "Каталог" },
+  { href: "#delivery", label: "Доставка" },
+  { href: "#reviews", label: "Отзывы" },
+  { href: "#about", label: "О Bellaflore" },
+  { href: "#contact", label: "Связь" },
 ];
+
+const SCROLL_SECTION_IDS = [
+  "delivery",
+  "reviews",
+  "about",
+  "contact",
+] as const;
 
 type PublicAppView = "home" | "catalog";
 
@@ -457,7 +471,6 @@ export default function Home() {
   //
   // Назначение (RU): React-состояние навигации, панелей, корзины, checkout, заказов, отзывов и скролла.
   // ==================================================
-  const [menuOpen, setMenuOpen] = useState(false);
   const [contactHubOpen, setContactHubOpen] = useState(false);
   const [favoriteBouquetIds, setFavoriteBouquetIds] = useState<string[]>([]);
   const [favoritesRestored, setFavoritesRestored] = useState(false);
@@ -544,13 +557,6 @@ export default function Home() {
       setConfirmedOrders(storedOrders);
     }
   };
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [menuOpen]);
 
   useEffect(() => {
     if (!catalogReady) {
@@ -665,14 +671,27 @@ export default function Home() {
       return;
     }
 
-    if (window.location.pathname === "/catalog" || window.location.hash === "#catalog") {
+    const hash = window.location.hash.replace(/^#/, "");
+    const shouldOpenCatalog =
+      window.location.pathname === "/catalog" ||
+      hash === "catalog" ||
+      SCROLL_SECTION_IDS.includes(
+        hash as (typeof SCROLL_SECTION_IDS)[number],
+      );
+
+    if (shouldOpenCatalog) {
       setPublicAppView("catalog");
       setCatalogFocusNonce((current) => current + 1);
     }
 
     const handlePopState = () => {
+      const nextHash = window.location.hash.replace(/^#/, "");
       setPublicAppView(
-        window.location.pathname === "/catalog" || window.location.hash === "#catalog"
+        window.location.pathname === "/catalog" ||
+          nextHash === "catalog" ||
+          SCROLL_SECTION_IDS.includes(
+            nextHash as (typeof SCROLL_SECTION_IDS)[number],
+          )
           ? "catalog"
           : "home",
       );
@@ -753,8 +772,6 @@ export default function Home() {
   //
   // Назначение (RU): Открытие/закрытие/переключение панелей bottom nav (каталог, избранное, контакты, мой заказ) с анимацией.
   // ==================================================
-  const closeMenu = () => setMenuOpen(false);
-
   const clearBottomNavCloseTimer = () => {
     if (bottomNavCloseTimerRef.current !== null) {
       window.clearTimeout(bottomNavCloseTimerRef.current);
@@ -1681,17 +1698,58 @@ export default function Home() {
     openCatalogView(true);
   };
 
-  const handleTopNavNavigate = (href: string) => {
-    closeMenu();
+  const scrollToHomeSection = (sectionId: string) => {
+    window.setTimeout(() => {
+      document.getElementById(sectionId)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 80);
+  };
 
-    if (href === "#catalog") {
-      closeAllBottomNavPanelsImmediate();
-      openCatalogView(true);
+  useEffect(() => {
+    if (publicAppView !== "catalog" || typeof window === "undefined") {
       return;
     }
 
-    if (href === "#contact") {
-      openBottomNavPanel("contact");
+    const sectionId = window.location.hash.replace(/^#/, "");
+    if (
+      !SCROLL_SECTION_IDS.includes(
+        sectionId as (typeof SCROLL_SECTION_IDS)[number],
+      )
+    ) {
+      return;
+    }
+
+    scrollToHomeSection(sectionId);
+  }, [publicAppView]);
+
+  const handleTopNavNavigate = (href: string) => {
+    closeAllBottomNavPanelsImmediate();
+
+    if (href === "#home") {
+      goHomeFromBottomNav();
+      return;
+    }
+
+    if (href === "#catalog") {
+      openCatalogView(false);
+      return;
+    }
+
+    const sectionId = href.replace(/^#/, "");
+    if (
+      SCROLL_SECTION_IDS.includes(
+        sectionId as (typeof SCROLL_SECTION_IDS)[number],
+      )
+    ) {
+      setPublicAppView("catalog");
+      if (typeof window !== "undefined" && window.location.pathname !== "/catalog") {
+        window.history.pushState({}, "", `/catalog#${sectionId}`);
+      } else if (typeof window !== "undefined") {
+        window.history.replaceState({}, "", `/catalog#${sectionId}`);
+      }
+      scrollToHomeSection(sectionId);
       return;
     }
 
@@ -2147,10 +2205,7 @@ export default function Home() {
       <Navbar
           navigationItems={navigationItems}
           scrolled={scrolled}
-          menuOpen={menuOpen}
           elevated={Boolean(activeProductExperience)}
-          onToggleMenu={() => setMenuOpen((prev) => !prev)}
-          onCloseMenu={closeMenu}
           onNavigate={handleTopNavNavigate}
         />
 
@@ -2165,17 +2220,33 @@ export default function Home() {
       <HeroSection onOrderBouquet={handleHeroOrderBouquet} />
 
       {publicAppView === "catalog" ? (
-        <CollectionsSection
-          bouquets={bouquets}
-          favoriteBouquetIds={favoriteBouquetIds}
-          formatPrice={formatPrice}
-          handleFavoriteClick={handleFavoriteClick}
-          handleFavoriteTouchEnd={handleFavoriteTouchEnd}
-          handleBouquetOrderClick={handleBouquetOrderClick}
-          handleBouquetOrderTouchEnd={handleBouquetOrderTouchEnd}
-          onProductOpen={openProductExperience}
-          catalogFocusNonce={catalogFocusNonce}
-        />
+        <>
+          <CollectionsSection
+            bouquets={bouquets}
+            favoriteBouquetIds={favoriteBouquetIds}
+            formatPrice={formatPrice}
+            handleFavoriteClick={handleFavoriteClick}
+            handleFavoriteTouchEnd={handleFavoriteTouchEnd}
+            handleBouquetOrderClick={handleBouquetOrderClick}
+            handleBouquetOrderTouchEnd={handleBouquetOrderTouchEnd}
+            onProductOpen={openProductExperience}
+            catalogFocusNonce={catalogFocusNonce}
+          />
+          <DeliverySection />
+          <AboutSection />
+          <ReviewsSection
+            averageReviewRating={averageReviewRating}
+            averageReviewRatingLabel={averageReviewRatingLabel}
+            reviewsCount={reviewsCount}
+            reviewForm={reviewForm}
+            reviewFormMessage={reviewFormMessage}
+            reviews={reviews}
+            renderRatingStars={renderRatingStars}
+            handleReviewSubmit={handleReviewSubmit}
+            handleReviewFieldChange={handleReviewFieldChange}
+          />
+          <ContactSection />
+        </>
       ) : null}
 
       {/* ==================================================

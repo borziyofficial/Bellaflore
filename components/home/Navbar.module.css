@@ -14,12 +14,105 @@
   margin-left: auto;
   display: inline-flex;
   align-items: center;
+  position: relative;
+}
+
+.menuButtonOpen {
+  z-index: 100001 !important;
+}
+
+.navbarMenuOpen {
+  pointer-events: auto !important;
+}
+
+.menuOverlay {
+  z-index: 1001 !important;
+  background: rgba(4, 4, 5, 0.46) !important;
+  backdrop-filter: blur(10px) saturate(1.05) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.05) !important;
 }
 
 .mobileMenu {
+  --menu-gold: rgba(212, 175, 55, 0.92);
+  --menu-gold-line: rgba(212, 175, 55, 0.16);
+  --menu-ink: rgba(242, 235, 226, 0.94);
+  --menu-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: fixed;
+  top: 76px;
+  right: 16px;
+  z-index: 1002;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0 !important;
+  width: 240px;
+  max-width: calc(100vw - 32px);
+  min-width: 0 !important;
+  padding: 6px 0 !important;
+  border: 1px solid rgba(212, 175, 55, 0.28) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(212, 175, 55, 0.1), transparent 48%),
+    linear-gradient(180deg, rgba(34, 34, 36, 0.96), rgba(18, 18, 20, 0.94)) !important;
+  backdrop-filter: blur(20px) saturate(1.08) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.08) !important;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.34),
+    0 0 22px rgba(212, 175, 55, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  pointer-events: auto;
+  transform-origin: top right;
+  animation: menuPanelIn 0.28s var(--menu-ease) both;
+}
+
+.mobileMenuLink {
+  display: block;
+  width: 100%;
+  padding: 9px 16px;
+  color: var(--menu-ink) !important;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase;
+  line-height: 1.25;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--menu-gold-line);
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.18s var(--menu-ease),
+    color 0.18s var(--menu-ease);
+}
+
+.mobileMenuLink:last-child {
+  border-bottom: 0;
+}
+
+.mobileMenuLink:hover {
+  transform: none !important;
+  opacity: 1 !important;
+  letter-spacing: 0.14em !important;
+  background: rgba(212, 175, 55, 0.06);
+  color: var(--menu-gold) !important;
+  text-shadow: none !important;
+}
+
+.mobileMenuLink:active {
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--menu-gold) !important;
+}
+
+@keyframes menuPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (max-width: 768px) {
@@ -27,8 +120,8 @@
     top: 0;
     width: 100%;
     max-width: none;
-    padding: 12px 16px;
-    min-height: 52px;
+    padding: 5px 16px;
+    min-height: 36px;
   }
 
   .logo {
@@ -37,8 +130,8 @@
   }
 
   .menuButton {
-    padding: 0 14px !important;
-    min-height: 44px;
+    padding: 0 11px !important;
+    min-height: 32px;
     font-size: 10px !important;
     letter-spacing: 0.12em !important;
     gap: 6px !important;
@@ -47,5 +140,20 @@
   .menuButton span {
     width: 12px;
     font-size: 13px;
+  }
+
+  .mobileMenu {
+    top: 76px !important;
+    right: 16px !important;
+    left: auto !important;
+    width: min(240px, calc(100vw - 32px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobileMenu,
+  .mobileMenuLink {
+    animation: none !important;
+    transition: none;
   }
 }

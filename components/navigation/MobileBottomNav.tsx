@@ -13,6 +13,8 @@
 import {
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
+  useEffect,
+  useState,
 } from "react";
 import navStyles from "@/components/navigation/MobileBottomNav.module.css";
 
@@ -73,6 +75,12 @@ export function MobileBottomNav({
   handleMyOrderNavClick,
   handleMyOrderNavTouchEnd,
 }: MobileBottomNavProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   return (
     <nav
       className={`${navStyles.nav} ${bottomNavCompact ? navStyles.compact : ""}`}
@@ -115,9 +123,11 @@ export function MobileBottomNav({
         onClick={handleContactNavClick}
         onTouchEnd={handleContactNavTouchEnd}
         aria-label="Связь"
-        aria-expanded={contactHubOpen}
-        aria-pressed={contactHubOpen}
-        aria-controls="contact-quick-actions"
+        aria-expanded={isMounted ? contactHubOpen : false}
+        aria-pressed={isMounted ? contactHubOpen : false}
+        aria-controls={
+          isMounted && contactHubOpen ? "contact-quick-actions" : undefined
+        }
       >
         <svg aria-hidden="true" viewBox="0 0 24 24">
           <path d="M21 4 10.6 14.4" />
