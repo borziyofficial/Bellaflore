@@ -1,4 +1,4 @@
-/* iOS-style floating bottom nav — Premium polish */
+/* Approved BellaFlore bottom navbar — dark gold luxury */
 .nav {
   display: none;
 }
@@ -10,88 +10,79 @@
     right: 0;
     bottom: calc(18px + env(safe-area-inset-bottom));
     z-index: 2147483010;
-    width: min(80vw, 318px);
+    width: min(92vw, 380px);
     margin-inline: auto;
-    min-height: 40px;
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    align-items: center;
+    min-height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
     gap: 0;
-    padding: 1px 4px calc(1px + env(safe-area-inset-bottom));
-    border: 0;
-    background: transparent;
-    box-shadow: none;
+    padding: 14px 22px calc(12px + env(safe-area-inset-bottom));
+    border: 1px solid rgba(184, 148, 79, 0.35);
+    border-radius: 32px;
+    background: linear-gradient(180deg, #221d16 0%, #0f0d09 100%);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
     pointer-events: auto;
     touch-action: manipulation;
     isolation: isolate;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    box-sizing: border-box;
   }
 
   .glass {
-    position: absolute;
-    inset: 2px 0;
-    z-index: 0;
-    border: 0.5px solid rgba(212, 175, 55, 0.22);
-    border-radius: 999px;
-    background: var(--bg-secondary, #2a2a2a);
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    pointer-events: none;
-  }
-
-  .glass::before {
-    content: "";
-    position: absolute;
-    top: 4px;
-    left: 16px;
-    right: 16px;
-    height: 1px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.35), transparent);
-    pointer-events: none;
+    display: none;
   }
 
   .item {
     position: relative;
     z-index: 1;
-    width: min(42px, 100%);
-    height: 30px;
-    margin: 0 auto;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 56px;
+    margin: 0;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 0;
+    justify-content: flex-end;
+    gap: 4px;
     padding: 0;
-    color: var(--text-light, #ededed);
-    border: 1px solid transparent;
-    border-radius: 999px;
+    color: #cfc7ba;
+    border: 0;
+    border-radius: 0;
     background: transparent;
     text-decoration: none;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     cursor: pointer;
     transition:
-      transform 0.1s ease,
-      color 0.1s ease,
-      background 0.1s ease,
-      border-color 0.1s ease;
+      transform 0.12s ease,
+      color 0.12s ease;
   }
 
   .item:active {
-    transform: scale(0.94);
-    background: rgba(234, 214, 214, 0.2);
+    transform: scale(0.96);
+  }
+
+  .iconWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+    pointer-events: none;
   }
 
   .item svg {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     flex: 0 0 auto;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.7;
+    stroke-width: 1.75;
     stroke-linecap: round;
     stroke-linejoin: round;
     pointer-events: none;
@@ -106,9 +97,9 @@
     display: block;
     max-width: 100%;
     overflow: hidden;
-    color: rgba(67, 48, 27, 0.92);
-    font-size: 6.5px;
-    font-weight: 600;
+    color: #cfc7ba;
+    font-size: 10px;
+    font-weight: 400;
     line-height: 1;
     text-align: center;
     text-overflow: ellipsis;
@@ -117,72 +108,139 @@
 
   .item:hover,
   .item:focus-visible {
-    color: #3d3126;
-    background: rgba(255, 253, 248, 0.14);
-    border-color: rgba(232, 220, 220, 0.45);
+    color: #cfc7ba;
+    background: transparent;
     outline: none;
   }
 
   .itemActive {
-    color: #7b555d;
-    border-color: rgba(234, 214, 214, 0.65);
-    background: rgba(234, 214, 214, 0.16);
+    color: #e8c874;
   }
 
-  .itemPrimary {
-    width: 34px;
-    height: 32px;
-    color: #4f3d2c;
-    border-color: rgba(190, 165, 112, 0.28);
-    background: rgba(253, 251, 247, 0.2);
+  .itemActive .label {
+    color: #e8c874;
+  }
+
+  .itemContact {
+    position: relative;
+    z-index: 2;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 64px;
+    margin: 0;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #e8c874;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+    transition: transform 0.12s ease;
+  }
+
+  .itemContact:active {
+    transform: scale(0.96);
+  }
+
+  .itemContact:focus-visible {
+    outline: none;
+  }
+
+  .contactFab {
+    position: relative;
+    top: -26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #d9b26a, #9a7431 75%);
     box-shadow:
-      0 5px 14px rgba(61, 49, 38, 0.08),
-      inset 0 1px 0 rgba(255, 253, 248, 0.4);
+      0 6px 14px rgba(0, 0, 0, 0.45),
+      0 0 0 4px #0f0d09;
+    color: #ffffff;
+    pointer-events: none;
   }
 
-  .itemPrimary svg {
-    width: 17px;
-    height: 17px;
+  .contactFab svg {
+    width: 20px;
+    height: 20px;
+    fill: #ffffff;
+    stroke: none;
+    pointer-events: none;
+  }
+
+  .labelContact {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: #e8c874;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .orderBadge {
+    position: absolute;
+    top: -6px;
+    right: 6px;
+    width: 15px;
+    height: 15px;
+    min-width: 15px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #d9b26a;
+    color: #1a1712;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
   }
 
   .compact {
-    width: min(82vw, 310px);
-    min-height: 38px;
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    padding: 1px 3px calc(1px + env(safe-area-inset-bottom));
+    width: min(90vw, 360px);
+    min-height: 66px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    padding: 12px 18px calc(10px + env(safe-area-inset-bottom));
   }
 
-  .compact .glass {
-    inset: 1px 0;
-    -webkit-backdrop-filter: blur(20px) saturate(1.14);
-    backdrop-filter: blur(20px) saturate(1.14);
+  .compact .contactFab {
+    width: 52px;
+    height: 52px;
+    top: -22px;
   }
 
-  .compact .item {
-    width: min(38px, 100%);
-    height: 28px;
+  .compact .contactFab svg {
+    width: 18px;
+    height: 18px;
   }
 
   .compact .item svg {
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
   }
 
-  .compact .label {
-    font-size: 6px;
+  .compact .iconWrap {
+    width: 18px;
+    height: 18px;
   }
 
-  .compact .itemPrimary {
-    width: 32px;
-    height: 30px;
-  }
-}
-
-@supports (-webkit-touch-callout: none) {
-  @media (max-width: 768px) {
-    .glass {
-      -webkit-backdrop-filter: blur(20px) saturate(1.16);
-      backdrop-filter: blur(20px) saturate(1.16);
-    }
+  .compact .label,
+  .compact .labelContact {
+    font-size: 9px;
   }
 }

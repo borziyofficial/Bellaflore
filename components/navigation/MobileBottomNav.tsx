@@ -25,6 +25,8 @@ type MobileBottomNavProps = {
   favoritesPanelOpen: boolean;
   myOrderPanelOpen: boolean;
   favoriteBouquetIds: string[];
+  cartItemCount: number;
+  publicAppView: "home" | "catalog";
   handleHomeNavClick: (
     event: ReactMouseEvent<HTMLAnchorElement>,
   ) => void;
@@ -64,6 +66,8 @@ export function MobileBottomNav({
   favoritesPanelOpen,
   myOrderPanelOpen,
   favoriteBouquetIds,
+  cartItemCount,
+  publicAppView,
   handleHomeNavClick,
   handleHomeNavTouchEnd,
   handleSearchNavClick,
@@ -91,35 +95,39 @@ export function MobileBottomNav({
         {bottomNavAction}
       </span>
       <a
-        className={navStyles.item}
+        className={`${navStyles.item} ${publicAppView === "home" ? navStyles.itemActive : ""}`}
         href="#home"
-        aria-label="Главный"
+        aria-label="Главная"
         onClick={handleHomeNavClick}
         onTouchEnd={handleHomeNavTouchEnd}
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path d="M3.5 11.4 12 4l8.5 7.4" />
-          <path d="M6.5 10.2V20h5v-5.2h3V20h5v-9.8" />
-        </svg>
-        <span className={navStyles.label}>Главный</span>
+        <span className={navStyles.iconWrap} aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M3.5 11.4 12 4l8.5 7.4" />
+            <path d="M6.5 10.2V20h5v-5.2h3V20h5v-9.8" />
+          </svg>
+        </span>
+        <span className={navStyles.label}>Главная</span>
       </a>
       <button
         type="button"
-        className={navStyles.item}
+        className={`${navStyles.item} ${publicAppView === "catalog" ? navStyles.itemActive : ""}`}
         onClick={handleSearchNavClick}
         onTouchEnd={handleSearchNavTouchEnd}
         aria-label="Каталог"
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <circle cx="12" cy="10" r="3.2" />
-          <path d="M12 13.2c-3.2 0-5.8 1.8-6.8 4.4 2.2-.8 4.5-.8 6.8 0 2.3-.8 4.6-.8 6.8 0-1-2.6-3.6-4.4-6.8-4.4Z" />
-          <path d="M9.2 8.1c-.8-1.8.2-3.4 1.4-3.8M14.8 8.1c.8-1.8-.2-3.4-1.4-3.8" />
-        </svg>
+        <span className={navStyles.iconWrap} aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 3.5c-2.2 0-4 1.6-4.3 3.7-.1.8-.8 1.4-1.6 1.4-.9 0-1.6-.7-1.6-1.6 0-3.5 2.9-6.3 6.5-6.3s6.5 2.8 6.5 6.3c0 .9-.7 1.6-1.6 1.6-.8 0-1.5-.6-1.6-1.4-.3-2.1-2.1-3.7-4.3-3.7Z" />
+            <path d="M12 11.2c-3.1 0-5.6 1.7-6.6 4.2 2.1-.7 4.3-.7 6.6 0 2.3-.7 4.5-.7 6.6 0-1-2.5-3.5-4.2-6.6-4.2Z" />
+            <path d="M9.4 7.8c-.6-1.4.1-2.7 1.1-3M14.6 7.8c.6-1.4-.1-2.7-1.1-3" />
+          </svg>
+        </span>
         <span className={navStyles.label}>Каталог</span>
       </button>
       <button
         type="button"
-        className={`${navStyles.item} ${navStyles.itemPrimary} ${contactHubOpen ? navStyles.itemActive : ""}`}
+        className={navStyles.itemContact}
         onClick={handleContactNavClick}
         onTouchEnd={handleContactNavTouchEnd}
         aria-label="Связь"
@@ -129,11 +137,12 @@ export function MobileBottomNav({
           isMounted && contactHubOpen ? "contact-quick-actions" : undefined
         }
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path d="M21 4 10.6 14.4" />
-          <path d="m21 4-6.6 18-3.8-7.6L3 10.6 21 4Z" />
-        </svg>
-        <span className={navStyles.label}>Связь</span>
+        <span className={navStyles.contactFab} aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+          </svg>
+        </span>
+        <span className={navStyles.labelContact}>Связь</span>
       </button>
       <button
         type="button"
@@ -147,14 +156,11 @@ export function MobileBottomNav({
         }
         aria-pressed={favoritesPanelOpen}
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path d="M12 20.5s-7.3-4.4-9-9.2C1.9 8 3.9 5.2 7 5.2c1.8 0 3.1 1 4 2.2.9-1.2 2.2-2.2 4-2.2 3.1 0 5.1 2.8 4 6.1-1.7 4.8-9 9.2-9 9.2Z" />
-        </svg>
-        {favoriteBouquetIds.length > 0 && (
-          <span className="favorite-count-badge" aria-hidden="true">
-            {favoriteBouquetIds.length}
-          </span>
-        )}
+        <span className={navStyles.iconWrap} aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 20.5s-7.3-4.4-9-9.2C1.9 8 3.9 5.2 7 5.2c1.8 0 3.1 1 4 2.2.9-1.2 2.2-2.2 4-2.2 3.1 0 5.1 2.8 4 6.1-1.7 4.8-9 9.2-9 9.2Z" />
+          </svg>
+        </span>
         <span className={navStyles.label}>Избранное</span>
       </button>
       <button
@@ -162,14 +168,25 @@ export function MobileBottomNav({
         className={`${navStyles.item} ${myOrderPanelOpen ? navStyles.itemActive : ""}`}
         onClick={handleMyOrderNavClick}
         onTouchEnd={handleMyOrderNavTouchEnd}
-        aria-label="Мой профиль"
+        aria-label={
+          cartItemCount > 0
+            ? `Мой заказ, ${cartItemCount} товаров`
+            : "Мой заказ"
+        }
         aria-pressed={myOrderPanelOpen}
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <circle cx="12" cy="8.2" r="3.4" />
-          <path d="M5.2 20v-1a6.8 6.8 0 0 1 13.6 0v1" />
-        </svg>
-        <span className={navStyles.label}>Профиль</span>
+        <span className={navStyles.iconWrap} aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M7 8h10l-1.1 11H8.1L7 8Z" />
+            <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
+          </svg>
+          {cartItemCount > 0 && (
+            <span className={navStyles.orderBadge} aria-hidden="true">
+              {cartItemCount}
+            </span>
+          )}
+        </span>
+        <span className={navStyles.label}>Мой заказ</span>
       </button>
     </nav>
   );

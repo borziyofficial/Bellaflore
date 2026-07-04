@@ -2359,6 +2359,8 @@ export default function Home() {
         favoritesPanelOpen={favoritesPanelOpen}
         myOrderPanelOpen={myOrderPanelOpen}
         favoriteBouquetIds={favoriteBouquetIds}
+        cartItemCount={cartItemCount}
+        publicAppView={publicAppView}
         handleSearchNavClick={handleSearchNavClick}
         handleSearchNavTouchEnd={handleSearchNavTouchEnd}
         handleContactNavClick={handleContactNavClick}
