@@ -18,11 +18,6 @@
   }
 
   .fanRoot:global(#contact-quick-actions) {
-    --fan-outer-x: min(128px, 34vw);
-    --fan-outer-y: min(70px, 18vw);
-    --fan-inner-x: min(55px, 14.5vw);
-    --fan-inner-y: min(100px, 26vw);
-
     position: absolute !important;
     left: 50% !important;
     right: auto !important;
@@ -101,30 +96,28 @@
   }
 
   .fanOpen .fanWhatsapp {
-    transform: translate(calc(0px - var(--fan-outer-x)), calc(0px - var(--fan-outer-y)))
-      scale(1);
+    transform: translate(-132px, -84px) scale(1);
     opacity: 1;
     pointer-events: auto;
     transition-delay: 0.26s;
   }
 
   .fanOpen .fanTelegram {
-    transform: translate(calc(0px - var(--fan-inner-x)), calc(0px - var(--fan-inner-y)))
-      scale(1);
+    transform: translate(-48px, -118px) scale(1);
     opacity: 1;
     pointer-events: auto;
     transition-delay: 0.12s;
   }
 
   .fanOpen .fanInstagram {
-    transform: translate(var(--fan-inner-x), calc(0px - var(--fan-inner-y))) scale(1);
+    transform: translate(48px, -118px) scale(1);
     opacity: 1;
     pointer-events: auto;
     transition-delay: 0.19s;
   }
 
   .fanOpen .fanPhone {
-    transform: translate(var(--fan-outer-x), calc(0px - var(--fan-outer-y))) scale(1);
+    transform: translate(132px, -84px) scale(1);
     opacity: 1;
     pointer-events: auto;
     transition-delay: 0.05s;
@@ -171,11 +164,20 @@
 }
 
 @media (max-width: 360px) {
-  .fanRoot:global(#contact-quick-actions) {
-    --fan-outer-x: min(104px, 29vw);
-    --fan-outer-y: min(58px, 16vw);
-    --fan-inner-x: min(46px, 12.5vw);
-    --fan-inner-y: min(84px, 22vw);
+  .fanOpen .fanWhatsapp {
+    transform: translate(-112px, -78px) scale(1);
+  }
+
+  .fanOpen .fanTelegram {
+    transform: translate(-42px, -108px) scale(1);
+  }
+
+  .fanOpen .fanInstagram {
+    transform: translate(42px, -108px) scale(1);
+  }
+
+  .fanOpen .fanPhone {
+    transform: translate(112px, -78px) scale(1);
   }
 }
 
