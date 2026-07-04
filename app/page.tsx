@@ -9,7 +9,6 @@
 // Назначение (RU): Клиентская оболочка витрины — каталог, корзина, checkout, заказы, избранное, отзывы и mobile bottom nav.
 // ==================================================
 
-import { ContactQuickActions } from "@/components/contact/ContactQuickActions";
 import { CheckoutSection } from "@/components/checkout/CheckoutSection";
 import { CheckoutPanel } from "@/components/checkout/CheckoutPanel";
 import { useRealDeliveryZoneForCheckout } from "@/components/deliveryZones/useRealDeliveryZoneForCheckout";
@@ -2365,6 +2364,7 @@ export default function Home() {
         handleSearchNavTouchEnd={handleSearchNavTouchEnd}
         handleContactNavClick={handleContactNavClick}
         handleContactNavTouchEnd={handleContactNavTouchEnd}
+        closeContactHub={closeContactHub}
         handleFavoritesNavClick={handleFavoritesNavClick}
         handleFavoritesNavTouchEnd={handleFavoritesNavTouchEnd}
         handleMyOrderNavClick={handleMyOrderNavClick}
@@ -2373,25 +2373,6 @@ export default function Home() {
         handleHomeNavTouchEnd={handleHomeNavTouchEnd}
       />
 
-      {/* ==================================================
-          SECTION: Contact Hub
-          РАЗДЕЛ: Contact Hub
-
-          Purpose (EN): Bottom-nav contact overlay — quick actions for phone, Telegram, and messaging.
-
-          Назначение (RU): Оверлей контактов bottom nav — быстрые действия: телефон, Telegram и мессенджеры.
-          ================================================== */}
-      {isBottomNavPanelVisible("contact") && (
-        <div
-          className={
-            closingBottomNavPanel === "contact"
-              ? "bottom-nav-panel-host-closing"
-              : undefined
-          }
-        >
-          <ContactQuickActions closeContactHub={closeContactHub} />
-        </div>
-      )}
     </>
   );
 }

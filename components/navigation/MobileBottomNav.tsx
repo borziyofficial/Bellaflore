@@ -16,6 +16,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { ContactQuickActions } from "@/components/contact/ContactQuickActions";
 import navStyles from "@/components/navigation/MobileBottomNav.module.css";
 
 type MobileBottomNavProps = {
@@ -45,6 +46,7 @@ type MobileBottomNavProps = {
   handleContactNavTouchEnd: (
     event: ReactTouchEvent<HTMLButtonElement>,
   ) => void;
+  closeContactHub: () => void;
   handleFavoritesNavClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
   ) => void;
@@ -74,6 +76,7 @@ export function MobileBottomNav({
   handleSearchNavTouchEnd,
   handleContactNavClick,
   handleContactNavTouchEnd,
+  closeContactHub,
   handleFavoritesNavClick,
   handleFavoritesNavTouchEnd,
   handleMyOrderNavClick,
@@ -94,6 +97,9 @@ export function MobileBottomNav({
       <span className="sr-only" aria-live="polite">
         {bottomNavAction}
       </span>
+      {isMounted && contactHubOpen && (
+        <ContactQuickActions closeContactHub={closeContactHub} />
+      )}
       <a
         className={`${navStyles.item} ${publicAppView === "home" ? navStyles.itemActive : ""}`}
         href="#home"

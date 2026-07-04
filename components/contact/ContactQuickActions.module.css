@@ -1,29 +1,19 @@
-.overlay,
 .fanRoot {
   display: none;
 }
 
 @media (max-width: 768px) {
-  .overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 2147483003;
-    display: block;
-    pointer-events: auto;
-    background: transparent;
-    touch-action: manipulation;
-  }
-
   .fanRoot {
-    --fan-outer-x: min(128px, 34vw);
-    --fan-outer-y: min(70px, 18vw);
-    --fan-inner-x: min(55px, 14.5vw);
-    --fan-inner-y: min(140px, 36vw);
+    --fan-whatsapp-x: calc(0px - min(120px, 32vw));
+    --fan-telegram-x: calc(0px - min(40px, 10.666vw));
+    --fan-instagram-x: min(40px, 10.666vw);
+    --fan-phone-x: min(120px, 32vw);
+    --fan-y: calc(0px - min(104px, 28vw));
 
-    position: fixed;
+    position: absolute;
     left: 50%;
-    bottom: calc(46px + env(safe-area-inset-bottom));
-    z-index: 2147483012;
+    bottom: 28px;
+    z-index: 3;
     display: block;
     width: 0;
     height: 0;
@@ -31,8 +21,17 @@
   }
 
   .fanRoot:global(.contact-quick-actions) {
+    inset: auto !important;
+    position: absolute !important;
+    left: 50% !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: 28px !important;
+    z-index: 3 !important;
+    display: block !important;
     width: 0 !important;
     height: 0 !important;
+    min-height: 0 !important;
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -41,7 +40,6 @@
     background: transparent !important;
     box-shadow: none !important;
     transform: none !important;
-    inset: auto !important;
     overflow: visible !important;
   }
 
@@ -51,20 +49,31 @@
   }
 
   .fanItem {
-    position: absolute;
-    left: -26px;
-    top: -26px;
-    width: 52px;
-    height: 52px;
-    display: inline-flex;
+    position: absolute !important;
+    inset: auto !important;
+    left: -26px !important;
+    top: -26px !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: 4 !important;
+    width: 52px !important;
+    min-width: 52px !important;
+    max-width: 52px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
     border: 0;
-    border-radius: 50%;
+    border-radius: 50% !important;
     text-decoration: none;
-    transform: translate(0, 0) scale(0.2);
-    opacity: 0;
-    pointer-events: none;
+    transform: translate(0, 0) scale(0.2) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
     box-shadow:
       0 0 0 2px rgba(232, 200, 116, 0.3),
       0 0 14px rgba(232, 200, 116, 0.25),
@@ -77,6 +86,11 @@
     cursor: pointer;
   }
 
+  .fanItem::before {
+    content: none !important;
+    display: none !important;
+  }
+
   .fanItem svg {
     width: 24px;
     height: 24px;
@@ -85,33 +99,30 @@
   }
 
   .fanOpen .fanPhone {
-    transform: translate(var(--fan-outer-x), calc(0px - var(--fan-outer-y)))
-      scale(1);
-    opacity: 1;
-    pointer-events: auto;
+    transform: translate(var(--fan-phone-x), var(--fan-y)) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
     transition-delay: 0.05s;
   }
 
   .fanOpen .fanTelegram {
-    transform: translate(calc(0px - var(--fan-inner-x)), calc(0px - var(--fan-inner-y)))
-      scale(1);
-    opacity: 1;
-    pointer-events: auto;
+    transform: translate(var(--fan-telegram-x), var(--fan-y)) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
     transition-delay: 0.12s;
   }
 
   .fanOpen .fanInstagram {
-    transform: translate(var(--fan-inner-x), calc(0px - var(--fan-inner-y))) scale(1);
-    opacity: 1;
-    pointer-events: auto;
+    transform: translate(var(--fan-instagram-x), var(--fan-y)) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
     transition-delay: 0.19s;
   }
 
   .fanOpen .fanWhatsapp {
-    transform: translate(calc(0px - var(--fan-outer-x)), calc(0px - var(--fan-outer-y)))
-      scale(1);
-    opacity: 1;
-    pointer-events: auto;
+    transform: translate(var(--fan-whatsapp-x), var(--fan-y)) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
     transition-delay: 0.26s;
   }
 
@@ -157,10 +168,11 @@
 
 @media (max-width: 360px) {
   .fanRoot {
-    --fan-outer-x: min(108px, 30vw);
-    --fan-outer-y: min(58px, 16vw);
-    --fan-inner-x: min(46px, 12.5vw);
-    --fan-inner-y: min(118px, 32vw);
+    --fan-whatsapp-x: -102px;
+    --fan-telegram-x: -34px;
+    --fan-instagram-x: 34px;
+    --fan-phone-x: 102px;
+    --fan-y: -96px;
   }
 }
 
