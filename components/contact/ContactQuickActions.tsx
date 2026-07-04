@@ -1,17 +1,17 @@
 // ==================================================
 // SECTION: CONTACT HUB
-// РАЗДЕЛ: Orbit overlay (bottom nav «Связь»)
+// РАЗДЕЛ: Fan popup (bottom nav «Связь»)
 // ==================================================
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import styles from "@/components/contact/ContactQuickActions.module.css";
 
 type ContactQuickActionsProps = {
   closeContactHub: () => void;
 };
 
-type OrbitAction = {
+type FanAction = {
   id: string;
   label: string;
   href: string;
@@ -21,14 +21,30 @@ type OrbitAction = {
   icon: ReactNode;
 };
 
-const ORBIT_ACTIONS: OrbitAction[] = [
+const FAN_ACTIONS: FanAction[] = [
+  {
+    id: "whatsapp",
+    label: "WhatsApp",
+    href: "https://wa.me/70000000000",
+    external: true,
+    positionClass: styles.fanWhatsapp,
+    brandClass: styles.fanWhatsapp,
+    icon: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.09.61 4.03 1.66 5.66L2 22l4.58-1.76A9.86 9.86 0 0 0 12.04 22c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm5.57 13.93c-.24.67-1.2 1.24-1.96 1.4-.5.11-1.15.2-3.34-.72-2.8-1.22-4.61-4.1-4.75-4.29-.14-.19-1.14-1.52-1.14-2.9 0-1.38.72-2.06 1-2.34.24-.24.62-.35.99-.35.12 0 .24 0 .35.01.11.01.26-.04.4.31.15.36.51 1.24.55 1.33.04.09.07.2.01.32-.06.12-.09.2-.18.31-.09.11-.19.24-.27.32-.09.09-.18.19-.08.37.1.18.45.74.96 1.2.66.59 1.22.77 1.4.86.18.09.28.08.38-.05.1-.13.43-.5.54-.67.11-.17.22-.14.37-.09.15.05.96.45 1.12.53.16.08.27.12.31.19.04.07.04.41-.2 1.08Z"
+        />
+      </svg>
+    ),
+  },
   {
     id: "telegram",
     label: "Telegram",
     href: "https://t.me/",
     external: true,
-    positionClass: styles.orbitTopLeft,
-    brandClass: styles.telegram,
+    positionClass: styles.fanTelegram,
+    brandClass: styles.fanTelegram,
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -43,8 +59,8 @@ const ORBIT_ACTIONS: OrbitAction[] = [
     label: "Instagram",
     href: "https://instagram.com/",
     external: true,
-    positionClass: styles.orbitTopRight,
-    brandClass: styles.instagram,
+    positionClass: styles.fanInstagram,
+    brandClass: styles.fanInstagram,
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <rect
@@ -70,27 +86,11 @@ const ORBIT_ACTIONS: OrbitAction[] = [
     ),
   },
   {
-    id: "whatsapp",
-    label: "WhatsApp",
-    href: "https://wa.me/70000000000",
-    external: true,
-    positionClass: styles.orbitMidLeft,
-    brandClass: styles.whatsapp,
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          fill="currentColor"
-          d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.09.61 4.03 1.66 5.66L2 22l4.58-1.76A9.86 9.86 0 0 0 12.04 22c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm5.57 13.93c-.24.67-1.2 1.24-1.96 1.4-.5.11-1.15.2-3.34-.72-2.8-1.22-4.61-4.1-4.75-4.29-.14-.19-1.14-1.52-1.14-2.9 0-1.38.72-2.06 1-2.34.24-.24.62-.35.99-.35.12 0 .24 0 .35.01.11.01.26-.04.4.31.15.36.51 1.24.55 1.33.04.09.07.2.01.32-.06.12-.09.2-.18.31-.09.11-.19.24-.27.32-.09.09-.18.19-.08.37.1.18.45.74.96 1.2.66.59 1.22.77 1.4.86.18.09.28.08.38-.05.1-.13.43-.5.54-.67.11-.17.22-.14.37-.09.15.05.96.45 1.12.53.16.08.27.12.31.19.04.07.04.41-.2 1.08Z"
-        />
-      </svg>
-    ),
-  },
-  {
     id: "phone",
-    label: "Звонок",
+    label: "Позвонить",
     href: "tel:+70000000000",
-    positionClass: styles.orbitMidRight,
-    brandClass: styles.phone,
+    positionClass: styles.fanPhone,
+    brandClass: styles.fanPhone,
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -105,6 +105,18 @@ const ORBIT_ACTIONS: OrbitAction[] = [
 export function ContactQuickActions({
   closeContactHub,
 }: ContactQuickActionsProps) {
+  const [fanOpen, setFanOpen] = useState(false);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setFanOpen(true);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
   return (
     <>
       <div
@@ -113,70 +125,28 @@ export function ContactQuickActions({
         aria-hidden="true"
       />
       <div
-        className={`${styles.stage} contact-quick-actions`}
+        className={`${styles.fanRoot} ${fanOpen ? styles.fanOpen : ""} contact-quick-actions`}
         id="contact-quick-actions"
         role="dialog"
         aria-modal="true"
         aria-label="Связь с BellaFlore"
       >
-        <button
-          type="button"
-          className={styles.closeButton}
-          onClick={closeContactHub}
-          aria-label="Закрыть"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M7.5 7.5 16.5 16.5M16.5 7.5 7.5 16.5"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
-
-        <div className={styles.orbitCluster}>
-          <svg
-            className={styles.connectors}
-            viewBox="0 0 420 300"
-            aria-hidden="true"
+        {FAN_ACTIONS.map((action) => (
+          <a
+            key={action.id}
+            className={`${styles.fanItem} ${action.positionClass} ${action.brandClass} contact-quick-action contact-quick-action-${action.id}`}
+            href={action.href}
+            {...(action.external
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {})}
+            aria-label={action.label}
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
           >
-            <line x1="210" y1="150" x2="120" y2="60" className={styles.connectorLine} />
-            <line x1="210" y1="150" x2="300" y2="60" className={styles.connectorLine} />
-            <line x1="210" y1="150" x2="40" y2="150" className={styles.connectorLine} />
-            <line x1="210" y1="150" x2="380" y2="150" className={styles.connectorLine} />
-          </svg>
-
-          <div className={styles.orbitHub} aria-hidden="true">
-            <span className={styles.orbitHubRing} />
-            <span className={styles.orbitHubLetter}>B</span>
-          </div>
-
-          {ORBIT_ACTIONS.map((action) => (
-            <a
-              key={action.id}
-              className={`${styles.orbitItem} ${action.positionClass} ${action.brandClass} contact-quick-action contact-quick-action-${action.id}`}
-              href={action.href}
-              {...(action.external
-                ? { target: "_blank", rel: "noopener noreferrer" }
-                : {})}
-              aria-label={action.label}
-            >
-              <span
-                className={`${styles.orbitGlyph} contact-quick-action-icon`}
-                aria-hidden="true"
-              >
-                <span className={styles.orbitRing} />
-                {action.icon}
-              </span>
-              <span
-                className={`${styles.orbitLabel} contact-quick-action-label`}
-              >
-                {action.label}
-              </span>
-            </a>
-          ))}
-        </div>
+            {action.icon}
+          </a>
+        ))}
       </div>
     </>
   );

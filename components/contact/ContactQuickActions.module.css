@@ -1,5 +1,5 @@
 .overlay,
-.stage {
+.fanRoot {
   display: none;
 }
 
@@ -10,364 +10,162 @@
     z-index: 2147483003;
     display: block;
     pointer-events: auto;
-    background:
-      radial-gradient(circle at 50% 38%, rgba(212, 175, 55, 0.1), transparent 36%),
-      radial-gradient(circle at 18% 72%, rgba(120, 90, 70, 0.12), transparent 42%),
-      linear-gradient(180deg, rgba(8, 8, 10, 0.92), rgba(2, 2, 3, 0.96));
-    backdrop-filter: blur(20px) saturate(1.08);
-    -webkit-backdrop-filter: blur(20px) saturate(1.08);
+    background: transparent;
+    touch-action: manipulation;
   }
 
-  .stage {
+  .fanRoot {
+    --fan-outer-x: min(128px, 34vw);
+    --fan-outer-y: min(70px, 18vw);
+    --fan-inner-x: min(55px, 14.5vw);
+    --fan-inner-y: min(140px, 36vw);
+
     position: fixed;
-    inset: 0;
-    z-index: 2147483004;
+    left: 50%;
+    bottom: calc(46px + env(safe-area-inset-bottom));
+    z-index: 2147483012;
     display: block;
-    width: 100% !important;
-    height: 100% !important;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .fanRoot:global(.contact-quick-actions) {
+    width: 0 !important;
+    height: 0 !important;
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
-    padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
     transform: none !important;
-    left: 0 !important;
-    bottom: auto !important;
-    overflow: hidden;
-    pointer-events: none;
-    animation: orbitStageIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+    inset: auto !important;
+    overflow: visible !important;
   }
 
-  .stage:global(.contact-quick-actions)::before {
+  .fanRoot:global(.contact-quick-actions)::before {
     content: none !important;
     display: none !important;
   }
 
-  .closeButton {
+  .fanItem {
     position: absolute;
-    top: calc(14px + env(safe-area-inset-top));
-    left: 16px;
-    z-index: 2;
-    width: 42px;
-    height: 42px;
+    left: -26px;
+    top: -26px;
+    width: 52px;
+    height: 52px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 10px 24px rgba(0, 0, 0, 0.28);
-    pointer-events: auto;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition:
-      transform 0.18s ease,
-      background 0.18s ease,
-      border-color 0.18s ease;
-  }
-
-  .closeButton svg {
-    width: 18px;
-    height: 18px;
-    display: block;
-  }
-
-  .closeButton:active {
-    transform: scale(0.94);
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.22);
-  }
-
-  .orbitCluster {
-    position: absolute;
-    top: 46%;
-    left: 50%;
-    width: 420px;
-    height: 300px;
-    max-width: calc(100vw - 24px);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-  }
-
-  .connectors {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .connectorLine {
-    stroke: rgba(212, 175, 55, 0.34);
-    stroke-width: 1;
-    stroke-linecap: round;
-    vector-effect: non-scaling-stroke;
-  }
-
-  .orbitHub {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 3;
-    width: 50px;
-    height: 50px;
-    transform: translate(-50%, -50%);
-    display: grid;
-    place-items: center;
-    pointer-events: none;
-  }
-
-  .orbitHubRing {
-    position: absolute;
-    inset: 0;
-    border-radius: 999px;
-    border: 1px solid rgba(212, 175, 55, 0.42);
-    background:
-      radial-gradient(circle at 30% 20%, rgba(212, 175, 55, 0.22), transparent 58%),
-      rgba(255, 255, 255, 0.04);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 0 28px rgba(212, 175, 55, 0.18),
-      0 10px 24px rgba(0, 0, 0, 0.28);
-  }
-
-  .orbitHubLetter {
-    position: relative;
-    z-index: 1;
-    color: #d8bc84;
-    font-family: var(--font-brand, Georgia, serif);
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.04em;
-    text-shadow: 0 0 18px rgba(212, 175, 55, 0.28);
-  }
-
-  .orbitItem {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    width: max-content;
-    max-width: 88px;
-    padding: 0;
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
+    border: 0;
+    border-radius: 50%;
     text-decoration: none;
-    pointer-events: auto;
+    transform: translate(0, 0) scale(0.2);
+    opacity: 0;
+    pointer-events: none;
+    box-shadow:
+      0 0 0 2px rgba(232, 200, 116, 0.3),
+      0 0 14px rgba(232, 200, 116, 0.25),
+      0 6px 14px rgba(0, 0, 0, 0.45);
+    transition:
+      transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.25s ease;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    transition:
-      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
-      filter 0.22s ease;
-    animation: orbitItemIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    cursor: pointer;
   }
 
-  .orbitTopLeft {
-    transform: translate(calc(-50% - 90px), calc(-50% - 90px));
-    animation-delay: 0.04s;
-  }
-
-  .orbitTopRight {
-    transform: translate(calc(-50% + 90px), calc(-50% - 90px));
-    animation-delay: 0.08s;
-  }
-
-  .orbitMidLeft {
-    transform: translate(calc(-50% - 170px), -50%);
-    animation-delay: 0.12s;
-  }
-
-  .orbitMidRight {
-    transform: translate(calc(-50% + 170px), -50%);
-    animation-delay: 0.16s;
-  }
-
-  .orbitTopLeft:active {
-    transform: translate(calc(-50% - 90px), calc(-50% - 90px)) scale(0.94) !important;
-    background: transparent !important;
-  }
-
-  .orbitTopRight:active {
-    transform: translate(calc(-50% + 90px), calc(-50% - 90px)) scale(0.94) !important;
-    background: transparent !important;
-  }
-
-  .orbitMidLeft:active {
-    transform: translate(calc(-50% - 170px), -50%) scale(0.94) !important;
-    background: transparent !important;
-  }
-
-  .orbitMidRight:active {
-    transform: translate(calc(-50% + 170px), -50%) scale(0.94) !important;
-    background: transparent !important;
-  }
-
-  .orbitGlyph {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.04);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 10px 22px rgba(0, 0, 0, 0.28);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-
-  .orbitGlyph svg {
-    width: 22px;
-    height: 22px;
+  .fanItem svg {
+    width: 24px;
+    height: 24px;
     display: block;
-    position: relative;
-    z-index: 1;
-  }
-
-  .orbitRing {
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    border: 1.5px solid currentColor;
-    border-top-color: transparent;
-    border-left-color: transparent;
-    opacity: 0.38;
-    transform: rotate(-36deg);
     pointer-events: none;
   }
 
-  .orbitLabel {
-    color: #ffffff !important;
-    font-size: 11px;
-    font-weight: 700;
-    font-style: italic;
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-    text-align: center;
-    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.42);
-    white-space: nowrap;
+  .fanOpen .fanPhone {
+    transform: translate(calc(0px - var(--fan-outer-x)), calc(0px - var(--fan-outer-y)))
+      scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0.05s;
   }
 
-  .telegram {
-    color: #26a5e4;
+  .fanOpen .fanTelegram {
+    transform: translate(calc(0px - var(--fan-inner-x)), calc(0px - var(--fan-inner-y)))
+      scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0.12s;
   }
 
-  .telegram .orbitGlyph {
-    color: #26a5e4;
-    border-color: rgba(38, 165, 228, 0.34);
-    background:
-      radial-gradient(circle at 30% 20%, rgba(38, 165, 228, 0.28), transparent 62%),
-      rgba(255, 255, 255, 0.04);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 20px rgba(38, 165, 228, 0.18),
-      0 10px 22px rgba(0, 0, 0, 0.28);
+  .fanOpen .fanInstagram {
+    transform: translate(var(--fan-inner-x), calc(0px - var(--fan-inner-y))) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0.19s;
   }
 
-  .whatsapp {
-    color: #25d366;
+  .fanOpen .fanWhatsapp {
+    transform: translate(var(--fan-outer-x), calc(0px - var(--fan-outer-y))) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0.26s;
   }
 
-  .whatsapp .orbitGlyph {
-    color: #25d366;
-    border-color: rgba(37, 211, 102, 0.34);
-    background:
-      radial-gradient(circle at 30% 20%, rgba(37, 211, 102, 0.24), transparent 62%),
-      rgba(255, 255, 255, 0.04);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 20px rgba(37, 211, 102, 0.16),
-      0 10px 22px rgba(0, 0, 0, 0.28);
+  .fanPhone {
+    background: #4cd964;
+    color: #1a1712;
   }
 
-  .instagram {
-    color: #e1306c;
-  }
-
-  .instagram .orbitGlyph {
+  .fanTelegram {
+    background: #2aabee;
     color: #ffffff;
-    border-color: rgba(225, 48, 108, 0.34);
-    background:
-      radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.18), transparent 42%),
-      linear-gradient(
-        135deg,
-        #f09433 0%,
-        #e6683c 24%,
-        #dc2743 52%,
-        #cc2366 78%,
-        #bc1888 100%
-      );
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 0 20px rgba(225, 48, 108, 0.2),
-      0 10px 22px rgba(0, 0, 0, 0.28);
   }
 
-  .phone {
-    color: #34c759;
+  .fanInstagram {
+    background: linear-gradient(
+      135deg,
+      #f09433 0%,
+      #e6683c 25%,
+      #dc2743 50%,
+      #cc2366 75%,
+      #bc1888 100%
+    );
+    color: #ffffff;
   }
 
-  .phone .orbitGlyph {
-    color: #34c759;
-    border-color: rgba(52, 199, 89, 0.34);
-    background:
-      radial-gradient(circle at 30% 20%, rgba(52, 199, 89, 0.24), transparent 62%),
-      rgba(255, 255, 255, 0.04);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 20px rgba(52, 199, 89, 0.16),
-      0 10px 22px rgba(0, 0, 0, 0.28);
+  .fanWhatsapp {
+    background: #25d366;
+    color: #ffffff;
   }
 
-  .orbitItem:hover {
-    filter: brightness(1.06);
+  .fanItem:active {
+    filter: brightness(1.05);
+  }
+
+  :global(.bottom-nav-panel-host-closing) .fanOpen .fanItem {
+    transform: translate(0, 0) scale(0.2) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition-delay: 0s !important;
+    transition-duration: 0.12s, 0.1s !important;
   }
 }
 
-@keyframes orbitStageIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes orbitItemIn {
-  from {
-    opacity: 0;
-    filter: blur(4px);
-  }
-
-  to {
-    opacity: 1;
-    filter: blur(0);
+@media (max-width: 360px) {
+  .fanRoot {
+    --fan-outer-x: min(108px, 30vw);
+    --fan-outer-y: min(58px, 16vw);
+    --fan-inner-x: min(46px, 12.5vw);
+    --fan-inner-y: min(118px, 32vw);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stage,
-  .orbitItem {
-    animation: none !important;
+  .fanItem {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
 }
