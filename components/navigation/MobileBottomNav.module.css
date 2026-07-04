@@ -47,7 +47,7 @@
     justify-content: flex-end;
     gap: 2px;
     padding: 0;
-    color: #cfc7ba;
+    color: #d4c4a8;
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -72,22 +72,30 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 25px;
+    height: 25px;
     flex: 0 0 auto;
     pointer-events: none;
   }
 
   .item svg {
-    width: 22px;
-    height: 22px;
+    width: 25px;
+    height: 25px;
     flex: 0 0 auto;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.75;
+    stroke-width: 1.7;
     stroke-linecap: round;
     stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
     pointer-events: none;
+  }
+
+  .item svg path,
+  .item svg circle,
+  .item svg rect {
+    fill: none;
+    stroke: inherit;
   }
 
   .item span,
@@ -99,7 +107,7 @@
     display: block;
     max-width: 100%;
     overflow: hidden;
-    color: #cfc7ba;
+    color: #d4c4a8;
     font-size: 10px;
     font-weight: 400;
     line-height: 1;
@@ -110,7 +118,7 @@
 
   .item:hover,
   .item:focus-visible {
-    color: #cfc7ba;
+    color: #d4c4a8;
     background: transparent;
     border: 0;
     box-shadow: none;
@@ -121,6 +129,7 @@
     color: #e8c874;
   }
 
+  .itemActive svg,
   .itemActive .label {
     color: #e8c874;
   }
@@ -236,13 +245,13 @@
   }
 
   .compact .iconWrap {
-    width: 20px;
-    height: 20px;
+    width: 23px;
+    height: 23px;
   }
 
   .compact .item svg {
-    width: 20px;
-    height: 20px;
+    width: 23px;
+    height: 23px;
   }
 
   .compact .contactFab {
