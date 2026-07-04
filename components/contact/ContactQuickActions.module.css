@@ -85,7 +85,7 @@
   }
 
   .fanOpen .fanPhone {
-    transform: translate(calc(0px - var(--fan-outer-x)), calc(0px - var(--fan-outer-y)))
+    transform: translate(var(--fan-outer-x), calc(0px - var(--fan-outer-y)))
       scale(1);
     opacity: 1;
     pointer-events: auto;
@@ -108,7 +108,8 @@
   }
 
   .fanOpen .fanWhatsapp {
-    transform: translate(var(--fan-outer-x), calc(0px - var(--fan-outer-y))) scale(1);
+    transform: translate(calc(0px - var(--fan-outer-x)), calc(0px - var(--fan-outer-y)))
+      scale(1);
     opacity: 1;
     pointer-events: auto;
     transition-delay: 0.26s;
