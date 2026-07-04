@@ -1,33 +1,34 @@
+.overlay,
 .fanRoot {
   display: none;
 }
 
 @media (max-width: 768px) {
-  .fanRoot {
-    --fan-whatsapp-x: calc(0px - min(120px, 32vw));
-    --fan-telegram-x: calc(0px - min(40px, 10.666vw));
-    --fan-instagram-x: min(40px, 10.666vw);
-    --fan-phone-x: min(120px, 32vw);
-    --fan-y: calc(0px - min(104px, 28vw));
-
-    position: absolute;
-    left: 50%;
-    bottom: 28px;
-    z-index: 3;
+  .overlay:global(.contact-quick-actions-overlay) {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483009;
     display: block;
-    width: 0;
-    height: 0;
-    pointer-events: none;
+    pointer-events: auto;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    touch-action: manipulation;
+    animation: none !important;
   }
 
-  .fanRoot:global(.contact-quick-actions) {
-    inset: auto !important;
+  .fanRoot:global(#contact-quick-actions) {
+    --fan-outer-x: min(118px, 31vw);
+    --fan-outer-y: min(58px, 15vw);
+    --fan-inner-x: min(52px, 13.5vw);
+    --fan-inner-y: min(82px, 21vw);
+
     position: absolute !important;
     left: 50% !important;
     right: auto !important;
+    bottom: 48px !important;
     top: auto !important;
-    bottom: 28px !important;
-    z-index: 3 !important;
+    z-index: 2147483011;
     display: block !important;
     width: 0 !important;
     height: 0 !important;
@@ -39,41 +40,38 @@
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
-    transform: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: translateX(-50%) !important;
+    pointer-events: none;
     overflow: visible !important;
+    grid: none !important;
+    animation: none !important;
   }
 
-  .fanRoot:global(.contact-quick-actions)::before {
+  .fanRoot:global(#contact-quick-actions)::before,
+  .fanRoot:global(#contact-quick-actions)::after {
     content: none !important;
     display: none !important;
   }
 
   .fanItem {
-    position: absolute !important;
-    inset: auto !important;
-    left: -26px !important;
-    top: -26px !important;
-    right: auto !important;
-    bottom: auto !important;
-    z-index: 4 !important;
-    width: 52px !important;
-    min-width: 52px !important;
-    max-width: 52px !important;
-    height: 52px !important;
-    min-height: 52px !important;
-    max-height: 52px !important;
-    display: inline-flex !important;
+    position: absolute;
+    left: -26px;
+    top: -26px;
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0;
+    padding: 0;
     border: 0;
-    border-radius: 50% !important;
+    border-radius: 50%;
     text-decoration: none;
-    transform: translate(0, 0) scale(0.2) !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
+    transform: translate(0, 0) scale(0.2);
+    opacity: 0;
+    pointer-events: none;
     box-shadow:
       0 0 0 2px rgba(232, 200, 116, 0.3),
       0 0 14px rgba(232, 200, 116, 0.25),
@@ -84,11 +82,15 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     cursor: pointer;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-clip: padding-box;
   }
 
-  .fanItem::before {
-    content: none !important;
-    display: none !important;
+  .fanItem::before,
+  .fanItem::after {
+    content: none;
+    display: none;
   }
 
   .fanItem svg {
@@ -98,32 +100,34 @@
     pointer-events: none;
   }
 
-  .fanOpen .fanPhone {
-    transform: translate(var(--fan-phone-x), var(--fan-y)) scale(1) !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    transition-delay: 0.05s;
+  .fanOpen .fanWhatsapp {
+    transform: translate(calc(0px - var(--fan-outer-x)), calc(0px - var(--fan-outer-y)))
+      scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0.26s;
   }
 
   .fanOpen .fanTelegram {
-    transform: translate(var(--fan-telegram-x), var(--fan-y)) scale(1) !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
+    transform: translate(calc(0px - var(--fan-inner-x)), calc(0px - var(--fan-inner-y)))
+      scale(1);
+    opacity: 1;
+    pointer-events: auto;
     transition-delay: 0.12s;
   }
 
   .fanOpen .fanInstagram {
-    transform: translate(var(--fan-instagram-x), var(--fan-y)) scale(1) !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
+    transform: translate(var(--fan-inner-x), calc(0px - var(--fan-inner-y))) scale(1);
+    opacity: 1;
+    pointer-events: auto;
     transition-delay: 0.19s;
   }
 
-  .fanOpen .fanWhatsapp {
-    transform: translate(var(--fan-whatsapp-x), var(--fan-y)) scale(1) !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    transition-delay: 0.26s;
+  .fanOpen .fanPhone {
+    transform: translate(var(--fan-outer-x), calc(0px - var(--fan-outer-y))) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0.05s;
   }
 
   .fanPhone {
@@ -158,27 +162,27 @@
   }
 
   :global(.bottom-nav-panel-host-closing) .fanOpen .fanItem {
-    transform: translate(0, 0) scale(0.2) !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    transition-delay: 0s !important;
-    transition-duration: 0.12s, 0.1s !important;
+    transform: translate(0, 0) scale(0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition-delay: 0s;
+    transition-duration: 0.12s, 0.1s;
   }
 }
 
 @media (max-width: 360px) {
-  .fanRoot {
-    --fan-whatsapp-x: -102px;
-    --fan-telegram-x: -34px;
-    --fan-instagram-x: 34px;
-    --fan-phone-x: 102px;
-    --fan-y: -96px;
+  .fanRoot:global(#contact-quick-actions) {
+    --fan-outer-x: min(96px, 27vw);
+    --fan-outer-y: min(50px, 14vw);
+    --fan-inner-x: min(42px, 11.5vw);
+    --fan-inner-y: min(68px, 18vw);
+    bottom: 44px !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .fanItem {
-    transition-duration: 0.01ms !important;
-    transition-delay: 0s !important;
+    transition-duration: 0.01ms;
+    transition-delay: 0s;
   }
 }

@@ -118,16 +118,24 @@ export function ContactQuickActions({
   }, []);
 
   return (
-    <div
-      className={`${styles.fanRoot} ${fanOpen ? styles.fanOpen : ""} contact-quick-actions`}
-      id="contact-quick-actions"
-      aria-label="Связь с BellaFlore"
-    >
-      {FAN_ACTIONS.map((action) => (
-        <a
-          key={action.id}
-          className={`${styles.fanItem} ${action.positionClass} ${action.brandClass} contact-quick-action contact-quick-action-${action.id}`}
-          href={action.href}
+    <>
+      <div
+        className={`${styles.overlay} contact-quick-actions-overlay`}
+        onClick={closeContactHub}
+        aria-hidden="true"
+      />
+      <div
+        className={`${styles.fanRoot} ${fanOpen ? styles.fanOpen : ""}`}
+        id="contact-quick-actions"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Связь с BellaFlore"
+      >
+        {FAN_ACTIONS.map((action) => (
+          <a
+            key={action.id}
+            className={`${styles.fanItem} ${action.positionClass} ${action.brandClass}`}
+            href={action.href}
           {...(action.external
             ? { target: "_blank", rel: "noopener noreferrer" }
             : {})}
@@ -138,8 +146,9 @@ export function ContactQuickActions({
           }}
         >
           {action.icon}
-        </a>
-      ))}
-    </div>
+          </a>
+        ))}
+      </div>
+    </>
   );
 }
