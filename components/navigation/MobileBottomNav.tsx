@@ -111,9 +111,9 @@ export function MobileBottomNav({
         aria-label="Каталог"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path d="M5 7h14" stroke="currentColor" strokeWidth="1.8" />
-          <path d="M5 12h14" stroke="currentColor" strokeWidth="1.8" />
-          <path d="M5 17h14" stroke="currentColor" strokeWidth="1.8" />
+          <circle cx="12" cy="10" r="3.2" />
+          <path d="M12 13.2c-3.2 0-5.8 1.8-6.8 4.4 2.2-.8 4.5-.8 6.8 0 2.3-.8 4.6-.8 6.8 0-1-2.6-3.6-4.4-6.8-4.4Z" />
+          <path d="M9.2 8.1c-.8-1.8.2-3.4 1.4-3.8M14.8 8.1c.8-1.8-.2-3.4-1.4-3.8" />
         </svg>
         <span className={navStyles.label}>Каталог</span>
       </button>
