@@ -154,28 +154,21 @@ export function MobileBottomNav({
             aria-hidden="true"
           >
             <path
-              d="M12 3C12 3 8 4.5 8 8C8 10.2091 9.79086 12 12 12C14.2091 12 16 10.2091 16 8C16 4.5 12 3 12 3Z"
+              d="M4.5 7H19.5"
               stroke="currentColor"
               strokeWidth="1.7"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
-              d="M12 12V21"
+              d="M4.5 12H19.5"
               stroke="currentColor"
               strokeWidth="1.7"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
-              d="M12 16C12 16 9 15.5 8 13"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12 16C12 16 15 15.5 16 13"
+              d="M4.5 17H19.5"
               stroke="currentColor"
               strokeWidth="1.7"
               strokeLinecap="round"
