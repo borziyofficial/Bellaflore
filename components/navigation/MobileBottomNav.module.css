@@ -11,7 +11,7 @@
     right: 0;
     bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 2147483010;
-    width: min(94vw, 390px);
+    width: min(90vw, 360px);
     height: 64px;
     min-height: 64px;
     max-height: 64px;
@@ -20,7 +20,7 @@
     justify-content: space-between;
     align-items: flex-end;
     gap: 0;
-    padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+    padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
     border: 1px solid rgba(232, 200, 116, 0.48);
     border-radius: 999px;
     background: linear-gradient(
@@ -54,13 +54,13 @@
     z-index: 1;
     flex: 1 1 0;
     min-width: 0;
-    max-width: 68px;
+    max-width: 52px;
     margin: 0;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    gap: 0;
+    gap: 1px;
     padding: 0;
     color: var(--nav-gold-soft);
     border: 0;
@@ -153,13 +153,14 @@
     z-index: 2;
     flex: 1 1 0;
     min-width: 0;
-    max-width: 64px;
+    max-width: 58px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
     overflow: visible;
     min-height: 35px;
+    flex-shrink: 0;
   }
 
   .itemContact {
@@ -171,7 +172,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    gap: 0;
+    gap: 1px;
     padding: 0;
     padding-top: 21px;
     border: 0;
@@ -238,6 +239,7 @@
 
   .labelContact {
     display: block;
+    width: 100%;
     max-width: none;
     overflow: visible;
     color: var(--nav-gold-soft);
@@ -246,16 +248,18 @@
     line-height: 1.05;
     text-align: center;
     white-space: nowrap;
+    flex-shrink: 0;
     pointer-events: none;
   }
 
   .orderBadge {
     position: absolute;
-    top: -5px;
-    right: -2px;
-    width: 13px;
-    height: 13px;
-    min-width: 13px;
+    top: -7px;
+    right: -5px;
+    z-index: 2;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
     padding: 0;
     border-radius: 50%;
     display: inline-flex;
@@ -263,7 +267,7 @@
     justify-content: center;
     background: var(--nav-gold-soft);
     color: #1a1712;
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 700;
     line-height: 1;
     pointer-events: none;
@@ -271,12 +275,12 @@
 
   .compact {
     /* Scroll-stable: identical geometry to default nav */
-    width: min(94vw, 390px);
+    width: min(90vw, 360px);
     height: 64px;
     min-height: 64px;
     max-height: 64px;
     bottom: calc(16px + env(safe-area-inset-bottom));
-    padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+    padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
     border-radius: 999px;
   }
 

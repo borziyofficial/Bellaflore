@@ -297,11 +297,11 @@ export function MobileBottomNav({
               strokeLinejoin="round"
             />
           </svg>
-          {cartItemCount > 0 && (
+          {cartItemCount > 0 ? (
             <span className={navStyles.orderBadge} aria-hidden="true">
               {cartItemCount}
             </span>
-          )}
+          ) : null}
         </span>
         <span className={navStyles.label}>Мой заказ</span>
       </button>
