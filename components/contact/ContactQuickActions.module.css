@@ -61,24 +61,25 @@
     justify-content: center;
     margin: 0;
     padding: 0;
-    border: 0;
+    border: 1px solid rgba(216, 181, 106, 0.35);
     border-radius: 50%;
     text-decoration: none;
+    background: rgba(255, 255, 255, 0.14);
+    color: #f4d98a;
     transform: translate(0, 0) scale(0.2);
     opacity: 0;
     pointer-events: none;
     box-shadow:
-      0 0 0 2px rgba(232, 200, 116, 0.3),
-      0 0 14px rgba(232, 200, 116, 0.25),
-      0 6px 14px rgba(0, 0, 0, 0.45);
+      0 10px 30px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
     transition:
       transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
       opacity 0.25s ease;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     cursor: pointer;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
     background-clip: padding-box;
   }
 
@@ -93,6 +94,7 @@
     height: 24px;
     display: block;
     pointer-events: none;
+    color: #f4d98a;
   }
 
   .fanOpen .fanWhatsapp {
@@ -123,35 +125,29 @@
     transition-delay: 0.05s;
   }
 
-  .fanPhone {
-    background: #4cd964;
-    color: #1a1712;
+  .fanRoot:global(#contact-quick-actions) .fanItem,
+  .fanRoot:global(#contact-quick-actions) .fanItem svg {
+    color: #f4d98a;
   }
 
-  .fanTelegram {
-    background: #2aabee;
-    color: #ffffff;
-  }
-
-  .fanInstagram {
-    background: linear-gradient(
-      135deg,
-      #f09433 0%,
-      #e6683c 25%,
-      #dc2743 50%,
-      #cc2366 75%,
-      #bc1888 100%
-    );
-    color: #ffffff;
-  }
-
+  .fanPhone,
+  .fanTelegram,
+  .fanInstagram,
   .fanWhatsapp {
-    background: #25d366;
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.14);
+    color: #f4d98a;
+  }
+
+  .fanPhone svg,
+  .fanTelegram svg,
+  .fanInstagram svg,
+  .fanWhatsapp svg {
+    color: #f4d98a;
   }
 
   .fanItem:active {
-    filter: brightness(1.05);
+    background: rgba(255, 255, 255, 0.2);
+    filter: none;
   }
 
   :global(.bottom-nav-panel-host-closing) .fanOpen .fanItem {
