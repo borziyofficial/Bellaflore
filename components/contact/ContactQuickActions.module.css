@@ -61,40 +61,75 @@
     justify-content: center;
     margin: 0;
     padding: 0;
-    border: 1px solid rgba(216, 181, 106, 0.35);
+    border: 1px solid rgba(232, 200, 116, 0.44);
     border-radius: 50%;
     text-decoration: none;
-    background: rgba(255, 255, 255, 0.14);
-    color: #f4d98a;
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.24) 0%,
+      rgba(255, 255, 255, 0.12) 42%,
+      rgba(255, 255, 255, 0.07) 100%
+    );
+    color: #faf0c8;
     transform: translate(0, 0) scale(0.2);
     opacity: 0;
     pointer-events: none;
     box-shadow:
-      0 10px 30px rgba(0, 0, 0, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
+      0 14px 34px rgba(0, 0, 0, 0.34),
+      0 4px 10px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+      inset 0 0 18px rgba(255, 248, 230, 0.1);
+    backdrop-filter: blur(24px) saturate(185%);
+    -webkit-backdrop-filter: blur(24px) saturate(185%);
     transition:
       transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-      opacity 0.25s ease;
+      opacity 0.25s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     cursor: pointer;
-    background-clip: padding-box;
+    isolation: isolate;
+    overflow: hidden;
   }
 
-  .fanItem::before,
+  .fanItem::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    display: block;
+    border-radius: 50%;
+    background: linear-gradient(
+      165deg,
+      rgba(255, 255, 255, 0.48) 0%,
+      rgba(255, 255, 255, 0.14) 24%,
+      transparent 54%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
   .fanItem::after {
-    content: none;
-    display: none;
+    content: "";
+    position: absolute;
+    inset: 1px;
+    display: block;
+    border-radius: 50%;
+    box-shadow: inset 0 0 14px rgba(255, 248, 230, 0.12);
+    pointer-events: none;
+    z-index: 0;
   }
 
   .fanItem svg {
+    position: relative;
+    z-index: 1;
     width: 24px;
     height: 24px;
     display: block;
     pointer-events: none;
-    color: #f4d98a;
+    color: #faf0c8;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.28));
   }
 
   .fanOpen .fanWhatsapp {
@@ -127,26 +162,42 @@
 
   .fanRoot:global(#contact-quick-actions) .fanItem,
   .fanRoot:global(#contact-quick-actions) .fanItem svg {
-    color: #f4d98a;
+    color: #faf0c8;
   }
 
   .fanPhone,
   .fanTelegram,
   .fanInstagram,
   .fanWhatsapp {
-    background: rgba(255, 255, 255, 0.14);
-    color: #f4d98a;
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.24) 0%,
+      rgba(255, 255, 255, 0.12) 42%,
+      rgba(255, 255, 255, 0.07) 100%
+    );
+    color: #faf0c8;
   }
 
   .fanPhone svg,
   .fanTelegram svg,
   .fanInstagram svg,
   .fanWhatsapp svg {
-    color: #f4d98a;
+    color: #faf0c8;
   }
 
   .fanItem:active {
-    background: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(255, 255, 255, 0.16) 42%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
+    box-shadow:
+      0 10px 26px rgba(0, 0, 0, 0.3),
+      0 2px 8px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.48),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 0 16px rgba(255, 248, 230, 0.14);
     filter: none;
   }
 
