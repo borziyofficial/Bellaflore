@@ -39,6 +39,13 @@ import {
   getCheckoutFieldErrors,
   isCheckoutFormReady,
 } from "@/components/checkout/validateCheckoutForm";
+import {
+  buildAddressAccordionSummary,
+  buildDeliveryAccordionSummary,
+  buildPaymentAccordionSummary,
+  buildRecipientAccordionSummary,
+  getDeliveryDateLabel,
+} from "@/components/checkout/checkoutAccordionSummaries";
 import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
 import { ProductSizePickerSheet } from "@/components/product/ProductSizePickerSheet";
 import type {
@@ -50,6 +57,7 @@ import {
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
+  type ReactNode,
   type TouchEvent as ReactTouchEvent,
 } from "react";
 
@@ -111,6 +119,73 @@ const PAYMENT_METHOD_LABELS: Record<PaymentMethodUi, string> = {
 
 const CHECKOUT_V3_PAYMENT_METHODS: PaymentMethodUi[] = ["online", "cash"];
 
+type CheckoutStepId = "recipient" | "delivery" | "address" | "payment";
+
+type CheckoutGlassStepProps = {
+  id: CheckoutStepId;
+  title: string;
+  summary: string | null;
+  isOpen: boolean;
+  onToggle: (stepId: CheckoutStepId) => void;
+  children: ReactNode;
+};
+
+function CheckoutGlassStep({
+  id,
+  title,
+  summary,
+  isOpen,
+  onToggle,
+  children,
+}: CheckoutGlassStepProps) {
+  const triggerId = `checkout-step-${id}`;
+  const panelId = `checkout-panel-${id}`;
+
+  return (
+    <section
+      className={`${checkoutSectionStyles.checkoutGlassStep} ${isOpen ? checkoutSectionStyles.checkoutGlassStepOpen : ""}`}
+      aria-labelledby={triggerId}
+    >
+      <button
+        type="button"
+        id={triggerId}
+        className={checkoutSectionStyles.checkoutGlassStepTrigger}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        onClick={() => onToggle(id)}
+      >
+        <span className={checkoutSectionStyles.checkoutGlassStepCopy}>
+          <span className={checkoutSectionStyles.checkoutGlassStepTitle}>
+            {title}
+          </span>
+          {!isOpen && summary ? (
+            <span className={checkoutSectionStyles.checkoutGlassStepSummary}>
+              {summary}
+            </span>
+          ) : null}
+        </span>
+        <span
+          className={checkoutSectionStyles.checkoutGlassStepIcon}
+          aria-hidden="true"
+        >
+          {isOpen ? "×" : "+"}
+        </span>
+      </button>
+      <div
+        id={panelId}
+        className={checkoutSectionStyles.checkoutGlassStepBody}
+        hidden={!isOpen}
+        role="region"
+        aria-labelledby={triggerId}
+      >
+        <div className={checkoutSectionStyles.checkoutGlassStepBodyInner}>
+          {children}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function CheckoutSection({
   checkoutForm,
   deliveryDateMode,
@@ -143,6 +218,11 @@ export function CheckoutSection({
   const selectedSuggestionAddressRef = useRef<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodUi>("online");
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
+  const [openStep, setOpenStep] = useState<CheckoutStepId>("recipient");
+
+  const toggleCheckoutStep = (stepId: CheckoutStepId) => {
+    setOpenStep((current) => (current === stepId ? current : stepId));
+  };
 
   const fieldErrors = getCheckoutFieldErrors(checkoutForm, checkoutValidationNow);
   const isFormReady = isCheckoutFormReady(
@@ -315,6 +395,28 @@ export function CheckoutSection({
     ? formatPrice(primaryCartItem.bouquet.priceRub)
     : null;
   const selectedPaymentLabel = PAYMENT_METHOD_LABELS[paymentMethod];
+  const deliveryDateLabel = getDeliveryDateLabel(
+    deliveryDateMode,
+    checkoutForm.deliveryDate,
+  );
+  const recipientSummary = buildRecipientAccordionSummary({
+    isOtherRecipient: false,
+    customerName: checkoutForm.name,
+    recipientName: "",
+    anonymousDelivery: false,
+  });
+  const deliverySummary = buildDeliveryAccordionSummary({
+    deliveryDateLabel,
+    deliveryTime: checkoutForm.deliveryTime,
+  });
+  const addressSummary = buildAddressAccordionSummary({
+    address: checkoutForm.address,
+    zoneResult:
+      realDeliveryZoneResult.status === "available"
+        ? realDeliveryZoneResult
+        : null,
+  });
+  const paymentSummary = buildPaymentAccordionSummary(selectedPaymentLabel);
 
   const rootClassName = embedded
     ? "checkout-section checkout-section-v3 checkout-section-embedded"
@@ -336,157 +438,161 @@ export function CheckoutSection({
         <div className={`checkout-form-card ${checkoutSectionStyles.checkoutV3Card}`}>
           <div className={checkoutSectionStyles.checkoutV3Layout}>
             <div className={checkoutSectionStyles.checkoutV3Scroll}>
-              <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
-                  Получатель
-                </h3>
-                <label className={checkoutSectionStyles.checkoutField}>
-                  <span>Имя</span>
-                  <input
-                    type="text"
-                    value={checkoutForm.name}
-                    onChange={(event) =>
-                      handleCheckoutFieldChange("name", event.target.value)
-                    }
-                    onBlur={() => markFieldTouched("name")}
-                    placeholder="Имя"
-                    autoComplete="name"
-                    aria-label="Имя"
-                    aria-invalid={Boolean(fieldErrors.name)}
-                    required
-                  />
-                  {renderFieldError("name")}
-                </label>
-                <label className={checkoutSectionStyles.checkoutField}>
-                  <span>Телефон</span>
-                  <input
-                    type="tel"
-                    value={checkoutForm.phone}
-                    onChange={(event) =>
-                      handleCheckoutFieldChange("phone", event.target.value)
-                    }
-                    onBlur={() => markFieldTouched("phone")}
-                    placeholder="+7"
-                    autoComplete="tel"
-                    aria-label="Телефон"
-                    aria-invalid={Boolean(fieldErrors.phone)}
-                    required
-                  />
-                  {renderFieldError("phone")}
-                </label>
-              </section>
+              <div className={checkoutSectionStyles.checkoutGlassFlow}>
+                <CheckoutGlassStep
+                  id="recipient"
+                  title="Получатель"
+                  summary={recipientSummary}
+                  isOpen={openStep === "recipient"}
+                  onToggle={toggleCheckoutStep}
+                >
+                  <label className={checkoutSectionStyles.checkoutField}>
+                    <span>Имя</span>
+                    <input
+                      type="text"
+                      value={checkoutForm.name}
+                      onChange={(event) =>
+                        handleCheckoutFieldChange("name", event.target.value)
+                      }
+                      onBlur={() => markFieldTouched("name")}
+                      placeholder="Имя"
+                      autoComplete="name"
+                      aria-label="Имя"
+                      aria-invalid={Boolean(fieldErrors.name)}
+                      required
+                    />
+                    {renderFieldError("name")}
+                  </label>
+                  <label className={checkoutSectionStyles.checkoutField}>
+                    <span>Телефон</span>
+                    <input
+                      type="tel"
+                      value={checkoutForm.phone}
+                      onChange={(event) =>
+                        handleCheckoutFieldChange("phone", event.target.value)
+                      }
+                      onBlur={() => markFieldTouched("phone")}
+                      placeholder="+7"
+                      autoComplete="tel"
+                      aria-label="Телефон"
+                      aria-invalid={Boolean(fieldErrors.phone)}
+                      required
+                    />
+                    {renderFieldError("phone")}
+                  </label>
+                  {primaryCartItem && checkoutSizeLabel && checkoutSizePrice ? (
+                    <button
+                      type="button"
+                      className={checkoutSectionStyles.checkoutFlatSelector}
+                      onClick={() => setSizeSheetOpen(true)}
+                      aria-haspopup="dialog"
+                      aria-expanded={sizeSheetOpen}
+                    >
+                      <span>{checkoutSizeLabel}</span>
+                      <strong>{checkoutSizePrice}</strong>
+                      <span aria-hidden="true">▼</span>
+                    </button>
+                  ) : null}
+                </CheckoutGlassStep>
 
-              {primaryCartItem && checkoutSizeLabel && checkoutSizePrice ? (
-                <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                  <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
-                    Размер
-                  </h3>
-                  <button
-                    type="button"
-                    className={checkoutSectionStyles.checkoutFlatSelector}
-                    onClick={() => setSizeSheetOpen(true)}
-                    aria-haspopup="dialog"
-                    aria-expanded={sizeSheetOpen}
-                  >
-                    <span>{checkoutSizeLabel}</span>
-                    <strong>{checkoutSizePrice}</strong>
-                    <span aria-hidden="true">▼</span>
-                  </button>
-                </section>
-              ) : null}
+                <CheckoutGlassStep
+                  id="delivery"
+                  title="Доставка"
+                  summary={deliverySummary}
+                  isOpen={openStep === "delivery"}
+                  onToggle={toggleCheckoutStep}
+                >
+                  <div className={checkoutSectionStyles.checkoutFlatDelivery}>
+                    <span>Сегодня</span>
+                    {availableDeliveryIntervals.length > 0 ? (
+                      <label className={checkoutSectionStyles.checkoutFlatSelectWrap}>
+                        <span className="sr-only">Интервал доставки</span>
+                        <select
+                          value={checkoutForm.deliveryTime}
+                          onChange={(event) =>
+                            handleIntervalSelect(event.target.value)
+                          }
+                          aria-label="Интервал доставки"
+                        >
+                          {availableDeliveryIntervals.map((interval) => (
+                            <option key={interval.label} value={interval.label}>
+                              {interval.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ) : (
+                      <span className={checkoutSectionStyles.checkoutFlatMuted}>
+                        Интервалов на сегодня нет
+                      </span>
+                    )}
+                  </div>
+                  {renderFieldError("deliveryTime")}
+                </CheckoutGlassStep>
 
-              <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
-                  Доставка
-                </h3>
-                <div className={checkoutSectionStyles.checkoutFlatDelivery}>
-                  <span>Сегодня</span>
-                  {availableDeliveryIntervals.length > 0 ? (
-                    <label className={checkoutSectionStyles.checkoutFlatSelectWrap}>
-                      <span className="sr-only">Интервал доставки</span>
-                      <select
-                        value={checkoutForm.deliveryTime}
-                        onChange={(event) => handleIntervalSelect(event.target.value)}
-                        aria-label="Интервал доставки"
-                      >
-                        {availableDeliveryIntervals.map((interval) => (
-                          <option key={interval.label} value={interval.label}>
-                            {interval.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  ) : (
-                    <span className={checkoutSectionStyles.checkoutFlatMuted}>
-                      Интервалов на сегодня нет
-                    </span>
-                  )}
-                </div>
-                {renderFieldError("deliveryTime")}
-              </section>
+                <CheckoutGlassStep
+                  id="address"
+                  title="Адрес"
+                  summary={addressSummary}
+                  isOpen={openStep === "address"}
+                  onToggle={toggleCheckoutStep}
+                >
+                  <label className={checkoutSectionStyles.checkoutField}>
+                    <span className="sr-only">Адрес доставки</span>
+                    <AddressIntelligenceInput
+                      value={checkoutForm.address}
+                      onChange={handleAddressChange}
+                      onSuggestionSelect={handleAddressSuggestionSelect}
+                      onAddressEdit={handleAddressEdit}
+                      onBlur={() => markFieldTouched("address")}
+                      invalid={Boolean(fieldErrors.address)}
+                      showInvalid={addressFieldShowValidation}
+                      required
+                    />
+                    {renderFieldError("address")}
+                  </label>
+                </CheckoutGlassStep>
 
-              <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
-                  Адрес
-                </h3>
-                <label className={checkoutSectionStyles.checkoutField}>
-                  <span className="sr-only">Адрес доставки</span>
-                  <AddressIntelligenceInput
-                    value={checkoutForm.address}
-                    onChange={handleAddressChange}
-                    onSuggestionSelect={handleAddressSuggestionSelect}
-                    onAddressEdit={handleAddressEdit}
-                    onBlur={() => markFieldTouched("address")}
-                    invalid={Boolean(fieldErrors.address)}
-                    showInvalid={addressFieldShowValidation}
-                    required
-                  />
-                  {renderFieldError("address")}
-                </label>
-              </section>
-
-              <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
-                  Оплата
-                </h3>
-                <label className={checkoutSectionStyles.checkoutFlatSelectWrap}>
-                  <span className="sr-only">Способ оплаты</span>
-                  <select
-                    value={paymentMethod}
-                    onChange={(event) =>
-                      setPaymentMethod(event.target.value as PaymentMethodUi)
-                    }
-                    aria-label="Способ оплаты"
-                  >
-                    {CHECKOUT_V3_PAYMENT_METHODS.map((method) => (
-                      <option key={method} value={method}>
-                        {PAYMENT_METHOD_LABELS[method]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <span className={checkoutSectionStyles.checkoutFlatMuted}>
-                  {selectedPaymentLabel}
-                </span>
-              </section>
-
-              <section className={checkoutSectionStyles.checkoutFlatBlock}>
-                <h3 className={checkoutSectionStyles.checkoutV3BlockTitle}>
-                  Комментарий
-                </h3>
-                <label className={checkoutSectionStyles.checkoutField}>
-                  <span className="sr-only">Комментарий к заказу</span>
-                  <textarea
-                    value={checkoutForm.comment}
-                    onChange={(event) =>
-                      handleCheckoutFieldChange("comment", event.target.value)
-                    }
-                    placeholder="Необязательно"
-                    aria-label="Комментарий к заказу"
-                    rows={3}
-                  />
-                </label>
-              </section>
+                <CheckoutGlassStep
+                  id="payment"
+                  title="Оплата"
+                  summary={paymentSummary}
+                  isOpen={openStep === "payment"}
+                  onToggle={toggleCheckoutStep}
+                >
+                  <label className={checkoutSectionStyles.checkoutFlatSelectWrap}>
+                    <span className="sr-only">Способ оплаты</span>
+                    <select
+                      value={paymentMethod}
+                      onChange={(event) =>
+                        setPaymentMethod(event.target.value as PaymentMethodUi)
+                      }
+                      aria-label="Способ оплаты"
+                    >
+                      {CHECKOUT_V3_PAYMENT_METHODS.map((method) => (
+                        <option key={method} value={method}>
+                          {PAYMENT_METHOD_LABELS[method]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <span className={checkoutSectionStyles.checkoutFlatMuted}>
+                    {selectedPaymentLabel}
+                  </span>
+                  <label className={checkoutSectionStyles.checkoutField}>
+                    <span>Комментарий</span>
+                    <textarea
+                      value={checkoutForm.comment}
+                      onChange={(event) =>
+                        handleCheckoutFieldChange("comment", event.target.value)
+                      }
+                      placeholder="Необязательно"
+                      aria-label="Комментарий к заказу"
+                      rows={3}
+                    />
+                  </label>
+                </CheckoutGlassStep>
+              </div>
             </div>
 
             <div
