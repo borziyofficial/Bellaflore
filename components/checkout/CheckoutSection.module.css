@@ -120,6 +120,10 @@
   border-radius: 16px;
   background: var(--bg-secondary, #2a2a2a);
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
 }
 
 @media (max-width: 768px) {
@@ -153,6 +157,10 @@
     flex-direction: column;
     overflow: hidden;
     padding-bottom: 0;
+  }
+
+  :global(.checkout-v3-sheet .checkout-v3-body) .checkout-section-v3 .section-header {
+    display: none;
   }
 
   :global(.checkout-v3-sheet .checkout-v3-body) .checkoutV3Layout {
