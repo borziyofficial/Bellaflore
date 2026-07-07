@@ -12,11 +12,20 @@ export type BouquetImage = {
   createdAt: string;
 };
 
-/** Future: S / M / L / XL pricing matrix. */
+export type BouquetSizeCode = "S" | "M" | "L" | "XL";
+
+export type BouquetSizeEntry = {
+  enabled: boolean;
+  price: number;
+};
+
+export type BouquetSizes = Record<BouquetSizeCode, BouquetSizeEntry>;
+
+/** @deprecated Legacy placeholder — normalized on read. */
 export type BouquetSizesPlaceholder = {
   enabled?: boolean;
   items?: Array<{
-    code: "S" | "M" | "L" | "XL";
+    code: BouquetSizeCode;
     price?: number;
     label?: string;
   }>;
@@ -38,7 +47,7 @@ export type BouquetRecord = {
   basePrice: number;
   status: BouquetStatus;
   images: BouquetImage[];
-  sizes: BouquetSizesPlaceholder;
+  sizes: BouquetSizes;
   seo: BouquetSeoPlaceholder;
   createdAt: string;
   updatedAt: string;
@@ -51,6 +60,7 @@ export type BouquetDraft = {
   basePrice: number;
   status: BouquetStatus;
   images: BouquetImage[];
+  sizes: BouquetSizes;
 };
 
 export const BOUQUET_STATUS_OPTIONS: Array<{
@@ -69,6 +79,15 @@ export const BOUQUET_STATUS_LABELS: Record<BouquetStatus, string> = {
 };
 
 export const BOUQUET_NO_PHOTO_LABEL = "Фото не добавлено";
+
+export const BOUQUET_SIZE_CODES: BouquetSizeCode[] = ["S", "M", "L", "XL"];
+
+export const BOUQUET_SIZE_PRICE_LABELS: Record<BouquetSizeCode, string> = {
+  S: "Цена S",
+  M: "Цена M",
+  L: "Цена L",
+  XL: "Цена XL",
+};
 
 export const BOUQUET_ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",

@@ -535,6 +535,78 @@
   color: #ffb0b0;
 }
 
+.sizeBlock {
+  display: grid;
+  gap: 8px;
+}
+
+.sizeChipRow {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sizeChip {
+  min-width: 36px;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--admin-soft);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sizeChipActive {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--admin-ink);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.sizePriceStack {
+  display: grid;
+  gap: 8px;
+}
+
+.sizePriceField {
+  display: grid;
+  gap: 6px;
+}
+
+.sizePriceLabel {
+  color: var(--admin-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sizePriceInput {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--admin-ink);
+  font: inherit;
+  font-size: 14px;
+}
+
+.sizePriceInput:focus {
+  outline: none;
+  border-color: rgba(212, 175, 55, 0.45);
+}
+
 @media (min-width: 720px) {
   .photoGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));

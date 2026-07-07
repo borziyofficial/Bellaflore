@@ -2,6 +2,7 @@
 // SECTION: ADMIN APP — Bouquet local store (Stage 2.1)
 // ==================================================
 import { cloneBouquetImages, normalizeBouquetImages } from "@/components/adminApp/modules/bouquets/bouquetImageUtils";
+import { cloneBouquetSizes, normalizeBouquetSizes } from "@/components/adminApp/modules/bouquets/bouquetSizeUtils";
 import type { BouquetDraft, BouquetRecord } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import {
   buildBouquetRecord,
@@ -31,7 +32,7 @@ export function readAdminBouquets(): BouquetRecord[] {
     return parsed.map((item) => ({
       ...item,
       images: normalizeBouquetImages(item.images),
-      sizes: item.sizes ?? {},
+      sizes: normalizeBouquetSizes(item.sizes),
       seo: item.seo ?? {},
     }));
   } catch {
@@ -81,6 +82,7 @@ export function duplicateAdminBouquet(
     slug: createUniqueBouquetSlug(copyName, bouquets),
     status: "draft",
     images: cloneBouquetImages(normalizeBouquetImages(source.images)),
+    sizes: cloneBouquetSizes(normalizeBouquetSizes(source.sizes)),
     createdAt: now,
     updatedAt: now,
   };

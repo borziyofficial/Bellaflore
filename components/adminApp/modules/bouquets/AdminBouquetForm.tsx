@@ -6,7 +6,12 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { getAllCatalogCategories } from "@/components/catalogEngine/categoriesEngine";
 import { AdminBouquetPhotoUpload } from "@/components/adminApp/modules/bouquets/AdminBouquetPhotoUpload";
+import { AdminBouquetSizePicker } from "@/components/adminApp/modules/bouquets/AdminBouquetSizePicker";
 import { normalizeBouquetImages } from "@/components/adminApp/modules/bouquets/bouquetImageUtils";
+import {
+  createEmptyBouquetSizes,
+  normalizeBouquetSizes,
+} from "@/components/adminApp/modules/bouquets/bouquetSizeUtils";
 import type { BouquetDraft, BouquetStatus } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import { BOUQUET_STATUS_OPTIONS } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import styles from "@/components/adminApp/modules/bouquets/AdminBouquetsModule.module.css";
@@ -18,6 +23,7 @@ const EMPTY_DRAFT: BouquetDraft = {
   basePrice: 0,
   status: "draft",
   images: [],
+  sizes: createEmptyBouquetSizes(),
 };
 
 type AdminBouquetFormProps = {
@@ -48,6 +54,7 @@ export function AdminBouquetForm({
         ? {
             ...initialDraft,
             images: normalizeBouquetImages(initialDraft.images),
+            sizes: normalizeBouquetSizes(initialDraft.sizes),
           }
         : EMPTY_DRAFT,
     );
@@ -85,6 +92,7 @@ export function AdminBouquetForm({
       description: draft.description.trim(),
       basePrice: Math.max(0, Number(draft.basePrice) || 0),
       images: normalizeBouquetImages(draft.images),
+      sizes: normalizeBouquetSizes(draft.sizes),
     });
   };
 
@@ -182,6 +190,11 @@ export function AdminBouquetForm({
               placeholder="0"
             />
           </label>
+
+          <AdminBouquetSizePicker
+            sizes={draft.sizes}
+            onChange={(sizes) => setDraft((prev) => ({ ...prev, sizes }))}
+          />
 
           <fieldset className={styles.statusFieldset}>
             <legend className={styles.fieldLabel}>Статус</legend>

@@ -2,6 +2,7 @@
 // SECTION: ADMIN APP — Bouquet helpers
 // ==================================================
 import { normalizeBouquetImages } from "@/components/adminApp/modules/bouquets/bouquetImageUtils";
+import { normalizeBouquetSizes } from "@/components/adminApp/modules/bouquets/bouquetSizeUtils";
 import type { BouquetDraft, BouquetRecord } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 
 export function slugifyBouquetName(name: string): string {
@@ -62,7 +63,7 @@ export function buildBouquetRecord(
     basePrice: draft.basePrice,
     status: draft.status,
     images: normalizeBouquetImages(draft.images ?? previous?.images),
-    sizes: previous?.sizes ?? {},
+    sizes: normalizeBouquetSizes(draft.sizes ?? previous?.sizes),
     seo: previous?.seo ?? {},
     createdAt: previous?.createdAt ?? now,
     updatedAt: now,
@@ -77,6 +78,7 @@ export function bouquetToDraft(bouquet: BouquetRecord): BouquetDraft {
     basePrice: bouquet.basePrice,
     status: bouquet.status,
     images: normalizeBouquetImages(bouquet.images),
+    sizes: normalizeBouquetSizes(bouquet.sizes),
   };
 }
 
