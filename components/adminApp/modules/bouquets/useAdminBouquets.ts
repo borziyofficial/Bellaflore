@@ -15,8 +15,10 @@ import {
 } from "@/components/adminApp/modules/bouquets/bouquetStore";
 
 export function useAdminBouquets() {
-  const [bouquets, setBouquets] = useState<BouquetRecord[]>([]);
-  const [ready, setReady] = useState(false);
+  const [bouquets, setBouquets] = useState<BouquetRecord[]>(() =>
+    typeof window !== "undefined" ? readAdminBouquets() : [],
+  );
+  const [ready, setReady] = useState(() => typeof window !== "undefined");
 
   useEffect(() => {
     setBouquets(readAdminBouquets());

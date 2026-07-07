@@ -24,6 +24,7 @@ export {
 
 export { AdminFoundationShell } from "@/components/adminApp/layout/AdminFoundationShell";
 export { AdminAppPage } from "@/components/adminApp/layout/AdminAppPage";
+export { AdminRouteLayout } from "@/components/adminApp/layout/AdminRouteLayout";
 export { AdminSidebar } from "@/components/adminApp/layout/AdminSidebar";
 export { AdminBottomNav } from "@/components/adminApp/layout/AdminBottomNav";
 

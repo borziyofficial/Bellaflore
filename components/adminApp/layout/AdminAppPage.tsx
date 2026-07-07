@@ -4,20 +4,14 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { AdminEntryGate } from "@/components/adminEntry/AdminEntryGate";
-import type { AdminEntryRoutePath } from "@/components/adminEntry/adminEntryTypes";
-import { AdminFoundationShell } from "@/components/adminApp/layout/AdminFoundationShell";
 
 type AdminAppPageProps = {
-  route?: AdminEntryRoutePath;
-  title: string;
+  route?: string;
+  title?: string;
   children: ReactNode;
 };
 
-export function AdminAppPage({ route = "/admin", title, children }: AdminAppPageProps) {
-  return (
-    <AdminEntryGate route={route}>
-      <AdminFoundationShell title={title}>{children}</AdminFoundationShell>
-    </AdminEntryGate>
-  );
+/** Content-only wrapper. Shell and auth gate live in `AdminRouteLayout`. */
+export function AdminAppPage({ children }: AdminAppPageProps) {
+  return <>{children}</>;
 }

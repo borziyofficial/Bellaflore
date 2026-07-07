@@ -7,6 +7,7 @@ import type {
   AdminNavItem,
   AdminSidebarId,
 } from "@/components/adminApp/foundation/types";
+import { getAdminFutureModule } from "@/components/adminApp/foundation/futureModules";
 
 export const ADMIN_BOTTOM_NAV_ITEMS: AdminNavItem[] = [
   {
@@ -201,6 +202,33 @@ export function resolveAdminSidebarId(pathname: string): AdminSidebarId {
 
 export function isAdminBottomNavRoute(pathname: string): boolean {
   return BOTTOM_NAV_IDS.has(resolveAdminBottomNavId(pathname));
+}
+
+const ADMIN_PAGE_TITLES: Record<string, string> = {
+  "/admin": "Dashboard",
+  "/admin/bouquets": "Букеты",
+  "/admin/add": "Add bouquet",
+  "/admin/orders": "Orders",
+  "/admin/profile": "Profile",
+};
+
+export function resolveAdminPageTitle(pathname: string): string {
+  const normalized =
+    pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+
+  if (ADMIN_PAGE_TITLES[normalized]) {
+    return ADMIN_PAGE_TITLES[normalized];
+  }
+
+  const sectionMatch = normalized.match(/^\/admin\/([^/]+)$/);
+  if (sectionMatch) {
+    const futureModule = getAdminFutureModule(sectionMatch[1]);
+    if (futureModule) {
+      return futureModule.title;
+    }
+  }
+
+  return "Admin";
 }
 
 export const ADMIN_FUTURE_MODULE_SLUGS = ADMIN_SIDEBAR_ITEMS.filter(

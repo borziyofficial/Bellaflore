@@ -14,37 +14,53 @@ import type { AdminEntryGateProps, AdminEntryGateState } from "@/components/admi
 import { buildAdminLoginRedirectUrl } from "@/components/adminEntry/adminEntryRoutes";
 import { canAccessAdminEntryPoint } from "@/components/securityIntelligence/securityAccessGuards";
 
+function resolveGateState(route: AdminEntryGateProps["route"]): {
+  state: AdminEntryGateState;
+  deniedMessage: string | null;
+} {
+  if (typeof window === "undefined") {
+    return { state: "loading", deniedMessage: null };
+  }
+
+  if (!hasValidAdminEntrySession()) {
+    return { state: "unauthenticated", deniedMessage: null };
+  }
+
+  const session = getAdminEntrySession();
+  if (!session) {
+    return { state: "unauthenticated", deniedMessage: null };
+  }
+
+  const access = canAccessAdminEntryPoint(route, session);
+  if (!access.allowed) {
+    return {
+      state: "denied",
+      deniedMessage: access.reason ?? "Access denied",
+    };
+  }
+
+  return { state: "ready", deniedMessage: null };
+}
+
 export function AdminEntryGate({ route, children }: AdminEntryGateProps) {
   const router = useRouter();
-  const [gateState, setGateState] = useState<AdminEntryGateState>("loading");
-  const [deniedMessage, setDeniedMessage] = useState<string | null>(null);
+  const initialGate = resolveGateState(route);
+  const [gateState, setGateState] = useState<AdminEntryGateState>(initialGate.state);
+  const [deniedMessage, setDeniedMessage] = useState<string | null>(
+    initialGate.deniedMessage,
+  );
 
   useEffect(() => {
-    const authTimer = window.setTimeout(() => {
-      if (!hasValidAdminEntrySession()) {
-        router.replace(buildAdminLoginRedirectUrl(route));
-        setGateState("unauthenticated");
-        return;
-      }
+    const next = resolveGateState(route);
 
-      const session = getAdminEntrySession();
-      if (!session) {
-        router.replace(buildAdminLoginRedirectUrl(route));
-        setGateState("unauthenticated");
-        return;
-      }
+    if (next.state === "unauthenticated") {
+      router.replace(buildAdminLoginRedirectUrl(route));
+      setGateState("unauthenticated");
+      return;
+    }
 
-      const access = canAccessAdminEntryPoint(route, session);
-      if (!access.allowed) {
-        setDeniedMessage(access.reason ?? "Access denied");
-        setGateState("denied");
-        return;
-      }
-
-      setGateState("ready");
-    }, 0);
-
-    return () => window.clearTimeout(authTimer);
+    setDeniedMessage(next.deniedMessage);
+    setGateState(next.state);
   }, [route, router]);
 
   if (gateState === "loading" || gateState === "unauthenticated") {
