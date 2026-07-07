@@ -108,11 +108,38 @@ export function hideAdminBouquet(
   bouquets: BouquetRecord[],
   id: string,
 ): BouquetRecord[] {
+  return setAdminBouquetStatus(bouquets, id, "hidden");
+}
+
+export function setAdminBouquetStatus(
+  bouquets: BouquetRecord[],
+  id: string,
+  status: BouquetRecord["status"],
+): BouquetRecord[] {
+  const now = new Date().toISOString();
   return bouquets.map((item) =>
-    item.id === id
-      ? { ...item, status: "hidden", updatedAt: new Date().toISOString() }
-      : item,
+    item.id === id ? { ...item, status, updatedAt: now } : item,
   );
+}
+
+export function bulkSetAdminBouquetStatus(
+  bouquets: BouquetRecord[],
+  ids: string[],
+  status: BouquetRecord["status"],
+): BouquetRecord[] {
+  const idSet = new Set(ids);
+  const now = new Date().toISOString();
+  return bouquets.map((item) =>
+    idSet.has(item.id) ? { ...item, status, updatedAt: now } : item,
+  );
+}
+
+export function bulkDeleteAdminBouquets(
+  bouquets: BouquetRecord[],
+  ids: string[],
+): BouquetRecord[] {
+  const idSet = new Set(ids);
+  return bouquets.filter((item) => !idSet.has(item.id));
 }
 
 export function deleteAdminBouquet(

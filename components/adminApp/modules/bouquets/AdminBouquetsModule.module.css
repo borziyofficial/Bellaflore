@@ -31,6 +31,122 @@
   gap: 8px;
 }
 
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.filterField {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.filterLabel {
+  color: var(--admin-soft);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bulkBar {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(241, 209, 139, 0.2);
+  border-radius: 18px;
+  background: rgba(241, 209, 139, 0.06);
+}
+
+.bulkBarMain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bulkCount {
+  color: var(--admin-gold-strong);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.bulkClear {
+  border: 0;
+  background: transparent;
+  color: var(--admin-soft);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.bulkActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+  background: rgba(0, 0, 0, 0.68);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.confirmSheet {
+  width: min(380px, 100%);
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(241, 209, 139, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(22, 22, 25, 0.98), rgba(10, 10, 12, 0.98));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.confirmTitle {
+  margin: 0;
+  color: var(--admin-ink);
+  font-size: 18px;
+  font-weight: 760;
+  line-height: 1.2;
+}
+
+.confirmMessage {
+  margin: 10px 0 0;
+  color: var(--admin-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.confirmActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.confirmDangerButton {
+  border-color: rgba(255, 120, 120, 0.34);
+  background: linear-gradient(180deg, rgba(255, 120, 120, 0.2), rgba(255, 80, 80, 0.12));
+  color: #ffb0b0;
+}
+
 .primaryButton,
 .secondaryButton {
   display: inline-flex;
@@ -111,12 +227,90 @@
 
 .card {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 24px 64px minmax(0, 1fr);
+  gap: 10px;
   padding: 12px;
   border: 1px solid var(--admin-border);
   border-radius: 18px;
   background: var(--admin-surface);
+}
+
+.cardSelected {
+  border-color: rgba(241, 209, 139, 0.34);
+  background: rgba(241, 209, 139, 0.04);
+}
+
+.cardSelect {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 2px;
+}
+
+.cardCheckbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--admin-gold);
+  cursor: pointer;
+}
+
+.cardMediaButton,
+.tableMediaButton,
+.cardTitleButton,
+.tableNameButton {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cardTitleButton {
+  min-width: 0;
+  flex: 1;
+}
+
+.cardSummaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.cardSummaryItem {
+  color: var(--admin-soft);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.miniBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 7px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--admin-soft);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.miniBadgeGold {
+  border-color: rgba(241, 209, 139, 0.24);
+  color: var(--admin-gold-strong);
+}
+
+.tableCheckboxCol {
+  width: 36px;
+}
+
+.tableRowSelected {
+  background: rgba(241, 209, 139, 0.04);
 }
 
 .imagePreview,
@@ -132,8 +326,8 @@
 }
 
 .imagePreview {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
 }
 
@@ -995,8 +1189,9 @@
     align-items: center;
   }
 
-  .filterRow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .filterRow,
+  .filterGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .formOverlay {

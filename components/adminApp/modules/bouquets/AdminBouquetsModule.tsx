@@ -1,15 +1,28 @@
 // ==================================================
-// SECTION: ADMIN APP — Bouquets module (Stage 2.2)
+// SECTION: ADMIN APP — Bouquets module (Stage 2.5)
 // ==================================================
 "use client";
 
 import { useMemo, useState } from "react";
-import { useAdminBouquetCategories } from "@/components/adminApp/modules/bouquets/useAdminBouquetCategories";
+import { AdminBouquetConfirmDialog } from "@/components/adminApp/modules/bouquets/AdminBouquetConfirmDialog";
 import { AdminBouquetForm } from "@/components/adminApp/modules/bouquets/AdminBouquetForm";
 import { AdminBouquetList } from "@/components/adminApp/modules/bouquets/AdminBouquetList";
+import {
+  applyBouquetListQuery,
+  BOUQUET_BADGE_FILTER_OPTIONS,
+  BOUQUET_DISPLAY_FILTER_OPTIONS,
+  BOUQUET_SORT_OPTIONS,
+  BOUQUET_STATUS_FILTER_OPTIONS,
+  DEFAULT_BOUQUET_LIST_FILTERS,
+  hasActiveBouquetListFilters,
+  type BouquetBadgeFilter,
+  type BouquetDisplayFilter,
+  type BouquetListFilters,
+  type BouquetSortOption,
+} from "@/components/adminApp/modules/bouquets/bouquetListUtils";
 import { getAdminBouquetDraftById } from "@/components/adminApp/modules/bouquets/bouquetStore";
 import type { BouquetDraft, BouquetStatus } from "@/components/adminApp/modules/bouquets/bouquetTypes";
-import { BOUQUET_STATUS_LABELS } from "@/components/adminApp/modules/bouquets/bouquetTypes";
+import { useAdminBouquetCategories } from "@/components/adminApp/modules/bouquets/useAdminBouquetCategories";
 import { useAdminBouquets } from "@/components/adminApp/modules/bouquets/useAdminBouquets";
 import { AdminModuleHeader, AdminPanel } from "@/components/adminApp/shared/AdminModuleUi";
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
@@ -20,50 +33,80 @@ type FormState =
   | { open: true; mode: "create" }
   | { open: true; mode: "edit"; id: string };
 
-const STATUS_FILTER_OPTIONS: Array<{ value: "all" | BouquetStatus; label: string }> = [
-  { value: "all", label: "Все статусы" },
-  { value: "active", label: BOUQUET_STATUS_LABELS.active },
-  { value: "hidden", label: BOUQUET_STATUS_LABELS.hidden },
-  { value: "out_of_stock", label: BOUQUET_STATUS_LABELS.out_of_stock },
-  { value: "coming_soon", label: BOUQUET_STATUS_LABELS.coming_soon },
-  { value: "draft", label: BOUQUET_STATUS_LABELS.draft },
-];
+type ConfirmState =
+  | { open: false }
+  | { open: true; title: string; message: string; confirmLabel: string; onConfirm: () => void };
 
 export function AdminBouquetsModule() {
-  const { bouquets, ready, saveBouquet, duplicateBouquet, hideBouquet, removeBouquet } =
-    useAdminBouquets();
-  const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | BouquetStatus>("all");
+  const {
+    bouquets,
+    ready,
+    saveBouquet,
+    duplicateBouquet,
+    hideBouquet,
+    activateBouquet,
+    bulkSetStatus,
+    removeBouquet,
+    bulkRemoveBouquets,
+  } = useAdminBouquets();
+  const [filters, setFilters] = useState<BouquetListFilters>(DEFAULT_BOUQUET_LIST_FILTERS);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [formState, setFormState] = useState<FormState>({ open: false });
+  const [confirmState, setConfirmState] = useState<ConfirmState>({ open: false });
 
   const { categories } = useAdminBouquetCategories();
 
-  const filteredBouquets = useMemo(() => {
-    const query = search.trim().toLowerCase();
+  const filteredBouquets = useMemo(
+    () => applyBouquetListQuery(bouquets, filters),
+    [bouquets, filters],
+  );
 
-    return bouquets.filter((bouquet) => {
-      const matchesSearch =
-        !query ||
-        bouquet.name.toLowerCase().includes(query) ||
-        bouquet.description.toLowerCase().includes(query) ||
-        bouquet.slug.toLowerCase().includes(query);
-
-      const matchesCategory =
-        categoryFilter === "all" || bouquet.category === categoryFilter;
-
-      const matchesStatus = statusFilter === "all" || bouquet.status === statusFilter;
-
-      return matchesSearch && matchesCategory && matchesStatus;
-    });
-  }, [bouquets, search, categoryFilter, statusFilter]);
+  const selectedCount = selectedIds.size;
+  const allVisibleSelected =
+    filteredBouquets.length > 0 &&
+    filteredBouquets.every((bouquet) => selectedIds.has(bouquet.id));
+  const hasFilters = hasActiveBouquetListFilters(filters);
+  const isFilteredEmpty = bouquets.length > 0 && filteredBouquets.length === 0;
 
   const editingDraft =
     formState.open && formState.mode === "edit"
       ? getAdminBouquetDraftById(bouquets, formState.id)
       : null;
 
+  const updateFilter = <K extends keyof BouquetListFilters>(
+    key: K,
+    value: BouquetListFilters[K],
+  ) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setSelectedIds(new Set());
+  };
+
+  const resetFilters = () => {
+    setFilters(DEFAULT_BOUQUET_LIST_FILTERS);
+    setSelectedIds(new Set());
+  };
+
   const closeForm = () => setFormState({ open: false });
+
+  const closeConfirm = () => setConfirmState({ open: false });
+
+  const openDeleteConfirm = (ids: string[], title: string, message: string) => {
+    setConfirmState({
+      open: true,
+      title,
+      message,
+      confirmLabel: "Удалить",
+      onConfirm: () => {
+        bulkRemoveBouquets(ids);
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          ids.forEach((id) => next.delete(id));
+          return next;
+        });
+        closeConfirm();
+      },
+    });
+  };
 
   const handleSave = (draft: BouquetDraft) => {
     if (formState.open && formState.mode === "edit") {
@@ -76,16 +119,72 @@ export function AdminBouquetsModule() {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Удалить букет из локального списка?")) {
-      removeBouquet(id);
-    }
+    openDeleteConfirm(
+      [id],
+      "Удалить букет?",
+      "Букет будет удалён из локального списка. Это действие нельзя отменить.",
+    );
   };
+
+  const handleBulkDelete = () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) {
+      return;
+    }
+
+    openDeleteConfirm(
+      ids,
+      `Удалить ${ids.length} букет(ов)?`,
+      "Выбранные букеты будут удалены из локального списка. Это действие нельзя отменить.",
+    );
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleToggleSelectAll = () => {
+    if (allVisibleSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        filteredBouquets.forEach((bouquet) => next.delete(bouquet.id));
+        return next;
+      });
+      return;
+    }
+
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      filteredBouquets.forEach((bouquet) => next.add(bouquet.id));
+      return next;
+    });
+  };
+
+  const handleBulkStatus = (status: BouquetStatus) => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) {
+      return;
+    }
+
+    bulkSetStatus(ids, status);
+    setSelectedIds(new Set());
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
 
   return (
     <div className={ui.stack}>
       <AdminModuleHeader
         title="Букеты"
-        subtitle="Каталог букетов — статус, показ, приоритет, бейджи и предпросмотр"
+        subtitle="Управление списком — фильтры, сортировка, быстрые и массовые действия"
         action={
           <div className={styles.headerActions}>
             <button
@@ -105,8 +204,8 @@ export function AdminBouquetsModule() {
             <input
               className={styles.searchInput}
               type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              value={filters.search}
+              onChange={(event) => updateFilter("search", event.target.value)}
               placeholder="Поиск букетов"
               aria-label="Поиск букетов"
             />
@@ -119,49 +218,160 @@ export function AdminBouquetsModule() {
             </button>
           </div>
 
-          <div className={styles.filterRow}>
-            <select
-              className={styles.filterSelect}
-              value={categoryFilter}
-              onChange={(event) => setCategoryFilter(event.target.value)}
-              aria-label="Фильтр по категории"
-            >
-              <option value="all">Категория — все</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+          <div className={styles.filterGrid}>
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Статус</span>
+              <select
+                className={styles.filterSelect}
+                value={filters.status}
+                onChange={(event) =>
+                  updateFilter("status", event.target.value as BouquetListFilters["status"])
+                }
+                aria-label="Фильтр по статусу"
+              >
+                {BOUQUET_STATUS_FILTER_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
 
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Категория</span>
+              <select
+                className={styles.filterSelect}
+                value={filters.category}
+                onChange={(event) => updateFilter("category", event.target.value)}
+                aria-label="Фильтр по категории"
+              >
+                <option value="all">Все</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Бейдж</span>
+              <select
+                className={styles.filterSelect}
+                value={filters.badge}
+                onChange={(event) =>
+                  updateFilter("badge", event.target.value as BouquetBadgeFilter)
+                }
+                aria-label="Фильтр по бейджу"
+              >
+                {BOUQUET_BADGE_FILTER_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className={styles.filterField}>
+              <span className={styles.filterLabel}>Отображение</span>
+              <select
+                className={styles.filterSelect}
+                value={filters.display}
+                onChange={(event) =>
+                  updateFilter("display", event.target.value as BouquetDisplayFilter)
+                }
+                aria-label="Фильтр по отображению"
+              >
+                {BOUQUET_DISPLAY_FILTER_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label className={styles.filterField}>
+            <span className={styles.filterLabel}>Сортировка</span>
             <select
               className={styles.filterSelect}
-              value={statusFilter}
+              value={filters.sort}
               onChange={(event) =>
-                setStatusFilter(event.target.value as "all" | BouquetStatus)
+                updateFilter("sort", event.target.value as BouquetSortOption)
               }
-              aria-label="Фильтр по статусу"
+              aria-label="Сортировка букетов"
             >
-              {STATUS_FILTER_OPTIONS.map((option) => (
+              {BOUQUET_SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  Статус — {option.label}
+                  {option.label}
                 </option>
               ))}
             </select>
-          </div>
+          </label>
         </div>
       </AdminPanel>
+
+      {selectedCount > 0 ? (
+        <div className={styles.bulkBar}>
+          <div className={styles.bulkBarMain}>
+            <span className={styles.bulkCount}>Выбрано: {selectedCount}</span>
+            <button type="button" className={styles.bulkClear} onClick={clearSelection}>
+              Снять выбор
+            </button>
+          </div>
+          <div className={styles.bulkActions}>
+            <button
+              type="button"
+              className={styles.actionChip}
+              onClick={() => handleBulkStatus("active")}
+            >
+              Активировать
+            </button>
+            <button
+              type="button"
+              className={styles.actionChip}
+              onClick={() => handleBulkStatus("hidden")}
+            >
+              Скрыть
+            </button>
+            <button
+              type="button"
+              className={styles.actionChip}
+              onClick={() => handleBulkStatus("draft")}
+            >
+              В черновик
+            </button>
+            <button
+              type="button"
+              className={`${styles.actionChip} ${styles.actionChipDanger}`}
+              onClick={handleBulkDelete}
+            >
+              Удалить
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <AdminPanel title="Список букетов">
         {!ready ? (
           <div className={styles.loadingState}>Загрузка букетов…</div>
-        ) : filteredBouquets.length === 0 ? (
+        ) : isFilteredEmpty ? (
+          <div className={styles.emptyState}>
+            <p className={styles.emptyTitle}>Ничего не найдено</p>
+            <p className={styles.emptyHint}>
+              По текущим фильтрам букеты не найдены. Измените условия или сбросьте фильтры.
+            </p>
+            {hasFilters ? (
+              <button type="button" className={styles.primaryButton} onClick={resetFilters}>
+                Сбросить фильтры
+              </button>
+            ) : null}
+          </div>
+        ) : bouquets.length === 0 ? (
           <div className={styles.emptyState}>
             <p className={styles.emptyTitle}>Букетов пока нет</p>
             <p className={styles.emptyHint}>
-              {bouquets.length === 0
-                ? "Создайте первый букет через «Добавить букет». Размеры S / M / L / XL появятся на следующем этапе."
-                : "Нет букетов по текущему поиску или фильтрам."}
+              Создайте первый букет через «Добавить букет».
             </p>
             <button
               type="button"
@@ -174,9 +384,14 @@ export function AdminBouquetsModule() {
         ) : (
           <AdminBouquetList
             bouquets={filteredBouquets}
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
+            allSelected={allVisibleSelected}
             onEdit={(id) => setFormState({ open: true, mode: "edit", id })}
-            onDuplicate={duplicateBouquet}
+            onActivate={activateBouquet}
             onHide={hideBouquet}
+            onDuplicate={duplicateBouquet}
             onDelete={handleDelete}
           />
         )}
@@ -189,6 +404,17 @@ export function AdminBouquetsModule() {
         onSave={handleSave}
         onCancel={closeForm}
       />
+
+      {confirmState.open ? (
+        <AdminBouquetConfirmDialog
+          open
+          title={confirmState.title}
+          message={confirmState.message}
+          confirmLabel={confirmState.confirmLabel}
+          onConfirm={confirmState.onConfirm}
+          onCancel={closeConfirm}
+        />
+      ) : null}
     </div>
   );
 }

@@ -1,15 +1,22 @@
 // ==================================================
-// SECTION: ADMIN APP — Bouquet state hook
+// SECTION: ADMIN APP — Bouquet state hook (Stage 2.5)
 // ==================================================
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { BouquetDraft, BouquetRecord } from "@/components/adminApp/modules/bouquets/bouquetTypes";
+import type {
+  BouquetDraft,
+  BouquetRecord,
+  BouquetStatus,
+} from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import {
+  bulkDeleteAdminBouquets,
+  bulkSetAdminBouquetStatus,
   deleteAdminBouquet,
   duplicateAdminBouquet,
   hideAdminBouquet,
   readAdminBouquets,
+  setAdminBouquetStatus,
   upsertAdminBouquet,
   writeAdminBouquets,
 } from "@/components/adminApp/modules/bouquets/bouquetStore";
@@ -55,9 +62,37 @@ export function useAdminBouquets() {
     [bouquets, persist],
   );
 
+  const activateBouquet = useCallback(
+    (id: string) => {
+      persist(setAdminBouquetStatus(bouquets, id, "active"));
+    },
+    [bouquets, persist],
+  );
+
+  const setBouquetStatus = useCallback(
+    (id: string, status: BouquetStatus) => {
+      persist(setAdminBouquetStatus(bouquets, id, status));
+    },
+    [bouquets, persist],
+  );
+
+  const bulkSetStatus = useCallback(
+    (ids: string[], status: BouquetStatus) => {
+      persist(bulkSetAdminBouquetStatus(bouquets, ids, status));
+    },
+    [bouquets, persist],
+  );
+
   const removeBouquet = useCallback(
     (id: string) => {
       persist(deleteAdminBouquet(bouquets, id));
+    },
+    [bouquets, persist],
+  );
+
+  const bulkRemoveBouquets = useCallback(
+    (ids: string[]) => {
+      persist(bulkDeleteAdminBouquets(bouquets, ids));
     },
     [bouquets, persist],
   );
@@ -68,6 +103,10 @@ export function useAdminBouquets() {
     saveBouquet,
     duplicateBouquet,
     hideBouquet,
+    activateBouquet,
+    setBouquetStatus,
+    bulkSetStatus,
     removeBouquet,
+    bulkRemoveBouquets,
   };
 }
