@@ -679,8 +679,10 @@ export default function Home() {
       );
 
     if (shouldOpenCatalog) {
-      setPublicAppView("catalog");
-      setCatalogFocusNonce((current) => current + 1);
+      queueMicrotask(() => {
+        setPublicAppView("catalog");
+        setCatalogFocusNonce((current) => current + 1);
+      });
     }
 
     const handlePopState = () => {
@@ -1856,9 +1858,11 @@ export default function Home() {
       return;
     }
 
-    setProductExperienceId(matchedProduct.id);
-    setPublicAppView("catalog");
-    setCatalogFocusNonce((current) => current + 1);
+    queueMicrotask(() => {
+      setProductExperienceId(matchedProduct.id);
+      setPublicAppView("catalog");
+      setCatalogFocusNonce((current) => current + 1);
+    });
 
     const catalogSection = document.getElementById("catalog");
     if (catalogSection) {

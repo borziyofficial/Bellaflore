@@ -26,8 +26,29 @@ export function usePublicStorefrontCatalog() {
   }, []);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    let active = true;
+
+    void (async () => {
+      try {
+        const publishedProducts = await fetchPublishedStorefrontProducts();
+        if (active) {
+          setCatalog(mergePublicStorefrontCatalog(publishedProducts));
+        }
+      } catch {
+        if (active) {
+          setCatalog(SEED_CATALOG);
+        }
+      } finally {
+        if (active) {
+          setIsReady(true);
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return { catalog, isReady, reload };
 }

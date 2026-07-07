@@ -83,9 +83,17 @@ export function LuxuryCatalogProductCard({
     experienceData.defaultSizeId,
   );
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
+  const [trackedProductId, setTrackedProductId] = useState(product.id);
   const [dropdownPlacement, setDropdownPlacement] = useState<"down" | "up">("down");
   const popoverRef = useRef<HTMLDivElement>(null);
   const chevronRef = useRef<HTMLButtonElement>(null);
+
+  if (product.id !== trackedProductId) {
+    setTrackedProductId(product.id);
+    setSelectedSizeId(experienceData.defaultSizeId);
+    setSizePopoverOpen(false);
+  }
+
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
   const categoryLabel = getProductCategoryHint(product);
   const description = getProductCardDescription(product);
@@ -93,11 +101,6 @@ export function LuxuryCatalogProductCard({
   const visibleVariants = experienceData.sizeVariants.filter((variant) =>
     ["S", "M", "L", "XL"].includes(variant.sizeId),
   );
-
-  useEffect(() => {
-    setSelectedSizeId(experienceData.defaultSizeId);
-    setSizePopoverOpen(false);
-  }, [experienceData.defaultSizeId, product.id]);
 
   useLayoutEffect(() => {
     if (!sizePopoverOpen || !chevronRef.current) {

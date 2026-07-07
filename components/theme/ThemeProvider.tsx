@@ -11,7 +11,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
   type ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
@@ -30,37 +29,32 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const routeTheme = resolveThemeForPathname(pathname);
-  const [theme, setThemeState] = useState<BellaFloreTheme>(routeTheme);
+  const theme = resolveThemeForPathname(pathname);
 
   useEffect(() => {
-    setThemeState(routeTheme);
-    applyDocumentTheme(routeTheme);
+    applyDocumentTheme(theme);
 
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("bellaflore-ui-theme", routeTheme);
+      window.localStorage.setItem("bellaflore-ui-theme", theme);
       window.localStorage.removeItem("bellaflore-ui-theme-manual");
     }
-  }, [routeTheme]);
+  }, [theme]);
 
   const setTheme = useCallback(
     (nextTheme: BellaFloreTheme) => {
       const resolved = pathname.startsWith("/admin") ? "day" : nextTheme;
-      setThemeState(resolved);
       applyDocumentTheme(resolved);
     },
     [pathname],
   );
 
   const toggleTheme = useCallback(() => {
-    applyDocumentTheme(routeTheme);
-    setThemeState(routeTheme);
-  }, [routeTheme]);
+    applyDocumentTheme(theme);
+  }, [theme]);
 
   const resetToAutoTheme = useCallback(() => {
-    applyDocumentTheme(routeTheme);
-    setThemeState(routeTheme);
-  }, [routeTheme]);
+    applyDocumentTheme(theme);
+  }, [theme]);
 
   const value = useMemo(
     () => ({

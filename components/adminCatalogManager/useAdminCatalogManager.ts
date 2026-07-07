@@ -45,8 +45,36 @@ export function useAdminCatalogManager() {
   }, []);
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    let active = true;
+
+    void (async () => {
+      try {
+        const response = await fetchAdminCatalogProducts();
+        if (active) {
+          setProducts(response.products);
+          setImageStorageWarning(response.imageStorageWarning ?? null);
+          setLoadError(null);
+        }
+      } catch (error) {
+        if (active) {
+          setLoadError(
+            error instanceof Error
+              ? error.message
+              : "База данных каталога не настроена.",
+          );
+          setProducts([]);
+        }
+      } finally {
+        if (active) {
+          setIsReady(true);
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const saveProduct = useCallback(
     async (form: AdminProductFormState): Promise<CatalogProductRecord> => {
