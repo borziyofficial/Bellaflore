@@ -883,9 +883,9 @@ export default function Home() {
     return storedOrders;
   };
 
-  const openCatalogView = (focusSearch = false) => {
+  const openCatalogView = () => {
     setPublicAppView("catalog");
-    setCatalogFocusNonce((current) => current + (focusSearch ? 1 : 0));
+    setCatalogFocusNonce((current) => current + 1);
     setBottomNavAction("Каталог");
     if (typeof window !== "undefined" && window.location.pathname !== "/catalog") {
       window.history.pushState({}, "", "/catalog");
@@ -901,7 +901,7 @@ export default function Home() {
   const openBottomNavPanel = (panel: BottomNavPanelId) => {
     if (panel === "catalog") {
       closeAllBottomNavPanelsImmediate();
-      openCatalogView(true);
+      openCatalogView();
       return;
     }
 
@@ -1579,7 +1579,7 @@ export default function Home() {
     }
 
     closeAllBottomNavPanelsImmediate();
-    openCatalogView(true);
+    openCatalogView();
   };
 
   const handleSearchNavTouchEnd = (
@@ -1589,7 +1589,7 @@ export default function Home() {
     event.stopPropagation();
     lastTouchActionRef.current = event.timeStamp;
     closeAllBottomNavPanelsImmediate();
-    openCatalogView(true);
+    openCatalogView();
   };
 
   const handleHomeNavClick = (
@@ -1696,7 +1696,7 @@ export default function Home() {
   };
 
   const handleHeroOrderBouquet = () => {
-    openCatalogView(true);
+    openCatalogView();
   };
 
   const scrollToHomeSection = (sectionId: string) => {
@@ -1734,7 +1734,7 @@ export default function Home() {
     }
 
     if (href === "#catalog") {
-      openCatalogView(false);
+      openCatalogView();
       return;
     }
 

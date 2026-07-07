@@ -17,7 +17,6 @@ import type { CatalogProduct } from "@/data/catalogProducts";
 import {
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ChangeEvent as ReactChangeEvent,
   type MouseEvent as ReactMouseEvent,
@@ -63,7 +62,6 @@ export function CollectionsSection({
   onProductOpen,
   catalogFocusNonce = 0,
 }: CollectionsSectionProps) {
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState("all");
 
@@ -76,8 +74,6 @@ export function CollectionsSection({
       behavior: "smooth",
       block: "start",
     });
-
-    searchInputRef.current?.focus({ preventScroll: true });
   }, [catalogFocusNonce]);
 
   const normalizedSearchQuery = searchQuery.trim();
@@ -102,13 +98,11 @@ export function CollectionsSection({
 
   const clearSearch = () => {
     setSearchQuery("");
-    searchInputRef.current?.focus();
   };
 
   const showAllProducts = () => {
     setSearchQuery("");
     setActiveCategoryId("all");
-    searchInputRef.current?.focus();
   };
 
   const handleCategorySelect = (categoryId: string) => {
@@ -129,7 +123,6 @@ export function CollectionsSection({
           </span>
           <input
             id="home-catalog-search"
-            ref={searchInputRef}
             type="text"
             inputMode="search"
             value={searchQuery}
