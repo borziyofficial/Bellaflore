@@ -10,11 +10,11 @@ export type HomeCatalogCategoryChip = {
 
 export const homeCatalogCategoryChips: HomeCatalogCategoryChip[] = [
   { id: "all", label: "Все" },
-  { id: "peonies", label: "Пионы" },
   { id: "roses", label: "Розы" },
+  { id: "peonies", label: "Пионы" },
   { id: "hydrangeas", label: "Гортензии" },
-  { id: "baskets", label: "Корзины" },
   { id: "boxes", label: "Коробки" },
+  { id: "baskets", label: "Корзины" },
   { id: "compositions", label: "Композиции" },
   { id: "author", label: "Авторские" },
   { id: "new", label: "Новинки" },

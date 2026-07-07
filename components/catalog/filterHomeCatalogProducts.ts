@@ -3,11 +3,20 @@
 // РАЗДЕЛ: Фильтрация каталога на главной (Stage 57A)
 // ==================================================
 import { catalogProductBadges } from "@/components/catalog/catalogConfig";
+import { CATALOG_CATEGORIES } from "@/components/catalogEngine/categoriesCatalog";
 import {
   expandSearchTokens,
   normalizeSearchText,
 } from "@/components/search/searchFoundation";
 import type { CatalogProduct } from "@/data/catalogProducts";
+
+const HOME_CATEGORY_TITLE_MAP: Record<string, string[]> = Object.fromEntries(
+  CATALOG_CATEGORIES.map((category) => [category.id, [category.title]]),
+);
+
+// Storefront tabs aligned with admin category titles + legacy seed labels.
+HOME_CATEGORY_TITLE_MAP.author = ["Авторские", "Авторские букеты"];
+HOME_CATEGORY_TITLE_MAP.compositions = ["Композиции"];
 
 const POPULAR_PRODUCT_IDS = new Set([
   "white-pearl",
@@ -56,28 +65,19 @@ function matchesCategory(product: CatalogProduct, categoryId: string): boolean {
     return true;
   }
 
-  switch (categoryId) {
-    case "new":
-      return Boolean(product.isNew) || Boolean(product.isAdminProduct);
-    case "roses":
-      return productCategoryEquals(product, ["Розы"]);
-    case "peonies":
-      return productCategoryEquals(product, ["Пионы"]);
-    case "hydrangeas":
-      return productCategoryEquals(product, ["Гортензии"]);
-    case "baskets":
-      return productCategoryEquals(product, ["Корзины"]);
-    case "boxes":
-      return productCategoryEquals(product, ["Коробки"]);
-    case "compositions":
-      return productCategoryEquals(product, ["Композиции"]);
-    case "tulips":
-      return productCategoryEquals(product, ["Тюльпаны"]);
-    case "author":
-      return productCategoryEquals(product, ["Авторские", "Авторские букеты"]);
-    default:
-      return true;
+  if (categoryId === "new") {
+    return (
+      Boolean(product.isNew) ||
+      productCategoryEquals(product, HOME_CATEGORY_TITLE_MAP.new ?? ["Новинки"])
+    );
   }
+
+  const acceptedCategories = HOME_CATEGORY_TITLE_MAP[categoryId];
+  if (!acceptedCategories) {
+    return false;
+  }
+
+  return productCategoryEquals(product, acceptedCategories);
 }
 
 function matchesQuickFilter(
