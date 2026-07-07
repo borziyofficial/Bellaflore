@@ -1,10 +1,10 @@
 // ==================================================
 // SECTION: ADMIN
-// РАЗДЕЛ: BellaFlore Admin Control Center
+// РАЗДЕЛ: BellaFlore Admin — Stage 1 foundation dashboard
 // ==================================================
 
 import type { Metadata } from "next";
-import { AdminControlCenterClient } from "@/components/adminShell/AdminControlCenterClient";
+import { AdminAppPage, AdminDashboardModule } from "@/components/adminApp";
 
 export const metadata: Metadata = {
   title: "BellaFlore Admin",
@@ -12,5 +12,9 @@ export const metadata: Metadata = {
 };
 
 export default function AdminPage() {
-  return <AdminControlCenterClient />;
+  return (
+    <AdminAppPage route="/admin" title="Dashboard">
+      <AdminDashboardModule />
+    </AdminAppPage>
+  );
 }

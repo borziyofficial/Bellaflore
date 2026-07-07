@@ -1,76 +1,36 @@
 // ==================================================
-// SECTION: Admin — Dynamic Section Page
-// РАЗДЕЛ: Admin — динамическая страница раздела
-//
-// Purpose (EN): Resolves admin workspace section by URL slug and renders placeholder or access-denied panel.
-//
-// Назначение (RU): Разрешает раздел admin workspace по URL-slug и рендерит placeholder или панель отказа в доступе.
+// SECTION: Admin — Dynamic future module page
 // ==================================================
-
 "use client";
 
-import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import {
-  AdminWorkspaceDeniedPanel,
-  AdminWorkspaceLayout,
-  AdminWorkspacePlaceholderPanel,
-} from "@/components/adminWorkspace/AdminWorkspaceLayout";
-import { guardAdminSectionSlugAccess } from "@/components/adminWorkspace/adminAccessGuards";
-import { resolveAdminSectionBySlug } from "@/components/adminWorkspace/adminWorkspaceEngine";
-import { getTestAdminUser } from "@/components/adminWorkspace/testAdminUser";
+  AdminAppPage,
+  AdminFutureModule,
+  getAdminFutureModule,
+} from "@/components/adminApp";
+import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
 
-export default function AdminWorkspaceSectionPage() {
+export default function AdminFutureSectionPage() {
   const params = useParams<{ section: string }>();
   const sectionSlug = typeof params.section === "string" ? params.section : "";
-  const adminUser = useMemo(() => getTestAdminUser(), []);
-  const section = useMemo(
-    () => resolveAdminSectionBySlug(sectionSlug),
-    [sectionSlug],
-  );
-  const sectionGuard = useMemo(
-    () => guardAdminSectionSlugAccess(adminUser, sectionSlug),
-    [adminUser, sectionSlug],
-  );
+  const moduleConfig = getAdminFutureModule(sectionSlug);
 
-  if (!section) {
+  if (!moduleConfig) {
     return (
-      <AdminWorkspaceLayout
-        title="Раздел не найден"
-        description={`Section "${sectionSlug}" is not registered in Admin Workspace.`}
-        adminUserName={adminUser.adminUserName}
-        adminUserRole={adminUser.adminUserRole}
-      >
-        <AdminWorkspaceDeniedPanel
-          message={`Раздел "${sectionSlug}" не найден в registry.`}
-        />
-      </AdminWorkspaceLayout>
-    );
-  }
-
-  if (!sectionGuard.allowed) {
-    return (
-      <AdminWorkspaceLayout
-        title={section.sectionName}
-        description={section.sectionDescription}
-        adminUserName={adminUser.adminUserName}
-        adminUserRole={adminUser.adminUserRole}
-      >
-        <AdminWorkspaceDeniedPanel
-          message={sectionGuard.message ?? "Доступ запрещён"}
-        />
-      </AdminWorkspaceLayout>
+      <AdminAppPage route="/admin" title="Not found">
+        <div className={ui.emptyZone}>Module &quot;{sectionSlug}&quot; is not registered.</div>
+      </AdminAppPage>
     );
   }
 
   return (
-    <AdminWorkspaceLayout
-      title={section.sectionName}
-      description={section.sectionDescription}
-      adminUserName={adminUser.adminUserName}
-      adminUserRole={adminUser.adminUserRole}
-    >
-      <AdminWorkspacePlaceholderPanel sectionName={section.sectionName} />
-    </AdminWorkspaceLayout>
+    <AdminAppPage route="/admin" title={moduleConfig.title}>
+      <AdminFutureModule
+        title={moduleConfig.title}
+        subtitle={moduleConfig.subtitle}
+        bullets={moduleConfig.bullets}
+      />
+    </AdminAppPage>
   );
 }

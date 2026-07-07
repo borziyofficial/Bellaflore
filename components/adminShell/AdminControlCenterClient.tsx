@@ -1,22 +1,15 @@
 // ==================================================
 // SECTION: Admin Shell — control center client entry
-// РАЗДЕЛ: Клиентская точка входа Admin Control Center
+// РАЗДЕЛ: Legacy entry — delegates to Stage 1 foundation
 // ==================================================
 "use client";
 
-import { AdminEntryGate } from "@/components/adminEntry";
-import { AdminAppShell } from "@/components/adminEntry/AdminAppShell";
-import { AdminDashboardHome } from "@/components/adminShell/AdminDashboardHome";
-import { useAdminModule } from "@/components/adminShell/useAdminModule";
+import { AdminAppPage, AdminDashboardModule } from "@/components/adminApp";
 
 export function AdminControlCenterClient() {
-  const [activeModuleId] = useAdminModule();
-
   return (
-    <AdminEntryGate route="/admin">
-      <AdminAppShell title="Дашборд">
-        <AdminDashboardHome activeModuleId={activeModuleId} />
-      </AdminAppShell>
-    </AdminEntryGate>
+    <AdminAppPage route="/admin" title="Dashboard">
+      <AdminDashboardModule />
+    </AdminAppPage>
   );
 }
