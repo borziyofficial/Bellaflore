@@ -82,6 +82,9 @@ export function CollectionsSection({
 
   const normalizedSearchQuery = searchQuery.trim();
   const isSearchMode = normalizedSearchQuery.length > 0;
+  const activeCatalogMode = isSearchMode ? "search" : activeCategoryId;
+  const isAllCategoryMode = activeCatalogMode === "all";
+  const catalogViewKey = `${activeCatalogMode}:${normalizedSearchQuery}`;
 
   const displayedProducts = useMemo(
     () =>
@@ -175,7 +178,11 @@ export function CollectionsSection({
       </div>
 
       {displayedProducts.length === 0 ? (
-        <div className={styles.emptyState}>
+        <div
+          key={`empty:${catalogViewKey}`}
+          className={styles.emptyState}
+          data-catalog-mode={activeCatalogMode}
+        >
           <p className={styles.emptyTitle}>Букеты не найдены</p>
           <p className={styles.emptyMessage}>Попробуйте другой запрос</p>
           <button type="button" className={styles.emptyReset} onClick={showAllProducts}>
@@ -183,10 +190,16 @@ export function CollectionsSection({
           </button>
         </div>
       ) : (
-        <div className={styles.grid}>
+        <div
+          key={`grid:${catalogViewKey}`}
+          className={`${styles.grid} ${
+            isAllCategoryMode ? styles.gridAll : styles.gridCategory
+          }`}
+          data-catalog-mode={activeCatalogMode}
+        >
           {displayedProducts.map((bouquet) => (
             <LuxuryCatalogProductCard
-              key={bouquet.id}
+              key={`${catalogViewKey}:${bouquet.id}`}
               product={bouquet}
               formatPrice={formatPrice}
               isFavorite={favoriteBouquetIds.includes(bouquet.id)}

@@ -34,6 +34,16 @@ function productHaystack(product: CatalogProduct): string {
   );
 }
 
+function productCategoryEquals(
+  product: CatalogProduct,
+  acceptedCategories: string[],
+): boolean {
+  const category = normalizeSearchText(product.category ?? "");
+  return acceptedCategories
+    .map((acceptedCategory) => normalizeSearchText(acceptedCategory))
+    .includes(category);
+}
+
 export function matchesHomeCatalogCategory(
   product: CatalogProduct,
   categoryId: string,
@@ -46,34 +56,25 @@ function matchesCategory(product: CatalogProduct, categoryId: string): boolean {
     return true;
   }
 
-  const haystack = productHaystack(product);
-
   switch (categoryId) {
     case "new":
       return Boolean(product.isNew) || Boolean(product.isAdminProduct);
     case "roses":
-      return (
-        haystack.includes("роз") ||
-        normalizeSearchText(product.category ?? "").includes("роз")
-      );
+      return productCategoryEquals(product, ["Розы"]);
     case "peonies":
-      return haystack.includes("пион");
+      return productCategoryEquals(product, ["Пионы"]);
     case "hydrangeas":
-      return haystack.includes("гортенз");
+      return productCategoryEquals(product, ["Гортензии"]);
     case "baskets":
-      return haystack.includes("корзин");
+      return productCategoryEquals(product, ["Корзины"]);
     case "boxes":
-      return (
-        haystack.includes("короб") ||
-        normalizeSearchText(product.category ?? "").includes("короб")
-      );
+      return productCategoryEquals(product, ["Коробки"]);
+    case "compositions":
+      return productCategoryEquals(product, ["Композиции"]);
     case "tulips":
-      return haystack.includes("тюльпан");
+      return productCategoryEquals(product, ["Тюльпаны"]);
     case "author":
-      return (
-        haystack.includes("автор") ||
-        normalizeSearchText(product.category ?? "").includes("автор")
-      );
+      return productCategoryEquals(product, ["Авторские", "Авторские букеты"]);
     default:
       return true;
   }

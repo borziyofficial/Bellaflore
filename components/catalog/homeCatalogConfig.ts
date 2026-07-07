@@ -15,6 +15,7 @@ export const homeCatalogCategoryChips: HomeCatalogCategoryChip[] = [
   { id: "hydrangeas", label: "Гортензии" },
   { id: "baskets", label: "Корзины" },
   { id: "boxes", label: "Коробки" },
+  { id: "compositions", label: "Композиции" },
   { id: "author", label: "Авторские" },
   { id: "new", label: "Новинки" },
 ];
