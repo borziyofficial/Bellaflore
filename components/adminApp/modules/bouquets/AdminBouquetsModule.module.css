@@ -1101,6 +1101,205 @@
   color: #ffb0b0;
 }
 
+.mediaBlock {
+  display: grid;
+  gap: 10px;
+}
+
+.mediaDropZone {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  min-height: 88px;
+  padding: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.mediaDropZoneActive {
+  border-color: rgba(241, 209, 139, 0.5);
+  background: rgba(241, 209, 139, 0.08);
+}
+
+.mediaDropTitle {
+  margin: 0;
+  color: var(--admin-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mediaDropHint {
+  margin: 0;
+  color: var(--admin-soft);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.mediaEmptyHint {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.mediaErrorList {
+  display: grid;
+  gap: 4px;
+}
+
+.mediaGallery {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mediaGalleryItem {
+  display: grid;
+  gap: 6px;
+  flex: 0 0 132px;
+  min-width: 132px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  scroll-snap-align: start;
+  cursor: grab;
+}
+
+.mediaGalleryItemDragging {
+  opacity: 0.55;
+  border-color: rgba(241, 209, 139, 0.34);
+}
+
+.mediaThumbButton {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.mediaItemControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.mediaMoveButton {
+  min-height: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--admin-soft);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mediaMoveButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.mediaPreviewOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 96;
+  display: grid;
+  place-items: center;
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+  background: rgba(0, 0, 0, 0.78);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.mediaPreviewSheet {
+  width: min(720px, 100%);
+  max-height: min(90dvh, 820px);
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(241, 209, 139, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(22, 22, 25, 0.98), rgba(10, 10, 12, 0.98));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.mediaPreviewHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 0;
+}
+
+.mediaPreviewMeta {
+  min-width: 0;
+}
+
+.mediaPreviewName {
+  margin: 0;
+  overflow: hidden;
+  color: var(--admin-ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mediaPreviewCounter {
+  margin: 4px 0 0;
+  color: var(--admin-soft);
+  font-size: 11px;
+}
+
+.mediaPreviewStage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 14px;
+}
+
+.mediaPreviewImage {
+  width: 100%;
+  max-height: min(68dvh, 620px);
+  object-fit: contain;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.mediaPreviewNav {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--admin-ink);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mediaPreviewNav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .sizeBlock {
   display: grid;
   gap: 8px;
@@ -1182,6 +1381,17 @@
 @media (min-width: 720px) {
   .photoGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mediaGallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    overflow: visible;
+  }
+
+  .mediaGalleryItem {
+    flex: initial;
+    min-width: 0;
   }
 
   .searchRow {

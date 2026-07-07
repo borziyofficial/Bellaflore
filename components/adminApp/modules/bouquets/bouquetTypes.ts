@@ -21,12 +21,25 @@ export type BouquetDisplayFlags = {
   isSeasonal: boolean;
 };
 
+export type BouquetImageVariants = {
+  original?: string;
+  optimized?: string;
+  aiProcessed?: string;
+  backgroundReplaced?: string;
+};
+
 export type BouquetImage = {
   id: string;
+  /** Primary display URL — optimized when available. */
   url: string;
   name: string;
   isCover: boolean;
+  sortOrder: number;
   createdAt: string;
+  variants?: BouquetImageVariants;
+  width?: number;
+  height?: number;
+  sizeBytes?: number;
 };
 
 export type BouquetSizeCode = "S" | "M" | "L" | "XL";
@@ -166,6 +179,10 @@ export const BOUQUET_SIZE_PRICE_LABELS: Record<BouquetSizeCode, string> = {
   L: "Цена L",
   XL: "Цена XL",
 };
+
+export const BOUQUET_MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+
+export const BOUQUET_MAX_IMAGES_PER_UPLOAD = 20;
 
 export const BOUQUET_ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
