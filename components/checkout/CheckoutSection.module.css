@@ -269,7 +269,7 @@
 }
 
 .checkoutField span {
-  color: #1a1a1a;
+  color: #1a1a1a !important;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   font-weight: 600;
@@ -295,9 +295,9 @@
 
 .checkoutField input::placeholder,
 .checkoutField textarea::placeholder {
-  color: #787878;
-  opacity: 1;
-  -webkit-text-fill-color: #787878;
+  color: #787878 !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #787878 !important;
 }
 
 .checkoutField input {
