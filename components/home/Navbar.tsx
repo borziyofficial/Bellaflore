@@ -66,25 +66,6 @@ export function Navbar({
       >
         <BrandLogo variant="nav" className={`logo ${styles.logo}`} />
 
-        <div className="nav-center">
-          {navigationItems.map((item) => (
-            <a
-              href={item.href}
-              key={item.href}
-              onClick={(event) => {
-                if (!onNavigate) {
-                  return;
-                }
-
-                event.preventDefault();
-                onNavigate(item.href);
-              }}
-            >
-              {item.label}
-            </a>
-          ))}
-        </div>
-
         <button
           type="button"
           className={`menu-button ${styles.menuButton} ${menuOpen ? styles.menuButtonOpen : ""}`}
