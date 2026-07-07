@@ -3,7 +3,7 @@
 // ==================================================
 "use client";
 
-import { getAllCatalogCategories } from "@/components/catalogEngine/categoriesEngine";
+import { resolveAdminBouquetCategoryName } from "@/components/adminApp/modules/bouquets/bouquetCategoryStore";
 import { getBouquetCoverImage } from "@/components/adminApp/modules/bouquets/bouquetImageUtils";
 import type { BouquetRecord } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import {
@@ -22,8 +22,7 @@ type AdminBouquetListProps = {
 };
 
 function resolveCategoryTitle(categoryId: string): string {
-  const categories = getAllCatalogCategories();
-  return categories.find((category) => category.id === categoryId)?.title ?? categoryId;
+  return resolveAdminBouquetCategoryName(categoryId);
 }
 
 function BouquetPreview({

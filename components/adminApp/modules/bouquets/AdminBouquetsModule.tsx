@@ -4,7 +4,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { getAllCatalogCategories } from "@/components/catalogEngine/categoriesEngine";
+import { useAdminBouquetCategories } from "@/components/adminApp/modules/bouquets/useAdminBouquetCategories";
 import { AdminBouquetForm } from "@/components/adminApp/modules/bouquets/AdminBouquetForm";
 import { AdminBouquetList } from "@/components/adminApp/modules/bouquets/AdminBouquetList";
 import { getAdminBouquetDraftById } from "@/components/adminApp/modules/bouquets/bouquetStore";
@@ -35,7 +35,7 @@ export function AdminBouquetsModule() {
   const [statusFilter, setStatusFilter] = useState<"all" | BouquetStatus>("all");
   const [formState, setFormState] = useState<FormState>({ open: false });
 
-  const categories = getAllCatalogCategories();
+  const { categories } = useAdminBouquetCategories();
 
   const filteredBouquets = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -127,7 +127,7 @@ export function AdminBouquetsModule() {
               <option value="all">Категория — все</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.title}
+                  {category.name}
                 </option>
               ))}
             </select>

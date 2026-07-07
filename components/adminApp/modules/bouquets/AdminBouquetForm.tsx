@@ -4,7 +4,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { getAllCatalogCategories } from "@/components/catalogEngine/categoriesEngine";
+import { AdminBouquetCategoryField } from "@/components/adminApp/modules/bouquets/AdminBouquetCategoryField";
 import { AdminBouquetPhotoUpload } from "@/components/adminApp/modules/bouquets/AdminBouquetPhotoUpload";
 import { AdminBouquetSizePicker } from "@/components/adminApp/modules/bouquets/AdminBouquetSizePicker";
 import { normalizeBouquetImages } from "@/components/adminApp/modules/bouquets/bouquetImageUtils";
@@ -12,6 +12,7 @@ import {
   createEmptyBouquetSizes,
   normalizeBouquetSizes,
 } from "@/components/adminApp/modules/bouquets/bouquetSizeUtils";
+import { useAdminBouquetCategories } from "@/components/adminApp/modules/bouquets/useAdminBouquetCategories";
 import type { BouquetDraft, BouquetStatus } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import { BOUQUET_STATUS_OPTIONS } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import styles from "@/components/adminApp/modules/bouquets/AdminBouquetsModule.module.css";
@@ -42,7 +43,7 @@ export function AdminBouquetForm({
   onCancel,
 }: AdminBouquetFormProps) {
   const [draft, setDraft] = useState<BouquetDraft>(EMPTY_DRAFT);
-  const categories = getAllCatalogCategories();
+  const { categories, createCategory, updateCategoryName } = useAdminBouquetCategories();
 
   useEffect(() => {
     if (!open) {
@@ -106,7 +107,7 @@ export function AdminBouquetForm({
         onClick={(event) => event.stopPropagation()}
       >
         <header className={styles.formHeader}>
-          <div>
+          <div className={styles.formHeaderMain}>
             <p className={styles.formEyebrow}>
               {mode === "create" ? "Новый букет" : "Редактирование"}
             </p>
@@ -120,7 +121,9 @@ export function AdminBouquetForm({
             onClick={onCancel}
             aria-label="Закрыть"
           >
-            ×
+            <span className={styles.formCloseIcon} aria-hidden="true">
+              ×
+            </span>
           </button>
         </header>
 
@@ -141,24 +144,15 @@ export function AdminBouquetForm({
             />
           </label>
 
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Категория</span>
-            <select
-              className={styles.fieldInput}
-              value={draft.category}
-              onChange={(event) =>
-                setDraft((prev) => ({ ...prev, category: event.target.value }))
-              }
-              required
-            >
-              <option value="">Выберите категорию</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.title}
-                </option>
-              ))}
-            </select>
-          </label>
+          <AdminBouquetCategoryField
+            value={draft.category}
+            categories={categories}
+            onChange={(categoryId) =>
+              setDraft((prev) => ({ ...prev, category: categoryId }))
+            }
+            onCreateCategory={createCategory}
+            onRenameCategory={updateCategoryName}
+          />
 
           <label className={styles.field}>
             <span className={styles.fieldLabel}>Краткое описание</span>
