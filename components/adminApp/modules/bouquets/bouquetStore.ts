@@ -2,6 +2,13 @@
 // SECTION: ADMIN APP — Bouquet local store (Stage 2.1)
 // ==================================================
 import { cloneBouquetImages, normalizeBouquetImages } from "@/components/adminApp/modules/bouquets/bouquetImageUtils";
+import {
+  cloneBouquetDisplayFlags,
+  normalizeBouquetBadge,
+  normalizeBouquetDisplayFlags,
+  normalizeBouquetDisplayPriority,
+  normalizeBouquetStatus,
+} from "@/components/adminApp/modules/bouquets/bouquetManageUtils";
 import { cloneBouquetSizes, normalizeBouquetSizes } from "@/components/adminApp/modules/bouquets/bouquetSizeUtils";
 import type { BouquetDraft, BouquetRecord } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import {
@@ -31,6 +38,10 @@ export function readAdminBouquets(): BouquetRecord[] {
 
     return parsed.map((item) => ({
       ...item,
+      status: normalizeBouquetStatus(item.status),
+      displayFlags: normalizeBouquetDisplayFlags(item.displayFlags),
+      displayPriority: normalizeBouquetDisplayPriority(item.displayPriority),
+      badge: normalizeBouquetBadge(item.badge),
       images: normalizeBouquetImages(item.images),
       sizes: normalizeBouquetSizes(item.sizes),
       seo: item.seo ?? {},
@@ -81,6 +92,9 @@ export function duplicateAdminBouquet(
     name: copyName,
     slug: createUniqueBouquetSlug(copyName, bouquets),
     status: "draft",
+    displayFlags: cloneBouquetDisplayFlags(normalizeBouquetDisplayFlags(source.displayFlags)),
+    displayPriority: normalizeBouquetDisplayPriority(source.displayPriority),
+    badge: normalizeBouquetBadge(source.badge),
     images: cloneBouquetImages(normalizeBouquetImages(source.images)),
     sizes: cloneBouquetSizes(normalizeBouquetSizes(source.sizes)),
     createdAt: now,

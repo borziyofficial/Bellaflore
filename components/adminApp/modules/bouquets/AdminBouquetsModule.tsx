@@ -22,9 +22,11 @@ type FormState =
 
 const STATUS_FILTER_OPTIONS: Array<{ value: "all" | BouquetStatus; label: string }> = [
   { value: "all", label: "Все статусы" },
-  { value: "draft", label: BOUQUET_STATUS_LABELS.draft },
   { value: "active", label: BOUQUET_STATUS_LABELS.active },
   { value: "hidden", label: BOUQUET_STATUS_LABELS.hidden },
+  { value: "out_of_stock", label: BOUQUET_STATUS_LABELS.out_of_stock },
+  { value: "coming_soon", label: BOUQUET_STATUS_LABELS.coming_soon },
+  { value: "draft", label: BOUQUET_STATUS_LABELS.draft },
 ];
 
 export function AdminBouquetsModule() {
@@ -83,7 +85,7 @@ export function AdminBouquetsModule() {
     <div className={ui.stack}>
       <AdminModuleHeader
         title="Букеты"
-        subtitle="Каталог букетов — название, категория, фото, базовая цена, статус"
+        subtitle="Каталог букетов — статус, показ, приоритет, бейджи и предпросмотр"
         action={
           <div className={styles.headerActions}>
             <button

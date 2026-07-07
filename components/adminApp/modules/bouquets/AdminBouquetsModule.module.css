@@ -228,6 +228,18 @@
   color: #ffc7a1;
 }
 
+.status_out_of_stock {
+  border: 1px solid rgba(255, 120, 120, 0.24);
+  background: rgba(255, 120, 120, 0.1);
+  color: #ffb0b0;
+}
+
+.status_coming_soon {
+  border: 1px solid rgba(140, 180, 255, 0.24);
+  background: rgba(140, 180, 255, 0.1);
+  color: #b8d4ff;
+}
+
 .rowActions {
   display: flex;
   flex-wrap: wrap;
@@ -474,9 +486,281 @@
 
 .formActions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   padding-top: 4px;
+}
+
+.manageBlock {
+  display: grid;
+  gap: 8px;
+}
+
+.statusChipRow,
+.badgeChipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.statusChip,
+.badgeChip {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--admin-soft);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.statusChipActive,
+.badgeChipActive {
+  border-color: rgba(241, 209, 139, 0.34);
+  background: rgba(241, 209, 139, 0.12);
+  color: var(--admin-gold-strong);
+}
+
+.toggleStack {
+  display: grid;
+  gap: 2px;
+  padding: 4px 0;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  padding: 0 2px;
+}
+
+.toggleLabel {
+  color: var(--admin-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.toggleInput {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  margin: 0;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toggleInput::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease;
+}
+
+.toggleInput:checked {
+  background: rgba(120, 214, 156, 0.55);
+}
+
+.toggleInput:checked::before {
+  transform: translateX(18px);
+}
+
+.toggleInput:focus-visible {
+  outline: 2px solid rgba(241, 209, 139, 0.45);
+  outline-offset: 2px;
+}
+
+.livePreviewBlock {
+  display: grid;
+  gap: 8px;
+}
+
+.livePreviewCard,
+.previewModalCard {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.previewModalCard {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.livePreviewMedia {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.livePreviewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.livePreviewPlaceholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--admin-soft);
+  font-size: 12px;
+  text-align: center;
+}
+
+.livePreviewBadge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.68);
+  color: var(--admin-gold-strong);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.livePreviewBody {
+  display: grid;
+  gap: 6px;
+}
+
+.livePreviewTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.livePreviewTitle {
+  margin: 0;
+  color: var(--admin-ink);
+  font-size: 15px;
+  font-weight: 740;
+  line-height: 1.25;
+}
+
+.livePreviewMeta,
+.livePreviewDescription {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.livePreviewPrice {
+  margin: 0;
+  color: var(--admin-gold-strong);
+  font-size: 14px;
+  font-weight: 760;
+}
+
+.livePreviewPriceRange {
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.livePreviewSizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.livePreviewSizeChip {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--admin-soft);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.previewOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+  background: rgba(0, 0, 0, 0.68);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.previewSheet {
+  width: min(420px, 100%);
+  max-height: min(88dvh, 720px);
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(241, 209, 139, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(22, 22, 25, 0.98), rgba(10, 10, 12, 0.98));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.previewHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 0;
+}
+
+.previewBody {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.previewHint {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.previewActions {
+  display: grid;
+  padding: 0 16px 16px;
 }
 
 .loadingState {
@@ -695,6 +979,12 @@
   border-color: rgba(212, 175, 55, 0.45);
 }
 
+@media (max-width: 479px) {
+  .formActions {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (min-width: 720px) {
   .photoGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -715,6 +1005,15 @@
 
   .formSheet {
     border-radius: 24px;
+  }
+
+  .livePreviewCard {
+    grid-template-columns: 120px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .livePreviewMedia {
+    aspect-ratio: 1;
   }
 }
 

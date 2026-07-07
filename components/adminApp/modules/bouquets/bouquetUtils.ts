@@ -2,6 +2,13 @@
 // SECTION: ADMIN APP — Bouquet helpers
 // ==================================================
 import { normalizeBouquetImages } from "@/components/adminApp/modules/bouquets/bouquetImageUtils";
+import {
+  cloneBouquetDisplayFlags,
+  normalizeBouquetBadge,
+  normalizeBouquetDisplayFlags,
+  normalizeBouquetDisplayPriority,
+  normalizeBouquetStatus,
+} from "@/components/adminApp/modules/bouquets/bouquetManageUtils";
 import { normalizeBouquetSizes } from "@/components/adminApp/modules/bouquets/bouquetSizeUtils";
 import type { BouquetDraft, BouquetRecord } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 
@@ -61,7 +68,12 @@ export function buildBouquetRecord(
     category: draft.category,
     description: draft.description.trim(),
     basePrice: draft.basePrice,
-    status: draft.status,
+    status: normalizeBouquetStatus(draft.status),
+    displayFlags: normalizeBouquetDisplayFlags(draft.displayFlags ?? previous?.displayFlags),
+    displayPriority: normalizeBouquetDisplayPriority(
+      draft.displayPriority ?? previous?.displayPriority,
+    ),
+    badge: normalizeBouquetBadge(draft.badge ?? previous?.badge),
     images: normalizeBouquetImages(draft.images ?? previous?.images),
     sizes: normalizeBouquetSizes(draft.sizes ?? previous?.sizes),
     seo: previous?.seo ?? {},
@@ -76,7 +88,10 @@ export function bouquetToDraft(bouquet: BouquetRecord): BouquetDraft {
     category: bouquet.category,
     description: bouquet.description,
     basePrice: bouquet.basePrice,
-    status: bouquet.status,
+    status: normalizeBouquetStatus(bouquet.status),
+    displayFlags: cloneBouquetDisplayFlags(normalizeBouquetDisplayFlags(bouquet.displayFlags)),
+    displayPriority: normalizeBouquetDisplayPriority(bouquet.displayPriority),
+    badge: normalizeBouquetBadge(bouquet.badge),
     images: normalizeBouquetImages(bouquet.images),
     sizes: normalizeBouquetSizes(bouquet.sizes),
   };

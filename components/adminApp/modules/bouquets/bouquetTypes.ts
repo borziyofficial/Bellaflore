@@ -1,8 +1,25 @@
 // ==================================================
-// SECTION: ADMIN APP — Bouquet types (Stage 2.2)
+// SECTION: ADMIN APP — Bouquet types (Stage 2.4)
 // ==================================================
 
-export type BouquetStatus = "draft" | "active" | "hidden";
+export type BouquetStatus =
+  | "active"
+  | "hidden"
+  | "out_of_stock"
+  | "coming_soon"
+  | "draft";
+
+export type BouquetBadge = "none" | "new" | "hit" | "premium" | "sale" | "limited";
+
+export type BouquetDisplayFlags = {
+  showOnHomepage: boolean;
+  showInCatalog: boolean;
+  isNew: boolean;
+  isBestseller: boolean;
+  isRecommended: boolean;
+  isPremium: boolean;
+  isSeasonal: boolean;
+};
 
 export type BouquetImage = {
   id: string;
@@ -46,6 +63,9 @@ export type BouquetRecord = {
   description: string;
   basePrice: number;
   status: BouquetStatus;
+  displayFlags: BouquetDisplayFlags;
+  displayPriority: number;
+  badge: BouquetBadge;
   images: BouquetImage[];
   sizes: BouquetSizes;
   seo: BouquetSeoPlaceholder;
@@ -59,24 +79,82 @@ export type BouquetDraft = {
   description: string;
   basePrice: number;
   status: BouquetStatus;
+  displayFlags: BouquetDisplayFlags;
+  displayPriority: number;
+  badge: BouquetBadge;
   images: BouquetImage[];
   sizes: BouquetSizes;
 };
+
+export const BOUQUET_STATUS_VALUES: BouquetStatus[] = [
+  "active",
+  "hidden",
+  "out_of_stock",
+  "coming_soon",
+  "draft",
+];
 
 export const BOUQUET_STATUS_OPTIONS: Array<{
   value: BouquetStatus;
   label: string;
 }> = [
-  { value: "draft", label: "Черновик" },
   { value: "active", label: "Активен" },
   { value: "hidden", label: "Скрыт" },
+  { value: "out_of_stock", label: "Нет в наличии" },
+  { value: "coming_soon", label: "Скоро" },
+  { value: "draft", label: "Черновик" },
 ];
 
 export const BOUQUET_STATUS_LABELS: Record<BouquetStatus, string> = {
-  draft: "Черновик",
   active: "Активен",
   hidden: "Скрыт",
+  out_of_stock: "Нет в наличии",
+  coming_soon: "Скоро",
+  draft: "Черновик",
 };
+
+export const BOUQUET_BADGE_VALUES: BouquetBadge[] = [
+  "none",
+  "new",
+  "hit",
+  "premium",
+  "sale",
+  "limited",
+];
+
+export const BOUQUET_BADGE_OPTIONS: Array<{
+  value: BouquetBadge;
+  label: string;
+}> = [
+  { value: "none", label: "Нет" },
+  { value: "new", label: "Новинка" },
+  { value: "hit", label: "Хит" },
+  { value: "premium", label: "Премиум" },
+  { value: "sale", label: "Скидка" },
+  { value: "limited", label: "Лимит" },
+];
+
+export const BOUQUET_BADGE_LABELS: Record<BouquetBadge, string> = {
+  none: "",
+  new: "Новинка",
+  hit: "Хит",
+  premium: "Премиум",
+  sale: "Скидка",
+  limited: "Лимит",
+};
+
+export const BOUQUET_DISPLAY_FLAG_OPTIONS: Array<{
+  key: keyof BouquetDisplayFlags;
+  label: string;
+}> = [
+  { key: "showOnHomepage", label: "На главной" },
+  { key: "showInCatalog", label: "В каталоге" },
+  { key: "isNew", label: "Новинка" },
+  { key: "isBestseller", label: "Хит продаж" },
+  { key: "isRecommended", label: "Рекомендуем" },
+  { key: "isPremium", label: "Премиум" },
+  { key: "isSeasonal", label: "Сезонный" },
+];
 
 export const BOUQUET_NO_PHOTO_LABEL = "Фото не добавлено";
 
