@@ -1,4 +1,4 @@
-/* Checkout v3 — exact readability tokens (WCAG AA) */
+/* Checkout v3 — strong readability (mobile-first) */
 
 .checkoutV3Card {
   padding: 0;
@@ -28,27 +28,27 @@
 }
 
 .checkoutGlassStep {
-  border: 1px solid #d8d8d8;
+  border: 1px solid rgba(80, 70, 60, 0.24);
   border-radius: 18px;
   background: linear-gradient(
     155deg,
-    rgba(255, 255, 255, 0.96) 0%,
-    rgba(255, 250, 240, 0.9) 100%
+    rgba(255, 255, 255, 0.99) 0%,
+    rgba(255, 252, 245, 0.97) 100%
   );
   box-shadow:
-    0 8px 24px rgba(26, 26, 26, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+    0 8px 24px rgba(17, 17, 17, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
   overflow: hidden;
 }
 
 .checkoutGlassStepOpen {
-  border-color: #d4af7a;
+  border-color: rgba(80, 70, 60, 0.34);
   box-shadow:
-    0 10px 28px rgba(26, 26, 26, 0.08),
-    0 0 0 1px rgba(212, 175, 122, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    0 10px 28px rgba(17, 17, 17, 0.09),
+    0 0 0 1px rgba(212, 175, 122, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98);
 }
 
 .checkoutGlassStepTrigger {
@@ -61,7 +61,7 @@
   padding: 14px 16px;
   border: 0;
   background: transparent;
-  color: #222222;
+  color: #111111;
   text-align: left;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -79,7 +79,7 @@
 }
 
 .checkoutGlassStepTitle {
-  color: #1a1a1a;
+  color: #111111;
   font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 16px;
   font-weight: 700;
@@ -89,10 +89,10 @@
 
 .checkoutGlassStepSummary {
   overflow: hidden;
-  color: #555555;
+  color: #444444;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -105,12 +105,12 @@
   flex-shrink: 0;
   width: 30px;
   height: 30px;
-  border: 1px solid #d8d8d8;
+  border: 1px solid rgba(80, 70, 60, 0.28);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.98);
   color: #444444;
   font-size: 18px;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1;
 }
 
@@ -124,16 +124,16 @@
   display: grid;
   gap: 14px;
   padding: 18px;
-  border: 1px solid #d8d8d8;
+  border: 1px solid rgba(80, 70, 60, 0.24);
   border-radius: 18px;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(255, 250, 240, 0.96) 100%
+    rgba(255, 255, 255, 0.99) 0%,
+    rgba(255, 252, 245, 0.98) 100%
   );
   box-shadow:
-    0 -4px 20px rgba(26, 26, 26, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    0 -4px 20px rgba(17, 17, 17, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98);
   margin-top: auto;
   position: sticky;
   bottom: 0;
@@ -164,22 +164,24 @@
       max(12px, env(safe-area-inset-bottom))
       max(16px, env(safe-area-inset-left));
     overflow: hidden;
-    background: linear-gradient(180deg, #ffffff 0%, #fffaf0 100%) !important;
-    color: #222222 !important;
+    background: linear-gradient(180deg, #ffffff 0%, #fffdf6 100%) !important;
+    color: #111111 !important;
   }
 
   :global(.checkout-v3-sheet h2) {
-    color: #1a1a1a !important;
+    color: #111111 !important;
+    font-weight: 700 !important;
   }
 
   :global(.checkout-v3-sheet .checkout-v3-eyebrow) {
-    color: #555555 !important;
+    color: #444444 !important;
+    font-weight: 600 !important;
   }
 
   :global(.checkout-v3-sheet .checkout-v3-close) {
-    background: rgba(255, 255, 255, 0.96) !important;
+    background: rgba(255, 255, 255, 0.98) !important;
     color: #444444 !important;
-    border: 1px solid #d8d8d8 !important;
+    border: 1px solid rgba(80, 70, 60, 0.28) !important;
   }
 
   :global(.checkout-v3-sheet .checkout-v3-body) {
@@ -227,7 +229,7 @@
     min-height: 0;
     height: 100%;
     padding-bottom: 0;
-    color: #222222 !important;
+    color: #111111 !important;
   }
 
   :global(.checkout-v3-sheet .checkout-v3-body) .checkout-section-v3 .checkout-shell,
@@ -247,9 +249,9 @@
 
 .checkoutV3BlockTitle {
   margin: 0;
-  color: #1a1a1a;
+  color: #111111;
   font-family: var(--font-brand, "Playfair Display", serif);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.01em;
   line-height: 1.25;
@@ -259,7 +261,7 @@
   display: grid;
   gap: 14px;
   padding: 0 0 20px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid rgba(80, 70, 60, 0.16);
 }
 
 .checkoutField {
@@ -271,9 +273,9 @@
 .checkoutField span {
   color: #1a1a1a !important;
   font-family: var(--font-body, Inter, sans-serif);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   line-height: 1.35;
 }
 
@@ -281,33 +283,35 @@
 .checkoutField textarea {
   width: 100%;
   min-width: 0;
-  border: 1px solid #d8d8d8;
+  border: 1px solid rgba(80, 70, 60, 0.28);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #222222;
+  background: rgba(255, 255, 255, 0.98);
+  color: #111111;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 16px;
+  font-weight: 500;
   line-height: 1.35;
   outline: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  -webkit-text-fill-color: #222222;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  -webkit-text-fill-color: #111111;
 }
 
 .checkoutField input::placeholder,
 .checkoutField textarea::placeholder {
-  color: #787878 !important;
+  color: #5f5f5f !important;
   opacity: 1 !important;
-  -webkit-text-fill-color: #787878 !important;
+  -webkit-text-fill-color: #5f5f5f !important;
+  font-weight: 500;
 }
 
 .checkoutField input {
-  min-height: 48px;
-  padding: 12px 14px;
+  min-height: 50px;
+  padding: 13px 14px;
 }
 
 .checkoutField textarea {
-  min-height: 88px;
-  padding: 12px 14px;
+  min-height: 92px;
+  padding: 13px 14px;
   resize: vertical;
 }
 
@@ -319,10 +323,10 @@
 
 .checkoutField input:disabled,
 .checkoutField textarea:disabled {
-  background: rgba(255, 255, 255, 0.82);
-  color: #555555;
-  border-color: #d8d8d8;
-  -webkit-text-fill-color: #555555;
+  background: rgba(255, 255, 255, 0.92);
+  color: #444444;
+  border-color: rgba(80, 70, 60, 0.28);
+  -webkit-text-fill-color: #444444;
   opacity: 1;
   cursor: not-allowed;
 }
@@ -340,14 +344,14 @@
 
 .checkoutSubmitButton {
   width: 100%;
-  min-height: var(--bf-button-height, 48px);
+  min-height: 50px;
   border: 0;
   border-radius: var(--bf-button-radius, 999px);
   background: var(
     --bf-gold-gradient,
     linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
   );
-  color: #1a1a1a;
+  color: #111111;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 16px;
   font-weight: 700;
@@ -356,8 +360,9 @@
 
 .checkoutSubmitButton:disabled {
   cursor: not-allowed;
-  background: #e8e4dc;
-  color: #555555;
+  background: #ddd8cc;
+  color: #333333;
+  font-weight: 700;
   opacity: 1;
 }
 
@@ -367,13 +372,13 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  min-height: 48px;
-  padding: 12px 14px;
-  border: 1px solid #d8d8d8;
+  min-height: 50px;
+  padding: 13px 14px;
+  border: 1px solid rgba(80, 70, 60, 0.28);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  color: #222222;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  color: #111111;
   font-family: var(--font-body, Inter, sans-serif);
   text-align: left;
   cursor: pointer;
@@ -396,13 +401,14 @@
 .checkoutFlatSelector strong {
   font-size: 15px;
   font-weight: 700;
-  color: #222222;
+  color: #111111;
   white-space: nowrap;
 }
 
 .checkoutFlatSelector span:last-child {
   color: #444444;
   font-size: 11px;
+  font-weight: 600;
   line-height: 1;
 }
 
@@ -416,10 +422,10 @@
   display: block;
   min-width: 0;
   padding: 0 14px;
-  border: 1px solid #d8d8d8;
+  border: 1px solid rgba(80, 70, 60, 0.28);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .checkoutFlatSelectWrap::after {
@@ -429,29 +435,30 @@
   color: #444444;
   content: "▼";
   font-size: 11px;
+  font-weight: 600;
   pointer-events: none;
   transform: translateY(-50%);
 }
 
 .checkoutFlatSelectWrap select {
   width: 100%;
-  min-height: 48px;
-  padding: 12px 28px 12px 0;
+  min-height: 50px;
+  padding: 13px 28px 13px 0;
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: #222222;
+  color: #111111;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 16px;
   font-weight: 600;
   appearance: none;
   cursor: pointer;
-  -webkit-text-fill-color: #222222;
+  -webkit-text-fill-color: #111111;
 }
 
 .checkoutFlatSelectWrap select:disabled {
-  color: #555555;
-  -webkit-text-fill-color: #555555;
+  color: #444444;
+  -webkit-text-fill-color: #444444;
   opacity: 1;
   cursor: not-allowed;
 }
@@ -466,10 +473,10 @@
 }
 
 .checkoutFlatMuted {
-  color: #555555;
+  color: #444444;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.45;
 }
 
@@ -487,39 +494,41 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  color: #222222;
+  color: #111111;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 15px;
+  font-weight: 600;
   line-height: 1.4;
 }
 
 .checkoutV3SummaryRow strong {
   font-size: 15px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #111111;
   white-space: nowrap;
 }
 
 .checkoutV3SummaryTotal {
   padding-top: 12px;
-  border-top: 1px solid #e8e8e8;
-  font-size: 16px;
+  border-top: 1px solid rgba(80, 70, 60, 0.18);
+  font-size: 17px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #111111;
 }
 
 .checkoutV3SummaryTotal strong {
-  font-size: 20px;
-  color: #1a1a1a;
+  font-size: 21px;
+  font-weight: 700;
+  color: #111111;
 }
 
 .checkoutPaymentInfo {
   display: grid;
   gap: 12px;
   padding: 18px;
-  border: 1px solid #d8d8d8;
+  border: 1px solid rgba(80, 70, 60, 0.24);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .checkoutContactStrip {
@@ -528,7 +537,7 @@
   gap: 12px;
   padding: 0 2px 18px;
   margin-bottom: 6px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid rgba(80, 70, 60, 0.16);
 }
 
 .checkoutMapToggle {
@@ -536,14 +545,14 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 44px;
+  min-height: 46px;
   margin-top: 4px;
   padding: 10px 14px;
-  border: 1px solid #d8d8d8;
+  border: 1px solid rgba(80, 70, 60, 0.28);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  color: #222222;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  color: #111111;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -566,10 +575,11 @@
   margin: 0;
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1px solid #d8d8d8;
-  background: rgba(255, 250, 240, 0.92);
-  color: #222222;
+  border: 1px solid rgba(80, 70, 60, 0.24);
+  background: rgba(255, 252, 245, 0.98);
+  color: #111111;
   font-size: 14px;
+  font-weight: 600;
   line-height: 1.55;
 }
 
@@ -579,7 +589,7 @@
 
 .checkoutPaymentLabel {
   margin: 0;
-  color: #555555;
+  color: #444444;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -588,7 +598,7 @@
 
 .checkoutPaymentValue {
   margin: 0;
-  color: #1a1a1a;
+  color: #111111;
   font-size: 17px;
   font-weight: 700;
   line-height: 1.35;
@@ -596,8 +606,9 @@
 
 .checkoutPaymentNote {
   margin: 0;
-  color: #555555;
+  color: #444444;
   font-size: 14px;
+  font-weight: 600;
   line-height: 1.55;
 }
 
@@ -614,12 +625,12 @@
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 10px;
-  min-height: 48px;
+  min-height: 50px;
   padding: 12px 14px;
-  border: 1px solid #d8d8d8;
+  border: 1px solid rgba(80, 70, 60, 0.28);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #222222;
+  background: rgba(255, 255, 255, 0.98);
+  color: #111111;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.35;
@@ -629,7 +640,7 @@
 
 .checkoutPaymentOption:has(input:checked) {
   border-color: #d4af7a;
-  background: rgba(212, 175, 122, 0.12);
+  background: rgba(212, 175, 122, 0.14);
   box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.2);
 }
 
@@ -642,15 +653,15 @@
 
 :global(.checkout-v3-sheet) :global(.checkout-delivery-alert) {
   margin: 0;
-  color: #555555;
+  color: #444444;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.45;
 }
 
 :global(.checkout-v3-sheet) :global(.checkout-delivery-alert-error) {
   color: #b42318;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 @media (max-width: 720px) {
@@ -663,23 +674,25 @@
 
 /* Beat dark-luxury global input/sheet overrides inside checkout */
 :global(html[data-theme="dark-luxury"] .checkout-v3-sheet) {
-  background: linear-gradient(180deg, #ffffff 0%, #fffaf0 100%) !important;
-  color: #222222 !important;
-  border-color: #d8d8d8 !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fffdf6 100%) !important;
+  color: #111111 !important;
+  border-color: rgba(80, 70, 60, 0.24) !important;
 }
 
 :global(html[data-theme="dark-luxury"] .checkout-v3-sheet h2) {
-  color: #1a1a1a !important;
+  color: #111111 !important;
+  font-weight: 700 !important;
 }
 
 :global(html[data-theme="dark-luxury"] .checkout-v3-sheet .checkout-v3-eyebrow) {
-  color: #555555 !important;
+  color: #444444 !important;
+  font-weight: 600 !important;
 }
 
 :global(html[data-theme="dark-luxury"] .checkout-v3-sheet .checkout-v3-close) {
-  background: rgba(255, 255, 255, 0.96) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
   color: #444444 !important;
-  border: 1px solid #d8d8d8 !important;
+  border: 1px solid rgba(80, 70, 60, 0.28) !important;
 }
 
 :global(html[data-theme="dark-luxury"] .checkout-v3-sheet input),
@@ -688,18 +701,18 @@
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 input),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 textarea),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 select) {
-  background: rgba(255, 255, 255, 0.94) !important;
-  color: #222222 !important;
-  -webkit-text-fill-color: #222222 !important;
-  border-color: #d8d8d8 !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  color: #111111 !important;
+  -webkit-text-fill-color: #111111 !important;
+  border-color: rgba(80, 70, 60, 0.28) !important;
 }
 
 :global(html[data-theme="dark-luxury"] .checkout-v3-sheet input::placeholder),
 :global(html[data-theme="dark-luxury"] .checkout-v3-sheet textarea::placeholder),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 input::placeholder),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 textarea::placeholder) {
-  color: #787878 !important;
-  -webkit-text-fill-color: #787878 !important;
+  color: #5f5f5f !important;
+  -webkit-text-fill-color: #5f5f5f !important;
   opacity: 1 !important;
 }
 
@@ -720,13 +733,13 @@
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 input:disabled),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 textarea:disabled),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 select:disabled) {
-  background: rgba(255, 255, 255, 0.82) !important;
-  color: #555555 !important;
-  -webkit-text-fill-color: #555555 !important;
-  border-color: #d8d8d8 !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #444444 !important;
+  -webkit-text-fill-color: #444444 !important;
+  border-color: rgba(80, 70, 60, 0.28) !important;
   opacity: 1 !important;
 }
 
 :global(html[data-theme="dark-luxury"] .checkout-section-v3) {
-  color: #222222 !important;
+  color: #111111 !important;
 }
