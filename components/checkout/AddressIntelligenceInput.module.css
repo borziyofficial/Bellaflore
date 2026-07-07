@@ -1,36 +1,41 @@
-/* ==================================================
-SECTION: ADDRESS SEARCH
-РАЗДЕЛ: Поиск адреса
-Purpose (EN): Styles for checkout address intelligence input
-Назначение (RU): Стили умного ввода адреса
-================================================== */
+/* Checkout address input — ivory glass, readable contrast */
 .root {
   position: relative;
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .input {
   width: 100%;
-  padding: 11px 13px;
-  border-radius: 14px;
-  border: 1px solid rgba(212, 175, 55, 0.22);
-  background: var(--bf-ui-input-bg, #333333);
-  color: var(--text-light, #ededed);
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: rgba(255, 252, 245, 0.96);
+  color: #2a2a2a;
   font-family: var(--font-body, Inter, sans-serif);
-  font: inherit;
+  font-size: 16px;
+  line-height: 1.35;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.input::placeholder {
+  color: #8a8480;
+  opacity: 1;
 }
 
 .input:focus {
   outline: none;
-  border-color: rgba(176, 141, 87, 0.34);
-  box-shadow: 0 0 0 2px rgba(234, 214, 214, 0.28);
+  border-color: rgba(201, 169, 98, 0.78);
+  box-shadow:
+    0 0 0 4px rgba(232, 200, 116, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .helper {
   margin: 0;
-  color: var(--text-main);
-  font-size: 0.8125rem;
+  color: #4a4a4a;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.4;
 }
@@ -38,26 +43,26 @@ Purpose (EN): Styles for checkout address intelligence input
 .secondaryHelper,
 .loadingHint {
   margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.78rem;
+  color: #6b6b6b;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
 }
 
 .loadingHint {
-  color: #b45309;
+  color: #9a6700;
 }
 
 .emptyState {
   margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.78rem;
+  color: #6b6b6b;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
 }
 
 .suggestionPriority .suggestionRegion {
-  color: #b45309;
+  color: #9a6700;
 }
 
 .loading .input {
@@ -68,12 +73,12 @@ Purpose (EN): Styles for checkout address intelligence input
 .errors {
   margin: 0;
   padding-left: 18px;
-  font-size: 0.8125rem;
+  font-size: 13px;
   line-height: 1.4;
 }
 
 .warnings {
-  color: #b45309;
+  color: #9a6700;
 }
 
 .errors {
@@ -94,9 +99,9 @@ Purpose (EN): Styles for checkout address intelligence input
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: 14px;
-  border: 1px solid rgba(212, 175, 55, 0.22);
-  background: var(--bg-secondary, #2a2a2a);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  background: rgba(255, 252, 245, 0.98);
+  box-shadow: 0 14px 34px rgba(47, 42, 36, 0.12);
 }
 
 .suggestion {
@@ -114,13 +119,13 @@ Purpose (EN): Styles for checkout address intelligence input
 
 .suggestion:hover,
 .suggestionActive {
-  background: rgba(212, 175, 55, 0.12);
+  background: rgba(232, 200, 116, 0.16);
 }
 
 .suggestionLabel {
   min-width: 0;
-  color: var(--champagne-text, #2f2a24);
-  font-size: 0.875rem;
+  color: #2a2a2a;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.35;
   white-space: normal;
@@ -129,8 +134,8 @@ Purpose (EN): Styles for checkout address intelligence input
 
 .suggestionRegion {
   min-width: 0;
-  color: var(--champagne-muted, #75695c);
-  font-size: 0.72rem;
+  color: #5c5c5c;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.3;
   white-space: normal;
@@ -138,16 +143,16 @@ Purpose (EN): Styles for checkout address intelligence input
 
 .suggestionCity {
   min-width: 0;
-  color: rgba(117, 105, 92, 0.82);
-  font-size: 0.68rem;
+  color: #6b6b6b;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1.25;
   white-space: normal;
 }
 
 .suggestionSource {
-  color: rgba(117, 105, 92, 0.72);
-  font-size: 0.64rem;
+  color: #8a8480;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -159,7 +164,7 @@ Purpose (EN): Styles for checkout address intelligence input
 
 .needs-more-details .helper,
 .ambiguous .helper {
-  color: #b45309;
+  color: #9a6700;
 }
 
 .unsupported .helper,
@@ -169,21 +174,21 @@ Purpose (EN): Styles for checkout address intelligence input
 
 .suggestions-available .helper,
 .ambiguous .helper {
-  color: var(--text-main);
+  color: #4a4a4a;
 }
 
 @media (max-width: 768px) {
   .input {
-    padding: 10px 12px;
-    font-size: 15px;
-    color: var(--text-light, #ededed);
+    padding: 12px 14px;
+    font-size: 16px;
+    color: #2a2a2a;
   }
 
   .helper,
   .emptyState,
   .loadingHint {
-    font-size: 0.72rem;
-    color: rgba(237, 237, 237, 0.62);
+    font-size: 12px;
+    color: #5c5c5c;
   }
 
   .suggestions {
@@ -191,15 +196,15 @@ Purpose (EN): Styles for checkout address intelligence input
   }
 
   .suggestionLabel {
-    font-size: 0.8rem;
-    color: var(--text-light, #ededed);
+    font-size: 14px;
+    color: #2a2a2a;
   }
 
   .suggestionRegion {
-    font-size: 0.68rem;
+    font-size: 12px;
   }
 
   .suggestionCity {
-    font-size: 0.64rem;
+    font-size: 11px;
   }
 }
