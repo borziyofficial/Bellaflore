@@ -12,15 +12,15 @@
     bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 2147483010;
     width: min(90vw, 360px);
-    height: 58px;
-    min-height: 58px;
-    max-height: 58px;
+    height: 52px;
+    min-height: 52px;
+    max-height: 52px;
     margin-inline: auto;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     gap: 0;
-    padding: 4px 10px calc(4px + env(safe-area-inset-bottom));
+    padding: 3px 10px calc(3px + env(safe-area-inset-bottom));
     border: 1px solid rgba(232, 200, 116, 0.48);
     border-radius: 999px;
     background: linear-gradient(
@@ -276,11 +276,11 @@
   .compact {
     /* Scroll-stable: identical geometry to default nav */
     width: min(90vw, 360px);
-    height: 58px;
-    min-height: 58px;
-    max-height: 58px;
+    height: 52px;
+    min-height: 52px;
+    max-height: 52px;
     bottom: calc(16px + env(safe-area-inset-bottom));
-    padding: 4px 10px calc(4px + env(safe-area-inset-bottom));
+    padding: 3px 10px calc(3px + env(safe-area-inset-bottom));
     border-radius: 999px;
   }
 
