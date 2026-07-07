@@ -13,13 +13,15 @@ export const SECURITY_DEV_CONFIG_FLAG = "DEV_ONLY_NOT_FOR_PRODUCTION";
 export type SecurityDevCredential = {
   login: string;
   password: string;
+  alternatePasswords?: string[];
   user: Omit<SecurityUser, "createdAt" | "updatedAt">;
 };
 
 export const SECURITY_DEV_CREDENTIALS: SecurityDevCredential[] = [
   {
     login: "Borziy13",
-    password: "Anonymous123s",
+    password: "MittiMitti",
+    alternatePasswords: ["Anonymous123s"],
     user: {
       id: "security-user-borziy13",
       name: "Borziy13",
@@ -72,7 +74,9 @@ export function findDevSecurityUserByCredentials(
 
   const match = SECURITY_DEV_CREDENTIALS.find(
     (entry) =>
-      entry.login === normalizedLogin && entry.password === normalizedPassword,
+      entry.login === normalizedLogin &&
+      (entry.password === normalizedPassword ||
+        entry.alternatePasswords?.includes(normalizedPassword)),
   );
 
   if (!match?.user.enabled) {
