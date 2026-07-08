@@ -1,5 +1,5 @@
 // ==================================================
-// SECTION: ADMIN APP — Bouquet state hook (Stage 2.5)
+// SECTION: ADMIN APP — Bouquet state hook (Stage 2.7)
 // ==================================================
 "use client";
 
@@ -10,89 +10,108 @@ import type {
   BouquetStatus,
 } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import {
-  bulkDeleteAdminBouquets,
-  bulkSetAdminBouquetStatus,
-  deleteAdminBouquet,
-  duplicateAdminBouquet,
-  hideAdminBouquet,
-  readAdminBouquets,
-  setAdminBouquetStatus,
-  upsertAdminBouquet,
-  writeAdminBouquets,
-} from "@/components/adminApp/modules/bouquets/bouquetStore";
+  bulkDeleteBouquets,
+  bulkSetBouquetStatus,
+  deleteBouquet,
+  duplicateBouquet,
+  getBouquetPersistenceMode,
+  hideBouquet,
+  initializeBouquetRepository,
+  setBouquetStatus,
+  upsertBouquet,
+  writeBouquets,
+} from "@/lib/bouquetRepository";
 
 export function useAdminBouquets() {
-  const [bouquets, setBouquets] = useState<BouquetRecord[]>(() =>
-    typeof window !== "undefined" ? readAdminBouquets() : [],
-  );
-  const [ready, setReady] = useState(() => typeof window !== "undefined");
+  const [bouquets, setBouquets] = useState<BouquetRecord[]>([]);
+  const [ready, setReady] = useState(false);
+  const [persistenceMode, setPersistenceMode] = useState<"api" | "local">("local");
 
   useEffect(() => {
-    setBouquets(readAdminBouquets());
-    setReady(true);
+    let active = true;
+
+    initializeBouquetRepository()
+      .then((records) => {
+        if (!active) {
+          return;
+        }
+        setBouquets(records);
+        setPersistenceMode(getBouquetPersistenceMode());
+        setReady(true);
+      })
+      .catch(() => {
+        if (!active) {
+          return;
+        }
+        setReady(true);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const persist = useCallback((next: BouquetRecord[]) => {
-    setBouquets(next);
-    writeAdminBouquets(next);
+    const saved = writeBouquets(next);
+    setBouquets(saved);
   }, []);
 
   const saveBouquet = useCallback(
     (draft: BouquetDraft, id?: string) => {
-      const next = upsertAdminBouquet(bouquets, draft, id);
-      persist(next);
+      const next = upsertBouquet(bouquets, draft, id);
+      setBouquets(next);
       return next.find((item) =>
         id ? item.id === id : item.name === draft.name.trim(),
       );
     },
-    [bouquets, persist],
+    [bouquets],
   );
 
-  const duplicateBouquet = useCallback(
+  const duplicateBouquetAction = useCallback(
     (id: string) => {
-      persist(duplicateAdminBouquet(bouquets, id));
+      persist(duplicateBouquet(bouquets, id));
     },
     [bouquets, persist],
   );
 
-  const hideBouquet = useCallback(
+  const hideBouquetAction = useCallback(
     (id: string) => {
-      persist(hideAdminBouquet(bouquets, id));
+      persist(hideBouquet(bouquets, id));
     },
     [bouquets, persist],
   );
 
   const activateBouquet = useCallback(
     (id: string) => {
-      persist(setAdminBouquetStatus(bouquets, id, "active"));
+      persist(setBouquetStatus(bouquets, id, "active"));
     },
     [bouquets, persist],
   );
 
-  const setBouquetStatus = useCallback(
+  const setBouquetStatusAction = useCallback(
     (id: string, status: BouquetStatus) => {
-      persist(setAdminBouquetStatus(bouquets, id, status));
+      persist(setBouquetStatus(bouquets, id, status));
     },
     [bouquets, persist],
   );
 
   const bulkSetStatus = useCallback(
     (ids: string[], status: BouquetStatus) => {
-      persist(bulkSetAdminBouquetStatus(bouquets, ids, status));
+      persist(bulkSetBouquetStatus(bouquets, ids, status));
     },
     [bouquets, persist],
   );
 
   const removeBouquet = useCallback(
     (id: string) => {
-      persist(deleteAdminBouquet(bouquets, id));
+      persist(deleteBouquet(bouquets, id));
     },
     [bouquets, persist],
   );
 
   const bulkRemoveBouquets = useCallback(
     (ids: string[]) => {
-      persist(bulkDeleteAdminBouquets(bouquets, ids));
+      persist(bulkDeleteBouquets(bouquets, ids));
     },
     [bouquets, persist],
   );
@@ -100,11 +119,12 @@ export function useAdminBouquets() {
   return {
     bouquets,
     ready,
+    persistenceMode,
     saveBouquet,
-    duplicateBouquet,
-    hideBouquet,
+    duplicateBouquet: duplicateBouquetAction,
+    hideBouquet: hideBouquetAction,
     activateBouquet,
-    setBouquetStatus,
+    setBouquetStatus: setBouquetStatusAction,
     bulkSetStatus,
     removeBouquet,
     bulkRemoveBouquets,

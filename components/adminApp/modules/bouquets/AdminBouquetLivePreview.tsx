@@ -16,23 +16,25 @@ import {
   BOUQUET_STATUS_LABELS,
 } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import { formatBouquetPrice } from "@/components/adminApp/modules/bouquets/bouquetUtils";
-import { resolveAdminBouquetCategoryName } from "@/components/adminApp/modules/bouquets/bouquetCategoryStore";
 import styles from "@/components/adminApp/modules/bouquets/AdminBouquetsModule.module.css";
 
 type AdminBouquetLivePreviewProps = {
   draft: BouquetDraft;
   compact?: boolean;
+  categoryName?: string;
 };
 
-export function AdminBouquetLivePreview({ draft, compact = true }: AdminBouquetLivePreviewProps) {
+export function AdminBouquetLivePreview({
+  draft,
+  compact = true,
+  categoryName,
+}: AdminBouquetLivePreviewProps) {
   const cover = getBouquetCoverImage(draft.images);
   const price = resolveBouquetPreviewPrice(draft);
   const priceRange = resolveBouquetPreviewPriceLabel(draft);
   const enabledSizes = getEnabledBouquetSizeCodes(draft.sizes);
   const badgeLabel = BOUQUET_BADGE_LABELS[draft.badge];
-  const categoryName = draft.category
-    ? resolveAdminBouquetCategoryName(draft.category)
-    : "Категория";
+  const resolvedCategoryName = categoryName || draft.category || "Категория";
 
   return (
     <div className={compact ? styles.livePreviewBlock : styles.previewModalCard}>
@@ -59,7 +61,7 @@ export function AdminBouquetLivePreview({ draft, compact = true }: AdminBouquetL
             </span>
           </div>
 
-          <p className={styles.livePreviewMeta}>{categoryName}</p>
+          <p className={styles.livePreviewMeta}>{resolvedCategoryName}</p>
 
           {draft.description ? (
             <p className={styles.livePreviewDescription}>{draft.description}</p>

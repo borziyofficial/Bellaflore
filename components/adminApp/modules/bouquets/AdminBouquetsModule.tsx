@@ -20,7 +20,7 @@ import {
   type BouquetListFilters,
   type BouquetSortOption,
 } from "@/components/adminApp/modules/bouquets/bouquetListUtils";
-import { getAdminBouquetDraftById } from "@/components/adminApp/modules/bouquets/bouquetStore";
+import { getBouquetDraftById } from "@/lib/bouquetRepository";
 import type { BouquetDraft, BouquetStatus } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import { useAdminBouquetCategories } from "@/components/adminApp/modules/bouquets/useAdminBouquetCategories";
 import { useAdminBouquets } from "@/components/adminApp/modules/bouquets/useAdminBouquets";
@@ -70,7 +70,7 @@ export function AdminBouquetsModule() {
 
   const editingDraft =
     formState.open && formState.mode === "edit"
-      ? getAdminBouquetDraftById(bouquets, formState.id)
+      ? getBouquetDraftById(bouquets, formState.id)
       : null;
 
   const updateFilter = <K extends keyof BouquetListFilters>(
@@ -122,7 +122,7 @@ export function AdminBouquetsModule() {
     openDeleteConfirm(
       [id],
       "Удалить букет?",
-      "Букет будет удалён из локального списка. Это действие нельзя отменить.",
+      "Букет будет удалён из списка. Это действие нельзя отменить.",
     );
   };
 
@@ -135,7 +135,7 @@ export function AdminBouquetsModule() {
     openDeleteConfirm(
       ids,
       `Удалить ${ids.length} букет(ов)?`,
-      "Выбранные букеты будут удалены из локального списка. Это действие нельзя отменить.",
+      "Выбранные букеты будут удалены из списка. Это действие нельзя отменить.",
     );
   };
 
@@ -388,6 +388,7 @@ export function AdminBouquetsModule() {
             onToggleSelect={handleToggleSelect}
             onToggleSelectAll={handleToggleSelectAll}
             allSelected={allVisibleSelected}
+            categories={categories}
             onEdit={(id) => setFormState({ open: true, mode: "edit", id })}
             onActivate={activateBouquet}
             onHide={hideBouquet}

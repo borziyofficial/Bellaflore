@@ -71,6 +71,10 @@ export function AdminBouquetForm({
   const [draft, setDraft] = useState<BouquetDraft>(EMPTY_DRAFT);
   const [previewOpen, setPreviewOpen] = useState(false);
   const { categories, createCategory, updateCategoryName } = useAdminBouquetCategories();
+  const categoryName =
+    categories.find((category) => category.id === draft.category)?.name ??
+    draft.category ??
+    "Категория";
 
   useEffect(() => {
     if (!open) {
@@ -154,7 +158,7 @@ export function AdminBouquetForm({
           </header>
 
           <form className={styles.formBody} onSubmit={handleSubmit}>
-            <AdminBouquetLivePreview draft={draft} />
+            <AdminBouquetLivePreview draft={draft} categoryName={categoryName} />
 
             <AdminBouquetPhotoUpload
               images={draft.images}
@@ -273,6 +277,7 @@ export function AdminBouquetForm({
       <AdminBouquetPreviewModal
         open={previewOpen}
         draft={draft}
+        categoryName={categoryName}
         onClose={() => setPreviewOpen(false)}
       />
     </>

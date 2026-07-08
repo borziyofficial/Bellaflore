@@ -10,12 +10,14 @@ import styles from "@/components/adminApp/modules/bouquets/AdminBouquetsModule.m
 type AdminBouquetPreviewModalProps = {
   open: boolean;
   draft: BouquetDraft;
+  categoryName?: string;
   onClose: () => void;
 };
 
 export function AdminBouquetPreviewModal({
   open,
   draft,
+  categoryName,
   onClose,
 }: AdminBouquetPreviewModalProps) {
   if (!open) {
@@ -47,7 +49,11 @@ export function AdminBouquetPreviewModal({
 
         <div className={styles.previewBody}>
           <p className={styles.previewHint}>Так букет будет выглядеть для покупателя.</p>
-          <AdminBouquetLivePreview draft={draft} compact={false} />
+          <AdminBouquetLivePreview
+            draft={draft}
+            compact={false}
+            categoryName={categoryName}
+          />
         </div>
 
         <div className={styles.previewActions}>

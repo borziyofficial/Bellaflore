@@ -3,13 +3,13 @@
 // ==================================================
 "use client";
 
-import { resolveAdminBouquetCategoryName } from "@/components/adminApp/modules/bouquets/bouquetCategoryStore";
 import { getBouquetCoverImage } from "@/components/adminApp/modules/bouquets/bouquetImageUtils";
 import {
   formatBouquetSizeSummary,
   resolveBouquetBadgeLabel,
   resolveBouquetVisibilitySummary,
 } from "@/components/adminApp/modules/bouquets/bouquetListUtils";
+import type { AdminBouquetCategory } from "@/components/adminApp/modules/bouquets/bouquetCategoryTypes";
 import type { BouquetRecord } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import {
   BOUQUET_NO_PHOTO_LABEL,
@@ -24,12 +24,24 @@ type AdminBouquetListProps = {
   onToggleSelect: (id: string) => void;
   onToggleSelectAll: () => void;
   allSelected: boolean;
+  categories: AdminBouquetCategory[];
   onEdit: (id: string) => void;
   onActivate: (id: string) => void;
   onHide: (id: string) => void;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
 };
+
+function resolveCategoryName(
+  categories: AdminBouquetCategory[],
+  categoryId: string,
+): string {
+  if (!categoryId) {
+    return "";
+  }
+
+  return categories.find((category) => category.id === categoryId)?.name ?? categoryId;
+}
 
 function BouquetPreview({
   bouquet,
@@ -128,6 +140,7 @@ export function AdminBouquetList({
   onToggleSelect,
   onToggleSelectAll,
   allSelected,
+  categories,
   onEdit,
   onActivate,
   onHide,
@@ -178,7 +191,7 @@ export function AdminBouquetList({
                   </span>
                 </div>
                 <p className={styles.cardMeta}>
-                  {resolveAdminBouquetCategoryName(bouquet.category)}
+                  {resolveCategoryName(categories, bouquet.category)}
                 </p>
                 <p className={styles.cardPrice}>{formatBouquetPrice(bouquet.basePrice)}</p>
                 <BouquetSummaryMeta bouquet={bouquet} />
@@ -255,7 +268,7 @@ export function AdminBouquetList({
                       <div className={styles.tableName}>{bouquet.name}</div>
                     </button>
                   </td>
-                  <td>{resolveAdminBouquetCategoryName(bouquet.category)}</td>
+                  <td>{resolveCategoryName(categories, bouquet.category)}</td>
                   <td>{formatBouquetPrice(bouquet.basePrice)}</td>
                   <td>{formatBouquetSizeSummary(bouquet)}</td>
                   <td>

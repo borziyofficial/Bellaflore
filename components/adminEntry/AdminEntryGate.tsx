@@ -44,11 +44,8 @@ function resolveGateState(route: AdminEntryGateProps["route"]): {
 
 export function AdminEntryGate({ route, children }: AdminEntryGateProps) {
   const router = useRouter();
-  const initialGate = resolveGateState(route);
-  const [gateState, setGateState] = useState<AdminEntryGateState>(initialGate.state);
-  const [deniedMessage, setDeniedMessage] = useState<string | null>(
-    initialGate.deniedMessage,
-  );
+  const [gateState, setGateState] = useState<AdminEntryGateState>("loading");
+  const [deniedMessage, setDeniedMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const next = resolveGateState(route);

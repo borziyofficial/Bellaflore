@@ -1,23 +1,26 @@
 // ==================================================
-// SECTION: ADMIN APP — Bouquet categories hook (Stage 2.3.1)
+// SECTION: ADMIN APP — Bouquet categories hook (Stage 2.7)
 // ==================================================
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
 import type { AdminBouquetCategory } from "@/components/adminApp/modules/bouquets/bouquetCategoryTypes";
 import {
-  addAdminBouquetCategory,
-  readAdminBouquetCategories,
-  renameAdminBouquetCategory,
-} from "@/components/adminApp/modules/bouquets/bouquetCategoryStore";
+  addCategory,
+  getBouquetPersistenceMode,
+  initializeCategoryRepository,
+  renameCategory,
+} from "@/lib/bouquetRepository";
 
 export function useAdminBouquetCategories() {
   const [categories, setCategories] = useState<AdminBouquetCategory[]>([]);
   const [ready, setReady] = useState(false);
 
   const refresh = useCallback(() => {
-    setCategories(readAdminBouquetCategories());
-    setReady(true);
+    void initializeCategoryRepository().then((next) => {
+      setCategories(next);
+      setReady(true);
+    });
   }, []);
 
   useEffect(() => {
@@ -30,21 +33,21 @@ export function useAdminBouquetCategories() {
 
   const createCategory = useCallback(
     (name: string) => {
-      try {
-        const category = addAdminBouquetCategory(name);
+      const category = addCategory(name);
+      if (category) {
         refresh();
-        return category;
-      } catch {
-        return null;
       }
+      return category;
     },
     [refresh],
   );
 
   const updateCategoryName = useCallback(
     (categoryId: string, name: string) => {
-      const category = renameAdminBouquetCategory(categoryId, name);
-      refresh();
+      const category = renameCategory(categoryId, name);
+      if (category) {
+        refresh();
+      }
       return category;
     },
     [refresh],
@@ -53,6 +56,7 @@ export function useAdminBouquetCategories() {
   return {
     categories,
     ready,
+    persistenceMode: getBouquetPersistenceMode(),
     refresh,
     createCategory,
     updateCategoryName,
