@@ -494,17 +494,22 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  color: #111111;
+  color: #111111 !important;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 600 !important;
   line-height: 1.4;
+}
+
+.checkoutV3SummaryRow span {
+  color: #111111 !important;
+  font-weight: 600 !important;
 }
 
 .checkoutV3SummaryRow strong {
   font-size: 15px;
-  font-weight: 700;
-  color: #111111;
+  font-weight: 700 !important;
+  color: #111111 !important;
   white-space: nowrap;
 }
 
@@ -512,14 +517,19 @@
   padding-top: 12px;
   border-top: 1px solid rgba(80, 70, 60, 0.18);
   font-size: 17px;
-  font-weight: 700;
-  color: #111111;
+  font-weight: 700 !important;
+  color: #111111 !important;
+}
+
+.checkoutV3SummaryTotal span {
+  color: #111111 !important;
+  font-weight: 700 !important;
 }
 
 .checkoutV3SummaryTotal strong {
   font-size: 21px;
-  font-weight: 700;
-  color: #111111;
+  font-weight: 700 !important;
+  color: #111111 !important;
 }
 
 .checkoutPaymentInfo {
