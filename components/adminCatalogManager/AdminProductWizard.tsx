@@ -61,7 +61,6 @@ type AdminProductWizardProps = {
   onArchive?: (form: AdminProductFormState) => void;
   onCancel: () => void;
   isSaving?: boolean;
-  imageStorageWarning?: string | null;
 };
 
 function validateForm(form: AdminProductFormState): AdminProductFormErrors {
@@ -110,7 +109,6 @@ export function AdminProductWizard({
   onArchive,
   onCancel,
   isSaving = false,
-  imageStorageWarning = null,
 }: AdminProductWizardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState(initialForm);
@@ -210,12 +208,7 @@ export function AdminProductWizard({
       };
       setForm(withImage);
       setUploadNote("Фото загружено.");
-
-      const hint = resolveAiHint({
-        fileName: file.name,
-        formTitle: form.title,
-      });
-      await runAutoAiFlow(hint, withImage, { fileName: file.name });
+      setStep(3);
     } catch (error) {
       setUploadNote(
         error instanceof Error
@@ -292,10 +285,6 @@ export function AdminProductWizard({
           );
         })}
       </nav>
-
-      {imageStorageWarning ? (
-        <p className={styles.warningBanner}>{imageStorageWarning}</p>
-      ) : null}
 
       {savedNotice ? <p className={styles.successNote}>{savedNotice}</p> : null}
 

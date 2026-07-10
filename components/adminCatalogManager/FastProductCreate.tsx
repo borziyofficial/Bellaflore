@@ -40,7 +40,6 @@ type FastProductCreateProps = {
   onCancel: () => void;
   onSwitchToAdvanced: (form: AdminProductFormState) => void;
   isSaving?: boolean;
-  imageStorageWarning?: string | null;
 };
 
 function getInitialBasePrice(form: AdminProductFormState): string {
@@ -60,7 +59,6 @@ export function FastProductCreate({
   onCancel,
   onSwitchToAdvanced,
   isSaving = false,
-  imageStorageWarning = null,
 }: FastProductCreateProps) {
   const [form, setForm] = useState(initialForm);
   const [basePrice, setBasePrice] = useState(getInitialBasePrice(initialForm));
@@ -215,9 +213,6 @@ export function FastProductCreate({
           </button>
         </header>
 
-        {imageStorageWarning ? (
-          <p className={styles.warning}>{imageStorageWarning}</p>
-        ) : null}
         {statusNote ? <p className={styles.note}>{statusNote}</p> : null}
 
         <div className={styles.form}>

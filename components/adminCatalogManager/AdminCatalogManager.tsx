@@ -85,13 +85,20 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
   };
 
   const handleSaveDraft = async (form: AdminProductFormState) => {
+    const sourceView = view;
     setIsSaving(true);
     setActionError(null);
     try {
       const saved = await saveProduct({ ...form, status: "draft" });
       setFormSeed(catalogRecordToAdminForm(saved));
       setEditingId(saved.id);
-      setView("edit");
+      if (sourceView === "create-fast") {
+        setView("create-fast");
+      } else if (sourceView === "create") {
+        setView("edit");
+      } else {
+        setView("edit");
+      }
     } catch (error) {
       setActionError(
         error instanceof Error ? error.message : "Не удалось сохранить черновик.",
@@ -109,7 +116,7 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
       setPublishedProduct(saved);
       setFormSeed(catalogRecordToAdminForm(saved));
       setEditingId(saved.id);
-      setView("edit");
+      setView("list");
     } catch (error) {
       setActionError(
         error instanceof Error ? error.message : "Не удалось опубликовать товар.",
@@ -175,11 +182,11 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
             </p>
           </div>
         </header>
-      ) : (
+      ) : view !== "list" ? (
         <p className={styles.topMeta}>
           {products.length} товаров · {publishedCount} опубликовано
         </p>
-      )}
+      ) : null}
 
       {loadError ? <p className={styles.errorBanner}>{loadError}</p> : null}
       {imageStorageWarning ? (
@@ -190,6 +197,7 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
       {view === "list" ? (
         <AdminProductList
           products={products}
+          compactHeader={embedded}
           onCreate={openCreate}
           onEdit={openEdit}
           onArchive={(productId) => {
@@ -217,7 +225,10 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
           </header>
           <AdminPublishSuccessPanel
             product={publishedProduct}
-            onEdit={() => setPublishedProduct(null)}
+            onEdit={() => {
+              setPublishedProduct(null);
+              setView("edit");
+            }}
             onArchive={() => {
               void handleArchiveFromSuccess();
             }}
@@ -230,7 +241,7 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
         </div>
       ) : view === "create-fast" ? (
         <FastProductCreate
-          key="create-fast"
+          key={editingId ? `create-fast-${editingId}` : "create-fast"}
           initialForm={formSeed}
           buildPreviewRecord={buildPreviewRecord}
           onSaveDraft={(form) => {
@@ -246,7 +257,6 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
           }}
           onSwitchToAdvanced={openAdvancedCreate}
           isSaving={isSaving}
-          imageStorageWarning={imageStorageWarning}
         />
       ) : (
         <AdminProductForm
@@ -269,7 +279,6 @@ export function AdminCatalogManager({ embedded = false }: AdminCatalogManagerPro
             setEditingId(null);
           }}
           isSaving={isSaving}
-          imageStorageWarning={imageStorageWarning}
         />
       )}
     </div>

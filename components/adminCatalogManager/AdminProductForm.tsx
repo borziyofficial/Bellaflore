@@ -17,7 +17,6 @@ type AdminProductFormProps = {
   onArchive?: (form: AdminProductFormState) => void;
   onCancel: () => void;
   isSaving?: boolean;
-  imageStorageWarning?: string | null;
 };
 
 export function AdminProductForm(props: AdminProductFormProps) {

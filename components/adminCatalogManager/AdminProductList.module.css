@@ -1,0 +1,434 @@
+.listRoot {
+  --plist-gold: #c4a062;
+  --plist-gold-soft: rgba(196, 160, 98, 0.16);
+  --plist-gold-line: rgba(196, 160, 98, 0.28);
+  --plist-ink: #f2ebe2;
+  --plist-muted: rgba(242, 235, 226, 0.56);
+  --plist-faint: rgba(242, 235, 226, 0.34);
+  --plist-line: rgba(255, 255, 255, 0.08);
+  --plist-glass: rgba(22, 22, 25, 0.82);
+  --plist-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+  --plist-inset: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --plist-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: grid;
+  gap: 12px;
+}
+
+.listHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.listHeaderCopy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.listEyebrow {
+  margin: 0;
+  color: var(--plist-gold);
+  font-size: 10px;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.listTitle {
+  margin: 0;
+  color: var(--plist-ink);
+  font-size: 22px;
+  font-weight: 820;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.listMeta {
+  margin: 0;
+  color: var(--plist-muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.listHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.csvButton,
+.addButton {
+  min-height: 34px;
+  border-radius: 999px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 780;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform 0.18s var(--plist-ease),
+    border-color 0.18s var(--plist-ease),
+    background 0.18s var(--plist-ease),
+    opacity 0.18s var(--plist-ease);
+}
+
+.csvButton {
+  border: 1px solid var(--plist-line);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    var(--plist-glass);
+  color: var(--plist-muted);
+  box-shadow: var(--plist-shadow), var(--plist-inset);
+}
+
+.csvButton:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.csvButton:not(:disabled):active,
+.addButton:active {
+  transform: scale(0.96);
+}
+
+.addButton {
+  border: 1px solid var(--plist-gold-line);
+  background:
+    linear-gradient(165deg, rgba(196, 160, 98, 0.28), rgba(196, 160, 98, 0.12)),
+    rgba(28, 24, 20, 0.92);
+  color: #f0e4d0;
+  box-shadow:
+    0 10px 24px rgba(196, 160, 98, 0.12),
+    var(--plist-inset);
+}
+
+.searchField {
+  position: relative;
+  display: block;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--plist-faint);
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--plist-line) !important;
+  border-radius: 14px;
+  padding: 0 12px 0 34px;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    var(--plist-glass) !important;
+  box-shadow: var(--plist-shadow), var(--plist-inset);
+  color: var(--plist-ink) !important;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.18s var(--plist-ease);
+}
+
+.searchInput::placeholder {
+  color: var(--plist-faint);
+}
+
+.searchInput:focus {
+  border-color: rgba(196, 160, 98, 0.24);
+}
+
+.filterRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.categoryRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding-top: 2px;
+}
+
+.filterChip,
+.categoryChip {
+  width: 100%;
+  min-height: 32px;
+  border: 1px solid var(--plist-line);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--plist-muted);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform 0.16s var(--plist-ease),
+    border-color 0.16s var(--plist-ease),
+    background 0.16s var(--plist-ease),
+    color 0.16s var(--plist-ease);
+}
+
+.filterChip:active,
+.categoryChip:active {
+  transform: scale(0.97);
+}
+
+.filterChipActive,
+.categoryChipActive {
+  border-color: var(--plist-gold-line);
+  background:
+    linear-gradient(165deg, rgba(196, 160, 98, 0.18), rgba(196, 160, 98, 0.08)),
+    rgba(255, 255, 255, 0.04);
+  color: #f0e4d0;
+}
+
+.cardGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.productCard {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  border: 1px solid var(--plist-line);
+  border-radius: 18px;
+  padding: 11px;
+  background:
+    radial-gradient(circle at 100% 0%, var(--plist-gold-soft), transparent 42%),
+    linear-gradient(165deg, rgba(22, 22, 25, 0.96), rgba(10, 10, 12, 0.98));
+  box-shadow: var(--plist-shadow), var(--plist-inset);
+}
+
+.cardThumb {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cardThumbImage {
+  object-fit: cover;
+}
+
+.cardThumbFallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--plist-gold);
+  font-size: 14px;
+  font-weight: 820;
+}
+
+.cardBody {
+  min-width: 0;
+  display: grid;
+  align-content: space-between;
+  gap: 10px;
+}
+
+.cardTopRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardCopy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.cardTitle {
+  margin: 0;
+  overflow: hidden;
+  color: var(--plist-ink);
+  font-size: 14px;
+  font-weight: 820;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardCategory {
+  margin: 0;
+  overflow: hidden;
+  color: var(--plist-muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusPill {
+  flex-shrink: 0;
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 8px;
+  font-size: 9px;
+  font-weight: 820;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status_published {
+  background: rgba(143, 214, 163, 0.12);
+  color: #8fd6a3;
+}
+
+.status_draft {
+  background: rgba(196, 160, 98, 0.12);
+  color: #d8bc84;
+}
+
+.status_archived {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--plist-muted);
+}
+
+.cardBottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardPrice {
+  color: #dcc08a;
+  font-size: 16px;
+  font-weight: 840;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.menuWrap {
+  position: relative;
+}
+
+.menuButton {
+  width: 32px;
+  height: 32px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--plist-line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--plist-muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 820;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition:
+    transform 0.16s var(--plist-ease),
+    border-color 0.16s var(--plist-ease);
+}
+
+.menuButton:active {
+  transform: scale(0.96);
+}
+
+.menuPanel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 20;
+  min-width: 148px;
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--plist-line);
+  border-radius: 12px;
+  padding: 6px;
+  background:
+    linear-gradient(165deg, rgba(24, 24, 27, 0.98), rgba(12, 12, 14, 0.98));
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+}
+
+.menuItem {
+  min-height: 34px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--plist-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 760;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.16s var(--plist-ease);
+}
+
+.menuItem:hover,
+.menuItem:active {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.menuItemDanger {
+  color: #e8a0a0;
+}
+
+.emptyState {
+  margin: 0;
+  padding: 18px 4px 8px;
+  color: var(--plist-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .csvButton:not(:disabled):hover,
+  .addButton:hover,
+  .filterChip:hover,
+  .categoryChip:hover,
+  .menuButton:hover {
+    border-color: rgba(196, 160, 98, 0.2);
+  }
+}
+
+@media (min-width: 720px) {
+  .cardGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .cardThumb {
+    width: 96px;
+    height: 96px;
+  }
+
+  .productCard {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+}
