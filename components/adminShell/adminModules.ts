@@ -37,21 +37,21 @@ export const ADMIN_MODULES: AdminModuleDefinition[] = [
 
 export const BELLAFLORE_MODULE_SECTIONS: AdminModuleSection[] = [
   {
-    id: "products",
-    title: "Товары",
-    description: "Букеты, размеры S–XL, изображения и статусы",
-    href: "/admin/products",
-  },
-  {
     id: "orders",
     title: "Заказы",
-    description: "Статусы заказов и обработка",
+    description: "Статусы и обработка",
     href: "/admin/orders",
+  },
+  {
+    id: "products",
+    title: "Товары",
+    description: "Каталог, цены, фото",
+    href: "/admin/products",
   },
   {
     id: "delivery",
     title: "Доставка",
-    description: "Зоны, карта и планировщик",
+    description: "Зоны и маршруты",
     href: "/admin/delivery",
   },
   {
