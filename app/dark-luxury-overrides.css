@@ -105,11 +105,6 @@ html[data-theme="dark-luxury"] .menu-button::after {
   }
 }
 
-html[data-theme="dark-luxury"] .nav-center a {
-  color: var(--text-light);
-  font-family: var(--font-body);
-}
-
 html[data-theme="dark-luxury"] .mobile-menu a {
   color: var(--text-light);
 }

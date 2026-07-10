@@ -247,29 +247,6 @@ body {
     0 0 28px rgba(222, 180, 98, 0.22);
 }
 
-.nav-center {
-  display: none;
-  gap: 40px;
-  flex: 1;
-  justify-content: center;
-}
-.nav-center a {
-  color: rgba(255, 250, 238, 0.92);
-  text-decoration: none;
-  font-size: 15px;
-  letter-spacing: 2.2px;
-  transition: color 0.3s;
-}
-
-.nav-center a:hover {
-  color: var(--champagne-gold);
-}
-
-@media (min-width: 1024px) {
-  .nav-center {
-    display: flex;
-  }
-}
 
 /* ========================
    MENU BUTTON (исправлен)
@@ -2932,10 +2909,6 @@ button {
    MEDIA QUERIES
 ======================== */
 @media (max-width: 768px) {
-  .nav-center {
-    display: none;
-  }
-
   .navbar {
     padding: 14px 16px;
   }
@@ -4995,8 +4968,7 @@ button {
   backdrop-filter: blur(38px) saturate(1.26);
 }
 
-.logo,
-.nav-center a {
+.logo {
   color: rgba(255, 247, 232, 0.92);
   text-shadow:
     0 1px 14px rgba(9, 8, 7, 0.36),
@@ -12921,9 +12893,7 @@ a.hero-order-link {
   pointer-events: none;
 }
 
-.navbar .menu-button,
-.navbar .nav-center,
-.navbar .nav-center a {
+.navbar .menu-button {
   pointer-events: auto;
   position: relative;
   z-index: 2;

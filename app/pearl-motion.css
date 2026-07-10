@@ -959,19 +959,6 @@ a.hero-order-link:not(.checkout-submit-button):active,
 
 /* --- Links: underline + opacity --- */
 
-.navbar .nav-center a {
-  transition: var(--motion-link-transition);
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-underline-offset: 0.18em;
-}
-
-.navbar .nav-center a:hover,
-.navbar .nav-center a:focus-visible {
-  text-decoration-color: currentColor;
-  opacity: 1;
-}
-
 /* --- Reduced motion: micro-interactions --- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -982,7 +969,6 @@ a.hero-order-link:not(.checkout-submit-button):active,
   .catalog-v11-product-heart,
   .search-panel .search-clear-button,
   .luxury-catalog-panel .search-clear-button,
-  .navbar .nav-center a,
   .favorites-panel-actions .favorite-count-badge,
   .cart-panel-actions .cart-count-badge {
     transition: none !important;
