@@ -25,9 +25,28 @@ import {
 
 let persistenceMode: BouquetPersistenceMode = "local";
 let initializePromise: Promise<BouquetRecord[]> | null = null;
+let lastSyncError: string | null = null;
+
+export const BOUQUET_SYNC_STATUS_EVENT = "admin-bouquet-sync-status-change";
 
 export function getBouquetPersistenceMode(): BouquetPersistenceMode {
   return persistenceMode;
+}
+
+export function getBouquetSyncError(): string | null {
+  return lastSyncError;
+}
+
+function setSyncError(message: string | null): void {
+  if (lastSyncError === message) {
+    return;
+  }
+
+  lastSyncError = message;
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(BOUQUET_SYNC_STATUS_EVENT));
+  }
 }
 
 async function migrateLocalBouquetsToApi(local: BouquetRecord[]): Promise<BouquetRecord[]> {
@@ -65,10 +84,11 @@ export async function initializeBouquetRepository(): Promise<BouquetRecord[]> {
 
   initializePromise = (async () => {
     const local = localBouquetAdapter.listBouquets();
-    const apiAvailable = await probeBouquetApi();
+    const probe = await probeBouquetApi();
 
-    if (!apiAvailable) {
+    if (!probe.available) {
       persistenceMode = "local";
+      setSyncError(probe.message);
       return local;
     }
 
@@ -77,21 +97,27 @@ export async function initializeBouquetRepository(): Promise<BouquetRecord[]> {
 
       if (serverBouquets.length === 0 && local.length > 0) {
         persistenceMode = "api";
+        setSyncError(null);
         return migrateLocalBouquetsToApi(local);
       }
 
       if (serverBouquets.length > 0) {
         localBouquetAdapter.writeBouquets(serverBouquets);
         persistenceMode = "api";
+        setSyncError(null);
         await migrateLocalCategoriesToApi();
         return serverBouquets;
       }
 
       persistenceMode = "api";
+      setSyncError(null);
       await migrateLocalCategoriesToApi();
       return serverBouquets;
     } catch {
       persistenceMode = "local";
+      setSyncError(
+        "Не удалось загрузить букеты с сервера. Показаны локальные данные.",
+      );
       return local;
     }
   })();
@@ -103,9 +129,14 @@ function persistBouquets(next: BouquetRecord[]): BouquetRecord[] {
   localBouquetAdapter.writeBouquets(next);
 
   if (persistenceMode === "api") {
-    void apiSyncBouquets(next).catch(() => {
-      // Keep local cache if API sync fails temporarily.
-    });
+    void apiSyncBouquets(next)
+      .then(() => setSyncError(null))
+      .catch(() => {
+        // Keep local cache if API sync fails temporarily.
+        setSyncError(
+          "Не удалось синхронизировать букеты с сервером. Изменения сохранены локально.",
+        );
+      });
   }
 
   return next;
@@ -174,9 +205,14 @@ function persistCategoryStorage(storage: StoredBouquetCategoryStorage): void {
   localBouquetAdapter.writeCategoryStorage(storage);
 
   if (persistenceMode === "api") {
-    void apiWriteCategoryStorage(storage).catch(() => {
-      // Keep local cache if API sync fails temporarily.
-    });
+    void apiWriteCategoryStorage(storage)
+      .then(() => setSyncError(null))
+      .catch(() => {
+        // Keep local cache if API sync fails temporarily.
+        setSyncError(
+          "Не удалось синхронизировать категории с сервером. Изменения сохранены локально.",
+        );
+      });
   }
 }
 

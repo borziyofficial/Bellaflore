@@ -28,16 +28,33 @@ async function parseJson<T>(response: Response): Promise<T | null> {
   }
 }
 
-export async function probeBouquetApi(): Promise<boolean> {
+export type BouquetApiProbeResult = {
+  available: boolean;
+  message: string | null;
+};
+
+const BOUQUET_API_UNREACHABLE_MESSAGE =
+  "Не удалось подключиться к серверу букетов. Изменения сохраняются только локально.";
+
+export async function probeBouquetApi(): Promise<BouquetApiProbeResult> {
   try {
     const response = await fetch("/api/admin/bouquets", {
       method: "GET",
       credentials: "include",
       cache: "no-store",
     });
-    return response.ok;
+
+    if (response.ok) {
+      return { available: true, message: null };
+    }
+
+    const payload = await parseJson<{ message?: string }>(response);
+    return {
+      available: false,
+      message: payload?.message ?? BOUQUET_API_UNREACHABLE_MESSAGE,
+    };
   } catch {
-    return false;
+    return { available: false, message: BOUQUET_API_UNREACHABLE_MESSAGE };
   }
 }
 

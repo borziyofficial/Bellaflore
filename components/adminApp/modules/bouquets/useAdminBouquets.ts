@@ -10,11 +10,13 @@ import type {
   BouquetStatus,
 } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import {
+  BOUQUET_SYNC_STATUS_EVENT,
   bulkDeleteBouquets,
   bulkSetBouquetStatus,
   deleteBouquet,
   duplicateBouquet,
   getBouquetPersistenceMode,
+  getBouquetSyncError,
   hideBouquet,
   initializeBouquetRepository,
   setBouquetStatus,
@@ -26,6 +28,7 @@ export function useAdminBouquets() {
   const [bouquets, setBouquets] = useState<BouquetRecord[]>([]);
   const [ready, setReady] = useState(false);
   const [persistenceMode, setPersistenceMode] = useState<"api" | "local">("local");
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -37,6 +40,7 @@ export function useAdminBouquets() {
         }
         setBouquets(records);
         setPersistenceMode(getBouquetPersistenceMode());
+        setSyncError(getBouquetSyncError());
         setReady(true);
       })
       .catch(() => {
@@ -49,6 +53,16 @@ export function useAdminBouquets() {
     return () => {
       active = false;
     };
+  }, []);
+
+  useEffect(() => {
+    const onSyncStatusChange = () => {
+      setPersistenceMode(getBouquetPersistenceMode());
+      setSyncError(getBouquetSyncError());
+    };
+
+    window.addEventListener(BOUQUET_SYNC_STATUS_EVENT, onSyncStatusChange);
+    return () => window.removeEventListener(BOUQUET_SYNC_STATUS_EVENT, onSyncStatusChange);
   }, []);
 
   const persist = useCallback((next: BouquetRecord[]) => {
@@ -120,6 +134,7 @@ export function useAdminBouquets() {
     bouquets,
     ready,
     persistenceMode,
+    syncError,
     saveBouquet,
     duplicateBouquet: duplicateBouquetAction,
     hideBouquet: hideBouquetAction,

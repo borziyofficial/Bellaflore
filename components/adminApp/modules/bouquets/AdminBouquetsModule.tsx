@@ -41,6 +41,8 @@ export function AdminBouquetsModule() {
   const {
     bouquets,
     ready,
+    persistenceMode,
+    syncError,
     saveBouquet,
     duplicateBouquet,
     hideBouquet,
@@ -197,6 +199,13 @@ export function AdminBouquetsModule() {
           </div>
         }
       />
+
+      {ready && syncError ? <p className={styles.errorBanner}>{syncError}</p> : null}
+      {ready && !syncError && persistenceMode === "local" ? (
+        <p className={styles.warningBanner}>
+          Локальный режим: изменения сохраняются только в этом браузере и не синхронизируются с сервером.
+        </p>
+      ) : null}
 
       <AdminPanel>
         <div className={styles.toolbar}>
