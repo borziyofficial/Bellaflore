@@ -22,8 +22,13 @@ export function AdminAddModule() {
 
   const handleSave = (draft: BouquetDraft) => {
     const created = saveBouquet(draft);
+    if (!created) {
+      return false;
+    }
+
     setLastCreatedName(created?.name ?? draft.name.trim());
     setFormOpen(false);
+    return true;
   };
 
   return (

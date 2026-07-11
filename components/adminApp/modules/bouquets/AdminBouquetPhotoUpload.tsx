@@ -23,6 +23,7 @@ import styles from "@/components/adminApp/modules/bouquets/AdminBouquetsModule.m
 type AdminBouquetPhotoUploadProps = {
   images: BouquetImage[];
   onChange: (images: BouquetImage[]) => void;
+  onBusyChange?: (busy: boolean) => void;
 };
 
 type DeleteConfirmState =
@@ -32,6 +33,7 @@ type DeleteConfirmState =
 export function AdminBouquetPhotoUpload({
   images,
   onChange,
+  onBusyChange,
 }: AdminBouquetPhotoUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -55,6 +57,7 @@ export function AdminBouquetPhotoUpload({
 
     const batch = files.slice(0, BOUQUET_MAX_IMAGES_PER_UPLOAD);
     setUploading(true);
+    onBusyChange?.(true);
     setErrors([]);
 
     try {
@@ -67,6 +70,7 @@ export function AdminBouquetPhotoUpload({
       setErrors(["Не удалось загрузить фото."]);
     } finally {
       setUploading(false);
+      onBusyChange?.(false);
     }
   };
 

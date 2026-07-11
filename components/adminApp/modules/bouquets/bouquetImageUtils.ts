@@ -9,10 +9,6 @@ import {
 } from "@/components/adminApp/modules/bouquets/bouquetTypes";
 import { createBouquetId } from "@/components/adminApp/modules/bouquets/bouquetUtils";
 
-const MAX_OPTIMIZED_DIMENSION = 1920;
-const JPEG_QUALITY = 0.88;
-const WEBP_QUALITY = 0.85;
-
 export type BouquetImageUploadResult = {
   images: BouquetImage[];
   errors: string[];
@@ -141,80 +137,53 @@ function loadImageElement(dataUrl: string): Promise<HTMLImageElement> {
   });
 }
 
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        resolve(reader.result);
-        return;
-      }
-
-      reject(new Error("read-failed"));
-    };
-    reader.onerror = () => reject(new Error("read-failed"));
-    reader.readAsDataURL(file);
-  });
-}
-
-async function optimizeImageDataUrl(
-  dataUrl: string,
-  mimeType: string,
-): Promise<{ url: string; width: number; height: number }> {
-  const image = await loadImageElement(dataUrl);
-  const scale = Math.min(
-    1,
-    MAX_OPTIMIZED_DIMENSION / Math.max(image.naturalWidth, image.naturalHeight),
-  );
-  const width = Math.max(1, Math.round(image.naturalWidth * scale));
-  const height = Math.max(1, Math.round(image.naturalHeight * scale));
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-
-  const context = canvas.getContext("2d");
-  if (!context) {
-    return { url: dataUrl, width: image.naturalWidth, height: image.naturalHeight };
-  }
-
-  context.drawImage(image, 0, 0, width, height);
-
-  const preferWebp = mimeType === "image/webp" || mimeType === "image/png";
-  const outputType = preferWebp ? "image/webp" : "image/jpeg";
-  const quality = outputType === "image/webp" ? WEBP_QUALITY : JPEG_QUALITY;
-  const optimized = canvas.toDataURL(outputType, quality);
-
-  return { url: optimized, width, height };
-}
-
 async function processBouquetImageFile(file: File): Promise<BouquetImage> {
-  const originalUrl = await readFileAsDataUrl(file);
+  const previewUrl = URL.createObjectURL(file);
 
   try {
-    await loadImageElement(originalUrl);
-  } catch {
-    throw new Error(`«${file.name}» повреждён или не является изображением.`);
+    const preview = await loadImageElement(previewUrl);
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch("/api/admin/bouquets/upload-image", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+    const body = (await response.json().catch(() => null)) as {
+      imageUrl?: string;
+      message?: string;
+    } | null;
+
+    if (!response.ok || !body?.imageUrl) {
+      throw new Error(body?.message || `Не удалось сохранить «${file.name}».`);
+    }
+
+    const now = new Date().toISOString();
+
+    return {
+      id: createBouquetId(),
+      url: body.imageUrl,
+      name: file.name,
+      isCover: false,
+      sortOrder: 0,
+      createdAt: now,
+      variants: {
+        original: body.imageUrl,
+        optimized: body.imageUrl,
+      },
+      width: preview.naturalWidth,
+      height: preview.naturalHeight,
+      sizeBytes: file.size,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error(`Не удалось обработать «${file.name}».`);
+  } finally {
+    URL.revokeObjectURL(previewUrl);
   }
-
-  const { url, width, height } = await optimizeImageDataUrl(originalUrl, file.type);
-  const now = new Date().toISOString();
-
-  return {
-    id: createBouquetId(),
-    url,
-    name: file.name,
-    isCover: false,
-    sortOrder: 0,
-    createdAt: now,
-    variants: {
-      original: originalUrl,
-      optimized: url !== originalUrl ? url : undefined,
-    },
-    width,
-    height,
-    sizeBytes: file.size,
-  };
 }
 
 export async function createBouquetImagesFromFiles(
@@ -340,5 +309,17 @@ export function cloneBouquetImages(images: BouquetImage[]): BouquetImage[] {
 
 /** @deprecated Use createBouquetImagesFromFiles result.images */
 export function readImageFileAsDataUrl(file: File): Promise<string> {
-  return readFileAsDataUrl(file);
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error("read-failed"));
+    };
+    reader.onerror = () => reject(new Error("read-failed"));
+    reader.readAsDataURL(file);
+  });
 }

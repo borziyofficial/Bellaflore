@@ -651,6 +651,21 @@
   font-size: 13px;
 }
 
+.fieldError,
+.formError {
+  margin: 0;
+  color: #ffb0b0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.formError {
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 120, 120, 0.24);
+  border-radius: 14px;
+  background: rgba(255, 120, 120, 0.08);
+}
+
 .fieldTextarea {
   min-height: 88px;
   resize: vertical;
@@ -737,21 +752,48 @@
   padding: 0 2px;
 }
 
+.publishToggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 56px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.publishToggleText {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.publishToggleHint {
+  color: var(--admin-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 .toggleLabel {
   color: var(--admin-ink);
   font-size: 13px;
   font-weight: 600;
 }
 
-.toggleInput {
+.toggleInput,
+.publishToggleRow input.toggleInput,
+.formBody .publishToggleRow input.toggleInput {
   position: relative;
   width: 44px;
   height: 26px;
   margin: 0;
   appearance: none;
+  -webkit-appearance: none;
   border: 0;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: #8b8f98;
   cursor: pointer;
   transition: background 0.2s ease;
   flex-shrink: 0;
@@ -770,8 +812,10 @@
   transition: transform 0.2s ease;
 }
 
-.toggleInput:checked {
-  background: rgba(120, 214, 156, 0.55);
+.toggleInput:checked,
+.publishToggleRow input.toggleInput:checked,
+.formBody .publishToggleRow input.toggleInput:checked {
+  background: #34c759;
 }
 
 .toggleInput:checked::before {

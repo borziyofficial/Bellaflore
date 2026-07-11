@@ -111,13 +111,17 @@ export function AdminBouquetsModule() {
   };
 
   const handleSave = (draft: BouquetDraft) => {
-    if (formState.open && formState.mode === "edit") {
-      saveBouquet(draft, formState.id);
-    } else {
-      saveBouquet(draft);
+    const saved =
+      formState.open && formState.mode === "edit"
+        ? saveBouquet(draft, formState.id)
+        : saveBouquet(draft);
+
+    if (!saved) {
+      return false;
     }
 
     closeForm();
+    return true;
   };
 
   const handleDelete = (id: string) => {

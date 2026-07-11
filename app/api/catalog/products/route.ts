@@ -5,6 +5,11 @@ import {
   listPublishedCatalogProducts,
 } from "@/lib/catalogDb";
 import {
+  readCategoryStorage,
+  listBouquets,
+} from "@/lib/bouquetDb";
+import { storedBouquetsToLegacyCatalogProducts } from "@/lib/bouquetDb/publicCatalogMapper";
+import {
   storedProductToCatalogRecord,
   storedProductToLegacyCatalogProduct,
 } from "@/lib/catalogDb/mappers";
@@ -35,14 +40,30 @@ export async function GET(request: Request) {
     const products = publishedOnly
       ? await listPublishedCatalogProducts()
       : await listCatalogProducts();
+    const bouquetProducts = publishedOnly ? await listPublishedBouquetCatalogProducts() : [];
 
     return Response.json({
-      products: products.map(storedProductToLegacyCatalogProduct),
+      products: [
+        ...products.map(storedProductToLegacyCatalogProduct),
+        ...bouquetProducts,
+      ],
       records: products.map(storedProductToCatalogRecord),
       mode: getCatalogDatabaseMode(),
     });
   } catch (error) {
     return catalogUnavailableResponse(error);
+  }
+}
+
+async function listPublishedBouquetCatalogProducts() {
+  try {
+    const [bouquets, categoryStorage] = await Promise.all([
+      listBouquets(),
+      readCategoryStorage(),
+    ]);
+    return storedBouquetsToLegacyCatalogProducts(bouquets, categoryStorage);
+  } catch {
+    return [];
   }
 }
 

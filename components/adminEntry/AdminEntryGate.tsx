@@ -52,6 +52,7 @@ export function AdminEntryGate({ route, children }: AdminEntryGateProps) {
 
     if (next.state === "unauthenticated") {
       router.replace(buildAdminLoginRedirectUrl(route));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setGateState("unauthenticated");
       return;
     }

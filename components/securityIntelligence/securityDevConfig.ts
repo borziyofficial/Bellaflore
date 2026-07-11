@@ -20,8 +20,7 @@ export type SecurityDevCredential = {
 export const SECURITY_DEV_CREDENTIALS: SecurityDevCredential[] = [
   {
     login: "Borziy13",
-    password: "MittiMitti",
-    alternatePasswords: ["Anonymous123s"],
+    password: "Anonymous123s",
     user: {
       id: "security-user-borziy13",
       name: "Borziy13",

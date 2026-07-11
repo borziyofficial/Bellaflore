@@ -33,7 +33,7 @@ const EMPTY_DRAFT: BouquetDraft = {
   category: "",
   description: "",
   basePrice: 0,
-  status: "active",
+  status: "draft",
   displayFlags: createDefaultBouquetDisplayFlags(),
   displayPriority: 100,
   badge: "none",
@@ -57,9 +57,44 @@ type AdminBouquetFormProps = {
   open: boolean;
   mode: "create" | "edit";
   initialDraft?: BouquetDraft | null;
-  onSave: (draft: BouquetDraft) => void;
+  onSave: (draft: BouquetDraft) => boolean | Promise<boolean>;
   onCancel: () => void;
 };
+
+type ValidationErrors = {
+  name?: string;
+  category?: string;
+  basePrice?: string;
+  images?: string;
+  save?: string;
+};
+
+function validateDraft(draft: BouquetDraft): ValidationErrors {
+  const errors: ValidationErrors = {};
+  const price = Number(draft.basePrice);
+
+  if (!draft.name.trim()) {
+    errors.name = "Введите название букета.";
+  }
+
+  if (!draft.category) {
+    errors.category = "Выберите категорию.";
+  }
+
+  if (!Number.isFinite(price) || price <= 0) {
+    errors.basePrice = "Введите цену больше 0.";
+  }
+
+  if (draft.images.length === 0) {
+    errors.images = "Выберите фото букета.";
+  }
+
+  return errors;
+}
+
+function hasValidationErrors(errors: ValidationErrors): boolean {
+  return Object.values(errors).some(Boolean);
+}
 
 export function AdminBouquetForm({
   open,
@@ -70,6 +105,9 @@ export function AdminBouquetForm({
 }: AdminBouquetFormProps) {
   const [draft, setDraft] = useState<BouquetDraft>(EMPTY_DRAFT);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [saving, setSaving] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
   const { categories, createCategory, updateCategoryName } = useAdminBouquetCategories();
   const categoryName =
     categories.find((category) => category.id === draft.category)?.name ??
@@ -78,11 +116,15 @@ export function AdminBouquetForm({
 
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPreviewOpen(false);
       return;
     }
 
     setDraft(initialDraft ? normalizeDraft(initialDraft) : EMPTY_DRAFT);
+    setValidationErrors({});
+    setSaving(false);
+    setPhotoBusy(false);
   }, [open, initialDraft]);
 
   useEffect(() => {
@@ -109,22 +151,48 @@ export function AdminBouquetForm({
     return null;
   }
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!draft.name.trim() || !draft.category) {
+    if (saving || photoBusy) {
       return;
     }
 
-    onSave(
-      normalizeDraft({
-        ...draft,
-        name: draft.name.trim(),
-        description: draft.description.trim(),
-        basePrice: Math.max(0, Number(draft.basePrice) || 0),
-      }),
-    );
+    const errors = validateDraft(draft);
+    if (hasValidationErrors(errors)) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setSaving(true);
+    setValidationErrors({});
+
+    try {
+      const saved = await onSave(
+        normalizeDraft({
+          ...draft,
+          name: draft.name.trim(),
+          description: draft.description.trim(),
+          basePrice: Number(draft.basePrice),
+        }),
+      );
+
+      if (!saved) {
+        setValidationErrors({ save: "Не удалось сохранить букет." });
+        setSaving(false);
+      }
+    } catch {
+      setValidationErrors({ save: "Не удалось сохранить букет." });
+      setSaving(false);
+    }
   };
+
+  const updateDraft = (patch: Partial<BouquetDraft>) => {
+    setDraft((prev) => ({ ...prev, ...patch }));
+    setValidationErrors((prev) => ({ ...prev, save: undefined }));
+  };
+
+  const published = draft.status === "active";
 
   return (
     <>
@@ -157,34 +225,44 @@ export function AdminBouquetForm({
             </button>
           </header>
 
-          <form className={styles.formBody} onSubmit={handleSubmit}>
+          <form className={styles.formBody} onSubmit={handleSubmit} noValidate>
             <AdminBouquetLivePreview draft={draft} categoryName={categoryName} />
 
             <AdminBouquetPhotoUpload
               images={draft.images}
-              onChange={(images) => setDraft((prev) => ({ ...prev, images }))}
+              onChange={(images) => updateDraft({ images })}
+              onBusyChange={setPhotoBusy}
             />
+            {validationErrors.images ? (
+              <p className={styles.fieldError}>{validationErrors.images}</p>
+            ) : null}
 
             <label className={styles.field}>
               <span className={styles.fieldLabel}>Название</span>
               <input
                 className={styles.fieldInput}
                 value={draft.name}
-                onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))}
+                onChange={(event) => updateDraft({ name: event.target.value })}
                 placeholder="Например, Нежная роза"
                 required
               />
+              {validationErrors.name ? (
+                <span className={styles.fieldError}>{validationErrors.name}</span>
+              ) : null}
             </label>
 
             <AdminBouquetCategoryField
               value={draft.category}
               categories={categories}
               onChange={(categoryId) =>
-                setDraft((prev) => ({ ...prev, category: categoryId }))
+                updateDraft({ category: categoryId })
               }
               onCreateCategory={createCategory}
               onRenameCategory={updateCategoryName}
             />
+            {validationErrors.category ? (
+              <p className={styles.fieldError}>{validationErrors.category}</p>
+            ) : null}
 
             <label className={styles.field}>
               <span className={styles.fieldLabel}>Краткое описание</span>
@@ -192,7 +270,7 @@ export function AdminBouquetForm({
                 className={`${styles.fieldInput} ${styles.fieldTextarea}`}
                 value={draft.description}
                 onChange={(event) =>
-                  setDraft((prev) => ({ ...prev, description: event.target.value }))
+                  updateDraft({ description: event.target.value })
                 }
                 placeholder="Краткое описание для админки"
                 rows={3}
@@ -205,31 +283,52 @@ export function AdminBouquetForm({
                 className={styles.fieldInput}
                 type="number"
                 min={0}
-                step={100}
+                step={1}
                 value={draft.basePrice || ""}
                 onChange={(event) =>
-                  setDraft((prev) => ({
-                    ...prev,
+                  updateDraft({
                     basePrice: Number(event.target.value),
-                  }))
+                  })
                 }
                 placeholder="0"
+                required
               />
+              {validationErrors.basePrice ? (
+                <span className={styles.fieldError}>{validationErrors.basePrice}</span>
+              ) : null}
             </label>
 
             <AdminBouquetSizePicker
               sizes={draft.sizes}
-              onChange={(sizes) => setDraft((prev) => ({ ...prev, sizes }))}
+              onChange={(sizes) => updateDraft({ sizes })}
             />
+
+            <label className={styles.publishToggleRow}>
+              <span className={styles.publishToggleText}>
+                <span className={styles.toggleLabel}>Опубликовать</span>
+                <span className={styles.publishToggleHint}>
+                  {published ? "Букет виден в каталоге" : "Букет сохранится как черновик"}
+                </span>
+              </span>
+              <input
+                className={styles.toggleInput}
+                type="checkbox"
+                checked={published}
+                onChange={(event) =>
+                  updateDraft({ status: event.target.checked ? "active" : "draft" })
+                }
+                aria-label="Опубликовать букет"
+              />
+            </label>
 
             <AdminBouquetStatusPicker
               value={draft.status}
-              onChange={(status) => setDraft((prev) => ({ ...prev, status }))}
+              onChange={(status) => updateDraft({ status })}
             />
 
             <AdminBouquetDisplayFlags
               flags={draft.displayFlags}
-              onChange={(displayFlags) => setDraft((prev) => ({ ...prev, displayFlags }))}
+              onChange={(displayFlags) => updateDraft({ displayFlags })}
             />
 
             <label className={styles.field}>
@@ -241,10 +340,9 @@ export function AdminBouquetForm({
                 step={1}
                 value={draft.displayPriority}
                 onChange={(event) =>
-                  setDraft((prev) => ({
-                    ...prev,
+                  updateDraft({
                     displayPriority: normalizeBouquetDisplayPriority(event.target.value),
-                  }))
+                  })
                 }
                 placeholder="100"
               />
@@ -252,22 +350,36 @@ export function AdminBouquetForm({
 
             <AdminBouquetBadgePicker
               value={draft.badge}
-              onChange={(badge) => setDraft((prev) => ({ ...prev, badge }))}
+              onChange={(badge) => updateDraft({ badge })}
             />
 
+            {validationErrors.save ? (
+              <p className={styles.formError}>{validationErrors.save}</p>
+            ) : null}
+
             <div className={styles.formActions}>
-              <button type="button" className={styles.secondaryButton} onClick={onCancel}>
+              <button
+                type="button"
+                className={styles.secondaryButton}
+                onClick={onCancel}
+                disabled={saving}
+              >
                 Отмена
               </button>
               <button
                 type="button"
                 className={styles.secondaryButton}
                 onClick={() => setPreviewOpen(true)}
+                disabled={saving}
               >
                 Предпросмотр
               </button>
-              <button type="submit" className={styles.primaryButton}>
-                Сохранить
+              <button
+                type="submit"
+                className={styles.primaryButton}
+                disabled={saving || photoBusy}
+              >
+                {saving ? "Сохранение..." : photoBusy ? "Фото загружается..." : "Сохранить"}
               </button>
             </div>
           </form>
