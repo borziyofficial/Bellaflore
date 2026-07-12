@@ -812,12 +812,14 @@ export function AdminProductStudio({
         </div>
 
         <footer className={styles.stickyActions}>
-          <button type="button" className={styles.secondaryButton} onClick={() => void backToList()}>
-            Отмена
-          </button>
-          <button type="button" className={styles.secondaryButton} disabled={saving} onClick={() => void saveForm("draft")}>
-            {saving ? "Сохранение…" : "Сохранить черновик"}
-          </button>
+          <div className={styles.stickyActionsSecondaryRow}>
+            <button type="button" className={styles.secondaryButton} onClick={() => void backToList()}>
+              Отмена
+            </button>
+            <button type="button" className={styles.secondaryButton} disabled={saving} onClick={() => void saveForm("draft")}>
+              {saving ? "Сохранение…" : "Сохранить черновик"}
+            </button>
+          </div>
           <button type="button" className={styles.primaryButton} disabled={saving} onClick={() => void saveForm("published")}>
             {saving ? "Публикация…" : "Опубликовать"}
           </button>
@@ -922,8 +924,10 @@ export function AdminProductStudio({
                 </div>
                 <div className={styles.cardActions}>
                   <button type="button" onClick={() => openEdit(product.id)}>Редактировать</button>
-                  <button type="button" disabled={isBusy} onClick={() => void duplicateProduct(product)}>Дублировать</button>
-                  <button type="button" disabled={isBusy} onClick={() => setDeleteId(product.id)}>Удалить</button>
+                  <div className={styles.cardActionsRow}>
+                    <button type="button" disabled={isBusy} onClick={() => void duplicateProduct(product)}>Дублировать</button>
+                    <button type="button" disabled={isBusy} onClick={() => setDeleteId(product.id)}>Удалить</button>
+                  </div>
                 </div>
               </div>
             </article>
