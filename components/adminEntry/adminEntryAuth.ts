@@ -12,7 +12,6 @@ import {
   createSecuritySession,
   destroySecuritySession,
   getCurrentSecuritySession,
-  validateSecurityLogin,
 } from "@/components/securityIntelligence/securityAuthFoundation";
 import type {
   SecurityRole,
@@ -132,11 +131,9 @@ export async function loginWithAdminEntryCredentials(
 
     return finalizeAdminEntryLogin(user);
   } catch {
-    const localValidation = validateSecurityLogin(trimmedLogin, trimmedPassword);
-    if (localValidation.ok && localValidation.user) {
-      return finalizeAdminEntryLogin(localValidation.user);
-    }
-
+    // Credential verification only ever happens server-side (/api/admin/login);
+    // if the request itself failed (e.g. network error), there is no local
+    // fallback that can safely authenticate the user.
     return {
       ok: false,
       session: null,

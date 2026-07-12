@@ -17,12 +17,17 @@ export function resolveSecurityLoginUser(
     return null;
   }
 
-  const devUser = findDevSecurityUserByCredentials(
-    normalizedLogin,
-    normalizedPassword,
-  );
-  if (devUser) {
-    return devUser;
+  // Hardcoded dev credentials are a local convenience only — never honor
+  // them in production, so the deployed site has exactly one admin
+  // identity: the env-configured production account below.
+  if (process.env.NODE_ENV !== "production") {
+    const devUser = findDevSecurityUserByCredentials(
+      normalizedLogin,
+      normalizedPassword,
+    );
+    if (devUser) {
+      return devUser;
+    }
   }
 
   const productionUser = resolveProductionAdminUser(

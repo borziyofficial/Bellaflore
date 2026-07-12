@@ -2,12 +2,6 @@
 // SECTION: SECURITY INTELLIGENCE
 // РАЗДЕЛ: Auth foundation
 // ==================================================
-import {
-  findDevSecurityUserByCredentials,
-  findDevSecurityUserById,
-  SECURITY_DEV_CONFIG_FLAG,
-} from "@/components/securityIntelligence/securityDevConfig";
-import { isProductionEnvAdminUserId } from "@/components/securityIntelligence/securityProductionConstants";
 import { getPermissionsForSecurityRole } from "@/components/securityIntelligence/securityRolesCatalog";
 import { createSecurityAuditEvent } from "@/components/securityIntelligence/securityAuditFoundation";
 import {
@@ -93,6 +87,12 @@ function buildSession(user: SecurityUser): SecuritySession {
   };
 }
 
+// Credential verification is server-only (see /api/admin/login and
+// resolveSecurityLoginUser.ts) so the account roster and password
+// comparison are never bundled into client-side JavaScript. This
+// client-side helper only tracks rate limiting/auditing for failed
+// local validation attempts; it deliberately cannot authenticate anyone
+// on its own.
 export function validateSecurityLogin(
   login: string,
   password: string,
@@ -116,32 +116,26 @@ export function validateSecurityLogin(
       actorId: null,
       actorRole: null,
       message: "Empty login or password",
-      metadata: { login: login.trim(), devConfig: SECURITY_DEV_CONFIG_FLAG },
+      metadata: { login: login.trim() },
     });
 
     return { ok: false, user: null, message: "Введите логин и пароль" };
   }
 
-  const user = findDevSecurityUserByCredentials(login, password.trim());
+  recordRateLimitHit("login_attempt", login.trim());
+  createSecurityAuditEvent({
+    kind: "login_failed",
+    actorId: null,
+    actorRole: null,
+    message: "Local credential validation is disabled; use /api/admin/login",
+    metadata: { login: login.trim() },
+  });
 
-  if (!user) {
-    recordRateLimitHit("login_attempt", login.trim());
-    createSecurityAuditEvent({
-      kind: "login_failed",
-      actorId: null,
-      actorRole: null,
-      message: "Invalid credentials",
-      metadata: { login: login.trim() },
-    });
-
-    return {
-      ok: false,
-      user: null,
-      message: `Неверные учётные данные (${SECURITY_DEV_CONFIG_FLAG})`,
-    };
-  }
-
-  return { ok: true, user, message: "OK" };
+  return {
+    ok: false,
+    user: null,
+    message: "Не удалось проверить учётные данные без сети.",
+  };
 }
 
 export function createSecuritySession(user: SecurityUser): SecuritySession | null {
@@ -195,16 +189,11 @@ export function getCurrentSecuritySession(): SecuritySession | null {
     return null;
   }
 
-  const user = findDevSecurityUserById(session.userId);
-  if (!user?.enabled) {
-    if (isProductionEnvAdminUserId(session.userId)) {
-      return session;
-    }
-
-    writeSessionToStorage(null);
-    return null;
-  }
-
+  // The stored session was only ever created after a successful server-side
+  // login (see createSecuritySession / /api/admin/login); the HttpOnly
+  // session cookie is the real authority checked on every admin API call,
+  // so this client-side session is trusted as-is once we know it hasn't
+  // expired.
   return session;
 }
 
@@ -227,31 +216,18 @@ export function refreshSecuritySession(): SecuritySession | null {
 }
 
 export function getExampleSecuritySession(role: SecurityUser["role"] = "admin"): SecuritySession {
-  const user =
-    findDevSecurityUserById(
-      role === "owner"
-        ? "security-user-owner"
-        : role === "system"
-          ? "security-user-system"
-          : "security-user-admin",
-    ) ?? findDevSecurityUserById("security-user-admin");
-
-  if (!user) {
-    const now = new Date().toISOString();
-    return {
-      sessionId: "example-security-session",
-      userId: "example-user",
-      userName: "Example User",
-      role,
-      permissions: getPermissionsForSecurityRole(role),
-      createdAt: now,
-      expiresAt: new Date(Date.now() + SESSION_TTL_MS).toISOString(),
-      lastActivityAt: now,
-      refreshedAt: null,
-    };
-  }
-
-  return buildSession(user);
+  const now = new Date().toISOString();
+  return {
+    sessionId: "example-security-session",
+    userId: "example-user",
+    userName: "Example User",
+    role,
+    permissions: getPermissionsForSecurityRole(role),
+    createdAt: now,
+    expiresAt: new Date(Date.now() + SESSION_TTL_MS).toISOString(),
+    lastActivityAt: now,
+    refreshedAt: null,
+  };
 }
 
 export function clearSecuritySessionStore(): void {

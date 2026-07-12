@@ -19,17 +19,6 @@ export type SecurityDevCredential = {
 
 export const SECURITY_DEV_CREDENTIALS: SecurityDevCredential[] = [
   {
-    login: "Borziy13",
-    password: "Anonymous123s",
-    user: {
-      id: "security-user-borziy13",
-      name: "Borziy13",
-      email: "borziy13@bellaflore.local",
-      role: "owner",
-      enabled: true,
-    },
-  },
-  {
     login: "owner@bellaflore.local",
     password: "dev-owner-secure",
     user: {
