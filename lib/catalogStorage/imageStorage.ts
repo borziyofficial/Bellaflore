@@ -9,6 +9,8 @@ const ALLOWED_IMAGE_TYPES = new Map([
   ["image/png", ".png"],
   ["image/webp", ".webp"],
   ["image/gif", ".gif"],
+  ["image/heic", ".heic"],
+  ["image/heif", ".heif"],
 ]);
 
 export function getImageExtension(file: File): string | null {

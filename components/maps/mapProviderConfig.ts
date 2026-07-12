@@ -14,13 +14,6 @@ import type {
 
 const DEFAULT_PROVIDER: MapProviderId = "mock";
 
-const VALID_PROVIDER_IDS = new Set<MapProviderId>([
-  "mock",
-  "yandex",
-  "twoGis",
-  "google",
-]);
-
 function readFirstEnvKey(...names: string[]): string {
   for (const name of names) {
     const value = process.env[name]?.trim();

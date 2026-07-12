@@ -20,7 +20,6 @@ type ProductImageWithFallbackProps = {
   width: number;
   height: number;
   sizes: string;
-  className?: string;
   imageClassName?: string;
   fallbackClassName?: string;
 };
@@ -31,7 +30,6 @@ export function ProductImageWithFallback({
   width,
   height,
   sizes,
-  className,
   imageClassName,
   fallbackClassName,
 }: ProductImageWithFallbackProps) {

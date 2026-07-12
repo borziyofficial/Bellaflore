@@ -49,9 +49,17 @@ export function createEmptyAdminProductForm(): AdminProductFormState {
     status: "draft",
     availability: "in_stock",
     sizePrices: { S: "", M: "", L: "", XL: "" },
+    oldPriceRub: "",
+    flowerCount: "",
+    heightCm: "",
+    widthCm: "",
+    colorPalette: "",
+    occasion: "",
     isFeatured: false,
     isNew: false,
     isBestseller: false,
+    isPromotion: false,
+    images: [],
     mainImageUrl: "",
     mainImageAlt: "",
     mainImageTemporary: false,
@@ -104,6 +112,23 @@ function parseSizePrices(
 }
 
 function buildImages(form: AdminProductFormState): CatalogProductImage[] {
+  if (form.images.length > 0) {
+    return form.images
+      .sort((left, right) => left.sortOrder - right.sortOrder)
+      .map((image, index) => ({
+        id: image.id,
+        url: image.processedUrl || image.originalUrl,
+        alt:
+          index === 0
+            ? form.seoImageAlt || form.mainImageAlt || form.title || "Букет Bellaflore"
+            : `${form.title || "Букет Bellaflore"} — фото ${index + 1}`,
+        width: image.width || 1080,
+        height: image.height || 1350,
+        sortOrder: index,
+        isPrimary: image.isPrimary,
+      }));
+  }
+
   const images: CatalogProductImage[] = [];
 
   if (form.mainImageUrl) {
@@ -268,6 +293,13 @@ export function adminFormToCatalogUpsertInput(
       legacyCategory: category?.title,
       composition: normalizedForm.composition.trim(),
       isBestseller: normalizedForm.isBestseller,
+      oldPriceRub: Number(normalizedForm.oldPriceRub.replace(/\s/g, "")) || undefined,
+      flowerCount: Number(normalizedForm.flowerCount.replace(/\s/g, "")) || undefined,
+      heightCm: Number(normalizedForm.heightCm.replace(/\s/g, "")) || undefined,
+      widthCm: Number(normalizedForm.widthCm.replace(/\s/g, "")) || undefined,
+      colorPalette: parseTagsInput(normalizedForm.colorPalette),
+      occasion: normalizedForm.occasion.trim(),
+      isPromotion: normalizedForm.isPromotion,
       adminCreated: existing?.metadata.adminCreated ?? !existing,
       adminSeoDraft,
     },
@@ -311,9 +343,33 @@ export function catalogRecordToAdminForm(
     status: product.status === "ARCHIVED" ? "draft" : status,
     availability: product.availability ?? "in_stock",
     sizePrices,
+    oldPriceRub: product.metadata.oldPriceRub ? String(product.metadata.oldPriceRub) : "",
+    flowerCount: product.metadata.flowerCount ? String(product.metadata.flowerCount) : "",
+    heightCm: product.metadata.heightCm ? String(product.metadata.heightCm) : "",
+    widthCm: product.metadata.widthCm ? String(product.metadata.widthCm) : "",
+    colorPalette: product.metadata.colorPalette?.join(", ") ?? "",
+    occasion: product.metadata.occasion ?? "",
     isFeatured: product.isFeatured,
     isNew: product.isNew,
     isBestseller: product.metadata.isBestseller ?? product.popularityScore >= 90,
+    isPromotion: product.metadata.isPromotion ?? false,
+    images: product.images.map((image, index) => ({
+      id: image.id,
+      originalUrl: image.url,
+      processedUrl: image.url,
+      thumbnailUrl: image.url,
+      filename: image.url.split("/").pop() || `${product.slug}-${index + 1}`,
+      mimeType: "image/*",
+      width: image.width,
+      height: image.height,
+      size: 0,
+      sortOrder: image.sortOrder,
+      isPrimary: image.isPrimary,
+      processingStatus: "original",
+      processingError: null,
+      createdAt: product.metadata.createdAt,
+      updatedAt: product.metadata.updatedAt,
+    })),
     mainImageUrl: primaryImage?.url ?? "",
     mainImageAlt: primaryImage?.alt ?? product.title,
     mainImageTemporary: false,
@@ -358,6 +414,13 @@ export function finalizeCatalogRecord(
       stemCount: input.metadata?.stemCount,
       composition: input.metadata?.composition,
       isBestseller: input.metadata?.isBestseller,
+      oldPriceRub: input.metadata?.oldPriceRub,
+      flowerCount: input.metadata?.flowerCount,
+      heightCm: input.metadata?.heightCm,
+      widthCm: input.metadata?.widthCm,
+      colorPalette: input.metadata?.colorPalette,
+      occasion: input.metadata?.occasion,
+      isPromotion: input.metadata?.isPromotion,
       adminCreated: input.metadata?.adminCreated,
       adminSeoDraft: input.metadata?.adminSeoDraft,
     },

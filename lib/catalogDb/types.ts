@@ -1,4 +1,5 @@
 import type { AdminSeoFaqItem } from "@/components/adminCatalogManager/adminSeoTypes";
+import type { AdminProductImageDraft } from "@/components/adminCatalogManager/adminCatalogTypes";
 
 export type CatalogProductDbStatus = "draft" | "published" | "archived";
 
@@ -17,8 +18,15 @@ export type StoredCatalogProduct = {
   composition: string;
   tags: string[];
   sizes: CatalogProductSizePrices;
+  oldPriceRub: number | null;
+  flowerCount: number | null;
+  heightCm: number | null;
+  widthCm: number | null;
+  colorPalette: string[];
+  occasion: string;
   imageUrl: string;
   galleryImages: string[];
+  images: AdminProductImageDraft[];
   seoTitle: string;
   seoDescription: string;
   seoH1: string;
@@ -32,6 +40,7 @@ export type StoredCatalogProduct = {
   isFeatured: boolean;
   isNew: boolean;
   isBestseller: boolean;
+  isPromotion: boolean;
   createdAt: string;
   updatedAt: string;
 };

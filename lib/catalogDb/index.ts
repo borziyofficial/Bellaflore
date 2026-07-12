@@ -6,6 +6,7 @@ import {
   fileGetCatalogProductById,
   fileGetCatalogProductBySlug,
   fileListCatalogProducts,
+  fileDeleteCatalogProduct,
   fileSetCatalogProductStatus,
   fileUpsertCatalogProduct,
 } from "@/lib/catalogDb/fileAdapter";
@@ -13,6 +14,7 @@ import {
   postgresGetCatalogProductById,
   postgresGetCatalogProductBySlug,
   postgresListCatalogProducts,
+  postgresDeleteCatalogProduct,
   postgresSetCatalogProductStatus,
   postgresUpsertCatalogProduct,
 } from "@/lib/catalogDb/postgresAdapter";
@@ -106,6 +108,24 @@ export async function archiveCatalogProduct(
   id: string,
 ): Promise<StoredCatalogProduct | null> {
   return setCatalogProductStatus(id, "archived");
+}
+
+export async function unpublishCatalogProduct(
+  id: string,
+): Promise<StoredCatalogProduct | null> {
+  return setCatalogProductStatus(id, "draft");
+}
+
+export async function deleteCatalogProduct(
+  id: string,
+): Promise<StoredCatalogProduct | null> {
+  assertCatalogDatabaseAvailable();
+
+  if (isCatalogDatabaseConfigured()) {
+    return postgresDeleteCatalogProduct(id);
+  }
+
+  return fileDeleteCatalogProduct(id);
 }
 
 export async function saveCatalogDraft(

@@ -43,7 +43,6 @@ export function AdminModuleCard({ section }: AdminModuleCardProps) {
   return (
     <article
       className={`${styles.card} ${section.disabled ? styles.cardDisabled : ""}`}
-      aria-disabled={section.disabled ? true : undefined}
     >
       {content}
     </article>

@@ -73,6 +73,10 @@ export function FastCategoryPicker({
 
   const sections = useMemo(
     () => buildSections(categories.filter((item) => item.isActive), search),
+    // favoriteRevision is not read directly inside the memo callback, but
+    // buildSections reads favorite/recent category ids from storage — bump
+    // the revision to force recomputation whenever favorites change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [categories, search, favoriteRevision],
   );
 

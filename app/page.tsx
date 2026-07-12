@@ -82,7 +82,6 @@ import {
 } from "@/components/product/productExperienceCatalog";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import {
-  type ChangeEvent as ReactChangeEvent,
   type FormEvent as ReactFormEvent,
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
@@ -460,7 +459,7 @@ function writeStoredOrders(orders: BellafloreOrder[]) {
 }
 
 export default function Home() {
-  const { catalog: bouquets, isReady: catalogReady, reload: reloadPublicCatalog } =
+  const { catalog: bouquets, isReady: catalogReady } =
     usePublicStorefrontCatalog();
   // ==================================================
   // SECTION: STATE
@@ -1509,6 +1508,13 @@ export default function Home() {
     lastTouchActionRef.current = event.timeStamp;
     increaseCartItemQuantity(bouquetId, sizeId);
   };
+
+  void handleCartRemoveClick;
+  void handleCartRemoveTouchEnd;
+  void handleCartDecreaseClick;
+  void handleCartDecreaseTouchEnd;
+  void handleCartIncreaseClick;
+  void handleCartIncreaseTouchEnd;
 
   const updateCheckoutPrimarySize = (sizeId: ProductSizeId) => {
     const primaryItem = cartItems[0];

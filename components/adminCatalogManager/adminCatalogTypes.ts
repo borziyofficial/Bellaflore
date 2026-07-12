@@ -12,6 +12,31 @@ export type AdminProductStatusFilter = "all" | "published" | "draft" | "archived
 
 export type AdminProductFormStatus = "draft" | "published";
 
+export type AdminImageProcessingStatus =
+  | "original"
+  | "pending"
+  | "processing"
+  | "processed"
+  | "failed";
+
+export type AdminProductImageDraft = {
+  id: string;
+  originalUrl: string;
+  processedUrl: string;
+  thumbnailUrl: string;
+  filename: string;
+  mimeType: string;
+  width: number;
+  height: number;
+  size: number;
+  sortOrder: number;
+  isPrimary: boolean;
+  processingStatus: AdminImageProcessingStatus;
+  processingError: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type AdminProductFormState = {
   id: string | null;
   title: string;
@@ -24,9 +49,17 @@ export type AdminProductFormState = {
   status: AdminProductFormStatus;
   availability: "in_stock" | "out_of_stock" | "coming_soon" | "made_to_order";
   sizePrices: Record<CatalogProductSizeId, string>;
+  oldPriceRub: string;
+  flowerCount: string;
+  heightCm: string;
+  widthCm: string;
+  colorPalette: string;
+  occasion: string;
   isFeatured: boolean;
   isNew: boolean;
   isBestseller: boolean;
+  isPromotion: boolean;
+  images: AdminProductImageDraft[];
   mainImageUrl: string;
   mainImageAlt: string;
   mainImageTemporary: boolean;

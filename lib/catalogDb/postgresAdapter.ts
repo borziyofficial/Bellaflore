@@ -48,8 +48,15 @@ type CatalogRow = {
   composition: string;
   tags: string[];
   sizes: StoredCatalogProduct["sizes"];
+  old_price_rub: number | null;
+  flower_count: number | null;
+  height_cm: number | null;
+  width_cm: number | null;
+  color_palette: string[];
+  occasion: string;
   image_url: string;
   gallery_images: string[];
+  images: StoredCatalogProduct["images"];
   seo_title: string;
   seo_description: string;
   seo_h1: string;
@@ -63,6 +70,7 @@ type CatalogRow = {
   is_featured: boolean;
   is_new: boolean;
   is_bestseller: boolean;
+  is_promotion: boolean;
   created_at: Date | string;
   updated_at: Date | string;
 };
@@ -79,8 +87,15 @@ function rowToProduct(row: CatalogRow): StoredCatalogProduct {
     composition: row.composition,
     tags: row.tags ?? [],
     sizes: row.sizes ?? {},
+    oldPriceRub: row.old_price_rub ?? null,
+    flowerCount: row.flower_count ?? null,
+    heightCm: row.height_cm ?? null,
+    widthCm: row.width_cm ?? null,
+    colorPalette: row.color_palette ?? [],
+    occasion: row.occasion ?? "",
     imageUrl: row.image_url,
     galleryImages: row.gallery_images ?? [],
+    images: row.images ?? [],
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,
     seoH1: row.seo_h1,
@@ -94,6 +109,7 @@ function rowToProduct(row: CatalogRow): StoredCatalogProduct {
     isFeatured: row.is_featured,
     isNew: row.is_new,
     isBestseller: row.is_bestseller,
+    isPromotion: row.is_promotion ?? false,
     createdAt: new Date(row.created_at).toISOString(),
     updatedAt: new Date(row.updated_at).toISOString(),
   };
@@ -163,10 +179,12 @@ export async function postgresUpsertCatalogProduct(
     INSERT INTO catalog_products (
       id, slug, title, category, status,
       short_description, full_description, composition,
-      tags, sizes, image_url, gallery_images,
+      tags, sizes,
+      old_price_rub, flower_count, height_cm, width_cm, color_palette, occasion,
+      image_url, gallery_images, images,
       seo_title, seo_description, seo_h1, seo_slug, seo_image_alt, seo_keywords, seo_faq,
       open_graph_title, open_graph_description, schema_product_json_ld,
-      is_featured, is_new, is_bestseller, created_at, updated_at
+      is_featured, is_new, is_bestseller, is_promotion, created_at, updated_at
     ) VALUES (
       ${product.id},
       ${product.slug},
@@ -178,8 +196,15 @@ export async function postgresUpsertCatalogProduct(
       ${product.composition},
       ${sql.json(product.tags)},
       ${sql.json(product.sizes)},
+      ${product.oldPriceRub},
+      ${product.flowerCount},
+      ${product.heightCm},
+      ${product.widthCm},
+      ${sql.json(product.colorPalette)},
+      ${product.occasion},
       ${product.imageUrl},
       ${sql.json(product.galleryImages)},
+      ${sql.json(product.images)},
       ${product.seoTitle},
       ${product.seoDescription},
       ${product.seoH1},
@@ -193,6 +218,7 @@ export async function postgresUpsertCatalogProduct(
       ${product.isFeatured},
       ${product.isNew},
       ${product.isBestseller},
+      ${product.isPromotion},
       ${product.createdAt},
       ${product.updatedAt}
     )
@@ -206,8 +232,15 @@ export async function postgresUpsertCatalogProduct(
       composition = EXCLUDED.composition,
       tags = EXCLUDED.tags,
       sizes = EXCLUDED.sizes,
+      old_price_rub = EXCLUDED.old_price_rub,
+      flower_count = EXCLUDED.flower_count,
+      height_cm = EXCLUDED.height_cm,
+      width_cm = EXCLUDED.width_cm,
+      color_palette = EXCLUDED.color_palette,
+      occasion = EXCLUDED.occasion,
       image_url = EXCLUDED.image_url,
       gallery_images = EXCLUDED.gallery_images,
+      images = EXCLUDED.images,
       seo_title = EXCLUDED.seo_title,
       seo_description = EXCLUDED.seo_description,
       seo_h1 = EXCLUDED.seo_h1,
@@ -221,6 +254,7 @@ export async function postgresUpsertCatalogProduct(
       is_featured = EXCLUDED.is_featured,
       is_new = EXCLUDED.is_new,
       is_bestseller = EXCLUDED.is_bestseller,
+      is_promotion = EXCLUDED.is_promotion,
       updated_at = EXCLUDED.updated_at
   `;
 
@@ -240,6 +274,23 @@ export async function postgresSetCatalogProductStatus(
   const rows = await sql<CatalogRow[]>`
     UPDATE catalog_products
     SET status = ${status}, updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING *
+  `;
+  return rows[0] ? rowToProduct(rows[0]) : null;
+}
+
+export async function postgresDeleteCatalogProduct(
+  id: string,
+): Promise<StoredCatalogProduct | null> {
+  const sql = getSqlClient();
+  if (!sql) {
+    return null;
+  }
+
+  await ensureSchema();
+  const rows = await sql<CatalogRow[]>`
+    DELETE FROM catalog_products
     WHERE id = ${id}
     RETURNING *
   `;

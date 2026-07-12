@@ -48,7 +48,6 @@ export function AdminBouquetsModule() {
     hideBouquet,
     activateBouquet,
     bulkSetStatus,
-    removeBouquet,
     bulkRemoveBouquets,
   } = useAdminBouquets();
   const [filters, setFilters] = useState<BouquetListFilters>(DEFAULT_BOUQUET_LIST_FILTERS);

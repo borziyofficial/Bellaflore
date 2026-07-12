@@ -71,12 +71,32 @@ export async function publishAdminCatalogProduct(
   return body.product;
 }
 
+export async function unpublishAdminCatalogProduct(
+  productId: string,
+): Promise<CatalogProductRecord> {
+  const body = await catalogRequest<CatalogApiProductResponse>(
+    `/api/admin/products/${encodeURIComponent(productId)}/unpublish`,
+    { method: "POST" },
+  );
+  return body.product;
+}
+
 export async function archiveAdminCatalogProduct(
   productId: string,
 ): Promise<CatalogProductRecord> {
   const body = await catalogRequest<CatalogApiProductResponse>(
     `/api/admin/products/${encodeURIComponent(productId)}/archive`,
     { method: "POST" },
+  );
+  return body.product;
+}
+
+export async function deleteAdminCatalogProduct(
+  productId: string,
+): Promise<CatalogProductRecord> {
+  const body = await catalogRequest<CatalogApiProductResponse>(
+    `/api/admin/products/${encodeURIComponent(productId)}`,
+    { method: "DELETE" },
   );
   return body.product;
 }

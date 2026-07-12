@@ -7,6 +7,7 @@ import {
   CatalogDatabaseNotConfiguredError,
   getCatalogDatabaseMode,
   getCatalogProductById,
+  deleteCatalogProduct,
   saveCatalogDraft,
   upsertCatalogProduct,
 } from "@/lib/catalogDb";
@@ -81,6 +82,27 @@ export async function PUT(request: Request, context: RouteContext) {
 
     return Response.json({
       product: storedProductToCatalogRecord(saved),
+      mode: getCatalogDatabaseMode(),
+    });
+  } catch (error) {
+    return catalogUnavailableResponse(error);
+  }
+}
+
+export async function DELETE(request: Request, context: RouteContext) {
+  if (!isAdminRequestAuthorized(request)) {
+    return unauthorizedAdminResponse();
+  }
+
+  try {
+    const { id } = await context.params;
+    const deleted = await deleteCatalogProduct(decodeURIComponent(id));
+    if (!deleted) {
+      return Response.json({ message: "Товар не найден." }, { status: 404 });
+    }
+
+    return Response.json({
+      product: storedProductToCatalogRecord(deleted),
       mode: getCatalogDatabaseMode(),
     });
   } catch (error) {

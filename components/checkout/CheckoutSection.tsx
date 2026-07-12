@@ -211,6 +211,12 @@ export function CheckoutSection({
   onCheckoutSizeSelect,
   embedded = false,
 }: CheckoutSectionProps) {
+  // Reserved for the upcoming custom delivery date picker; not wired into
+  // this section's UI yet, kept as props so the parent stays the source
+  // of truth once that control ships.
+  void todayDateValue;
+  void handleCustomDeliveryDateChange;
+
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [touchedFields, setTouchedFields] = useState<Set<CheckoutValidatedField>>(
     () => new Set(),

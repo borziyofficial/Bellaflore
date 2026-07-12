@@ -9,12 +9,29 @@ async function ensureDataFile(): Promise<StoredCatalogProduct[]> {
   try {
     const raw = await readFile(DATA_FILE, "utf8");
     const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as StoredCatalogProduct[]) : [];
+    return Array.isArray(parsed)
+      ? (parsed as StoredCatalogProduct[]).map(normalizeProduct)
+      : [];
   } catch {
     await mkdir(DATA_DIR, { recursive: true });
     await writeFile(DATA_FILE, "[]", "utf8");
     return [];
   }
+}
+
+function normalizeProduct(product: StoredCatalogProduct): StoredCatalogProduct {
+  return {
+    ...product,
+    oldPriceRub: product.oldPriceRub ?? null,
+    flowerCount: product.flowerCount ?? null,
+    heightCm: product.heightCm ?? null,
+    widthCm: product.widthCm ?? null,
+    colorPalette: product.colorPalette ?? [],
+    occasion: product.occasion ?? "",
+    galleryImages: product.galleryImages ?? [],
+    images: product.images ?? [],
+    isPromotion: product.isPromotion ?? false,
+  };
 }
 
 async function writeAll(products: StoredCatalogProduct[]): Promise<void> {
@@ -58,14 +75,15 @@ export async function fileUpsertCatalogProduct(
   product: StoredCatalogProduct,
 ): Promise<StoredCatalogProduct> {
   const products = await ensureDataFile();
+  const normalizedProduct = normalizeProduct(product);
   const existingIndex = products.findIndex((item) => item.id === product.id);
   const next =
     existingIndex === -1
-      ? [...products, product]
-      : products.map((item, index) => (index === existingIndex ? product : item));
+      ? [...products, normalizedProduct]
+      : products.map((item, index) => (index === existingIndex ? normalizedProduct : item));
 
   await writeAll(next);
-  return product;
+  return normalizedProduct;
 }
 
 export async function fileSetCatalogProductStatus(
@@ -88,4 +106,17 @@ export async function fileSetCatalogProductStatus(
     products.map((product) => (product.id === id ? updated : product)),
   );
   return updated;
+}
+
+export async function fileDeleteCatalogProduct(
+  id: string,
+): Promise<StoredCatalogProduct | null> {
+  const products = await ensureDataFile();
+  const existing = products.find((product) => product.id === id);
+  if (!existing) {
+    return null;
+  }
+
+  await writeAll(products.filter((product) => product.id !== id));
+  return existing;
 }

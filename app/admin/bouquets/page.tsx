@@ -1,13 +1,17 @@
 // ==================================================
-// SECTION: ADMIN — Bouquets (Stage 2.1 core)
+// SECTION: ADMIN — Bouquets product studio
 // ==================================================
+"use client";
 
-import { AdminAppPage, AdminBouquetsModule } from "@/components/adminApp";
+import { AdminCatalogManager } from "@/components/adminCatalogManager/AdminCatalogManager";
+import { AdminAppShell, AdminEntryGate } from "@/components/adminEntry";
 
 export default function AdminBouquetsPage() {
   return (
-    <AdminAppPage route="/admin" title="Букеты">
-      <AdminBouquetsModule />
-    </AdminAppPage>
+    <AdminEntryGate route="/admin">
+      <AdminAppShell title="Букеты">
+        <AdminCatalogManager embedded />
+      </AdminAppShell>
+    </AdminEntryGate>
   );
 }

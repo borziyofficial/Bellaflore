@@ -121,6 +121,13 @@ export type CatalogProductRecord = {
     stemCount?: number;
     composition?: string;
     isBestseller?: boolean;
+    oldPriceRub?: number;
+    flowerCount?: number;
+    heightCm?: number;
+    widthCm?: number;
+    colorPalette?: string[];
+    occasion?: string;
+    isPromotion?: boolean;
     adminCreated?: boolean;
     adminSeoDraft?: CatalogAdminSeoDraft;
   };
