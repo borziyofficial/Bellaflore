@@ -12,10 +12,10 @@ import {
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
 
 const ORDER_TABS = [
-  { id: "new", label: "New orders" },
-  { id: "progress", label: "In progress" },
-  { id: "delivered", label: "Delivered" },
-  { id: "cancelled", label: "Cancelled" },
+  { id: "new", label: "Новые заказы" },
+  { id: "progress", label: "В работе" },
+  { id: "delivered", label: "Доставлены" },
+  { id: "cancelled", label: "Отменены" },
 ] as const;
 
 type OrderTabId = (typeof ORDER_TABS)[number]["id"];
@@ -33,12 +33,12 @@ export function AdminOrdersModule() {
   return (
     <div className={ui.stack}>
       <AdminModuleHeader
-        title="Orders"
+        title="Заказы"
         subtitle="Воронка заказов"
         action={<AdminPlaceholderBadge />}
       />
 
-      <div className={ui.tabRow} role="tablist" aria-label="Order status">
+      <div className={ui.tabRow} role="tablist" aria-label="Статус заказа">
         {ORDER_TABS.map((tab) => (
           <button
             key={tab.id}

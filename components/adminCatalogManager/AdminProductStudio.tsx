@@ -793,15 +793,15 @@ export function AdminProductStudio({
           <details className={styles.panel}>
             <summary className={styles.panelTitle}>SEO</summary>
             <label className={styles.field}>
-              <span>SEO title</span>
+              <span>SEO-заголовок</span>
               <input value={form.seoTitle} onChange={(event) => updateForm({ seoTitle: event.target.value })} />
             </label>
             <label className={styles.field}>
-              <span>SEO description</span>
+              <span>SEO-описание</span>
               <textarea value={form.seoDescription} onChange={(event) => updateForm({ seoDescription: event.target.value })} rows={3} />
             </label>
             <label className={styles.field}>
-              <span>Slug</span>
+              <span>Адрес страницы (slug)</span>
               <input value={form.seoSlug} onChange={(event) => updateForm({ seoSlug: event.target.value })} />
             </label>
             <label className={styles.field}>

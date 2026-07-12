@@ -18,8 +18,8 @@ export default function AdminFutureSectionPage() {
 
   if (!moduleConfig) {
     return (
-      <AdminAppPage route="/admin" title="Not found">
-        <div className={ui.emptyZone}>Module &quot;{sectionSlug}&quot; is not registered.</div>
+      <AdminAppPage route="/admin" title="Не найдено">
+        <div className={ui.emptyZone}>Раздел «{sectionSlug}» не зарегистрирован.</div>
       </AdminAppPage>
     );
   }

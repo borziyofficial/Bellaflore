@@ -17,6 +17,11 @@ import {
 import { getImageStorageWarning } from "@/lib/catalogStorage/config";
 
 export const runtime = "nodejs";
+// This route reflects live writes made through publish/unpublish/save/delete
+// and is polled right after those mutations to refresh the admin UI — it
+// must never be statically cached or served stale.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function catalogUnavailableResponse(error: unknown): Response {
   if (error instanceof CatalogDatabaseNotConfiguredError) {
@@ -40,11 +45,14 @@ export async function GET(request: Request) {
 
   try {
     const products = await listCatalogProducts();
-    return Response.json({
-      products: products.map(storedProductToCatalogRecord),
-      mode: getCatalogDatabaseMode(),
-      imageStorageWarning: getImageStorageWarning(),
-    });
+    return Response.json(
+      {
+        products: products.map(storedProductToCatalogRecord),
+        mode: getCatalogDatabaseMode(),
+        imageStorageWarning: getImageStorageWarning(),
+      },
+      { headers: { "Cache-Control": "no-store, must-revalidate" } },
+    );
   } catch (error) {
     return catalogUnavailableResponse(error);
   }

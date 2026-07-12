@@ -45,33 +45,33 @@ export const ADMIN_BOTTOM_NAV_ITEMS: AdminNavItem[] = [
 export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Главная",
     href: "/admin",
-    description: "Overview",
+    description: "Обзор",
   },
   {
     id: "bouquets",
-    label: "Bouquets",
+    label: "Букеты",
     href: "/admin/bouquets",
-    description: "Product catalog",
+    description: "Каталог товаров",
   },
   {
     id: "categories",
-    label: "Categories",
+    label: "Категории",
     href: "/admin/categories",
-    description: "Category tree",
+    description: "Дерево категорий",
     sidebarOnly: true,
     future: true,
   },
   {
     id: "orders",
-    label: "Orders",
+    label: "Заказы",
     href: "/admin/orders",
-    description: "Order pipeline",
+    description: "Поток заказов",
   },
   {
     id: "customers",
-    label: "Customers",
+    label: "Клиенты",
     href: "/admin/customers",
     description: "CRM",
     sidebarOnly: true,
@@ -79,56 +79,56 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
   },
   {
     id: "delivery",
-    label: "Delivery",
+    label: "Доставка",
     href: "/admin/delivery",
-    description: "Routes & couriers",
+    description: "Маршруты и курьеры",
     sidebarOnly: true,
   },
   {
     id: "promotions",
-    label: "Promotions",
+    label: "Акции",
     href: "/admin/promotions",
-    description: "Campaigns",
+    description: "Кампании",
     sidebarOnly: true,
     future: true,
   },
   {
     id: "smart-banner",
-    label: "Smart Banner",
+    label: "Умный баннер",
     href: "/admin/smart-banner",
-    description: "Intelligent storefront promotion",
+    description: "Умное продвижение витрины",
     sidebarOnly: true,
     future: true,
   },
   {
     id: "analytics",
-    label: "Analytics",
+    label: "Аналитика",
     href: "/admin/analytics",
-    description: "Performance",
+    description: "Показатели",
     sidebarOnly: true,
     future: true,
   },
   {
     id: "notifications",
-    label: "Notifications",
+    label: "Уведомления",
     href: "/admin/notifications",
-    description: "Alerts",
+    description: "Оповещения",
     sidebarOnly: true,
     future: true,
   },
   {
     id: "automation",
-    label: "Automation",
+    label: "Автоматизация",
     href: "/admin/automation",
-    description: "Workflows",
+    description: "Рабочие процессы",
     sidebarOnly: true,
     future: true,
   },
   {
     id: "settings",
-    label: "Settings",
+    label: "Настройки",
     href: "/admin/settings",
-    description: "Store configuration",
+    description: "Настройки магазина",
     sidebarOnly: true,
     future: true,
   },
@@ -139,7 +139,11 @@ const BOTTOM_NAV_IDS = new Set<AdminBottomNavId>(
 );
 
 export function resolveAdminBottomNavId(pathname: string): AdminBottomNavId {
-  if (pathname.startsWith("/admin/bouquets") || pathname.startsWith("/admin/products")) {
+  if (
+    pathname.startsWith("/admin/bouquets") ||
+    pathname.startsWith("/admin/products") ||
+    pathname.startsWith("/admin/edit")
+  ) {
     return "bouquets";
   }
   if (pathname.startsWith("/admin/add")) {
@@ -194,7 +198,7 @@ export function resolveAdminSidebarId(pathname: string): AdminSidebarId {
   if (pathname.startsWith("/admin/profile")) {
     return "settings";
   }
-  if (pathname.startsWith("/admin/add")) {
+  if (pathname.startsWith("/admin/add") || pathname.startsWith("/admin/edit")) {
     return "bouquets";
   }
   return "dashboard";
@@ -205,11 +209,11 @@ export function isAdminBottomNavRoute(pathname: string): boolean {
 }
 
 const ADMIN_PAGE_TITLES: Record<string, string> = {
-  "/admin": "Dashboard",
+  "/admin": "Главная",
   "/admin/bouquets": "Букеты",
-  "/admin/add": "Add bouquet",
-  "/admin/orders": "Orders",
-  "/admin/profile": "Profile",
+  "/admin/add": "Добавить товар",
+  "/admin/orders": "Заказы",
+  "/admin/profile": "Профиль",
 };
 
 export function resolveAdminPageTitle(pathname: string): string {
@@ -220,6 +224,10 @@ export function resolveAdminPageTitle(pathname: string): string {
     return ADMIN_PAGE_TITLES[normalized];
   }
 
+  if (normalized.startsWith("/admin/edit/")) {
+    return "Редактировать товар";
+  }
+
   const sectionMatch = normalized.match(/^\/admin\/([^/]+)$/);
   if (sectionMatch) {
     const futureModule = getAdminFutureModule(sectionMatch[1]);
@@ -228,7 +236,7 @@ export function resolveAdminPageTitle(pathname: string): string {
     }
   }
 
-  return "Admin";
+  return "Админ-панель";
 }
 
 export const ADMIN_FUTURE_MODULE_SLUGS = ADMIN_SIDEBAR_ITEMS.filter(

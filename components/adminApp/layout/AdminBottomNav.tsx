@@ -19,7 +19,7 @@ export function AdminBottomNav({ pathname }: AdminBottomNavProps) {
   const activeId = resolveAdminBottomNavId(pathname);
 
   return (
-    <nav className={styles.tabBar} aria-label="Admin mobile navigation">
+    <nav className={styles.tabBar} aria-label="Мобильная навигация админ-панели">
       {ADMIN_BOTTOM_NAV_ITEMS.map((item) => {
         const isActive = item.id === activeId;
 

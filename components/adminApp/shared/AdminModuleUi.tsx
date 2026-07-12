@@ -61,7 +61,7 @@ export function AdminPanel({
 }
 
 export function AdminPlaceholderBadge() {
-  return <span className={styles.stageBadge}>Stage 1</span>;
+  return <span className={styles.stageBadge}>В разработке</span>;
 }
 
 export function AdminFutureNote({ children }: { children: ReactNode }) {

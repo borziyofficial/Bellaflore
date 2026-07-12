@@ -41,13 +41,13 @@ export function AdminFoundationShell({
 
   return (
     <div className={styles.shell}>
-      <div className={styles.appFrame} aria-label={`${title} admin panel`}>
+      <div className={styles.appFrame} aria-label={`${title} — админ-панель`}>
         <AdminSidebar pathname={pathname} />
 
         <div className={styles.mainColumn}>
           <header className={styles.topBar}>
             <div className={styles.topBarMain}>
-              <p className={styles.eyebrow}>BellaFlore Admin</p>
+              <p className={styles.eyebrow}>BellaFlore Админ</p>
               <h1 className={styles.pageTitle}>{title}</h1>
             </div>
 

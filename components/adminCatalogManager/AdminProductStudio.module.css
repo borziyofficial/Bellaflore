@@ -134,10 +134,12 @@
 }
 
 .productImage {
-  min-height: 128px;
+  aspect-ratio: 1 / 1;
 }
 
 .image {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -462,10 +464,6 @@
   .productCard {
     grid-template-columns: 88px minmax(0, 1fr);
     padding: 10px;
-  }
-
-  .productImage {
-    min-height: 104px;
   }
 
   .priceGrid,

@@ -14,33 +14,33 @@ export function AdminProfileModule() {
   return (
     <div className={ui.stack}>
       <AdminModuleHeader
-        title="Profile"
+        title="Профиль"
         subtitle="Аккаунт администратора и настройки магазина"
         action={<AdminPlaceholderBadge />}
       />
 
-      <AdminPanel title="Admin account">
+      <AdminPanel title="Аккаунт администратора">
         <ul className={ui.list}>
           <li className={ui.listItem}>
-            <span>Account details</span>
-            <span className={ui.listItemMuted}>Stage 2</span>
+            <span>Данные аккаунта</span>
+            <span className={ui.listItemMuted}>Скоро</span>
           </li>
           <li className={ui.listItem}>
-            <span>Role & permissions</span>
-            <span className={ui.listItemMuted}>Stage 2</span>
+            <span>Роль и права доступа</span>
+            <span className={ui.listItemMuted}>Скоро</span>
           </li>
         </ul>
       </AdminPanel>
 
-      <AdminPanel title="Telegram notifications">
-        <div className={ui.emptyZone}>Подключение Telegram-уведомлений — Stage 2.</div>
+      <AdminPanel title="Уведомления в Telegram">
+        <div className={ui.emptyZone}>Подключение Telegram-уведомлений появится на следующем этапе.</div>
       </AdminPanel>
 
-      <AdminPanel title="Store settings">
-        <div className={ui.emptyZone}>Настройки магазина — Stage 2.</div>
+      <AdminPanel title="Настройки магазина">
+        <div className={ui.emptyZone}>Настройки магазина появятся на следующем этапе.</div>
       </AdminPanel>
 
-      <AdminPanel title="Logout">
+      <AdminPanel title="Выход">
         <p className={ui.listItemMuted}>
           Кнопка «Выйти» доступна в верхней панели приложения.
         </p>

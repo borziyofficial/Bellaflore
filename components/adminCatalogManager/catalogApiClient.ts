@@ -29,6 +29,7 @@ async function catalogRequest<T>(
   const response = await fetch(input, {
     ...init,
     credentials: "include",
+    cache: "no-store",
     headers: {
       ...(init?.headers ?? {}),
     },

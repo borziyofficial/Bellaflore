@@ -30,19 +30,19 @@ export function AdminFutureModule({
         action={<AdminPlaceholderBadge />}
       />
 
-      <AdminPanel title="Module status">
+      <AdminPanel title="Статус модуля">
         <AdminFutureNote>
-          This module is registered in the admin architecture and will be implemented in a future stage.
+          Этот модуль зарегистрирован в архитектуре админ-панели и будет реализован на одном из следующих этапов.
         </AdminFutureNote>
       </AdminPanel>
 
       {bullets.length > 0 ? (
-        <AdminPanel title="Planned capabilities">
+        <AdminPanel title="Запланированные возможности">
           <ul className={ui.list}>
             {bullets.map((item) => (
               <li key={item} className={ui.listItem}>
                 <span>{item}</span>
-                <span className={ui.listItemMuted}>Planned</span>
+                <span className={ui.listItemMuted}>Запланировано</span>
               </li>
             ))}
           </ul>

@@ -73,7 +73,7 @@ export function AdminEntryGate({ route, children }: AdminEntryGateProps) {
     return (
       <main style={styles.page}>
         <section style={styles.card}>
-          <p style={styles.eyebrow}>Access Denied</p>
+          <p style={styles.eyebrow}>Доступ запрещён</p>
           <h1 style={styles.title}>Доступ запрещён</h1>
           <p style={styles.message}>{deniedMessage ?? "У вас нет доступа к этому разделу."}</p>
         </section>

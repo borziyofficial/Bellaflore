@@ -9,6 +9,8 @@ import {
 } from "@/lib/adminApiAuth";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type RouteContext = {
   params: Promise<{ id: string }>;

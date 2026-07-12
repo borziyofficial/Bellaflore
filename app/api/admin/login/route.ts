@@ -12,6 +12,8 @@ import {
   createAdminSessionToken,
 } from "@/lib/adminApiAuth";
 
+export const dynamic = "force-dynamic";
+
 type AdminLoginRequest = {
   username?: unknown;
   password?: unknown;
@@ -24,14 +26,14 @@ export async function POST(request: Request) {
     body = (await request.json()) as AdminLoginRequest;
   } catch {
     return Response.json(
-      { message: "Invalid login request." },
+      { message: "Некорректный запрос на вход." },
       { status: 400 },
     );
   }
 
   if (typeof body.username !== "string" || typeof body.password !== "string") {
     return Response.json(
-      { message: "Invalid admin credentials." },
+      { message: "Неверные учётные данные администратора." },
       { status: 401 },
     );
   }
@@ -40,7 +42,7 @@ export async function POST(request: Request) {
 
   if (!user) {
     return Response.json(
-      { message: "Invalid admin credentials." },
+      { message: "Неверные учётные данные администратора." },
       { status: 401 },
     );
   }

@@ -18,10 +18,10 @@ import {
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
 
 const QUICK_ACTIONS = [
-  { label: "Добавить букет", hint: "Create", href: "/admin/add" },
-  { label: "Букеты", hint: "Catalog", href: "/admin/bouquets" },
-  { label: "Заказы", hint: "Pipeline", href: "/admin/orders" },
-  { label: "Smart Banner", hint: "Soon", href: "/admin/smart-banner" },
+  { label: "Добавить букет", hint: "Создать", href: "/admin/add" },
+  { label: "Букеты", hint: "Каталог", href: "/admin/bouquets" },
+  { label: "Заказы", hint: "Поток заказов", href: "/admin/orders" },
+  { label: "Умный баннер", hint: "Скоро", href: "/admin/smart-banner" },
 ];
 
 const NOTIFICATIONS = [
@@ -46,27 +46,27 @@ export function AdminDashboardModule() {
   return (
     <div className={ui.stack}>
       <AdminModuleHeader
-        title="Dashboard"
+        title="Главная"
         subtitle="Сводка магазина на сегодня"
         action={<AdminPlaceholderBadge />}
       />
 
       <div className={ui.statGrid}>
-        <AdminStatCard label="Today orders" value={String(todayOrders)} hint="Заказы за сегодня" />
+        <AdminStatCard label="Заказы сегодня" value={String(todayOrders)} hint="Заказы за сегодня" />
         <AdminStatCard
-          label="Today revenue"
+          label="Выручка сегодня"
           value={formatRub(todayRevenue)}
           hint="Выручка за сегодня"
         />
         <AdminStatCard
-          label="Pending orders"
+          label="Ожидают обработки"
           value={String(pendingOrders)}
           hint="Ожидают обработки"
         />
-        <AdminStatCard label="Low stock" value="—" hint="Stage 2 inventory" />
+        <AdminStatCard label="Низкий остаток" value="—" hint="Появится на следующем этапе" />
       </div>
 
-      <AdminPanel title="Quick actions">
+      <AdminPanel title="Быстрые действия">
         <div className={ui.quickGrid}>
           {QUICK_ACTIONS.map((action) => (
             <Link key={action.href} href={action.href} className={ui.quickAction}>
@@ -77,12 +77,12 @@ export function AdminDashboardModule() {
         </div>
       </AdminPanel>
 
-      <AdminPanel title="Latest notifications">
+      <AdminPanel title="Последние уведомления">
         <ul className={ui.list}>
           {NOTIFICATIONS.map((item) => (
             <li key={item} className={ui.listItem}>
               <span>{item}</span>
-              <span className={ui.listItemMuted}>Demo</span>
+              <span className={ui.listItemMuted}>Демо</span>
             </li>
           ))}
         </ul>

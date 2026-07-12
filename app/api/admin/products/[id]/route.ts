@@ -17,6 +17,10 @@ import {
 } from "@/lib/adminApiAuth";
 
 export const runtime = "nodejs";
+// Reflects live writes and is re-fetched right after mutations to refresh
+// the admin UI — must never be statically cached or served stale.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -49,10 +53,13 @@ export async function GET(request: Request, context: RouteContext) {
       return Response.json({ message: "Товар не найден." }, { status: 404 });
     }
 
-    return Response.json({
-      product: storedProductToCatalogRecord(product),
-      mode: getCatalogDatabaseMode(),
-    });
+    return Response.json(
+      {
+        product: storedProductToCatalogRecord(product),
+        mode: getCatalogDatabaseMode(),
+      },
+      { headers: { "Cache-Control": "no-store, must-revalidate" } },
+    );
   } catch (error) {
     return catalogUnavailableResponse(error);
   }

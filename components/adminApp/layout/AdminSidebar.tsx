@@ -19,14 +19,14 @@ export function AdminSidebar({ pathname }: AdminSidebarProps) {
   const activeId = resolveAdminSidebarId(pathname);
 
   return (
-    <aside className={styles.sidebar} aria-label="Admin sidebar">
+    <aside className={styles.sidebar} aria-label="Боковая навигация админ-панели">
       <div className={styles.sidebarBrand}>
         <span className={styles.brandMark} aria-hidden="true">
           B
         </span>
         <div>
           <p className={styles.sidebarEyebrow}>BellaFlore</p>
-          <p className={styles.sidebarTitle}>Admin</p>
+          <p className={styles.sidebarTitle}>Админ</p>
         </div>
       </div>
 
@@ -43,7 +43,7 @@ export function AdminSidebar({ pathname }: AdminSidebarProps) {
             >
               <span className={styles.sidebarLinkLabel}>{item.label}</span>
               {item.future ? (
-                <span className={styles.sidebarFutureTag}>Soon</span>
+                <span className={styles.sidebarFutureTag}>Скоро</span>
               ) : null}
             </Link>
           );
