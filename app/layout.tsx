@@ -8,7 +8,6 @@
 // ==================================================
 
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import "./globals.css";
 import "./pearl-theme.css";
 import "./pearl-typography.css";
@@ -24,7 +23,6 @@ import "./dark-luxury-overrides.css";
 import "./admin-theme-guard.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { inter, playfairDisplay } from "@/lib/fonts";
-import { resolveThemeForPathname } from "@/lib/theme/bellafloreAutoTheme";
 import {
   absoluteUrl,
   homepageDescription,
@@ -112,20 +110,23 @@ const jsonLd = {
 
 const themeInitScript = `(function(){try{var p=location.pathname;var t=/^\\/admin(?:\\/|$)/.test(p)?"day":"dark-luxury";document.documentElement.dataset.theme=t;localStorage.setItem("bellaflore-ui-theme",t);localStorage.removeItem("bellaflore-ui-theme-manual");}catch(e){}})();`;
 
-export default async function RootLayout({
+// NOTE: data-theme below is a static SSR default ("dark-luxury"). The inline
+// themeInitScript runs synchronously in <head>, before <body> paints, and
+// overwrites this attribute using the exact same pathname check that used to
+// run on the server via headers(). Result is pixel-identical (no flash),
+// because the correction always happens pre-paint on every route, including
+// /admin. Reading headers() here previously forced the whole app into fully
+// dynamic, per-request rendering with no static/CDN shell.
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const requestHeaders = await headers();
-  const pathname = requestHeaders.get("x-pathname") ?? "";
-  const initialTheme = resolveThemeForPathname(pathname);
-
   return (
     <html
       lang="ru"
       suppressHydrationWarning
-      data-theme={initialTheme}
+      data-theme="dark-luxury"
       className={`${playfairDisplay.variable} ${inter.variable}`}
     >
       <head>
