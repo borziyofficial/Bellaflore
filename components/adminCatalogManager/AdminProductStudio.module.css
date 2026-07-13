@@ -486,9 +486,67 @@
     font-size: 24px;
   }
 
+  .productGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
   .productCard {
-    grid-template-columns: 88px minmax(0, 1fr);
-    padding: 10px;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 8px;
+    padding: 6px;
+  }
+
+  .productBody {
+    gap: 6px;
+  }
+
+  .productBody h3 {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .productBody p {
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .cardTitleRow {
+    gap: 6px;
+  }
+
+  .metaRow {
+    gap: 4px;
+    font-size: 9px;
+  }
+
+  .metaRow span {
+    padding: 3px 5px;
+  }
+
+  .switch {
+    width: 40px;
+    height: 24px;
+  }
+
+  .switch span::after {
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .switchOn span::after {
+    transform: translateX(16px);
+  }
+
+  .cardActions {
+    gap: 5px;
+  }
+
+  .cardActionsRow {
+    gap: 5px;
   }
 
   .priceGrid,
@@ -515,6 +573,8 @@
   }
 
   .cardActions button {
-    min-height: 40px;
+    min-height: 32px;
+    padding: 0;
+    font-size: 8px;
   }
 }
