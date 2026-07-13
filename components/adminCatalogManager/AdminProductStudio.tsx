@@ -544,7 +544,7 @@ export function AdminProductStudio({
       <div className={styles.root}>
         <header className={styles.header}>
           <button type="button" className={styles.secondaryButton} onClick={() => void backToList()}>
-            Назад к товарам
+            Назад
           </button>
           <div>
             <p className={styles.eyebrow}>{mode === "create" ? "Новый товар" : "Редактирование"}</p>
@@ -813,7 +813,7 @@ export function AdminProductStudio({
 
         <footer className={styles.stickyActions}>
           <div className={styles.stickyActionsSecondaryRow}>
-            <button type="button" className={styles.secondaryButton} onClick={() => void backToList()}>
+            <button type="button" className={`${styles.secondaryButton} ${styles.cancelAction}`} onClick={() => void backToList()}>
               Отмена
             </button>
             <button type="button" className={styles.secondaryButton} disabled={saving} onClick={() => void saveForm("draft")}>
@@ -910,17 +910,17 @@ export function AdminProductStudio({
                     <span />
                   </label>
                 </div>
-                <p>{resolveAdminCategoryTitle(product.categoryIds[0] ?? "")}</p>
-                <p>
+                <p className={styles.productCategory}>{resolveAdminCategoryTitle(product.categoryIds[0] ?? "")}</p>
+                <p className={styles.productPrice}>
                   {formatPrice(product.basePriceRub)} ₽
                   {product.metadata.oldPriceRub ? (
                     <span className={styles.oldPrice}> {formatPrice(product.metadata.oldPriceRub)} ₽</span>
                   ) : null}
                 </p>
                 <div className={styles.metaRow}>
-                  <span>{product.isPublished ? "Опубликован" : "Черновик"}</span>
-                  <span>{product.availability === "in_stock" ? "В наличии" : "Нет/под заказ"}</span>
-                  <span>{formatDate(product.metadata.updatedAt)}</span>
+                  <span className={styles.publishStatus}>{product.isPublished ? "Опубликован" : "Черновик"}</span>
+                  <span className={styles.extendedCardMeta}>{product.availability === "in_stock" ? "В наличии" : "Нет/под заказ"}</span>
+                  <span className={styles.extendedCardMeta}>{formatDate(product.metadata.updatedAt)}</span>
                 </div>
                 <div className={styles.cardActions}>
                   <button type="button" onClick={() => openEdit(product.id)}>Редактировать</button>
@@ -928,6 +928,20 @@ export function AdminProductStudio({
                     <button type="button" disabled={isBusy} onClick={() => void duplicateProduct(product)}>Дублировать</button>
                     <button type="button" disabled={isBusy} onClick={() => setDeleteId(product.id)}>Удалить</button>
                   </div>
+                </div>
+                <div className={styles.mobileCardActions}>
+                  <button type="button" onClick={() => openEdit(product.id)}>Изменить</button>
+                  <details className={styles.mobileOverflow}>
+                    <summary aria-label={`Действия для ${product.title}`}>⋯</summary>
+                    <div className={styles.mobileOverflowMenu}>
+                      <button type="button" disabled={isBusy} onClick={() => void duplicateProduct(product)}>
+                        Дублировать
+                      </button>
+                      <button type="button" disabled={isBusy} onClick={() => setDeleteId(product.id)}>
+                        Удалить
+                      </button>
+                    </div>
+                  </details>
                 </div>
               </div>
             </article>
