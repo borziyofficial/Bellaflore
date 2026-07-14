@@ -15,6 +15,14 @@ export type CatalogProduct = SearchableBouquet &
     slug?: string;
     seoTitle?: string;
     seoDescription?: string;
+    /** Ordered storefront gallery. The primary image is included exactly once. */
+    galleryImages?: Array<{
+      id: string;
+      src: string;
+      alt: string;
+      width: number;
+      height: number;
+    }>;
   };
 
 export const catalogProducts: CatalogProduct[] = [

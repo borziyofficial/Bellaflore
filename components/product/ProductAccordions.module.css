@@ -1,0 +1,63 @@
+.information {
+  display: grid;
+}
+
+.section,
+.descriptionSection {
+  display: grid;
+  gap: 8px;
+  padding: 18px 2px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.16);
+}
+
+.descriptionSection:first-child,
+.section:first-child {
+  border-top: 1px solid rgba(212, 175, 55, 0.16);
+}
+
+.title {
+  margin: 0;
+  color: var(--gold-light, #f5d98c);
+  font-family: var(--font-brand, "Playfair Display", serif);
+  font-size: clamp(17px, 3vw, 19px);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.copy,
+.guarantee {
+  margin: 0;
+  color: rgba(237, 237, 237, 0.76);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.guarantee {
+  color: rgba(237, 237, 237, 0.58);
+  font-size: 13px;
+}
+
+.copyCollapsed {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.readMore {
+  justify-self: start;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold-light, #f5d98c);
+  font: 600 13px/1 var(--font-body, Inter, sans-serif);
+  cursor: pointer;
+}
+
+.readMore:focus-visible {
+  outline: 2px solid rgba(212, 175, 55, 0.52);
+  outline-offset: 4px;
+  border-radius: 4px;
+}

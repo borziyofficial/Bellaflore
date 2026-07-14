@@ -40,22 +40,28 @@ const PRODUCT_GALLERY_OVERRIDES: Record<string, string[]> = {
 
 function buildGalleryImages(product: CatalogProductBase): ProductGalleryImage[] {
   const overrideSources = PRODUCT_GALLERY_OVERRIDES[product.id];
-  const sources = overrideSources?.length
-    ? overrideSources
-    : product.src
-      ? [product.src, product.src, product.src]
-      : ["/roza rouze royal.PNG"];
+  const candidates = product.galleryImages?.length
+    ? product.galleryImages
+    : (overrideSources?.length ? overrideSources : [product.src]).map(
+        (src, index) => ({
+          id: `${product.id}-gallery-${index}`,
+          src,
+          alt: index === 0 ? product.alt : `${product.title} — фото ${index + 1}`,
+          width: product.width,
+          height: product.height,
+        }),
+      );
+  const seenSources = new Set<string>();
 
-  return sources.map((src, index) => ({
-    id: `${product.id}-gallery-${index}`,
-    src,
-    alt:
-      index === 0
-        ? product.alt
-        : `${product.title} — фото ${index + 1}`,
-    width: product.width,
-    height: product.height,
-  }));
+  return candidates.filter((image) => {
+    const source = image.src.trim();
+    if (!source || seenSources.has(source)) {
+      return false;
+    }
+
+    seenSources.add(source);
+    return true;
+  });
 }
 
 function buildStemCount(baseCount: number | undefined, sizeId: ProductSizeId): number | undefined {
@@ -144,19 +150,10 @@ function buildExperienceData(product: CatalogProduct): ProductExperienceData {
   };
 }
 
-const experienceCache = new Map<string, ProductExperienceData>();
-
 export function getProductExperienceData(
   product: CatalogProductBase | CatalogProduct,
 ): ProductExperienceData {
-  const cached = experienceCache.get(product.id);
-  if (cached) {
-    return cached;
-  }
-
-  const data = buildExperienceData(product as CatalogProduct);
-  experienceCache.set(product.id, data);
-  return data;
+  return buildExperienceData(product as CatalogProduct);
 }
 
 export function getSimilarProducts(

@@ -9,13 +9,13 @@
   position: relative;
   overflow: hidden;
   border-radius: 28px;
-  border: 1px solid rgba(232, 220, 220, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.2);
   background:
-    radial-gradient(circle at 50% 0%, rgba(234, 214, 214, 0.2), transparent 42%),
-    rgba(253, 251, 247, 0.92);
+    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08), transparent 42%),
+    #242424;
   box-shadow:
-    0 20px 48px rgba(61, 49, 38, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.88);
+    0 20px 48px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
   touch-action: pan-y;
 }
 
@@ -54,8 +54,8 @@
   height: 100%;
   min-height: 280px;
   background:
-    radial-gradient(circle at 50% 0%, rgba(234, 214, 214, 0.28), transparent 42%),
-    linear-gradient(180deg, rgba(253, 251, 247, 0.96), rgba(251, 248, 242, 0.88));
+    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12), transparent 42%),
+    linear-gradient(180deg, #2a2a2a, #202020);
 }
 
 .fallbackLogo {
@@ -85,9 +85,9 @@
   width: 72px;
   height: 72px;
   padding: 0;
-  border: 1px solid rgba(232, 220, 220, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: 16px;
-  background: rgba(253, 251, 247, 0.92);
+  background: #2a2a2a;
   cursor: pointer;
   flex-shrink: 0;
   transition:
@@ -96,8 +96,10 @@
 }
 
 .thumbnailActive {
-  border-color: rgba(155, 112, 118, 0.72);
-  box-shadow: 0 8px 18px rgba(155, 112, 118, 0.14);
+  border-color: rgba(245, 217, 140, 0.82);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(212, 175, 55, 0.2);
 }
 
 .thumbnailImage {
@@ -108,7 +110,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: rgba(234, 214, 214, 0.28);
+  background: rgba(212, 175, 55, 0.1);
 }
 
 .dots {
@@ -123,12 +125,12 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: rgba(155, 112, 118, 0.24);
+  background: rgba(245, 217, 140, 0.24);
 }
 
 .dotActive {
   width: 22px;
-  background: rgba(155, 112, 118, 0.82);
+  background: rgba(245, 217, 140, 0.82);
 }
 
 .fullscreen {

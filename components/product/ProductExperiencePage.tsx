@@ -8,7 +8,7 @@
 // ==================================================
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ProductAccordions } from "@/components/product/ProductAccordions";
 import { ProductBuyPanel } from "@/components/product/ProductBuyPanel";
 import { ProductGallery } from "@/components/product/ProductGallery";
@@ -47,6 +47,8 @@ type ProductExperiencePageProps = {
   onProductSelect: (productId: string) => void;
   onImageError: (imageId: string) => void;
 };
+
+const PRODUCT_SIZE_IDS: ProductSizeId[] = ["S", "M", "L", "XL"];
 
 export function ProductExperiencePage({
   product,
@@ -88,6 +90,14 @@ export function ProductExperiencePage({
   const handleBuy = () => {
     onBuy(product.id, selectedSizeId, selectedVariant.priceRub);
   };
+  const handleFavoriteToggle = useCallback(
+    () => onToggleFavorite(product.id),
+    [onToggleFavorite, product.id],
+  );
+  const handleSizeSelect = useCallback((sizeId: ProductSizeId) => {
+    setSelectedSizeId(sizeId);
+  }, []);
+  const closeSizeSheet = useCallback(() => setSizeSheetOpen(false), []);
 
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={product.title}>
@@ -142,7 +152,7 @@ export function ProductExperiencePage({
             deliveryNote={experienceData.deliveryNote}
             isFavorite={isFavorite}
             onBuy={handleBuy}
-            onToggleFavorite={() => onToggleFavorite(product.id)}
+            onToggleFavorite={handleFavoriteToggle}
           />
 
           <ProductTrustStrip />
@@ -175,7 +185,7 @@ export function ProductExperiencePage({
         priceLabel={priceLabel}
         deliveryNote={experienceData.deliveryNote}
         isFavorite={isFavorite}
-        onToggleFavorite={() => onToggleFavorite(product.id)}
+        onToggleFavorite={handleFavoriteToggle}
         onBuy={handleBuy}
       />
 
@@ -185,9 +195,9 @@ export function ProductExperiencePage({
         variants={experienceData.sizeVariants}
         selectedSizeId={selectedSizeId}
         formatPrice={formatPrice}
-        visibleSizeIds={["S", "M", "L", "XL"]}
-        onSelect={setSelectedSizeId}
-        onClose={() => setSizeSheetOpen(false)}
+        visibleSizeIds={PRODUCT_SIZE_IDS}
+        onSelect={handleSizeSelect}
+        onClose={closeSizeSheet}
       />
     </div>
   );

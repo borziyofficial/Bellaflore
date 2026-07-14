@@ -4,7 +4,7 @@ import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
 import styles from "@/components/product/ProductSizePickerSheet.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { ProductSizeVariant } from "@/components/product/productExperienceTypes";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 type ProductSizePickerSheetProps = {
   open: boolean;
@@ -27,8 +27,12 @@ export function ProductSizePickerSheet({
   onSelect,
   onClose,
 }: ProductSizePickerSheetProps) {
-  const visibleVariants = variants.filter((variant) =>
-    visibleSizeIds ? visibleSizeIds.includes(variant.sizeId) : true,
+  const visibleVariants = useMemo(
+    () =>
+      variants.filter((variant) =>
+        visibleSizeIds ? visibleSizeIds.includes(variant.sizeId) : true,
+      ),
+    [variants, visibleSizeIds],
   );
 
   useEffect(() => {
@@ -53,24 +57,24 @@ export function ProductSizePickerSheet({
     };
   }, [open, onClose]);
 
-  if (!open) {
-    return null;
-  }
-
   return (
-    <button
-      type="button"
-      className={styles.overlay}
-      aria-label="Закрыть выбор размера"
-      onClick={onClose}
+    <div
+      className={`${styles.overlay} ${open ? styles.overlayOpen : ""}`}
+      aria-hidden={!open}
+      inert={!open}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div
         className={styles.sheet}
         role="dialog"
         aria-modal="true"
         aria-labelledby="product-size-picker-title"
-        onClick={(event) => event.stopPropagation()}
       >
+        <span className={styles.grabber} aria-hidden="true" />
         <div className={styles.header}>
           <h3 id="product-size-picker-title" className={styles.title}>
             {title}
@@ -112,6 +116,6 @@ export function ProductSizePickerSheet({
           })}
         </div>
       </div>
-    </button>
+    </div>
   );
 }

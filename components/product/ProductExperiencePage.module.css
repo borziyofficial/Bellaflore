@@ -21,7 +21,7 @@
 
 @media (max-width: 768px) {
   .page {
-    padding-bottom: calc(210px + env(safe-area-inset-bottom));
+    padding-bottom: calc(154px + env(safe-area-inset-bottom));
   }
 }
 
@@ -60,7 +60,7 @@
 .content {
   display: grid;
   gap: 22px;
-  max-width: 720px;
+  max-width: 680px;
   width: 100%;
   margin: 0 auto;
   overflow-x: hidden;
@@ -68,11 +68,13 @@
 
 .heroCopy {
   display: grid;
-  gap: 10px;
+  gap: 8px;
+  padding: 2px 2px 0;
 }
 
 .category {
-  color: rgba(61, 49, 38, 0.58);
+  color: rgba(245, 217, 140, 0.72);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -81,14 +83,16 @@
 .title {
   margin: 0;
   color: var(--champagne-text, var(--bf-text));
-  font-size: clamp(28px, 5vw, 36px);
+  font-family: var(--font-brand, "Playfair Display", serif);
+  font-size: clamp(28px, 5vw, 38px);
   font-weight: 600;
   line-height: 1.08;
 }
 
 .lead {
   margin: 0;
-  color: rgba(61, 49, 38, 0.72);
+  color: rgba(237, 237, 237, 0.7);
+  font-family: var(--font-body, Inter, sans-serif);
   font-size: 15px;
   line-height: 1.5;
 }
@@ -97,6 +101,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
+  justify-content: space-between;
   gap: 10px 14px;
 }
 
@@ -104,12 +109,18 @@
   color: var(--champagne-text, var(--bf-text));
   font-size: clamp(26px, 4.8vw, 32px);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   line-height: 1.05;
 }
 
 .sizeHint {
-  color: rgba(61, 49, 38, 0.58);
-  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid rgba(212, 175, 55, 0.24);
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.08);
+  color: rgba(245, 217, 140, 0.86);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 12px;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
@@ -128,19 +139,36 @@
   min-height: 52px;
   width: 100%;
   padding: 0 16px;
-  border: 1px solid rgba(176, 141, 87, 0.2);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 16px;
+  background: var(--bg-secondary, #2a2a2a);
   color: var(--champagne-text, var(--bf-text));
   font: inherit;
   text-align: left;
   cursor: pointer;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .sizePickerButton span:first-child,
 .sizePickerButton strong {
   font-size: 15px;
   font-weight: 700;
+}
+
+.sizePickerButton strong {
+  color: var(--gold-light, #f5d98c);
+  font-variant-numeric: tabular-nums;
+}
+
+.sizePickerButton:hover {
+  border-color: rgba(212, 175, 55, 0.46);
+}
+
+.sizePickerButton:active {
+  transform: scale(0.992);
 }
 
 .sectionBlock {
@@ -173,7 +201,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .overlay {
+  .overlay,
+  .sizePickerButton {
     animation: none;
+    transition: none;
   }
 }

@@ -106,6 +106,16 @@ export function storedBouquetToLegacyCatalogProduct(
     seoTitle: record.seo.title || record.name,
     seoDescription: record.seo.description || record.description,
     isAdminProduct: true,
+    galleryImages: record.images
+      .slice()
+      .sort((left, right) => left.order - right.order)
+      .map((image, index) => ({
+        id: image.id,
+        src: image.url,
+        alt: image.name || `${record.name} — фото ${index + 1}`,
+        width: image.width ?? 1080,
+        height: image.height ?? 1350,
+      })),
   };
 }
 

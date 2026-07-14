@@ -79,4 +79,5 @@ export type CatalogProductBase = {
   height: number;
   category?: string;
   stemCount?: number;
+  galleryImages?: ProductGalleryImage[];
 };

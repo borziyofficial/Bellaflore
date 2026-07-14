@@ -11,7 +11,7 @@
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import Image from "next/image";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ProductGalleryImage } from "@/components/product/productExperienceTypes";
 import styles from "@/components/product/ProductGallery.module.css";
 
@@ -30,12 +30,30 @@ export function ProductGallery({
   failedImageIds,
   onImageError,
 }: ProductGalleryProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeImageId, setActiveImageId] = useState<string | null>(
+    images[0]?.id ?? null,
+  );
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
   const touchDeltaRef = useRef(0);
 
-  const slideCount = images.length;
+  const orderedImages = useMemo(() => {
+    const seenSources = new Set<string>();
+
+    return images.filter((image) => {
+      const source = image.src.trim();
+      if (!source || seenSources.has(source)) {
+        return false;
+      }
+      seenSources.add(source);
+      return true;
+    });
+  }, [images]);
+  const slideCount = orderedImages.length;
+  const matchedActiveIndex = orderedImages.findIndex(
+    (image) => image.id === activeImageId,
+  );
+  const safeActiveIndex = matchedActiveIndex >= 0 ? matchedActiveIndex : 0;
   const hasMultipleImages = slideCount > 1;
 
   const goToSlide = useCallback(
@@ -46,18 +64,18 @@ export function ProductGallery({
 
       const normalized =
         ((index % slideCount) + slideCount) % slideCount;
-      setActiveIndex(normalized);
+      setActiveImageId(orderedImages[normalized]?.id ?? null);
     },
-    [slideCount],
+    [orderedImages, slideCount],
   );
 
   const goNext = useCallback(() => {
-    goToSlide(activeIndex + 1);
-  }, [activeIndex, goToSlide]);
+    goToSlide(safeActiveIndex + 1);
+  }, [goToSlide, safeActiveIndex]);
 
   const goPrev = useCallback(() => {
-    goToSlide(activeIndex - 1);
-  }, [activeIndex, goToSlide]);
+    goToSlide(safeActiveIndex - 1);
+  }, [goToSlide, safeActiveIndex]);
 
   const handleTouchStart = (event: React.TouchEvent) => {
     touchStartXRef.current = event.touches[0]?.clientX ?? null;
@@ -114,7 +132,7 @@ export function ProductGallery({
   }
 
   const trackStyle = {
-    transform: `translateX(-${activeIndex * 100}%)`,
+    transform: `translate3d(-${safeActiveIndex * 100}%, 0, 0)`,
   };
 
   const renderSlideImage = (image: ProductGalleryImage, priority = false) => {
@@ -150,7 +168,7 @@ export function ProductGallery({
           onTouchEnd={handleTouchEnd}
         >
           <div className={styles.track} style={trackStyle}>
-            {images.map((image, index) => (
+            {orderedImages.map((image, index) => (
               <div className={styles.slide} key={image.id}>
                 <button
                   type="button"
@@ -167,8 +185,8 @@ export function ProductGallery({
 
         {hasMultipleImages ? (
           <div className={styles.thumbnailRail} aria-label="Миниатюры">
-            {images.map((image, index) => {
-              const isActive = index === activeIndex;
+            {orderedImages.map((image, index) => {
+              const isActive = index === safeActiveIndex;
 
               return (
                 <button
@@ -228,7 +246,7 @@ export function ProductGallery({
             onTouchEnd={handleTouchEnd}
           >
             <div className={styles.fullscreenTrack} style={trackStyle}>
-              {images.map((image) => (
+              {orderedImages.map((image) => (
                 <div className={styles.fullscreenSlide} key={`full-${image.id}`}>
                   {!failedImageIds.has(image.id) ? (
                     <Image
@@ -252,12 +270,12 @@ export function ProductGallery({
 
           {hasMultipleImages ? (
             <div className={styles.fullscreenDots}>
-              {images.map((image, index) => (
+              {orderedImages.map((image, index) => (
                 <button
                   key={`full-dot-${image.id}`}
                   type="button"
                   className={`${styles.dot} ${
-                    index === activeIndex ? styles.dotActive : ""
+                    index === safeActiveIndex ? styles.dotActive : ""
                   }`}
                   aria-label={`Фото ${index + 1}`}
                   onClick={() => goToSlide(index)}

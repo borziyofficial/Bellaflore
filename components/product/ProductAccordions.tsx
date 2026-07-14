@@ -1,22 +1,14 @@
 // ==================================================
 // SECTION: PRODUCT
-// РАЗДЕЛ: Аккордеоны товара
-//
-// Purpose (EN): Premium product detail sections for the product experience page.
-//
-// Назначение (RU): Премиальные секции деталей на странице товара.
+// РАЗДЕЛ: Информация о товаре
 // ==================================================
 "use client";
 
 import { useState } from "react";
-import {
-  BellafloreAccordion,
-  BellafloreAccordionPanel,
-  type BellafloreAccordionPanelId,
-} from "@/components/ui/BellafloreAccordion";
 import { ProductDeliveryPreview } from "@/components/product/ProductDeliveryPreview";
 import type { ProductExperienceData } from "@/components/product/productExperienceTypes";
 import type { RealDeliveryZoneResult } from "@/components/deliveryZones/realDeliveryZoneTypes";
+import styles from "@/components/product/ProductAccordions.module.css";
 
 type ProductAccordionsProps = {
   data: ProductExperienceData;
@@ -28,6 +20,8 @@ type ProductAccordionsProps = {
   checkoutNow: Date;
 };
 
+const COLLAPSIBLE_DESCRIPTION_LENGTH = 180;
+
 export function ProductAccordions({
   data,
   deliveryAddress,
@@ -37,62 +31,44 @@ export function ProductAccordions({
   nearestFromConfidence,
   checkoutNow,
 }: ProductAccordionsProps) {
-  const [openPanels, setOpenPanels] = useState<Set<BellafloreAccordionPanelId>>(
-    () => new Set(["description"]),
-  );
-
-  const togglePanel = (panelId: BellafloreAccordionPanelId) => {
-    setOpenPanels((current) => {
-      const next = new Set(current);
-      if (next.has(panelId)) {
-        next.delete(panelId);
-      } else {
-        next.add(panelId);
-      }
-      return next;
-    });
-  };
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const descriptionIsLong = data.description.length > COLLAPSIBLE_DESCRIPTION_LENGTH;
 
   return (
-    <BellafloreAccordion>
-      <BellafloreAccordionPanel
-        id="composition"
-        title="Состав букета"
-        summary="Свежие цветы и упаковка"
-        openPanels={openPanels}
-        onTogglePanel={togglePanel}
-      >
-        <p>{data.composition}</p>
-      </BellafloreAccordionPanel>
+    <div className={styles.information}>
+      {data.description ? (
+        <section className={styles.descriptionSection}>
+          <h3 className={styles.title}>Описание</h3>
+          <p
+            id="product-long-description"
+            className={`${styles.copy} ${
+              descriptionIsLong && !descriptionExpanded ? styles.copyCollapsed : ""
+            }`}
+          >
+            {data.description}
+          </p>
+          {descriptionIsLong ? (
+            <button
+              type="button"
+              className={styles.readMore}
+              aria-expanded={descriptionExpanded}
+              aria-controls="product-long-description"
+              onClick={() => setDescriptionExpanded((current) => !current)}
+            >
+              {descriptionExpanded ? "Свернуть ▲" : "Читать далее ▼"}
+            </button>
+          ) : null}
+        </section>
+      ) : null}
 
-      <BellafloreAccordionPanel
-        id="description"
-        title="Описание"
-        summary={data.description}
-        openPanels={openPanels}
-        onTogglePanel={togglePanel}
-      >
-        <p>{data.description}</p>
-      </BellafloreAccordionPanel>
+      <section className={styles.section}>
+        <h3 className={styles.title}>Состав букета</h3>
+        <p className={styles.copy}>{data.composition}</p>
+      </section>
 
-      <BellafloreAccordionPanel
-        id="care"
-        title="Уход за цветами"
-        summary="Как сохранить свежесть"
-        openPanels={openPanels}
-        onTogglePanel={togglePanel}
-      >
-        <p>{data.careNote}</p>
-      </BellafloreAccordionPanel>
-
-      <BellafloreAccordionPanel
-        id="delivery"
-        title="Доставка"
-        summary="По Москве и области"
-        openPanels={openPanels}
-        onTogglePanel={togglePanel}
-      >
-        <p>{data.deliveryNote}</p>
+      <section className={styles.section}>
+        <h3 className={styles.title}>Доставка</h3>
+        <p className={styles.copy}>{data.deliveryNote}</p>
         <ProductDeliveryPreview
           deliveryAddress={deliveryAddress}
           zoneResult={zoneResult}
@@ -101,18 +77,18 @@ export function ProductAccordions({
           nearestFromConfidence={nearestFromConfidence}
           now={checkoutNow}
         />
-      </BellafloreAccordionPanel>
+      </section>
 
-      <BellafloreAccordionPanel
-        id="included"
-        title="Что входит в заказ"
-        summary="Упаковка и сервис"
-        openPanels={openPanels}
-        onTogglePanel={togglePanel}
-      >
-        <p>{data.whatsIncluded}</p>
-        <p>{data.freshnessGuarantee}</p>
-      </BellafloreAccordionPanel>
-    </BellafloreAccordion>
+      <section className={styles.section}>
+        <h3 className={styles.title}>Уход за цветами</h3>
+        <p className={styles.copy}>{data.careNote}</p>
+      </section>
+
+      <section className={styles.section}>
+        <h3 className={styles.title}>Что входит в заказ</h3>
+        <p className={styles.copy}>{data.whatsIncluded}</p>
+        <p className={styles.guarantee}>{data.freshnessGuarantee}</p>
+      </section>
+    </div>
   );
 }

@@ -444,5 +444,15 @@ export function storedProductToLegacyCatalogProduct(
     seoTitle: product.seoTitle,
     seoDescription: product.seoDescription,
     isAdminProduct: true,
+    galleryImages: record.images
+      .slice()
+      .sort((left, right) => left.sortOrder - right.sortOrder)
+      .map((image) => ({
+        id: image.id,
+        src: image.url,
+        alt: image.alt,
+        width: image.width,
+        height: image.height,
+      })),
   };
 }
