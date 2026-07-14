@@ -212,7 +212,11 @@ export function FavoritesPanel({
   };
 
   return (
-    <div className={styles.overlay} role="presentation">
+    <div
+      className={styles.overlay}
+      role="presentation"
+      data-bottom-nav-panel-overlay
+    >
       <aside
         className={styles.sheet}
         role="dialog"

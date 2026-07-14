@@ -51,6 +51,7 @@ export function MyOrderPanel({
       className={styles.overlay}
       role="presentation"
       onClick={closeMyOrderPanel}
+      data-bottom-nav-panel-overlay
     >
       <aside
         className={`${styles.sheet} ${expanded ? styles.expanded : ""}`}
@@ -72,7 +73,7 @@ export function MyOrderPanel({
             onClick={closeMyOrderPanel}
             aria-label="Закрыть профиль"
           >
-            ×
+            <span className={styles.closeGlyph} aria-hidden="true">×</span>
           </button>
         </div>
         <div className={styles.body}>{children}</div>

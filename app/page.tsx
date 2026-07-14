@@ -72,6 +72,7 @@ import type { ProfileHubSectionId } from "@/components/orders/profileHubTypes";
 import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
 import { getOrdersUrl } from "@/app/orders/orderUtils";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
+import { BottomNavPanelFrame } from "@/components/panels/BottomNavPanelFrame";
 import { findPublicStorefrontProduct } from "@/components/catalog/publicCatalogMerge";
 import { usePublicStorefrontCatalog } from "@/components/catalog/usePublicStorefrontCatalog";
 import { ProductExperiencePage } from "@/components/product/ProductExperiencePage";
@@ -669,6 +670,18 @@ export default function Home() {
       return;
     }
 
+    const getProductIdFromLocation = () => {
+      const productParam = new URLSearchParams(window.location.search)
+        .get("product")
+        ?.trim();
+
+      if (!productParam) {
+        return null;
+      }
+
+      return findPublicStorefrontProduct(productParam, bouquets)?.id ?? null;
+    };
+
     const hash = window.location.hash.replace(/^#/, "");
     const shouldOpenCatalog =
       window.location.pathname === "/catalog" ||
@@ -686,8 +699,12 @@ export default function Home() {
 
     const handlePopState = () => {
       const nextHash = window.location.hash.replace(/^#/, "");
+      const nextProductId = getProductIdFromLocation();
+
+      setProductExperienceId(nextProductId);
       setPublicAppView(
-        window.location.pathname === "/catalog" ||
+        nextProductId ||
+          window.location.pathname === "/catalog" ||
           nextHash === "catalog" ||
           SCROLL_SECTION_IDS.includes(
             nextHash as (typeof SCROLL_SECTION_IDS)[number],
@@ -699,7 +716,7 @@ export default function Home() {
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
+  }, [bouquets]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -883,6 +900,7 @@ export default function Home() {
   };
 
   const openCatalogView = () => {
+    leaveProductExperience();
     setPublicAppView("catalog");
     setCatalogFocusNonce((current) => current + 1);
     setBottomNavAction("Каталог");
@@ -898,6 +916,8 @@ export default function Home() {
   };
 
   const openBottomNavPanel = (panel: BottomNavPanelId) => {
+    leaveProductExperience();
+
     if (panel === "catalog") {
       closeAllBottomNavPanelsImmediate();
       openCatalogView();
@@ -964,6 +984,7 @@ export default function Home() {
   };
 
   const goHomeFromBottomNav = () => {
+    leaveProductExperience();
     setCheckoutPanelOpen(false);
     const activePanel = getActiveBottomNavPanel();
 
@@ -1835,12 +1856,48 @@ export default function Home() {
     });
   };
 
+  const leaveProductExperience = () => {
+    setProductExperienceId(null);
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("product")) {
+      return;
+    }
+
+    url.searchParams.delete("product");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  };
+
   const openProductExperience = (bouquetId: string) => {
+    closeAllBottomNavPanelsImmediate();
+    setPublicAppView("catalog");
     setProductExperienceId(bouquetId);
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    const alreadyOnProductRoute = url.searchParams.has("product");
+    url.pathname = "/";
+    url.search = "";
+    url.searchParams.set("product", bouquetId);
+    url.hash = "catalog";
+
+    const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+    if (alreadyOnProductRoute) {
+      window.history.replaceState({}, "", nextUrl);
+    } else {
+      window.history.pushState({}, "", nextUrl);
+    }
   };
 
   const closeProductExperience = () => {
-    setProductExperienceId(null);
+    leaveProductExperience();
   };
 
   const activeProductExperience = useMemo(
@@ -2267,12 +2324,8 @@ export default function Home() {
           Назначение (RU): Оверлей избранного bottom nav — сохранённые букеты с покупкой и удалением.
           ================================================== */}
       {isBottomNavPanelVisible("favorites") && (
-        <div
-          className={
-            closingBottomNavPanel === "favorites"
-              ? "bottom-nav-panel-host-closing"
-              : undefined
-          }
+        <BottomNavPanelFrame
+          closing={closingBottomNavPanel === "favorites"}
         >
           <FavoritesPanel
             favoriteBouquetIds={favoriteBouquetIds}
@@ -2284,7 +2337,7 @@ export default function Home() {
             handleFavoriteBuyClick={handleFavoriteBuyClick}
             handleFavoriteBuyTouchEnd={handleFavoriteBuyTouchEnd}
           />
-        </div>
+        </BottomNavPanelFrame>
       )}
 
       {checkoutPanelOpen && (
@@ -2302,17 +2355,13 @@ export default function Home() {
           Назначение (RU): Оверлей «Мой заказ» bottom nav — карточка последнего заказа или пустое состояние.
           ================================================== */}
       {isBottomNavPanelVisible("myOrder") && (
-        <div
-          className={
-            closingBottomNavPanel === "myOrder"
-              ? "bottom-nav-panel-host-closing"
-              : undefined
-          }
+        <BottomNavPanelFrame
+          closing={closingBottomNavPanel === "myOrder"}
         >
           <MyOrderPanel closeMyOrderPanel={closeMyOrderPanel}>
             {renderMyOrderHub()}
           </MyOrderPanel>
-        </div>
+        </BottomNavPanelFrame>
       )}
 
       {/* ==================================================

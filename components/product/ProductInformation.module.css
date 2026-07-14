@@ -1,25 +1,28 @@
 .information {
-  border-top: 1px solid rgba(212, 175, 55, 0.18);
+  min-width: 0;
 }
 
 .list {
   display: grid;
+  gap: 8px;
   margin: 0;
 }
 
 .row {
   display: grid;
   grid-template-columns: minmax(86px, 0.24fr) minmax(0, 1fr);
-  gap: 16px;
-  padding: 16px 2px;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.14);
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .row dt {
   margin: 0;
   color: var(--gold-light, #f5d98c);
   font-family: var(--font-brand, "Playfair Display", serif);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.4;
 }
@@ -31,27 +34,51 @@
 
 .row dd {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   color: rgba(237, 237, 237, 0.76);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
-  line-height: 1.58;
+  line-height: 1.45;
 }
 
 .guarantee {
   color: rgba(237, 237, 237, 0.56);
-  font-size: 13px;
+  font-size: 12px;
+}
+
+.copyBlock {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.copyCollapsed {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.moreButton {
+  justify-self: start;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold-light, #f5d98c);
+  font: 600 12px/1 var(--font-body, Inter, sans-serif);
+  cursor: pointer;
 }
 
 @media (max-width: 520px) {
   .row {
-    grid-template-columns: 78px minmax(0, 1fr);
-    gap: 12px;
-    padding: 14px 2px;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 10px;
+    padding: 11px 12px;
   }
 
   .row dt {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .row dd {

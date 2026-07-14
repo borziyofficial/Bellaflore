@@ -1,0 +1,29 @@
+.frame {
+  display: contents;
+}
+
+@media (max-width: 768px) {
+  .frame {
+    --bottom-nav-height: 46px;
+    --bottom-nav-offset: 16px;
+    --bottom-nav-content-gap: 12px;
+    position: fixed;
+    inset:
+      0
+      0
+      calc(
+        var(--bottom-nav-height) + var(--bottom-nav-offset) +
+          var(--bottom-nav-content-gap) + env(safe-area-inset-bottom)
+      )
+      0;
+    z-index: 2147483010;
+    display: block;
+    pointer-events: none;
+  }
+
+  .frame > :global([data-bottom-nav-panel-overlay]) {
+    position: absolute;
+    inset: 0;
+    pointer-events: auto;
+  }
+}

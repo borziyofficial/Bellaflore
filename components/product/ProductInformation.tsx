@@ -2,6 +2,9 @@
 // SECTION: PRODUCT
 // РАЗДЕЛ: Открытая информация о товаре
 // ==================================================
+"use client";
+
+import { useState } from "react";
 import { ProductDeliveryPreview } from "@/components/product/ProductDeliveryPreview";
 import type { ProductExperienceData } from "@/components/product/productExperienceTypes";
 import type { RealDeliveryZoneResult } from "@/components/deliveryZones/realDeliveryZoneTypes";
@@ -17,6 +20,38 @@ type ProductInformationProps = {
   checkoutNow: Date;
 };
 
+const COMPACT_TEXT_LENGTH = 140;
+
+type CompactCopyProps = {
+  children: string;
+  secondary?: string;
+};
+
+function CompactCopy({ children, secondary }: CompactCopyProps) {
+  const [expanded, setExpanded] = useState(false);
+  const combinedCopy = secondary ? `${children} ${secondary}` : children;
+  const isLong = combinedCopy.length > COMPACT_TEXT_LENGTH;
+
+  return (
+    <div className={styles.copyBlock}>
+      <div className={isLong && !expanded ? styles.copyCollapsed : undefined}>
+        <p>{children}</p>
+        {secondary ? <p className={styles.guarantee}>{secondary}</p> : null}
+      </div>
+      {isLong ? (
+        <button
+          type="button"
+          className={styles.moreButton}
+          aria-expanded={expanded}
+          onClick={() => setExpanded((current) => !current)}
+        >
+          {expanded ? "Скрыть" : "Подробнее"}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 export function ProductInformation({
   data,
   deliveryAddress,
@@ -31,19 +66,20 @@ export function ProductInformation({
       <dl className={styles.list}>
         <div className={styles.row}>
           <dt>Состав</dt>
-          <dd>{data.composition}</dd>
+          <dd><CompactCopy>{data.composition}</CompactCopy></dd>
         </div>
 
         <div className={styles.row}>
           <dt>Уход</dt>
-          <dd>{data.careNote}</dd>
+          <dd><CompactCopy>{data.careNote}</CompactCopy></dd>
         </div>
 
         <div className={styles.row}>
           <dt>В заказе</dt>
           <dd>
-            <p>{data.whatsIncluded}</p>
-            <p className={styles.guarantee}>{data.freshnessGuarantee}</p>
+            <CompactCopy secondary={data.freshnessGuarantee}>
+              {data.whatsIncluded}
+            </CompactCopy>
           </dd>
         </div>
 
