@@ -1,0 +1,60 @@
+.information {
+  border-top: 1px solid rgba(212, 175, 55, 0.18);
+}
+
+.list {
+  display: grid;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(86px, 0.24fr) minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px 2px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.14);
+}
+
+.row dt {
+  margin: 0;
+  color: var(--gold-light, #f5d98c);
+  font-family: var(--font-brand, "Playfair Display", serif);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.row dd,
+.row p {
+  margin: 0;
+}
+
+.row dd {
+  display: grid;
+  gap: 8px;
+  color: rgba(237, 237, 237, 0.76);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 14px;
+  line-height: 1.58;
+}
+
+.guarantee {
+  color: rgba(237, 237, 237, 0.56);
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: 78px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px 2px;
+  }
+
+  .row dt {
+    font-size: 15px;
+  }
+
+  .row dd {
+    font-size: 13px;
+  }
+}

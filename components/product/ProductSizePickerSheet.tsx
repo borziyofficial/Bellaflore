@@ -1,6 +1,5 @@
 "use client";
 
-import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
 import styles from "@/components/product/ProductSizePickerSheet.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { ProductSizeVariant } from "@/components/product/productExperienceTypes";
@@ -92,7 +91,7 @@ export function ProductSizePickerSheet({
         <div className={styles.options} role="radiogroup" aria-label={title}>
           {visibleVariants.map((variant) => {
             const isActive = variant.sizeId === selectedSizeId;
-            const label = getProductSizeRuLabel(variant.sizeId);
+            const label = variant.sizeId;
 
             return (
               <button
@@ -100,6 +99,7 @@ export function ProductSizePickerSheet({
                 type="button"
                 role="radio"
                 aria-checked={isActive}
+                aria-label={`Размер ${label}, ${formatPrice(variant.priceRub)}`}
                 className={`${styles.option} ${isActive ? styles.optionActive : ""}`}
                 onClick={() => {
                   onSelect(variant.sizeId);

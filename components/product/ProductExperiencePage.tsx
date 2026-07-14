@@ -9,7 +9,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { ProductAccordions } from "@/components/product/ProductAccordions";
+import { ProductInformation } from "@/components/product/ProductInformation";
 import { ProductBuyPanel } from "@/components/product/ProductBuyPanel";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductRecommendations } from "@/components/product/ProductRecommendations";
@@ -22,7 +22,6 @@ import styles from "@/components/product/ProductExperiencePage.module.css";
 import { ProductSizePickerSheet } from "@/components/product/ProductSizePickerSheet";
 import { ProductStickyBuyBar } from "@/components/product/ProductStickyBuyBar";
 import { ProductTrustStrip } from "@/components/product/ProductTrustStrip";
-import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
 import type {
   CatalogProductBase,
   ProductSizeId,
@@ -49,6 +48,7 @@ type ProductExperiencePageProps = {
 };
 
 const PRODUCT_SIZE_IDS: ProductSizeId[] = ["S", "M", "L", "XL"];
+const COLLAPSIBLE_DESCRIPTION_LENGTH = 180;
 
 export function ProductExperiencePage({
   product,
@@ -82,10 +82,13 @@ export function ProductExperiencePage({
       : experienceData.defaultSizeId,
   );
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
-  const selectedSizeLabel = getProductSizeRuLabel(selectedVariant.sizeId);
+  const selectedSizeLabel = selectedVariant.sizeId;
   const priceLabel = formatPrice(selectedVariant.priceRub);
+  const descriptionIsLong =
+    experienceData.description.length > COLLAPSIBLE_DESCRIPTION_LENGTH;
 
   const handleBuy = () => {
     onBuy(product.id, selectedSizeId, selectedVariant.priceRub);
@@ -124,10 +127,29 @@ export function ProductExperiencePage({
               <span className={styles.category}>{product.category}</span>
             ) : null}
             <h1 className={styles.title}>{product.title}</h1>
-            <p className={styles.lead}>{experienceData.description}</p>
+            <p
+              id="product-description"
+              className={`${styles.lead} ${
+                descriptionIsLong && !descriptionExpanded
+                  ? styles.leadCollapsed
+                  : ""
+              }`}
+            >
+              {experienceData.description}
+            </p>
+            {descriptionIsLong ? (
+              <button
+                type="button"
+                className={styles.readMore}
+                aria-expanded={descriptionExpanded}
+                aria-controls="product-description"
+                onClick={() => setDescriptionExpanded((current) => !current)}
+              >
+                {descriptionExpanded ? "Скрыть" : "Показать ещё"}
+              </button>
+            ) : null}
             <div className={styles.priceRow}>
               <strong className={styles.price}>{priceLabel}</strong>
-              <span className={styles.sizeHint}>Размер {selectedSizeLabel}</span>
             </div>
             {selectedVariant.stemCount ? (
               <p className={styles.stemHint}>{selectedVariant.stemCount} стеблей</p>
@@ -141,7 +163,7 @@ export function ProductExperiencePage({
             aria-haspopup="dialog"
             aria-expanded={sizeSheetOpen}
           >
-            <span>Размер: {selectedSizeLabel}</span>
+            <span>Размер: {selectedVariant.sizeId}</span>
             <strong>{priceLabel}</strong>
             <span aria-hidden="true">▼</span>
           </button>
@@ -159,7 +181,7 @@ export function ProductExperiencePage({
 
           <div className={styles.sectionBlock}>
             <h2 className={styles.sectionTitle}>О букете</h2>
-            <ProductAccordions
+            <ProductInformation
               data={experienceData}
               deliveryAddress={deliveryAddress}
               zoneResult={zoneResult}

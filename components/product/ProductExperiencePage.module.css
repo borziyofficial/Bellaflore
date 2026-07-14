@@ -97,11 +97,29 @@
   line-height: 1.5;
 }
 
+.leadCollapsed {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.readMore {
+  justify-self: start;
+  min-height: 34px;
+  margin: -2px 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold-light, #f5d98c);
+  font: 600 13px/1 var(--font-body, Inter, sans-serif);
+  cursor: pointer;
+}
+
 .priceRow {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
   gap: 10px 14px;
 }
 
@@ -111,18 +129,6 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1.05;
-}
-
-.sizeHint {
-  padding: 6px 10px;
-  border: 1px solid rgba(212, 175, 55, 0.24);
-  border-radius: 999px;
-  background: rgba(212, 175, 55, 0.08);
-  color: rgba(245, 217, 140, 0.86);
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 12px;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
 }
 
 .stemHint {
@@ -202,7 +208,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .overlay,
-  .sizePickerButton {
+  .sizePickerButton,
+  .readMore {
     animation: none;
     transition: none;
   }
