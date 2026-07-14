@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: auto;
   min-width: 0;
   gap: 12px;
   padding: var(--bf-card-padding, 20px);
@@ -24,6 +24,7 @@
   border: 0;
   background: transparent;
   cursor: pointer;
+  touch-action: pan-y;
 }
 
 .imageWrap {
@@ -62,6 +63,7 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
 }
 
 .favorite svg {
@@ -114,6 +116,7 @@
   background: transparent;
   text-align: left;
   cursor: pointer;
+  touch-action: pan-y;
 }
 
 .title {
@@ -134,7 +137,84 @@
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
+}
+
+.detailsButton {
+  align-self: flex-start;
+  min-height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold-light, #f5d98c);
+  font: 600 12px/1 var(--font-body, Inter, sans-serif);
+  cursor: pointer;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.expandedDetails {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease,
+    visibility 0s linear 0.28s;
+}
+
+.expandedDetailsOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-rows 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease,
+    visibility 0s;
+}
+
+.expandedDetailsInner {
+  min-height: 0;
+  overflow: hidden;
+  color: rgba(237, 237, 237, 0.66);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.expandedDetailsInner > p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0 0 8px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.expandedDetailsInner dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.expandedDetailsInner dl > div {
+  display: grid;
+  gap: 2px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.expandedDetailsInner dt {
+  color: rgba(245, 217, 140, 0.82);
+  font-weight: 700;
+}
+
+.expandedDetailsInner dd {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .price {
@@ -179,6 +259,7 @@
     filter 0.16s ease;
   scroll-margin-bottom: calc(148px + env(safe-area-inset-bottom));
   -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
 }
 
 .buyButton:hover {
@@ -199,9 +280,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
+  gap: 4px;
+  width: auto;
   height: 36px;
-  min-width: 36px;
+  min-width: 48px;
   min-height: 36px;
   padding: 0;
   border: 1px solid rgba(212, 175, 55, 0.42);
@@ -215,6 +297,16 @@
     transform 0.15s ease,
     box-shadow 0.15s ease;
   -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
+}
+
+.selectedSize {
+  min-width: 16px;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
 }
 
 .chevronButton:hover {
@@ -300,6 +392,7 @@
     background-color 0.12s ease,
     color 0.12s ease;
   -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
 }
 
 .sizeOption:hover {
@@ -359,6 +452,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .expandedDetails,
+  .expandedDetailsOpen,
   .buyButton,
   .chevronButton,
   .chevronIcon,

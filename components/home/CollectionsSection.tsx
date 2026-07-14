@@ -20,7 +20,6 @@ import {
   useState,
   type ChangeEvent as ReactChangeEvent,
   type MouseEvent as ReactMouseEvent,
-  type TouchEvent as ReactTouchEvent,
 } from "react";
 
 type CollectionsSectionProps = {
@@ -31,18 +30,8 @@ type CollectionsSectionProps = {
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
   ) => void;
-  handleFavoriteTouchEnd: (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    bouquetId: string,
-  ) => void;
   handleBouquetOrderClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
-    bouquetId: string,
-    sizeId: ProductSizeId,
-    priceRub: number,
-  ) => void;
-  handleBouquetOrderTouchEnd: (
-    event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
     sizeId: ProductSizeId,
     priceRub: number,
@@ -56,9 +45,7 @@ export function CollectionsSection({
   favoriteBouquetIds,
   formatPrice,
   handleFavoriteClick,
-  handleFavoriteTouchEnd,
   handleBouquetOrderClick,
-  handleBouquetOrderTouchEnd,
   onProductOpen,
   catalogFocusNonce = 0,
 }: CollectionsSectionProps) {
@@ -197,9 +184,7 @@ export function CollectionsSection({
               formatPrice={formatPrice}
               isFavorite={favoriteBouquetIds.includes(bouquet.id)}
               onFavoriteClick={handleFavoriteClick}
-              onFavoriteTouchEnd={handleFavoriteTouchEnd}
               onBuyClick={handleBouquetOrderClick}
-              onBuyTouchEnd={handleBouquetOrderTouchEnd}
               onProductOpen={onProductOpen}
             />
           ))}

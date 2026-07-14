@@ -23,41 +23,18 @@ import {
   useRef,
   useState,
   type MouseEvent,
-  type PointerEvent,
   type TouchEvent,
 } from "react";
 
-function ensureBuyButtonClearOfBottomNav(button: HTMLButtonElement) {
-  if (typeof window === "undefined" || window.innerWidth > 768) {
-    return;
-  }
-
-  const bottomNav = document.querySelector<HTMLElement>(
-    'nav[aria-label="Быстрая мобильная навигация"]',
-  );
-  const navTop = bottomNav?.getBoundingClientRect().top ?? window.innerHeight - 96;
-  const buttonRect = button.getBoundingClientRect();
-  const overlap = buttonRect.bottom + 12 - navTop;
-
-  if (overlap > 0) {
-    window.scrollBy({ top: overlap, behavior: "auto" });
-  }
-}
+const ACTION_GESTURE_THRESHOLD_PX = 10;
 
 type LuxuryCatalogProductCardProps = {
   product: CatalogProduct;
   formatPrice: (priceRub: number) => string;
   isFavorite: boolean;
   onFavoriteClick: (event: MouseEvent<HTMLButtonElement>, productId: string) => void;
-  onFavoriteTouchEnd: (event: TouchEvent<HTMLButtonElement>, productId: string) => void;
   onBuyClick: (
     event: MouseEvent<HTMLButtonElement>,
-    productId: string,
-    sizeId: ProductSizeId,
-    priceRub: number,
-  ) => void;
-  onBuyTouchEnd: (
-    event: TouchEvent<HTMLButtonElement>,
     productId: string,
     sizeId: ProductSizeId,
     priceRub: number,
@@ -70,9 +47,7 @@ export function LuxuryCatalogProductCard({
   formatPrice,
   isFavorite,
   onFavoriteClick,
-  onFavoriteTouchEnd,
   onBuyClick,
-  onBuyTouchEnd,
   onProductOpen,
 }: LuxuryCatalogProductCardProps) {
   const experienceData = useMemo(
@@ -83,15 +58,22 @@ export function LuxuryCatalogProductCard({
     experienceData.defaultSizeId,
   );
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [trackedProductId, setTrackedProductId] = useState(product.id);
   const [dropdownPlacement, setDropdownPlacement] = useState<"down" | "up">("down");
   const popoverRef = useRef<HTMLDivElement>(null);
   const chevronRef = useRef<HTMLButtonElement>(null);
+  const actionGestureRef = useRef({
+    startX: 0,
+    startY: 0,
+    moved: false,
+  });
 
   if (product.id !== trackedProductId) {
     setTrackedProductId(product.id);
     setSelectedSizeId(experienceData.defaultSizeId);
     setSizePopoverOpen(false);
+    setDetailsExpanded(false);
   }
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
@@ -101,6 +83,7 @@ export function LuxuryCatalogProductCard({
   const visibleVariants = experienceData.sizeVariants.filter((variant) =>
     ["S", "M", "L", "XL"].includes(variant.sizeId),
   );
+  const detailsId = `catalog-card-details-${product.id}`;
 
   useLayoutEffect(() => {
     if (!sizePopoverOpen || !chevronRef.current) {
@@ -137,34 +120,68 @@ export function LuxuryCatalogProductCard({
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [sizePopoverOpen]);
 
-  const openProduct = () => {
-    onProductOpen?.(product.id);
+  const handleActionTouchStart = (event: TouchEvent<HTMLButtonElement>) => {
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+
+    actionGestureRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      moved: false,
+    };
   };
 
-  const handleBuyPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType === "touch") {
-      ensureBuyButtonClearOfBottomNav(event.currentTarget);
+  const handleActionTouchMove = (event: TouchEvent<HTMLButtonElement>) => {
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+
+    const gesture = actionGestureRef.current;
+    if (
+      Math.hypot(
+        touch.clientX - gesture.startX,
+        touch.clientY - gesture.startY,
+      ) >= ACTION_GESTURE_THRESHOLD_PX
+    ) {
+      gesture.moved = true;
+    }
+  };
+
+  const handleActionTouchEnd = (event: TouchEvent<HTMLButtonElement>) => {
+    if (!actionGestureRef.current.moved) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  const shouldSuppressActionClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (!actionGestureRef.current.moved) {
+      return false;
+    }
+
+    actionGestureRef.current.moved = false;
+    event.preventDefault();
+    event.stopPropagation();
+    return true;
+  };
+
+  const openProduct = (event: MouseEvent<HTMLButtonElement>) => {
+    if (!shouldSuppressActionClick(event)) {
+      onProductOpen?.(product.id);
     }
   };
 
   const handleBuyClick = (event: MouseEvent<HTMLButtonElement>) => {
-    ensureBuyButtonClearOfBottomNav(event.currentTarget);
-    onBuyClick(
-      event,
-      product.id,
-      selectedVariant.sizeId,
-      selectedVariant.priceRub,
-    );
-  };
+    if (shouldSuppressActionClick(event)) {
+      return;
+    }
 
-  const handleBuyTouchEnd = (event: TouchEvent<HTMLButtonElement>) => {
-    ensureBuyButtonClearOfBottomNav(event.currentTarget);
-    onBuyTouchEnd(
-      event,
-      product.id,
-      selectedVariant.sizeId,
-      selectedVariant.priceRub,
-    );
+    onBuyClick(event, product.id, selectedVariant.sizeId, selectedVariant.priceRub);
   };
 
   const handleSizeSelect = (sizeId: ProductSizeId) => {
@@ -179,6 +196,9 @@ export function LuxuryCatalogProductCard({
           type="button"
           className={styles.mediaButton}
           onClick={openProduct}
+          onTouchStart={handleActionTouchStart}
+          onTouchMove={handleActionTouchMove}
+          onTouchEnd={handleActionTouchEnd}
           aria-label={`Открыть ${product.title}`}
         >
           <div className={styles.imageWrap}>
@@ -197,8 +217,14 @@ export function LuxuryCatalogProductCard({
         <button
           type="button"
           className={`${styles.favorite} ${isFavorite ? styles.favoriteActive : ""}`}
-          onClick={(event) => onFavoriteClick(event, product.id)}
-          onTouchEnd={(event) => onFavoriteTouchEnd(event, product.id)}
+          onClick={(event) => {
+            if (!shouldSuppressActionClick(event)) {
+              onFavoriteClick(event, product.id);
+            }
+          }}
+          onTouchStart={handleActionTouchStart}
+          onTouchMove={handleActionTouchMove}
+          onTouchEnd={handleActionTouchEnd}
           aria-label={
             isFavorite
               ? `Убрать ${product.title} из избранного`
@@ -216,13 +242,63 @@ export function LuxuryCatalogProductCard({
         <div className={styles.contentBlock}>
           <p className={styles.category}>{categoryLabel}</p>
 
-          <button type="button" className={styles.titleButton} onClick={openProduct}>
+          <button
+            type="button"
+            className={styles.titleButton}
+            onClick={openProduct}
+            onTouchStart={handleActionTouchStart}
+            onTouchMove={handleActionTouchMove}
+            onTouchEnd={handleActionTouchEnd}
+          >
             <h3 className={styles.title}>{product.title}</h3>
           </button>
 
           {description ? (
             <p className={styles.description}>{description}</p>
           ) : null}
+
+          <button
+            type="button"
+            className={styles.detailsButton}
+            aria-expanded={detailsExpanded}
+            aria-controls={detailsId}
+            onClick={(event) => {
+              if (!shouldSuppressActionClick(event)) {
+                setDetailsExpanded((current) => !current);
+              }
+            }}
+            onTouchStart={handleActionTouchStart}
+            onTouchMove={handleActionTouchMove}
+            onTouchEnd={handleActionTouchEnd}
+          >
+            {detailsExpanded ? "Скрыть" : "Подробнее"}
+          </button>
+
+          <div
+            id={detailsId}
+            className={`${styles.expandedDetails} ${
+              detailsExpanded ? styles.expandedDetailsOpen : ""
+            }`}
+            aria-hidden={!detailsExpanded}
+          >
+            <div className={styles.expandedDetailsInner}>
+              <p>{experienceData.description}</p>
+              <dl>
+                <div>
+                  <dt>Состав</dt>
+                  <dd>{experienceData.composition}</dd>
+                </div>
+                <div>
+                  <dt>Доставка</dt>
+                  <dd>{experienceData.deliveryNote}</dd>
+                </div>
+                <div>
+                  <dt>Преимущество</dt>
+                  <dd>{experienceData.freshnessGuarantee}</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
 
           <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
         </div>
@@ -231,9 +307,10 @@ export function LuxuryCatalogProductCard({
           <button
             type="button"
             className={styles.buyButton}
-            onPointerDown={handleBuyPointerDown}
             onClick={handleBuyClick}
-            onTouchEnd={handleBuyTouchEnd}
+            onTouchStart={handleActionTouchStart}
+            onTouchMove={handleActionTouchMove}
+            onTouchEnd={handleActionTouchEnd}
             aria-label={`Купить ${product.title}`}
           >
             Купить
@@ -245,11 +322,19 @@ export function LuxuryCatalogProductCard({
                 ref={chevronRef}
                 type="button"
                 className={`${styles.chevronButton} ${sizePopoverOpen ? styles.chevronButtonOpen : ""}`}
-                onClick={() => setSizePopoverOpen((open) => !open)}
+                onClick={(event) => {
+                  if (!shouldSuppressActionClick(event)) {
+                    setSizePopoverOpen((open) => !open);
+                  }
+                }}
+                onTouchStart={handleActionTouchStart}
+                onTouchMove={handleActionTouchMove}
+                onTouchEnd={handleActionTouchEnd}
                 aria-haspopup="listbox"
                 aria-expanded={sizePopoverOpen}
                 aria-label="Выбор размера"
               >
+                <span className={styles.selectedSize}>{selectedVariant.sizeId}</span>
                 <svg aria-hidden="true" viewBox="0 0 12 12" className={styles.chevronIcon}>
                   <path d="M3 4.5 6 7.5 9 4.5" />
                 </svg>
@@ -272,7 +357,14 @@ export function LuxuryCatalogProductCard({
                       className={`${styles.sizeOption} ${
                         variant.sizeId === selectedSizeId ? styles.sizeOptionActive : ""
                       }`}
-                      onClick={() => handleSizeSelect(variant.sizeId)}
+                      onClick={(event) => {
+                        if (!shouldSuppressActionClick(event)) {
+                          handleSizeSelect(variant.sizeId);
+                        }
+                      }}
+                      onTouchStart={handleActionTouchStart}
+                      onTouchMove={handleActionTouchMove}
+                      onTouchEnd={handleActionTouchEnd}
                     >
                       {variant.sizeId}
                     </button>

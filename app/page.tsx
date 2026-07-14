@@ -1088,15 +1088,6 @@ export default function Home() {
     toggleFavoriteBouquet(bouquetId);
   };
 
-  const handleFavoriteTouchEnd = (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    bouquetId: string,
-  ) => {
-    event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
-    toggleFavoriteBouquet(bouquetId);
-  };
-
   const handleFavoriteRemoveClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
@@ -1779,17 +1770,6 @@ export default function Home() {
     prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
-  const handleBouquetOrderTouchEnd = (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    bouquetId: string,
-    sizeId: ProductSizeId = "S",
-    priceRub?: number,
-  ) => {
-    event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
-    prepareProductCheckout(bouquetId, sizeId, priceRub);
-  };
-
   const openMyOrderAfterCheckout = (orderId: string) => {
     closeAllBottomNavPanelsImmediate();
     setCheckoutPanelOpen(false);
@@ -2272,9 +2252,7 @@ export default function Home() {
             favoriteBouquetIds={favoriteBouquetIds}
             formatPrice={formatPrice}
             handleFavoriteClick={handleFavoriteClick}
-            handleFavoriteTouchEnd={handleFavoriteTouchEnd}
             handleBouquetOrderClick={handleBouquetOrderClick}
-            handleBouquetOrderTouchEnd={handleBouquetOrderTouchEnd}
             onProductOpen={openProductExperience}
             catalogFocusNonce={catalogFocusNonce}
           />
