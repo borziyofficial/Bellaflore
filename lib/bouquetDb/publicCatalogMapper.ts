@@ -17,6 +17,14 @@ const BOUQUET_BADGE_LABELS: Record<string, string | undefined> = {
   limited: "Лимит",
 };
 
+function resolveDeployableImageUrl(url: string): string {
+  const normalized = url.trim();
+  if (process.env.VERCEL && normalized.startsWith("/uploads/")) {
+    return PUBLIC_CATALOG_PLACEHOLDER_IMAGE;
+  }
+  return normalized;
+}
+
 function buildCategoryLabelMap(storage: StoredBouquetCategoryStorage): CategoryLabelMap {
   const labels = new Map<string, string>();
 
@@ -61,7 +69,7 @@ export function storedBouquetToLegacyCatalogProduct(
   const category = resolveCategoryLabel(labels, record.categoryId);
   const cover =
     record.images.find((image) => image.isCover) ?? record.images[0] ?? null;
-  const imageUrl = cover?.url?.trim() || PUBLIC_CATALOG_PLACEHOLDER_IMAGE;
+  const imageUrl = resolveDeployableImageUrl(cover?.url ?? "") || PUBLIC_CATALOG_PLACEHOLDER_IMAGE;
   const sizes = bouquetSizesToCatalogSizes(record);
   const priceRub =
     sizes.length > 0
@@ -111,7 +119,7 @@ export function storedBouquetToLegacyCatalogProduct(
       .sort((left, right) => left.order - right.order)
       .map((image, index) => ({
         id: image.id,
-        src: image.url,
+        src: resolveDeployableImageUrl(image.url),
         alt: image.name || `${record.name} — фото ${index + 1}`,
         width: image.width ?? 1080,
         height: image.height ?? 1350,

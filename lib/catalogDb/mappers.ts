@@ -17,6 +17,14 @@ import type {
   StoredCatalogProduct,
 } from "@/lib/catalogDb/types";
 
+function resolveDeployableImageUrl(url: string): string {
+  const normalized = url.trim();
+  if (process.env.VERCEL && normalized.startsWith("/uploads/")) {
+    return PUBLIC_CATALOG_PLACEHOLDER_IMAGE;
+  }
+  return normalized;
+}
+
 function parseSizePricesFromForm(
   form: AdminProductFormState,
 ): CatalogProductSizePrices {
@@ -413,7 +421,8 @@ export function storedProductToLegacyCatalogProduct(
   const category = CATALOG_CATEGORY_BY_ID[product.category];
   const primaryImage = record.images.find((image) => image.isPrimary) ?? record.images[0];
   const imageUrl =
-    primaryImage?.url || product.imageUrl.trim() || PUBLIC_CATALOG_PLACEHOLDER_IMAGE;
+    resolveDeployableImageUrl(primaryImage?.url || product.imageUrl) ||
+    PUBLIC_CATALOG_PLACEHOLDER_IMAGE;
   const sizes = (["S", "M", "L", "XL"] as const).flatMap((sizeId) => {
     const price = product.sizes[sizeId];
     return price ? [{ label: sizeId, price }] : [];
@@ -449,7 +458,7 @@ export function storedProductToLegacyCatalogProduct(
       .sort((left, right) => left.sortOrder - right.sortOrder)
       .map((image) => ({
         id: image.id,
-        src: image.url,
+        src: resolveDeployableImageUrl(image.url),
         alt: image.alt,
         width: image.width,
         height: image.height,
