@@ -183,42 +183,36 @@ export function ProductGallery({
           </div>
         </div>
 
-        {hasMultipleImages ? (
-          <div className={styles.thumbnailRail} aria-label="Миниатюры">
-            {orderedImages.map((image, index) => {
-              const isActive = index === safeActiveIndex;
+        <div className={styles.thumbnailRail} aria-label="Миниатюры">
+          {orderedImages.map((image, index) => {
+            const isActive = index === safeActiveIndex;
 
-              return (
-                <button
-                  key={`thumb-${image.id}`}
-                  type="button"
-                  className={`${styles.thumbnail} ${isActive ? styles.thumbnailActive : ""}`}
-                  aria-label={`Фото ${index + 1}`}
-                  aria-current={isActive ? "true" : undefined}
-                  onClick={() => goToSlide(index)}
-                >
-                  {!failedImageIds.has(image.id) ? (
-                    <Image
-                      src={image.src}
-                      alt=""
-                      fill
-                      className={styles.thumbnailImage}
-                      sizes="72px"
-                      unoptimized={shouldUseUnoptimizedImage(image.src)}
-                      onError={() => onImageError(image.id)}
-                    />
-                  ) : (
-                    <span className={styles.thumbnailFallback} aria-hidden="true" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div className={styles.dots} aria-hidden="true">
-            <span className={`${styles.dot} ${styles.dotActive}`} />
-          </div>
-        )}
+            return (
+              <button
+                key={`thumb-${image.id}`}
+                type="button"
+                className={`${styles.thumbnail} ${isActive ? styles.thumbnailActive : ""}`}
+                aria-label={`Фото ${index + 1}`}
+                aria-current={isActive ? "true" : undefined}
+                onClick={() => goToSlide(index)}
+              >
+                {!failedImageIds.has(image.id) ? (
+                  <Image
+                    src={image.src}
+                    alt=""
+                    fill
+                    className={styles.thumbnailImage}
+                    sizes="72px"
+                    unoptimized={shouldUseUnoptimizedImage(image.src)}
+                    onError={() => onImageError(image.id)}
+                  />
+                ) : (
+                  <span className={styles.thumbnailFallback} aria-hidden="true" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {fullscreenOpen ? (
