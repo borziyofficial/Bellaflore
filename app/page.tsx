@@ -1113,15 +1113,6 @@ export default function Home() {
     removeFavoriteBouquet(bouquetId);
   };
 
-  const handleFavoriteRemoveTouchEnd = (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    bouquetId: string,
-  ) => {
-    event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
-    removeFavoriteBouquet(bouquetId);
-  };
-
   const favoriteBouquets = bouquets.filter((bouquet) =>
     favoriteBouquetIds.includes(bouquet.id),
   );
@@ -1708,17 +1699,6 @@ export default function Home() {
       return;
     }
 
-    prepareProductCheckout(bouquetId, sizeId, priceRub);
-  };
-
-  const handleFavoriteBuyTouchEnd = (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    bouquetId: string,
-    sizeId: ProductSizeId,
-    priceRub: number,
-  ) => {
-    event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
     prepareProductCheckout(bouquetId, sizeId, priceRub);
   };
 
@@ -2333,9 +2313,7 @@ export default function Home() {
             formatPrice={formatPrice}
             onCloseFavoritesPanel={closeFavoritesPanel}
             handleFavoriteRemoveClick={handleFavoriteRemoveClick}
-            handleFavoriteRemoveTouchEnd={handleFavoriteRemoveTouchEnd}
             handleFavoriteBuyClick={handleFavoriteBuyClick}
-            handleFavoriteBuyTouchEnd={handleFavoriteBuyTouchEnd}
           />
         </BottomNavPanelFrame>
       )}

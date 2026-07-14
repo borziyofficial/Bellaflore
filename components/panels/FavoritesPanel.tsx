@@ -12,7 +12,6 @@ import { getProductExperienceData, getProductSizeVariant } from "@/components/pr
 import { ProductSizePickerSheet } from "@/components/product/ProductSizePickerSheet";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import { useBodyScrollLock } from "@/lib/ui/useBodyScrollLock";
-import { getProductSizeRuLabel } from "@/lib/product/sizeLabels";
 import {
   useMemo,
   useRef,
@@ -41,18 +40,8 @@ type FavoritesPanelProps = {
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
   ) => void;
-  handleFavoriteRemoveTouchEnd: (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    bouquetId: string,
-  ) => void;
   handleFavoriteBuyClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
-    bouquetId: string,
-    sizeId: ProductSizeId,
-    priceRub: number,
-  ) => void;
-  handleFavoriteBuyTouchEnd: (
-    event: ReactTouchEvent<HTMLButtonElement>,
     bouquetId: string,
     sizeId: ProductSizeId,
     priceRub: number,
@@ -66,31 +55,21 @@ type FavoriteCardProps = {
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
   ) => void;
-  handleFavoriteRemoveTouchEnd: (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    bouquetId: string,
-  ) => void;
   handleFavoriteBuyClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
     sizeId: ProductSizeId,
     priceRub: number,
   ) => void;
-  handleFavoriteBuyTouchEnd: (
-    event: ReactTouchEvent<HTMLButtonElement>,
-    bouquetId: string,
-    sizeId: ProductSizeId,
-    priceRub: number,
-  ) => void;
 };
+
+const ACTION_GESTURE_THRESHOLD_PX = 10;
 
 function FavoriteCard({
   bouquet,
   formatPrice,
   handleFavoriteRemoveClick,
-  handleFavoriteRemoveTouchEnd,
   handleFavoriteBuyClick,
-  handleFavoriteBuyTouchEnd,
 }: FavoriteCardProps) {
   const experienceData = useMemo(() => getProductExperienceData(bouquet), [bouquet]);
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
@@ -99,8 +78,67 @@ function FavoriteCard({
       : experienceData.defaultSizeId,
   );
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
+  const actionGestureRef = useRef({
+    startX: 0,
+    startY: 0,
+    moved: false,
+    suppressClickUntil: 0,
+  });
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
-  const selectedSizeLabel = getProductSizeRuLabel(selectedVariant.sizeId);
+  const selectedSizeLabel = selectedVariant.sizeId;
+
+  const handleActionTouchStart = (event: ReactTouchEvent<HTMLButtonElement>) => {
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+
+    actionGestureRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      moved: false,
+      suppressClickUntil: 0,
+    };
+  };
+
+  const handleActionTouchMove = (event: ReactTouchEvent<HTMLButtonElement>) => {
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+
+    const gesture = actionGestureRef.current;
+    if (
+      Math.hypot(
+        touch.clientX - gesture.startX,
+        touch.clientY - gesture.startY,
+      ) >= ACTION_GESTURE_THRESHOLD_PX
+    ) {
+      gesture.moved = true;
+    }
+  };
+
+  const handleActionTouchEnd = (event: ReactTouchEvent<HTMLButtonElement>) => {
+    if (!actionGestureRef.current.moved) {
+      return;
+    }
+
+    actionGestureRef.current.suppressClickUntil = Date.now() + 800;
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  const shouldSuppressActionClick = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+  ) => {
+    if (Date.now() >= actionGestureRef.current.suppressClickUntil) {
+      return false;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    return true;
+  };
 
   return (
     <article className={styles.card}>
@@ -121,7 +159,14 @@ function FavoriteCard({
           <button
             type="button"
             className={styles.sizeButton}
-            onClick={() => setSizeSheetOpen(true)}
+            onClick={(event) => {
+              if (!shouldSuppressActionClick(event)) {
+                setSizeSheetOpen(true);
+              }
+            }}
+            onTouchStart={handleActionTouchStart}
+            onTouchMove={handleActionTouchMove}
+            onTouchEnd={handleActionTouchEnd}
             aria-haspopup="dialog"
             aria-expanded={sizeSheetOpen}
           >
@@ -130,22 +175,21 @@ function FavoriteCard({
           <button
             type="button"
             className={styles.orderButton}
-            onClick={(event) =>
+            onClick={(event) => {
+              if (shouldSuppressActionClick(event)) {
+                return;
+              }
+
               handleFavoriteBuyClick(
                 event,
                 bouquet.id,
                 selectedVariant.sizeId,
                 selectedVariant.priceRub,
-              )
-            }
-            onTouchEnd={(event) =>
-              handleFavoriteBuyTouchEnd(
-                event,
-                bouquet.id,
-                selectedVariant.sizeId,
-                selectedVariant.priceRub,
-              )
-            }
+              );
+            }}
+            onTouchStart={handleActionTouchStart}
+            onTouchMove={handleActionTouchMove}
+            onTouchEnd={handleActionTouchEnd}
             aria-label={`Заказать ${bouquet.title} в размере ${selectedSizeLabel}`}
           >
             Купить
@@ -153,8 +197,14 @@ function FavoriteCard({
           <button
             type="button"
             className={styles.removeButton}
-            onClick={(event) => handleFavoriteRemoveClick(event, bouquet.id)}
-            onTouchEnd={(event) => handleFavoriteRemoveTouchEnd(event, bouquet.id)}
+            onClick={(event) => {
+              if (!shouldSuppressActionClick(event)) {
+                handleFavoriteRemoveClick(event, bouquet.id);
+              }
+            }}
+            onTouchStart={handleActionTouchStart}
+            onTouchMove={handleActionTouchMove}
+            onTouchEnd={handleActionTouchEnd}
             aria-label={`Убрать ${bouquet.title} из избранного`}
           >
             <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -185,9 +235,7 @@ export function FavoritesPanel({
   formatPrice,
   onCloseFavoritesPanel,
   handleFavoriteRemoveClick,
-  handleFavoriteRemoveTouchEnd,
   handleFavoriteBuyClick,
-  handleFavoriteBuyTouchEnd,
 }: FavoritesPanelProps) {
   useBodyScrollLock(true);
   const touchStartYRef = useRef<number | null>(null);
@@ -261,9 +309,7 @@ export function FavoritesPanel({
                 bouquet={bouquet}
                 formatPrice={formatPrice}
                 handleFavoriteRemoveClick={handleFavoriteRemoveClick}
-                handleFavoriteRemoveTouchEnd={handleFavoriteRemoveTouchEnd}
                 handleFavoriteBuyClick={handleFavoriteBuyClick}
-                handleFavoriteBuyTouchEnd={handleFavoriteBuyTouchEnd}
               />
             ))}
           </div>

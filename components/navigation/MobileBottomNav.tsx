@@ -244,6 +244,11 @@ export function MobileBottomNav({
               strokeLinejoin="round"
             />
           </svg>
+          {favoriteBouquetIds.length > 0 ? (
+            <span className={navStyles.favoriteBadge}>
+              {favoriteBouquetIds.length}
+            </span>
+          ) : null}
         </span>
         <span className={navStyles.label}>Избранное</span>
       </button>
