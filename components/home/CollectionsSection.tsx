@@ -10,6 +10,7 @@ import {
   homeCatalogSearchPlaceholder,
   homeCatalogTitle,
 } from "@/components/catalog/homeCatalogConfig";
+import { useStorefrontCustomCategories } from "@/components/catalog/useStorefrontCustomCategories";
 import { LuxuryCatalogProductCard } from "@/components/catalog/LuxuryCatalogProductCard";
 import styles from "@/components/home/CollectionsSection.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
@@ -51,6 +52,20 @@ export function CollectionsSection({
 }: CollectionsSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState("all");
+  const customCategories = useStorefrontCustomCategories();
+
+  const customCategoryTitleById = useMemo(
+    () => Object.fromEntries(customCategories.map((category) => [category.id, category.title])),
+    [customCategories],
+  );
+
+  const categoryChips = useMemo(() => {
+    const existingIds = new Set(homeCatalogCategoryChips.map((chip) => chip.id));
+    const extraChips = customCategories
+      .filter((category) => !existingIds.has(category.id))
+      .map((category) => ({ id: category.id, label: category.title }));
+    return [...homeCatalogCategoryChips, ...extraChips];
+  }, [customCategories]);
 
   useEffect(() => {
     if (!catalogFocusNonce) {
@@ -75,8 +90,9 @@ export function CollectionsSection({
         categoryId: isSearchMode ? "all" : activeCategoryId,
         quickFilterId: "all",
         searchQuery,
+        customCategoryTitleById,
       }),
-    [activeCategoryId, bouquets, isSearchMode, searchQuery],
+    [activeCategoryId, bouquets, customCategoryTitleById, isSearchMode, searchQuery],
   );
 
   const handleSearchChange = (event: ReactChangeEvent<HTMLInputElement>) => {
@@ -138,7 +154,7 @@ export function CollectionsSection({
           role="tablist"
           aria-label="Категории букетов"
         >
-          {homeCatalogCategoryChips.map((chip) => {
+          {categoryChips.map((chip) => {
             const isActive = !isSearchMode && activeCategoryId === chip.id;
 
             return (

@@ -10,6 +10,7 @@ import {
   saveCatalogDraft,
   upsertCatalogProduct,
 } from "@/lib/catalogDb";
+import { buildCategoryTitleMap } from "@/lib/adminCategoriesDb";
 import {
   isAdminRequestAuthorized,
   unauthorizedAdminResponse,
@@ -44,10 +45,15 @@ export async function GET(request: Request) {
   }
 
   try {
-    const products = await listCatalogProducts();
+    const [products, customCategoryTitleById] = await Promise.all([
+      listCatalogProducts(),
+      buildCategoryTitleMap(),
+    ]);
     return Response.json(
       {
-        products: products.map(storedProductToCatalogRecord),
+        products: products.map((product) =>
+          storedProductToCatalogRecord(product, customCategoryTitleById),
+        ),
         mode: getCatalogDatabaseMode(),
         imageStorageWarning: getImageStorageWarning(),
       },

@@ -6,7 +6,7 @@
 
 import { useMemo, useState } from "react";
 import {
-  createAdminCustomCategory,
+  createAdminCategoryRemote,
   getAdminProductCategories,
   resolveAdminCategoryTitle,
 } from "@/components/adminCatalogManager/adminCustomCategories";
@@ -105,19 +105,20 @@ export function FastCategoryPicker({
   const handleCreate = () => {
     setCreateError(null);
 
-    try {
-      const created = createAdminCustomCategory(newTitle);
-      refreshCategories();
-      selectCategory(created.id);
-      setCreateOpen(false);
-      setNewTitle("");
-    } catch (createFailure) {
-      setCreateError(
-        createFailure instanceof Error
-          ? createFailure.message
-          : "Не удалось создать категорию.",
-      );
-    }
+    createAdminCategoryRemote(newTitle)
+      .then((created) => {
+        refreshCategories();
+        selectCategory(created.id);
+        setCreateOpen(false);
+        setNewTitle("");
+      })
+      .catch((createFailure: unknown) => {
+        setCreateError(
+          createFailure instanceof Error
+            ? createFailure.message
+            : "Не удалось создать категорию.",
+        );
+      });
   };
 
   const renderCategory = (category: CatalogCategoryRecord) => {

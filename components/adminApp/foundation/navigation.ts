@@ -96,9 +96,8 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     id: "smart-banner",
     label: "Умный баннер",
     href: "/admin/smart-banner",
-    description: "Умное продвижение витрины",
+    description: "Управление главной страницей",
     sidebarOnly: true,
-    future: true,
   },
   {
     id: "analytics",
@@ -214,6 +213,7 @@ const ADMIN_PAGE_TITLES: Record<string, string> = {
   "/admin/add": "Добавить товар",
   "/admin/orders": "Заказы",
   "/admin/profile": "Профиль",
+  "/admin/smart-banner": "Умный баннер",
 };
 
 export function resolveAdminPageTitle(pathname: string): string {

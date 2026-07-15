@@ -30,10 +30,21 @@ export function AdminCatalogManager({
     getPublishedPreviewProducts,
   } = useAdminCatalogManager();
 
-  if (!isReady) {
+  // The create flow doesn't need the existing product list at all (only
+  // categories, which load independently) — never block the empty form
+  // behind a full-catalog fetch. List/edit modes still need `products`,
+  // so they show a compact skeleton instead of a blocking full-screen text
+  // while the (single, already-fast) request resolves in the background.
+  const isCreateOnly = initialMode === "create" && !initialEditId;
+
+  if (!isReady && !isCreateOnly) {
     return (
       <div className={embedded ? styles.embeddedRoot : styles.shell}>
-        <p className={styles.loading}>Загрузка товаров…</p>
+        <div className={styles.skeletonGrid} aria-busy="true" aria-label="Загрузка товаров">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className={styles.skeletonCard} />
+          ))}
+        </div>
       </div>
     );
   }

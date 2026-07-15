@@ -30,8 +30,10 @@ export type StoredImageResult = {
   storage: "blob" | "server";
 };
 
-export async function storeCatalogProductImage(
+async function storeImageToFolder(
   file: File,
+  blobFolder: string,
+  localFolder: string,
 ): Promise<StoredImageResult> {
   const extension = getImageExtension(file);
   if (!extension) {
@@ -42,7 +44,7 @@ export async function storeCatalogProductImage(
   const imageBytes = Buffer.from(await file.arrayBuffer());
 
   if (process.env.BLOB_READ_WRITE_TOKEN?.trim()) {
-    const blob = await put(`catalog/products/${filename}`, imageBytes, {
+    const blob = await put(`${blobFolder}/${filename}`, imageBytes, {
       access: "public",
       contentType: file.type || "application/octet-stream",
     });
@@ -54,13 +56,13 @@ export async function storeCatalogProductImage(
   }
 
   if (process.env.NODE_ENV !== "production") {
-    const uploadDirectory = join(process.cwd(), "public", "uploads", "products");
+    const uploadDirectory = join(process.cwd(), "public", "uploads", localFolder);
     const destinationPath = join(uploadDirectory, filename);
     await mkdir(uploadDirectory, { recursive: true });
     await writeFile(destinationPath, imageBytes);
 
     return {
-      imageUrl: `/uploads/products/${filename}`,
+      imageUrl: `/uploads/${localFolder}/${filename}`,
       storage: "server",
     };
   }
@@ -70,4 +72,16 @@ export async function storeCatalogProductImage(
   }
 
   throw new Error("IMAGE_STORAGE_NOT_CONFIGURED");
+}
+
+export async function storeCatalogProductImage(
+  file: File,
+): Promise<StoredImageResult> {
+  return storeImageToFolder(file, "catalog/products", "products");
+}
+
+export async function storeHeroBannerImage(
+  file: File,
+): Promise<StoredImageResult> {
+  return storeImageToFolder(file, "hero/banner", "hero");
 }

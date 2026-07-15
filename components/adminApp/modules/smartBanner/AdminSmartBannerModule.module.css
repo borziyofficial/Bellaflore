@@ -1,0 +1,205 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.6fr);
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.field span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 64px;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.imageRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.imagePreview {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(138, 107, 61, 0.08);
+  flex: 0 0 auto;
+}
+
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.primaryButton {
+  background: #8a6b3d;
+  color: #fff;
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.secondaryButton {
+  background: #fff;
+  border-color: rgba(138, 107, 61, 0.24);
+}
+
+.dangerButton {
+  background: rgba(143, 63, 63, 0.08);
+  color: #8f3f3f;
+  border-color: rgba(143, 63, 63, 0.18);
+}
+
+.success {
+  color: #2f6b4f;
+  font-size: 13px;
+}
+
+.error {
+  color: #8f3f3f;
+  font-size: 13px;
+}
+
+.previewWrap {
+  display: grid;
+  place-items: center;
+  padding: 16px 0;
+}
+
+.phoneFrame {
+  width: 220px;
+  height: 460px;
+  border-radius: 32px;
+  border: 8px solid #2f2a24;
+  overflow: hidden;
+  position: relative;
+  background: #efe6da;
+  box-shadow: 0 12px 32px rgba(47, 42, 36, 0.18);
+}
+
+.phoneBackground {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.phoneBackground::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20, 16, 12, 0.15), rgba(20, 16, 12, 0.55));
+}
+
+.phoneContent {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  display: grid;
+  gap: 10px;
+}
+
+.phoneTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.phoneSubtitle {
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.phoneButton {
+  margin-top: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #fff;
+  color: #2f2a24;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.previewLabel {
+  text-align: center;
+  font-size: 12px;
+  color: #75695c;
+  margin-top: 8px;
+}
+
+.disabledNote {
+  text-align: center;
+  color: #75695c;
+  font-size: 13px;
+  padding: 12px;
+}

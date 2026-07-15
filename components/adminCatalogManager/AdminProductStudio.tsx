@@ -19,10 +19,8 @@ import {
   unpublishAdminCatalogProduct,
 } from "@/components/adminCatalogManager/catalogApiClient";
 import { resolveAdminCategoryTitle } from "@/components/adminCatalogManager/adminCustomCategories";
-import {
-  CATALOG_CATEGORIES,
-  CATALOG_CATEGORY_BY_ID,
-} from "@/components/catalogEngine/categoriesCatalog";
+import { useAdminCategories } from "@/components/adminCatalogManager/useAdminCategories";
+import { AdminCategoryManagerModal } from "@/components/adminCatalogManager/AdminCategoryManagerModal";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import styles from "@/components/adminCatalogManager/AdminProductStudio.module.css";
 
@@ -189,6 +187,13 @@ export function AdminProductStudio({
   const replaceInputRef = useRef<HTMLInputElement>(null);
   const [replaceImageId, setReplaceImageId] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
+  const {
+    categories,
+    createCategory,
+    renameCategory,
+    deleteCategory,
+  } = useAdminCategories();
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -539,7 +544,7 @@ export function AdminProductStudio({
   };
 
   if (mode !== "list") {
-    const categoryTitle = CATALOG_CATEGORY_BY_ID[form.categoryId]?.title ?? "Категория";
+    const categoryTitle = resolveAdminCategoryTitle(form.categoryId);
     return (
       <div className={styles.root}>
         <header className={styles.header}>
@@ -575,16 +580,26 @@ export function AdminProductStudio({
             </label>
             <label className={styles.field}>
               <span>Категория *</span>
-              <select
-                value={form.categoryId}
-                onChange={(event) => updateForm({ categoryId: event.target.value })}
-              >
-                {CATALOG_CATEGORIES.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.title}
-                  </option>
-                ))}
-              </select>
+              <div style={{ display: "flex", gap: 8 }}>
+                <select
+                  value={form.categoryId}
+                  onChange={(event) => updateForm({ categoryId: event.target.value })}
+                >
+                  <option value="">Выберите категорию</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.title}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={() => setCategoryManagerOpen(true)}
+                >
+                  Категории
+                </button>
+              </div>
             </label>
             <label className={styles.field}>
               <span>Краткое описание</span>
@@ -824,6 +839,15 @@ export function AdminProductStudio({
             {saving ? "Публикация…" : "Опубликовать"}
           </button>
         </footer>
+
+        <AdminCategoryManagerModal
+          open={categoryManagerOpen}
+          categories={categories}
+          onClose={() => setCategoryManagerOpen(false)}
+          onCreate={createCategory}
+          onRename={renameCategory}
+          onDelete={deleteCategory}
+        />
       </div>
     );
   }
@@ -836,9 +860,18 @@ export function AdminProductStudio({
           <h2 className={styles.title}>Товары</h2>
           <p className={styles.lead}>Создание, публикация, изображения и управление витриной.</p>
         </div>
-        <button type="button" className={styles.primaryButton} onClick={openCreate}>
-          Добавить товар
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            onClick={() => setCategoryManagerOpen(true)}
+          >
+            Категории
+          </button>
+          <button type="button" className={styles.primaryButton} onClick={openCreate}>
+            Добавить товар
+          </button>
+        </div>
       </header>
 
       {imageStorageWarning ? <p className={styles.warning}>{imageStorageWarning}</p> : null}
@@ -853,7 +886,7 @@ export function AdminProductStudio({
         />
         <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
           <option value="all">Все категории</option>
-          {CATALOG_CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.title}
             </option>
@@ -965,6 +998,15 @@ export function AdminProductStudio({
           </div>
         </div>
       ) : null}
+
+      <AdminCategoryManagerModal
+        open={categoryManagerOpen}
+        categories={categories}
+        onClose={() => setCategoryManagerOpen(false)}
+        onCreate={createCategory}
+        onRename={renameCategory}
+        onDelete={deleteCategory}
+      />
     </div>
   );
 }

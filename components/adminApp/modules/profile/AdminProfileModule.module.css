@@ -1,0 +1,80 @@
+.field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.field span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+}
+
+@media (max-width: 640px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.readOnlyValue {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(138, 107, 61, 0.06);
+  color: #75695c;
+}
+
+.primaryButton,
+.secondaryButton {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.primaryButton {
+  background: #8a6b3d;
+  color: #fff;
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.secondaryButton {
+  background: #fff;
+  border-color: rgba(138, 107, 61, 0.24);
+}
+
+.success {
+  color: #2f6b4f;
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+
+.error {
+  color: #8f3f3f;
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+
+.hint {
+  color: #75695c;
+  font-size: 12px;
+  margin: 6px 0 0;
+}

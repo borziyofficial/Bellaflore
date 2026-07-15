@@ -21,7 +21,7 @@ const QUICK_ACTIONS = [
   { label: "Добавить букет", hint: "Создать", href: "/admin/add" },
   { label: "Букеты", hint: "Каталог", href: "/admin/bouquets" },
   { label: "Заказы", hint: "Поток заказов", href: "/admin/orders" },
-  { label: "Умный баннер", hint: "Скоро", href: "/admin/smart-banner" },
+  { label: "Умный баннер", hint: "Главная страница", href: "/admin/smart-banner" },
 ];
 
 const NOTIFICATIONS = [

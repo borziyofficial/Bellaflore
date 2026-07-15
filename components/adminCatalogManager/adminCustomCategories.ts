@@ -1,127 +1,171 @@
 // ==================================================
-// SECTION: Admin — runtime custom categories
-// РАЗДЕЛ: Пользовательские категории (localStorage)
+// SECTION: Admin — real (server-persisted) categories
+// РАЗДЕЛ: Категории — реальное серверное хранение
+//
+// Purpose (EN): Client-side accessor for admin categories, backed by the
+// real database via /api/admin/categories (no mock/localStorage data).
+// Назначение (RU): Клиентский доступ к категориям, реально хранящимся в
+// базе данных через /api/admin/categories (без mock/localStorage).
 // ==================================================
 import type { CatalogCategoryRecord } from "@/components/catalogEngine/catalogTypes";
 import {
   CATALOG_CATEGORIES,
   CATALOG_CATEGORY_BY_ID,
 } from "@/components/catalogEngine/categoriesCatalog";
-import { slugifyCatalogProductTitle } from "@/lib/catalogProductSlug";
 
-const STORAGE_KEY = "bellaflore-admin-custom-categories";
+export type AdminCategoryRecord = CatalogCategoryRecord & { isCustom: boolean };
 
-export type AdminCustomCategory = {
+export const ADMIN_CATEGORIES_CHANGE_EVENT = "admin-categories-change";
+
+export class AdminCategoryApiError extends Error {
+  code?: string;
+  count?: number;
+}
+
+type RawCategory = {
   id: string;
   slug: string;
   title: string;
-  createdAt: string;
+  icon: string;
+  sortOrder: number;
+  isActive: boolean;
+  isCustom: boolean;
 };
 
-function readCustomCategories(): AdminCustomCategory[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
+let cache: AdminCategoryRecord[] = CATALOG_CATEGORIES.map((category) => ({
+  ...category,
+  isCustom: false,
+}));
 
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return [];
-    }
-
-    const parsed = JSON.parse(raw) as AdminCustomCategory[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
+function notifyChange(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(ADMIN_CATEGORIES_CHANGE_EVENT));
   }
 }
 
-function writeCustomCategories(categories: AdminCustomCategory[]): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
-}
-
-function toCatalogCategoryRecord(
-  category: AdminCustomCategory,
-  sortOrder: number,
-): CatalogCategoryRecord {
+function toCategoryRecord(raw: RawCategory): AdminCategoryRecord {
   return {
-    id: category.id,
-    slug: category.slug,
-    title: category.title,
-    description: category.title,
+    id: raw.id,
+    slug: raw.slug,
+    title: raw.title,
+    description: raw.title,
     parentId: null,
-    sortOrder,
-    isActive: true,
+    sortOrder: raw.sortOrder,
+    isActive: raw.isActive,
     isSeasonal: false,
-    icon: "✨",
+    icon: raw.icon || "✨",
     seo: {
-      title: `${category.title} — Bellaflore`,
-      description: `Премиальные ${category.title.toLowerCase()} с доставкой по Москве.`,
-      slug: category.slug,
+      title: `${raw.title} — Bellaflore`,
+      description: `Премиальные ${raw.title.toLowerCase()} с доставкой по Москве.`,
+      slug: raw.slug,
     },
+    isCustom: raw.isCustom,
   };
 }
 
-export function getAdminCustomCategories(): AdminCustomCategory[] {
-  return readCustomCategories();
+async function parseJson<T>(response: Response): Promise<T> {
+  return (await response.json()) as T;
 }
 
-export function createAdminCustomCategory(title: string): AdminCustomCategory {
-  const trimmed = title.trim();
-  if (!trimmed) {
-    throw new Error("Укажите название категории.");
+export async function fetchAdminCategories(): Promise<AdminCategoryRecord[]> {
+  const response = await fetch("/api/admin/categories", {
+    credentials: "include",
+    cache: "no-store",
+  });
+  const body = await parseJson<{ categories?: RawCategory[]; message?: string }>(response);
+
+  if (!response.ok) {
+    throw new Error(body.message || "Не удалось загрузить категории.");
   }
 
-  const slug = slugifyCatalogProductTitle(trimmed) || `category-${Date.now()}`;
-  const id = `custom-${slug}`;
+  const list = Array.isArray(body.categories) ? body.categories.map(toCategoryRecord) : [];
+  if (list.length > 0) {
+    cache = list;
+  }
+  return cache;
+}
 
-  const existing = readCustomCategories();
-  const duplicate = existing.find(
-    (item) => item.id === id || item.title.toLowerCase() === trimmed.toLowerCase(),
-  );
-  if (duplicate) {
-    return duplicate;
+export async function createAdminCategoryRemote(title: string): Promise<AdminCategoryRecord> {
+  const response = await fetch("/api/admin/categories", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title }),
+  });
+  const body = await parseJson<{ category?: RawCategory; message?: string }>(response);
+
+  if (!response.ok || !body.category) {
+    throw new Error(body.message || "Не удалось создать категорию.");
   }
 
-  const created: AdminCustomCategory = {
-    id,
-    slug,
-    title: trimmed,
-    createdAt: new Date().toISOString(),
-  };
-
-  writeCustomCategories([created, ...existing]);
+  const created = toCategoryRecord(body.category);
+  cache = [...cache, created];
+  notifyChange();
   return created;
 }
 
-export function getAdminProductCategories(): CatalogCategoryRecord[] {
-  const custom = readCustomCategories().map((category, index) =>
-    toCatalogCategoryRecord(category, 100 + index),
-  );
+export async function renameAdminCategoryRemote(
+  id: string,
+  title: string,
+): Promise<AdminCategoryRecord> {
+  const response = await fetch(`/api/admin/categories/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title }),
+  });
+  const body = await parseJson<{ category?: RawCategory; message?: string }>(response);
 
-  return [...CATALOG_CATEGORIES, ...custom];
+  if (!response.ok || !body.category) {
+    throw new Error(body.message || "Не удалось изменить категорию.");
+  }
+
+  const updated = toCategoryRecord(body.category);
+  cache = cache.map((category) => (category.id === id ? updated : category));
+  notifyChange();
+  return updated;
+}
+
+export async function deleteAdminCategoryRemote(
+  id: string,
+  reassignTo?: string,
+): Promise<{ reassignedCount: number }> {
+  const query = reassignTo ? `?reassignTo=${encodeURIComponent(reassignTo)}` : "";
+  const response = await fetch(`/api/admin/categories/${encodeURIComponent(id)}${query}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  const body = await parseJson<{
+    reassignedCount?: number;
+    message?: string;
+    count?: number;
+    code?: string;
+  }>(response);
+
+  if (!response.ok) {
+    const error = new AdminCategoryApiError(body.message || "Не удалось удалить категорию.");
+    error.code = body.code;
+    error.count = body.count;
+    throw error;
+  }
+
+  cache = cache.filter((category) => category.id !== id);
+  notifyChange();
+  return { reassignedCount: body.reassignedCount ?? 0 };
+}
+
+export function getAdminProductCategories(): AdminCategoryRecord[] {
+  return cache;
 }
 
 export function resolveAdminCategoryTitle(categoryId: string): string {
   return (
+    cache.find((category) => category.id === categoryId)?.title ??
     CATALOG_CATEGORY_BY_ID[categoryId]?.title ??
-    readCustomCategories().find((item) => item.id === categoryId)?.title ??
     "—"
   );
 }
 
-export function resolveAdminCategoryById(
-  categoryId: string,
-): CatalogCategoryRecord | null {
-  const builtIn = CATALOG_CATEGORY_BY_ID[categoryId];
-  if (builtIn) {
-    return builtIn;
-  }
-
-  const custom = readCustomCategories().find((item) => item.id === categoryId);
-  return custom ? toCatalogCategoryRecord(custom, 999) : null;
+export function resolveAdminCategoryById(categoryId: string): AdminCategoryRecord | null {
+  return cache.find((category) => category.id === categoryId) ?? null;
 }

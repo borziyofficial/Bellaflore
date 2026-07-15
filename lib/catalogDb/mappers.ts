@@ -289,8 +289,10 @@ export function storedProductToAdminForm(
 
 export function storedProductToCatalogRecord(
   product: StoredCatalogProduct,
+  customCategoryTitleById: Record<string, string> = {},
 ): CatalogProductRecord {
   const category = CATALOG_CATEGORY_BY_ID[product.category];
+  const customCategoryTitle = customCategoryTitleById[product.category];
   const sizes = (["S", "M", "L", "XL"] as const).flatMap((sizeId) => {
     const priceRub = product.sizes[sizeId];
     if (!priceRub) {
@@ -319,7 +321,11 @@ export function storedProductToCatalogRecord(
     categoryIds: product.category ? [product.category] : [],
     tags: product.tags,
     colors: [],
-    flowerTypes: category ? [category.title.toLowerCase()] : [],
+    flowerTypes: category
+      ? [category.title.toLowerCase()]
+      : customCategoryTitle
+        ? [customCategoryTitle.toLowerCase()]
+        : [],
     occasions: [],
     seasons: ["all-season"],
     sizes,
@@ -416,9 +422,12 @@ export function storedProductToCatalogRecord(
 
 export function storedProductToLegacyCatalogProduct(
   product: StoredCatalogProduct,
+  customCategoryTitleById: Record<string, string> = {},
 ): CatalogProduct {
-  const record = storedProductToCatalogRecord(product);
+  const record = storedProductToCatalogRecord(product, customCategoryTitleById);
   const category = CATALOG_CATEGORY_BY_ID[product.category];
+  const customCategoryTitle = customCategoryTitleById[product.category];
+  const categoryTitle = category?.title ?? customCategoryTitle ?? "Авторские букеты";
   const primaryImage = record.images.find((image) => image.isPrimary) ?? record.images[0];
   const imageUrl =
     resolveDeployableImageUrl(primaryImage?.url || product.imageUrl) ||
@@ -432,8 +441,8 @@ export function storedProductToLegacyCatalogProduct(
     id: product.id,
     title: product.title,
     description: product.shortDescription,
-    category: category?.title ?? "Авторские букеты",
-    flowerType: category?.title.toLowerCase() ?? "микс",
+    category: categoryTitle,
+    flowerType: categoryTitle.toLowerCase(),
     tags: product.tags,
     searchTerms: record.searchTerms,
     src: imageUrl,

@@ -56,11 +56,16 @@ function productCategoryEquals(
 export function matchesHomeCatalogCategory(
   product: CatalogProduct,
   categoryId: string,
+  customCategoryTitleById?: Record<string, string>,
 ): boolean {
-  return matchesCategory(product, categoryId);
+  return matchesCategory(product, categoryId, customCategoryTitleById);
 }
 
-function matchesCategory(product: CatalogProduct, categoryId: string): boolean {
+function matchesCategory(
+  product: CatalogProduct,
+  categoryId: string,
+  customCategoryTitleById?: Record<string, string>,
+): boolean {
   if (categoryId === "all") {
     return true;
   }
@@ -72,7 +77,9 @@ function matchesCategory(product: CatalogProduct, categoryId: string): boolean {
     );
   }
 
-  const acceptedCategories = HOME_CATEGORY_TITLE_MAP[categoryId];
+  const acceptedCategories =
+    HOME_CATEGORY_TITLE_MAP[categoryId] ??
+    (customCategoryTitleById?.[categoryId] ? [customCategoryTitleById[categoryId]] : null);
   if (!acceptedCategories) {
     return false;
   }
@@ -132,11 +139,12 @@ export function filterHomeCatalogProducts(
     categoryId: string;
     quickFilterId: string;
     searchQuery: string;
+    customCategoryTitleById?: Record<string, string>;
   },
 ): CatalogProduct[] {
   return products.filter(
     (product) =>
-      matchesCategory(product, options.categoryId) &&
+      matchesCategory(product, options.categoryId, options.customCategoryTitleById) &&
       matchesQuickFilter(product, options.quickFilterId) &&
       matchesSearch(product, options.searchQuery),
   );

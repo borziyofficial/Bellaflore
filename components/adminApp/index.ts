@@ -33,4 +33,5 @@ export { AdminBouquetsModule } from "@/components/adminApp/modules/bouquets/Admi
 export { AdminAddModule } from "@/components/adminApp/modules/add/AdminAddModule";
 export { AdminOrdersModule } from "@/components/adminApp/modules/orders/AdminOrdersModule";
 export { AdminProfileModule } from "@/components/adminApp/modules/profile/AdminProfileModule";
+export { AdminSmartBannerModule } from "@/components/adminApp/modules/smartBanner/AdminSmartBannerModule";
 export { AdminFutureModule } from "@/components/adminApp/modules/shared/AdminFutureModule";

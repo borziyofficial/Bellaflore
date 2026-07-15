@@ -14,6 +14,7 @@ import {
   storedProductToLegacyCatalogProduct,
 } from "@/lib/catalogDb/mappers";
 import { resolvePublishedCatalogProduct } from "@/lib/catalogDb/resolvePublishedCatalogProduct";
+import { buildCategoryTitleMap } from "@/lib/adminCategoriesDb";
 
 export const runtime = "nodejs";
 
@@ -37,17 +38,22 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const publishedOnly = url.searchParams.get("published") === "1";
 
-    const products = publishedOnly
-      ? await listPublishedCatalogProducts()
-      : await listCatalogProducts();
+    const [products, customCategoryTitleById] = await Promise.all([
+      publishedOnly ? listPublishedCatalogProducts() : listCatalogProducts(),
+      buildCategoryTitleMap(),
+    ]);
     const bouquetProducts = publishedOnly ? await listPublishedBouquetCatalogProducts() : [];
 
     return Response.json({
       products: [
-        ...products.map(storedProductToLegacyCatalogProduct),
+        ...products.map((product) =>
+          storedProductToLegacyCatalogProduct(product, customCategoryTitleById),
+        ),
         ...bouquetProducts,
       ],
-      records: products.map(storedProductToCatalogRecord),
+      records: products.map((product) =>
+        storedProductToCatalogRecord(product, customCategoryTitleById),
+      ),
       mode: getCatalogDatabaseMode(),
     });
   } catch (error) {
