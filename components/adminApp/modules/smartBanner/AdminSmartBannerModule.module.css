@@ -11,6 +11,383 @@
   }
 }
 
+.mainColumn {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.previewPanel {
+  position: sticky;
+  top: 12px;
+}
+
+@media (max-width: 900px) {
+  .previewPanel {
+    position: static;
+  }
+}
+
+.modeToggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.modeButton {
+  border: 1px solid rgba(138, 107, 61, 0.24);
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modeButtonActive {
+  border-color: #8a6b3d;
+  background: rgba(138, 107, 61, 0.1);
+  color: #5a4626;
+}
+
+.sectionLabel {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5a4626;
+}
+
+.sourceGrid {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.sourceOption {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 2px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.sourceOption input {
+  grid-row: 1 / span 2;
+}
+
+.sourceOptionActive {
+  border-color: #8a6b3d;
+  background: rgba(138, 107, 61, 0.06);
+}
+
+.sourceOptionTitle {
+  font-weight: 600;
+}
+
+.sourceOptionHint {
+  grid-column: 2;
+  color: #75695c;
+  font-size: 12px;
+}
+
+.unsavedHint {
+  align-self: center;
+  color: #8f6f3f;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pickerWrap {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.selectedChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 5px 6px 5px 12px;
+  background: rgba(138, 107, 61, 0.1);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chip button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(138, 107, 61, 0.24);
+  color: #2f2a24;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.pickerSearch {
+  width: 100%;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font: inherit;
+}
+
+.pickerList {
+  display: grid;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid rgba(138, 107, 61, 0.12);
+  border-radius: 10px;
+  padding: 6px;
+}
+
+.pickerRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pickerRow:hover {
+  background: rgba(138, 107, 61, 0.06);
+}
+
+.pickerRowTitle {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pickerRowPrice {
+  color: #75695c;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.slideList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slideRow {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.slideThumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(138, 107, 61, 0.08);
+  display: grid;
+  place-items: center;
+}
+
+.slideThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slideThumbEmpty {
+  font-size: 10px;
+  color: #75695c;
+  text-align: center;
+  padding: 4px;
+}
+
+.slideInfo {
+  min-width: 0;
+}
+
+.slideTitle {
+  margin: 0;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slideSubtitle {
+  margin: 2px 0 0;
+  color: #75695c;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slideActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.iconButton {
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(138, 107, 61, 0.2);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.iconButton:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.dialogBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(20, 16, 12, 0.5);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+
+.dialog h3 {
+  margin: 0 0 14px;
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.previewDots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.previewDot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(138, 107, 61, 0.32);
+  cursor: pointer;
+}
+
+.previewDotActive {
+  width: 18px;
+  border-radius: 999px;
+  background: #8a6b3d;
+}
+
+.phoneEmpty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: #75695c;
+}
+
+.futureNote {
+  margin: 0 0 14px;
+  color: #75695c;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 24px;
+}
+
+.switch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #c9c1b4;
+  transition: background 160ms ease;
+  pointer-events: none;
+}
+
+.switch span::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(47, 42, 36, 0.24);
+  content: "";
+  transition: transform 160ms ease;
+}
+
+.switchOn span {
+  background: #2f9b5f;
+}
+
+.switchOn span::after {
+  transform: translateX(18px);
+}
+
 .field {
   display: grid;
   gap: 6px;

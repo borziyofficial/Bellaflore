@@ -56,6 +56,7 @@ import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
 import { DeliverySection } from "@/components/home/DeliverySection";
 import { HeroSection } from "@/components/home/HeroSection";
+import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
 import { Navbar } from "@/components/home/Navbar";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
@@ -2247,6 +2248,7 @@ export default function Home() {
 
       {publicAppView === "catalog" ? (
         <>
+          <SmartPromoBanner />
           <CollectionsSection
             bouquets={bouquets}
             favoriteBouquetIds={favoriteBouquetIds}

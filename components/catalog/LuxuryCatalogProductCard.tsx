@@ -253,9 +253,11 @@ export function LuxuryCatalogProductCard({
             <h3 className={styles.title}>{product.title}</h3>
           </button>
 
-          {description ? (
-            <p className={styles.description}>{description}</p>
-          ) : null}
+          {/* Always rendered (even when empty) so every card reserves the
+              same fixed description slot — otherwise cards without a
+              description would be shorter than ones with one, breaking the
+              uniform-height grid. */}
+          <p className={styles.description}>{description}</p>
 
           <button
             type="button"

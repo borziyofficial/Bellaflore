@@ -158,7 +158,13 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
-  align-items: start;
+  /* Cards reserve identical space for every content slot (title,
+     description, etc. — see LuxuryCatalogProductCard.module.css), so every
+     card is already the same natural height. `stretch` (grid's default) is
+     kept explicit here as a defense-in-depth guard against any sub-pixel
+     rounding difference, so a whole grid row can never end up with cards of
+     visibly different heights. */
+  align-items: stretch;
 }
 
 .gridAll,

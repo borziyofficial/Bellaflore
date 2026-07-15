@@ -1,0 +1,207 @@
+.section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px 16px 0;
+}
+
+.viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--bf-card-radius, 20px);
+  background: var(--bg-secondary, #2a2a2a);
+  touch-action: pan-y;
+}
+
+.track {
+  display: flex;
+  width: 100%;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    transition: none;
+  }
+}
+
+.slide {
+  position: relative;
+  flex: 0 0 100%;
+  min-width: 0;
+  /* Fixed aspect-ratio reserves the exact box before the image loads, so
+     the banner never causes layout shift once it decides to render. */
+  aspect-ratio: 4 / 3;
+}
+
+@media (min-width: 640px) {
+  .slide {
+    aspect-ratio: 21 / 8;
+  }
+}
+
+@media (min-width: 1024px) {
+  .slide {
+    aspect-ratio: 21 / 6;
+  }
+}
+
+.imageWrap {
+  position: absolute;
+  inset: 0;
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 16, 12, 0) 35%,
+    rgba(20, 16, 12, 0.62) 82%,
+    rgba(20, 16, 12, 0.78) 100%
+  );
+}
+
+.content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  display: grid;
+  gap: 6px;
+  padding: 20px;
+}
+
+@media (min-width: 640px) {
+  .content {
+    padding: 32px 40px;
+    max-width: 60%;
+  }
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-brand, "Playfair Display", serif);
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text-light, #ededed);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--gold-light, #f5d98c);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: clamp(13px, 2.4vw, 16px);
+  font-weight: 600;
+}
+
+.actionButton {
+  justify-self: start;
+  margin-top: 8px;
+  padding: 10px 22px;
+  border-radius: var(--bf-button-radius, 999px);
+  background: var(--bf-gold-gradient, linear-gradient(180deg, #f5d98c 0%, #d4af37 100%));
+  color: #1a1a1a;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.24);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    filter 0.16s ease;
+}
+
+.actionButton:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 10px 24px rgba(212, 175, 55, 0.3);
+}
+
+.actionButton:active {
+  transform: scale(0.98);
+}
+
+.navButton {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(26, 26, 26, 0.55);
+  color: var(--gold-light, #f5d98c);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background-color 0.15s ease;
+}
+
+.navButton:hover {
+  background: rgba(26, 26, 26, 0.78);
+}
+
+.navButton svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.navButtonPrev {
+  left: 12px;
+}
+
+.navButtonNext {
+  right: 12px;
+}
+
+@media (max-width: 639px) {
+  .navButton {
+    display: none;
+  }
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.32);
+  cursor: pointer;
+  transition:
+    width 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.dotActive {
+  width: 20px;
+  background: var(--gold-dark, #d4af37);
+}
