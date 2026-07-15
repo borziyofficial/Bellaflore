@@ -37,6 +37,15 @@ let cache: AdminCategoryRecord[] = CATALOG_CATEGORIES.map((category) => ({
   isCustom: false,
 }));
 
+let hasFetchedOnce = false;
+let lastFetchedAt = 0;
+let inFlightFetch: Promise<AdminCategoryRecord[]> | null = null;
+const CATEGORIES_STALE_AFTER_MS = 60_000;
+
+export function hasCategoriesFetchedOnce(): boolean {
+  return hasFetchedOnce;
+}
+
 function notifyChange(): void {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event(ADMIN_CATEGORIES_CHANGE_EVENT));
@@ -67,7 +76,7 @@ async function parseJson<T>(response: Response): Promise<T> {
   return (await response.json()) as T;
 }
 
-export async function fetchAdminCategories(): Promise<AdminCategoryRecord[]> {
+async function fetchAdminCategoriesFromServer(): Promise<AdminCategoryRecord[]> {
   const response = await fetch("/api/admin/categories", {
     credentials: "include",
     cache: "no-store",
@@ -82,7 +91,36 @@ export async function fetchAdminCategories(): Promise<AdminCategoryRecord[]> {
   if (list.length > 0) {
     cache = list;
   }
+  hasFetchedOnce = true;
+  lastFetchedAt = Date.now();
   return cache;
+}
+
+/**
+ * Cache-first fetch: returns the already-cached list with no network call
+ * when it was fetched recently (this is what prevents an identical
+ * /api/admin/categories request firing on every admin section switch).
+ * Pass `force: true` to bypass the cache (used right after a mutation, or
+ * when explicitly reloading).
+ */
+export async function fetchAdminCategories(
+  options?: { force?: boolean },
+): Promise<AdminCategoryRecord[]> {
+  const isStale = Date.now() - lastFetchedAt > CATEGORIES_STALE_AFTER_MS;
+
+  if (hasFetchedOnce && !options?.force && !isStale) {
+    return cache;
+  }
+
+  if (inFlightFetch) {
+    return inFlightFetch;
+  }
+
+  inFlightFetch = fetchAdminCategoriesFromServer().finally(() => {
+    inFlightFetch = null;
+  });
+
+  return inFlightFetch;
 }
 
 export async function createAdminCategoryRemote(title: string): Promise<AdminCategoryRecord> {

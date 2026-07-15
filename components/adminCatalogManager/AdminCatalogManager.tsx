@@ -32,15 +32,18 @@ export function AdminCatalogManager({
 
   // The create flow doesn't need the existing product list at all (only
   // categories, which load independently) — never block the empty form
-  // behind a full-catalog fetch. List/edit modes still need `products`,
-  // so they show a compact skeleton instead of a blocking full-screen text
-  // while the (single, already-fast) request resolves in the background.
+  // behind a full-catalog fetch.
   const isCreateOnly = initialMode === "create" && !initialEditId;
+  // Editing a specific product needs that product's data resolved from the
+  // list, so it still waits — but list mode now shows the shell, header and
+  // filter toolbar immediately and only skeletons the product grid itself
+  // (see `productsReady` passed to AdminProductStudio below).
+  const isEditingSpecificProduct = initialMode === "edit" && Boolean(initialEditId);
 
-  if (!isReady && !isCreateOnly) {
+  if (!isReady && isEditingSpecificProduct) {
     return (
       <div className={embedded ? styles.embeddedRoot : styles.shell}>
-        <div className={styles.skeletonGrid} aria-busy="true" aria-label="Загрузка товаров">
+        <div className={styles.skeletonGrid} aria-busy="true" aria-label="Загрузка товара">
           {Array.from({ length: 6 }).map((_, index) => (
             <div key={index} className={styles.skeletonCard} />
           ))}
@@ -58,13 +61,17 @@ export function AdminCatalogManager({
               ← Панель администратора
             </Link>
             <p className={styles.topMeta}>
-              {products.length} товаров · {getPublishedPreviewProducts().length} опубликовано
+              {isReady
+                ? `${products.length} товаров · ${getPublishedPreviewProducts().length} опубликовано`
+                : "Загрузка…"}
             </p>
           </div>
         </header>
       ) : (
         <p className={styles.topMeta}>
-          {products.length} товаров · {getPublishedPreviewProducts().length} опубликовано
+          {isReady
+            ? `${products.length} товаров · ${getPublishedPreviewProducts().length} опубликовано`
+            : "Загрузка…"}
         </p>
       )}
 
@@ -77,6 +84,7 @@ export function AdminCatalogManager({
         initialMode={initialMode}
         initialEditId={initialEditId}
         imageStorageWarning={imageStorageWarning}
+        productsReady={isCreateOnly ? true : isReady}
       />
     </div>
   );

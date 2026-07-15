@@ -21,10 +21,12 @@ import {
 import { resolveAdminCategoryTitle } from "@/components/adminCatalogManager/adminCustomCategories";
 import { useAdminCategories } from "@/components/adminCatalogManager/useAdminCategories";
 import { AdminCategoryManagerModal } from "@/components/adminCatalogManager/AdminCategoryManagerModal";
+import { AdminQuickAddCategoryModal } from "@/components/adminCatalogManager/AdminQuickAddCategoryModal";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import styles from "@/components/adminCatalogManager/AdminProductStudio.module.css";
 
 const SIZE_IDS = ["S", "M", "L", "XL"] as const;
+const QUICK_ADD_CATEGORY_VALUE = "__quick_add_category__";
 const MAX_IMAGES = 10;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set([
@@ -57,6 +59,10 @@ type AdminProductStudioProps = {
   initialMode?: StudioMode;
   initialEditId?: string | null;
   imageStorageWarning?: string | null;
+  /** False while the product list is still loading in the background —
+   * the toolbar/filters render immediately regardless; only the grid
+   * shows skeleton placeholders until this flips to true. */
+  productsReady?: boolean;
 };
 
 function formatPrice(priceRub: number): string {
@@ -167,6 +173,7 @@ export function AdminProductStudio({
   initialMode = "list",
   initialEditId = null,
   imageStorageWarning = null,
+  productsReady = true,
 }: AdminProductStudioProps) {
   const initialProduct = initialEditId ? getProductById(initialEditId) : null;
   const [mode, setMode] = useState<StudioMode>(initialProduct ? "edit" : initialMode);
@@ -188,6 +195,7 @@ export function AdminProductStudio({
   const [replaceImageId, setReplaceImageId] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
+  const [quickAddCategoryOpen, setQuickAddCategoryOpen] = useState(false);
   const {
     categories,
     createCategory,
@@ -583,7 +591,14 @@ export function AdminProductStudio({
               <div style={{ display: "flex", gap: 8 }}>
                 <select
                   value={form.categoryId}
-                  onChange={(event) => updateForm({ categoryId: event.target.value })}
+                  onChange={(event) => {
+                    const nextValue = event.target.value;
+                    if (nextValue === QUICK_ADD_CATEGORY_VALUE) {
+                      setQuickAddCategoryOpen(true);
+                      return;
+                    }
+                    updateForm({ categoryId: nextValue });
+                  }}
                 >
                   <option value="">Выберите категорию</option>
                   {categories.map((category) => (
@@ -591,6 +606,7 @@ export function AdminProductStudio({
                       {category.title}
                     </option>
                   ))}
+                  <option value={QUICK_ADD_CATEGORY_VALUE}>+ Добавить новую категорию</option>
                 </select>
                 <button
                   type="button"
@@ -848,6 +864,12 @@ export function AdminProductStudio({
           onRename={renameCategory}
           onDelete={deleteCategory}
         />
+        <AdminQuickAddCategoryModal
+          open={quickAddCategoryOpen}
+          onClose={() => setQuickAddCategoryOpen(false)}
+          onCreate={createCategory}
+          onCreated={(created) => updateForm({ categoryId: created.id })}
+        />
       </div>
     );
   }
@@ -884,13 +906,24 @@ export function AdminProductStudio({
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Поиск по названию"
         />
-        <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
+        <select
+          value={categoryFilter}
+          onChange={(event) => {
+            const nextValue = event.target.value;
+            if (nextValue === QUICK_ADD_CATEGORY_VALUE) {
+              setQuickAddCategoryOpen(true);
+              return;
+            }
+            setCategoryFilter(nextValue);
+          }}
+        >
           <option value="all">Все категории</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.title}
             </option>
           ))}
+          <option value={QUICK_ADD_CATEGORY_VALUE}>+ Добавить новую категорию</option>
         </select>
         <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as AdminProductStatusFilter)}>
           <option value="all">Все публикации</option>
@@ -913,12 +946,20 @@ export function AdminProductStudio({
         </select>
       </section>
 
-      {filteredProducts.length === 0 ? (
-        <p className={styles.empty}>Товары не найдены. Измените фильтры или добавьте товар.</p>
-      ) : null}
+      {!productsReady ? (
+        <div className={styles.productGrid} aria-busy="true" aria-label="Загрузка товаров">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className={styles.skeletonCard} />
+          ))}
+        </div>
+      ) : (
+        <>
+          {filteredProducts.length === 0 ? (
+            <p className={styles.empty}>Товары не найдены. Измените фильтры или добавьте товар.</p>
+          ) : null}
 
-      <div className={styles.productGrid}>
-        {filteredProducts.map((product) => {
+          <div className={styles.productGrid}>
+            {filteredProducts.map((product) => {
           const primary = getPrimaryImage(product);
           const isBusy = savingStatusId === product.id;
           return (
@@ -978,9 +1019,11 @@ export function AdminProductStudio({
                 </div>
               </div>
             </article>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {deleteId ? (
         <div className={styles.dialogBackdrop}>
@@ -1006,6 +1049,12 @@ export function AdminProductStudio({
         onCreate={createCategory}
         onRename={renameCategory}
         onDelete={deleteCategory}
+      />
+      <AdminQuickAddCategoryModal
+        open={quickAddCategoryOpen}
+        onClose={() => setQuickAddCategoryOpen(false)}
+        onCreate={createCategory}
+        onCreated={(created) => setCategoryFilter(created.id)}
       />
     </div>
   );

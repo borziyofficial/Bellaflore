@@ -5,7 +5,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import {
   adminUserFromSecuritySession,
   getAdminEntrySession,
@@ -15,6 +15,8 @@ import { ADMIN_ENTRY_LOGIN_PATH } from "@/components/adminEntry/adminEntryRoutes
 import { formatAdminRoleLabel } from "@/components/adminEntry/adminNavigationItems";
 import { AdminBottomNav } from "@/components/adminApp/layout/AdminBottomNav";
 import { AdminSidebar } from "@/components/adminApp/layout/AdminSidebar";
+import { prefetchAdminCatalog } from "@/components/adminCatalogManager/adminCatalogCache";
+import { fetchAdminCategories } from "@/components/adminCatalogManager/adminCustomCategories";
 import styles from "@/components/adminApp/layout/AdminFoundationShell.module.css";
 
 type AdminFoundationShellProps = {
@@ -38,6 +40,15 @@ export function AdminFoundationShell({
     logoutAdminEntrySession();
     window.location.assign(ADMIN_ENTRY_LOGIN_PATH);
   };
+
+  // Warm the catalog + category caches once per admin session, as soon as
+  // the persistent shell mounts — regardless of which section loads first.
+  // By the time the admin taps "Букеты" or "Добавить", the data is already
+  // loaded (or loading), so the section switch itself never blocks on it.
+  useEffect(() => {
+    prefetchAdminCatalog();
+    void fetchAdminCategories();
+  }, []);
 
   return (
     <div className={styles.shell}>

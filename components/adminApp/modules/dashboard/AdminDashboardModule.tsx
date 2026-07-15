@@ -12,7 +12,6 @@ import {
 import {
   AdminModuleHeader,
   AdminPanel,
-  AdminPlaceholderBadge,
   AdminStatCard,
 } from "@/components/adminApp/shared/AdminModuleUi";
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
@@ -48,7 +47,6 @@ export function AdminDashboardModule() {
       <AdminModuleHeader
         title="Главная"
         subtitle="Сводка магазина на сегодня"
-        action={<AdminPlaceholderBadge />}
       />
 
       <div className={ui.statGrid}>

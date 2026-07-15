@@ -12,6 +12,7 @@ import {
   deleteAdminCategoryRemote,
   fetchAdminCategories,
   getAdminProductCategories,
+  hasCategoriesFetchedOnce,
   renameAdminCategoryRemote,
   type AdminCategoryRecord,
 } from "@/components/adminCatalogManager/adminCustomCategories";
@@ -20,7 +21,7 @@ export function useAdminCategories() {
   const [categories, setCategories] = useState<AdminCategoryRecord[]>(
     getAdminProductCategories(),
   );
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(hasCategoriesFetchedOnce());
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {

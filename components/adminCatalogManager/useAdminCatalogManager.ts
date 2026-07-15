@@ -1,6 +1,6 @@
 // ==================================================
 // SECTION: Admin Catalog Manager — data hook
-// РАЗДЕЛ: Хук управления каталогом (server persistence)
+// РАЗДЕЛ: Хук управления каталогом (server persistence, session cache)
 // ==================================================
 "use client";
 
@@ -14,67 +14,62 @@ import {
 } from "@/components/adminCatalogManager/adminCatalogRecordUtils";
 import {
   archiveAdminCatalogProduct,
-  fetchAdminCatalogProducts,
   saveAdminCatalogProduct,
 } from "@/components/adminCatalogManager/catalogApiClient";
+import {
+  ADMIN_CATALOG_CACHE_EVENT,
+  ensureCatalogLoaded,
+  getCachedImageStorageWarning,
+  getCachedLoadError,
+  getCachedProducts,
+  hasCatalogFetchedOnce,
+  refreshCatalog,
+} from "@/components/adminCatalogManager/adminCatalogCache";
 
 export function useAdminCatalogManager() {
-  const [products, setProducts] = useState<CatalogProductRecord[]>([]);
-  const [isReady, setIsReady] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [products, setProducts] = useState<CatalogProductRecord[]>(getCachedProducts());
+  const [isReady, setIsReady] = useState(hasCatalogFetchedOnce());
+  const [loadError, setLoadError] = useState<string | null>(getCachedLoadError());
   const [imageStorageWarning, setImageStorageWarning] = useState<string | null>(
-    null,
+    getCachedImageStorageWarning(),
   );
 
-  const reload = useCallback(async () => {
-    try {
-      const response = await fetchAdminCatalogProducts();
-      setProducts(response.products);
-      setImageStorageWarning(response.imageStorageWarning ?? null);
-      setLoadError(null);
-    } catch (error) {
-      setLoadError(
-        error instanceof Error
-          ? error.message
-          : "База данных каталога не настроена.",
-      );
-      setProducts([]);
-    } finally {
-      setIsReady(true);
-    }
+  const syncFromCache = useCallback(() => {
+    setProducts(getCachedProducts());
+    setLoadError(getCachedLoadError());
+    setImageStorageWarning(getCachedImageStorageWarning());
+    setIsReady(true);
   }, []);
+
+  const reload = useCallback(async () => {
+    await refreshCatalog();
+    syncFromCache();
+  }, [syncFromCache]);
 
   useEffect(() => {
     let active = true;
 
-    void (async () => {
-      try {
-        const response = await fetchAdminCatalogProducts();
-        if (active) {
-          setProducts(response.products);
-          setImageStorageWarning(response.imageStorageWarning ?? null);
-          setLoadError(null);
-        }
-      } catch (error) {
-        if (active) {
-          setLoadError(
-            error instanceof Error
-              ? error.message
-              : "База данных каталога не настроена.",
-          );
-          setProducts([]);
-        }
-      } finally {
-        if (active) {
-          setIsReady(true);
-        }
+    // Cache-first: if another admin page already warmed the catalog this
+    // session, this resolves instantly with no network request. Otherwise
+    // it fetches once and every mounted consumer picks up the result.
+    ensureCatalogLoaded().then(() => {
+      if (active) {
+        syncFromCache();
       }
-    })();
+    });
+
+    const onCacheChange = () => {
+      if (active) {
+        syncFromCache();
+      }
+    };
+    window.addEventListener(ADMIN_CATALOG_CACHE_EVENT, onCacheChange);
 
     return () => {
       active = false;
+      window.removeEventListener(ADMIN_CATALOG_CACHE_EVENT, onCacheChange);
     };
-  }, []);
+  }, [syncFromCache]);
 
   const saveProduct = useCallback(
     async (form: AdminProductFormState): Promise<CatalogProductRecord> => {
