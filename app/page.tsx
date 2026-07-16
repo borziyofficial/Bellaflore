@@ -2246,9 +2246,10 @@ export default function Home() {
           ================================================== */}
       <HeroSection onOrderBouquet={handleHeroOrderBouquet} />
 
+      <SmartPromoBanner />
+
       {publicAppView === "catalog" ? (
         <>
-          <SmartPromoBanner />
           <CollectionsSection
             bouquets={bouquets}
             favoriteBouquetIds={favoriteBouquetIds}

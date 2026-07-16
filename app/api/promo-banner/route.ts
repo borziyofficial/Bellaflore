@@ -10,7 +10,11 @@ export async function GET() {
     const { mode, slides } = await resolveCurrentPromoBannerSlides();
     return Response.json(
       { mode, slides },
-      { headers: { "Cache-Control": "public, max-age=15, stale-while-revalidate=60" } },
+      {
+        headers: {
+          "Cache-Control": "public, max-age=0, s-maxage=15, stale-while-revalidate=120",
+        },
+      },
     );
   } catch {
     // Storefront hides the banner entirely on any failure — the Hero above

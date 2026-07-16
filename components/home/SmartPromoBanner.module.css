@@ -12,6 +12,41 @@
   touch-action: pan-y;
 }
 
+.skeleton {
+  aspect-ratio: 4 / 3;
+  background:
+    linear-gradient(100deg, transparent 30%, rgba(229, 194, 116, 0.1) 48%, transparent 66%),
+    linear-gradient(145deg, #171411, #24201b);
+  background-size: 220% 100%, 100% 100%;
+  animation: bannerSkeleton 1.35s ease-in-out infinite;
+}
+
+.previewSection {
+  width: 100%;
+  padding: 0;
+}
+
+@keyframes bannerSkeleton {
+  from {
+    background-position: 120% 0, 0 0;
+  }
+  to {
+    background-position: -120% 0, 0 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .skeleton {
+    aspect-ratio: 21 / 8;
+  }
+}
+
+@media (min-width: 1024px) {
+  .skeleton {
+    aspect-ratio: 21 / 6;
+  }
+}
+
 .track {
   display: flex;
   width: 100%;
@@ -22,6 +57,10 @@
 @media (prefers-reduced-motion: reduce) {
   .track {
     transition: none;
+  }
+
+  .skeleton {
+    animation: none;
   }
 }
 

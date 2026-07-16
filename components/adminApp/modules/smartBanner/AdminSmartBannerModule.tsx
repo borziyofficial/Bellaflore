@@ -20,6 +20,7 @@ import {
   ADMIN_CATALOG_CACHE_EVENT,
 } from "@/components/adminCatalogManager/adminCatalogCache";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
+import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
 
 type PromoBannerMode = "manual" | "auto";
 type PromoBannerAutoSource = "featured" | "popular" | "new" | "bestsellers" | "admin_selected";
@@ -54,6 +55,11 @@ type ResolvedPromoSlide = {
   buttonLink: string;
 };
 
+type PromoBannerSnapshot = {
+  settings: PromoBannerSettings;
+  slides: PromoBannerSlide[];
+};
+
 const SOURCE_OPTIONS: { id: PromoBannerAutoSource; label: string; hint: string }[] = [
   { id: "featured", label: "Рекомендуемые", hint: "Товары с отметкой «На главной»" },
   { id: "popular", label: "Популярные", hint: "Рекомендуемые и бестселлеры вместе" },
@@ -78,6 +84,7 @@ type SlideFormState = {
   isEnabled: boolean;
   imageUrl: string;
   imageFile: File | null;
+  removeImage: boolean;
 };
 
 const EMPTY_SLIDE_FORM: SlideFormState = {
@@ -88,36 +95,72 @@ const EMPTY_SLIDE_FORM: SlideFormState = {
   isEnabled: true,
   imageUrl: "",
   imageFile: null,
+  removeImage: false,
 };
 
 function formatPriceLabel(priceRub: number): string {
   return `${priceRub.toLocaleString("ru-RU")} ₽`;
 }
 
-export function AdminSmartBannerModule() {
-  const [settings, setSettings] = useState<PromoBannerSettings>(EMPTY_SETTINGS);
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024))} КБ`;
+  }
+  return `${(bytes / (1024 * 1024)).toLocaleString("ru-RU", {
+    maximumFractionDigits: 1,
+  })} МБ`;
+}
+
+function getImageFileName(imageUrl: string): string {
+  try {
+    return decodeURIComponent(
+      new URL(imageUrl, "https://bellaflore.ru").pathname.split("/").pop() || "Фото",
+    );
+  } catch {
+    return "Фото";
+  }
+}
+
+export function AdminSmartBannerModule({
+  initialSnapshot,
+}: {
+  initialSnapshot?: PromoBannerSnapshot | null;
+}) {
+  const [settings, setSettings] = useState<PromoBannerSettings>(
+    initialSnapshot?.settings ?? EMPTY_SETTINGS,
+  );
   // Draft settings mirror the form the admin is editing. They start equal to
   // the saved settings and only diverge until "Сохранить настройки" is
   // pressed — this is what lets the preview panel react instantly to a
   // mode/source change without persisting anything yet.
-  const [draftMode, setDraftMode] = useState<PromoBannerMode>("manual");
-  const [draftSource, setDraftSource] = useState<PromoBannerAutoSource>("featured");
-  const [draftSelectedIds, setDraftSelectedIds] = useState<string[]>([]);
-  const [draftLimit, setDraftLimit] = useState(8);
+  const [draftMode, setDraftMode] = useState<PromoBannerMode>(
+    initialSnapshot?.settings.mode ?? "manual",
+  );
+  const [draftSource, setDraftSource] = useState<PromoBannerAutoSource>(
+    initialSnapshot?.settings.autoSource ?? "featured",
+  );
+  const [draftSelectedIds, setDraftSelectedIds] = useState<string[]>(
+    initialSnapshot?.settings.autoSelectedProductIds ?? [],
+  );
+  const [draftLimit, setDraftLimit] = useState(
+    initialSnapshot?.settings.autoSlideLimit ?? 8,
+  );
 
-  const [slides, setSlides] = useState<PromoBannerSlide[]>([]);
+  const [slides, setSlides] = useState<PromoBannerSlide[]>(initialSnapshot?.slides ?? []);
   const [products, setProducts] = useState<CatalogProductRecord[]>(getCachedProducts());
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(Boolean(initialSnapshot));
   const [savingSettings, setSavingSettings] = useState(false);
   const [notice, setNotice] = useState<{ tone: "success" | "error"; text: string } | null>(null);
   const [previewSlides, setPreviewSlides] = useState<ResolvedPromoSlide[]>([]);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
   const [productQuery, setProductQuery] = useState("");
   const [slideModal, setSlideModal] = useState<{ id: string | null; form: SlideFormState } | null>(
     null,
   );
   const [savingSlide, setSavingSlide] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   // Avoid re-creating (and leaking) an object URL on every keystroke while
   // the slide modal is open — only recompute when the selected file changes.
@@ -144,33 +187,41 @@ export function AdminSmartBannerModule() {
     const onCacheChange = () => setProducts(getCachedProducts());
     window.addEventListener(ADMIN_CATALOG_CACHE_EVENT, onCacheChange);
 
-    Promise.all([
-      fetch("/api/admin/promo-banner/settings", { credentials: "include", cache: "no-store" }).then(
-        (response) => response.json(),
-      ),
-      fetch("/api/admin/promo-banner/slides", { credentials: "include", cache: "no-store" }).then(
-        (response) => response.json(),
-      ),
-    ])
-      .then(([settingsBody, slidesBody]: [
-        { settings?: PromoBannerSettings },
-        { slides?: PromoBannerSlide[] },
-      ]) => {
-        if (!active) return;
-        if (settingsBody.settings) {
-          setSettings(settingsBody.settings);
-          setDraftMode(settingsBody.settings.mode);
-          setDraftSource(settingsBody.settings.autoSource);
-          setDraftSelectedIds(settingsBody.settings.autoSelectedProductIds);
-          setDraftLimit(settingsBody.settings.autoSlideLimit);
+    if (initialSnapshot) {
+      return () => {
+        active = false;
+        window.removeEventListener(ADMIN_CATALOG_CACHE_EVENT, onCacheChange);
+      };
+    }
+
+    const controller = new AbortController();
+    fetch("/api/admin/promo-banner", {
+      credentials: "include",
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const body = (await response.json()) as PromoBannerSnapshot & { message?: string };
+        if (!response.ok) {
+          throw new Error(body.message || "Не удалось загрузить баннер.");
         }
-        if (slidesBody.slides) {
-          setSlides(slidesBody.slides);
-        }
+        return body;
       })
-      .catch(() => {
+      .then((body) => {
+        if (!active) return;
+        setSettings(body.settings);
+        setDraftMode(body.settings.mode);
+        setDraftSource(body.settings.autoSource);
+        setDraftSelectedIds(body.settings.autoSelectedProductIds);
+        setDraftLimit(body.settings.autoSlideLimit);
+        setSlides(body.slides);
+      })
+      .catch((error) => {
         if (active) {
-          setNotice({ tone: "error", text: "Не удалось загрузить баннер." });
+          setNotice({
+            tone: "error",
+            text: error instanceof Error ? error.message : "Не удалось загрузить баннер.",
+          });
         }
       })
       .finally(() => {
@@ -179,9 +230,10 @@ export function AdminSmartBannerModule() {
 
     return () => {
       active = false;
+      controller.abort();
       window.removeEventListener(ADMIN_CATALOG_CACHE_EVENT, onCacheChange);
     };
-  }, []);
+  }, [initialSnapshot]);
 
   const manualPreview: ResolvedPromoSlide[] = useMemo(
     () =>
@@ -213,6 +265,7 @@ export function AdminSmartBannerModule() {
 
     let active = true;
     const timer = window.setTimeout(() => {
+      setPreviewLoading(true);
       fetch("/api/admin/promo-banner/preview", {
         method: "POST",
         credentials: "include",
@@ -224,12 +277,24 @@ export function AdminSmartBannerModule() {
           autoSlideLimit: draftLimit,
         }),
       })
-        .then((response) => response.json())
-        .then((body: { slides?: ResolvedPromoSlide[] }) => {
+        .then(async (response) => {
+          const body = (await response.json()) as {
+            slides?: ResolvedPromoSlide[];
+            message?: string;
+          };
+          if (!response.ok) {
+            throw new Error(body.message || "Не удалось построить предпросмотр.");
+          }
+          return body;
+        })
+        .then((body) => {
           if (active) setPreviewSlides(body.slides ?? []);
         })
         .catch(() => {
           if (active) setPreviewSlides([]);
+        })
+        .finally(() => {
+          if (active) setPreviewLoading(false);
         });
     }, 250);
 
@@ -242,6 +307,7 @@ export function AdminSmartBannerModule() {
   // The banner actually shown in the preview: the live manual slide list in
   // manual mode, or the last auto-mode fetch result otherwise.
   const displayedPreviewSlides = draftMode === "manual" ? manualPreview : previewSlides;
+  const isPreviewLoading = draftMode === "auto" && previewLoading;
   // Clamp defensively at render time instead of resetting via an effect —
   // avoids a derived-state effect entirely.
   const safePreviewIndex =
@@ -319,6 +385,7 @@ export function AdminSmartBannerModule() {
         isEnabled: slide.isEnabled,
         imageUrl: slide.imageUrl,
         imageFile: null,
+        removeImage: false,
       },
     });
   };
@@ -343,6 +410,7 @@ export function AdminSmartBannerModule() {
               buttonText: form.buttonText,
               buttonLink: form.buttonLink,
               isEnabled: form.isEnabled,
+              imageUrl: form.removeImage ? "" : form.imageUrl,
             },
           }),
         });
@@ -488,17 +556,49 @@ export function AdminSmartBannerModule() {
     );
   };
 
+  const selectSlideImage = (file: File | undefined) => {
+    if (!file || !slideModal) {
+      return;
+    }
+    setSlideModal({
+      ...slideModal,
+      form: {
+        ...slideModal.form,
+        imageFile: file,
+        removeImage: false,
+      },
+    });
+  };
+
+  const removeSlideImage = () => {
+    if (!slideModal) {
+      return;
+    }
+    setSlideModal({
+      ...slideModal,
+      form: {
+        ...slideModal.form,
+        imageUrl: "",
+        imageFile: null,
+        removeImage: true,
+      },
+    });
+  };
+
   if (!ready) {
     return (
-      <div className={ui.stack}>
-        <AdminModuleHeader title="Умный баннер" subtitle="Промо-слайды между Hero и каталогом" />
-        <p className={ui.listItemMuted}>Загрузка…</p>
+      <div className={styles.moduleRoot} aria-label="Загрузка умного баннера" aria-busy="true">
+        <div className={styles.loadingHeader} />
+        <div className={styles.loadingGrid}>
+          <div className={styles.loadingPanel} />
+          <div className={styles.loadingPreview} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={ui.stack}>
+    <div className={`${ui.stack} ${styles.moduleRoot}`}>
       <AdminModuleHeader
         title="Умный баннер"
         subtitle="Промо-слайды между Hero и каталогом на главной странице"
@@ -718,7 +818,11 @@ export function AdminSmartBannerModule() {
 
         <AdminPanel title="Просмотр (iPhone)" className={styles.previewPanel}>
           <div className={styles.previewWrap}>
-            {displayedPreviewSlides.length === 0 ? (
+            {isPreviewLoading ? (
+              <div className={styles.productionPreview}>
+                <SmartPromoBanner slides={null} preview />
+              </div>
+            ) : displayedPreviewSlides.length === 0 ? (
               <div className={styles.phoneFrame}>
                 <div className={styles.phoneEmpty}>
                   Нет активных слайдов — баннер будет скрыт на витрине.
@@ -726,31 +830,11 @@ export function AdminSmartBannerModule() {
               </div>
             ) : (
               <>
-                <div className={styles.phoneFrame}>
-                  <div
-                    className={styles.phoneBackground}
-                    style={
-                      displayedPreviewSlides[safePreviewIndex]?.imageUrl
-                        ? {
-                            backgroundImage: `url(${displayedPreviewSlides[safePreviewIndex].imageUrl})`,
-                          }
-                        : { background: "linear-gradient(180deg, #efe6da, #d9c9b3)" }
-                    }
-                  >
-                    <div className={styles.phoneContent}>
-                      <p className={styles.phoneTitle}>
-                        {displayedPreviewSlides[safePreviewIndex]?.title || "—"}
-                      </p>
-                      <p className={styles.phoneSubtitle}>
-                        {displayedPreviewSlides[safePreviewIndex]?.subtitle || ""}
-                      </p>
-                      {displayedPreviewSlides[safePreviewIndex]?.buttonText ? (
-                        <span className={styles.phoneButton}>
-                          {displayedPreviewSlides[safePreviewIndex].buttonText}
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
+                <div className={styles.productionPreview}>
+                  <SmartPromoBanner
+                    slides={[displayedPreviewSlides[safePreviewIndex]!]}
+                    preview
+                  />
                 </div>
                 {displayedPreviewSlides.length > 1 ? (
                   <div className={styles.previewDots}>
@@ -802,30 +886,69 @@ export function AdminSmartBannerModule() {
               </div>
               <div className={styles.imageActions}>
                 <input
-                  ref={fileInputRef}
+                  ref={galleryInputRef}
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                  accept="image/*"
                   style={{ display: "none" }}
                   onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (file && slideModal) {
-                      setSlideModal({
-                        ...slideModal,
-                        form: { ...slideModal.form, imageFile: file },
-                      });
-                    }
+                    selectSlideImage(event.target.files?.[0]);
+                    event.target.value = "";
+                  }}
+                />
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  style={{ display: "none" }}
+                  onChange={(event) => {
+                    selectSlideImage(event.target.files?.[0]);
                     event.target.value = "";
                   }}
                 />
                 <button
                   type="button"
                   className={styles.secondaryButton}
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => galleryInputRef.current?.click()}
                 >
-                  {slideModal.form.imageUrl || slideModal.form.imageFile ? "Заменить фото" : "Загрузить фото"}
+                  {slideModal.form.imageUrl || slideModal.form.imageFile
+                    ? "Заменить фото"
+                    : "Выбрать из галереи"}
                 </button>
+                <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={() => cameraInputRef.current?.click()}
+                >
+                  Сделать фото
+                </button>
+                {slideModal.form.imageUrl || slideModal.form.imageFile ? (
+                  <button
+                    type="button"
+                    className={styles.dangerButton}
+                    onClick={removeSlideImage}
+                  >
+                    Удалить фото
+                  </button>
+                ) : null}
               </div>
             </div>
+
+            {slideModal.form.imageFile ? (
+              <div className={styles.fileMeta}>
+                <span>{slideModal.form.imageFile.name}</span>
+                <span>{formatFileSize(slideModal.form.imageFile.size)}</span>
+              </div>
+            ) : slideModal.form.imageUrl ? (
+              <div className={styles.fileMeta}>
+                <span>{getImageFileName(slideModal.form.imageUrl)}</span>
+                <span>Сохранённое фото</span>
+              </div>
+            ) : null}
+
+            <p className={styles.uploadNote}>
+              Фото будет загружено только после нажатия «Сохранить».
+            </p>
 
             <div className={styles.field}>
               <span>Заголовок</span>

@@ -12,13 +12,20 @@
 import { useCallback, useEffect, useRef, useState, type TouchEvent } from "react";
 import styles from "@/components/home/SmartPromoBanner.module.css";
 
-type PromoSlide = {
+export type SmartPromoSlide = {
   id: string;
   imageUrl: string;
   title: string;
   subtitle: string;
   buttonText: string;
   buttonLink: string;
+};
+
+type SmartPromoBannerProps = {
+  /** Controlled slides are used by the admin preview so it renders the
+   * exact storefront component instead of a separate approximation. */
+  slides?: SmartPromoSlide[] | null;
+  preview?: boolean;
 };
 
 const AUTOPLAY_INTERVAL_MS = 5500;
@@ -28,35 +35,56 @@ function isExternalLink(link: string): boolean {
   return /^https?:\/\//i.test(link);
 }
 
-export function SmartPromoBanner() {
-  const [slides, setSlides] = useState<PromoSlide[] | null>(null);
+function hasMeaningfulBannerText(value: string): boolean {
+  return /[\p{L}]/u.test(value.trim());
+}
+
+export function SmartPromoBanner({
+  slides: controlledSlides,
+  preview = false,
+}: SmartPromoBannerProps = {}) {
+  const [loadedSlides, setLoadedSlides] = useState<SmartPromoSlide[] | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
   const touchDeltaXRef = useRef(0);
 
   useEffect(() => {
-    let active = true;
+    if (controlledSlides !== undefined) {
+      return;
+    }
 
-    fetch("/api/promo-banner", { cache: "no-store" })
-      .then((response) => response.json())
-      .then((body: { slides?: PromoSlide[] }) => {
+    let active = true;
+    const controller = new AbortController();
+
+    fetch("/api/promo-banner", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        const body = (await response.json()) as { slides?: SmartPromoSlide[] };
+        if (!response.ok) {
+          throw new Error("Promo banner request failed");
+        }
+        return body;
+      })
+      .then((body) => {
         if (!active) {
           return;
         }
         const validSlides = (body.slides ?? []).filter((slide) => slide.imageUrl);
-        setSlides(validSlides);
+        setLoadedSlides(validSlides);
       })
       .catch(() => {
         if (active) {
-          setSlides([]);
+          setLoadedSlides([]);
         }
       });
 
     return () => {
       active = false;
+      controller.abort();
     };
-  }, []);
+  }, [controlledSlides]);
+
+  const slides = controlledSlides === undefined ? loadedSlides : controlledSlides;
 
   const slideCount = slides?.length ?? 0;
 
@@ -114,13 +142,25 @@ export function SmartPromoBanner() {
 
   // Nothing fetched yet, or fetched and empty — the banner takes no space
   // at all (no skeleton) so it can never shift the Hero/catalog layout.
-  if (!slides || slides.length === 0) {
+  if (slides === null) {
+    return (
+      <section
+        className={`${styles.section} ${preview ? styles.previewSection : ""}`.trim()}
+        aria-label="Загрузка специальных предложений"
+        aria-busy="true"
+      >
+        <div className={`${styles.viewport} ${styles.skeleton}`} />
+      </section>
+    );
+  }
+
+  if (slides.length === 0) {
     return null;
   }
 
   return (
     <section
-      className={styles.section}
+      className={`${styles.section} ${preview ? styles.previewSection : ""}`.trim()}
       aria-label="Специальные предложения"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
@@ -139,6 +179,11 @@ export function SmartPromoBanner() {
             const isFirst = index === 0;
             const external = isExternalLink(slide.buttonLink);
             const href = slide.buttonLink || "/#catalog";
+            const title = hasMeaningfulBannerText(slide.title) ? slide.title : "";
+            const subtitle = hasMeaningfulBannerText(slide.subtitle) ? slide.subtitle : "";
+            const buttonText = hasMeaningfulBannerText(slide.buttonText)
+              ? slide.buttonText
+              : "";
 
             return (
               <article className={styles.slide} key={slide.id} aria-hidden={index !== activeIndex}>
@@ -150,7 +195,7 @@ export function SmartPromoBanner() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={slide.imageUrl}
-                    alt={slide.title || "Специальное предложение"}
+                    alt={title || "Специальное предложение"}
                     className={styles.image}
                     loading={isFirst ? "eager" : "lazy"}
                     fetchPriority={isFirst ? "high" : "auto"}
@@ -160,15 +205,15 @@ export function SmartPromoBanner() {
                 </div>
 
                 <div className={styles.content}>
-                  {slide.title ? <h2 className={styles.title}>{slide.title}</h2> : null}
-                  {slide.subtitle ? <p className={styles.subtitle}>{slide.subtitle}</p> : null}
-                  {slide.buttonText ? (
+                  {title ? <h2 className={styles.title}>{title}</h2> : null}
+                  {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
+                  {buttonText ? (
                     <a
                       href={href}
                       className={styles.actionButton}
                       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     >
-                      {slide.buttonText}
+                      {buttonText}
                     </a>
                   ) : null}
                 </div>

@@ -3,7 +3,7 @@
 // РАЗДЕЛ: Итоговый список слайдов баннера (ручной или авто режим)
 // ==================================================
 import {
-  getPromoBannerSettings,
+  getPromoBannerSnapshot,
   listPromoBannerSlides,
   type PromoBannerSettings,
 } from "@/lib/promoBannerDb";
@@ -38,7 +38,19 @@ export async function resolveCurrentPromoBannerSlides(): Promise<{
   mode: PromoBannerSettings["mode"];
   slides: ResolvedPromoSlide[];
 }> {
-  const settings = await getPromoBannerSettings();
-  const slides = await resolvePromoBannerSlidesForSettings(settings);
+  const { settings, slides: manualSlides } = await getPromoBannerSnapshot();
+  const slides =
+    settings.mode === "auto"
+      ? await resolvePromoBannerSlidesForSettings(settings)
+      : manualSlides
+          .filter((slide) => slide.isEnabled)
+          .map((slide) => ({
+            id: slide.id,
+            imageUrl: slide.imageUrl,
+            title: slide.title,
+            subtitle: slide.subtitle,
+            buttonText: slide.buttonText,
+            buttonLink: slide.buttonLink,
+          }));
   return { mode: settings.mode, slides };
 }

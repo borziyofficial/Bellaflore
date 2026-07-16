@@ -44,6 +44,11 @@ export type PromoBannerSlide = {
   updatedAt: string;
 };
 
+export type PromoBannerSnapshot = {
+  settings: PromoBannerSettings;
+  slides: PromoBannerSlide[];
+};
+
 const DEFAULT_SETTINGS: PromoBannerSettings = {
   mode: "manual",
   autoSource: "featured",
@@ -200,6 +205,36 @@ async function readJsonFile<T>(path: string, fallback: T): Promise<T> {
 async function writeJsonFile<T>(path: string, value: T): Promise<void> {
   await mkdir(DATA_DIR, { recursive: true });
   await writeFile(path, JSON.stringify(value, null, 2), "utf8");
+}
+
+/**
+ * Reads the complete admin state in one database warm-up. This is used by
+ * the Smart Banner page and the storefront resolver so settings and slides
+ * cannot arrive at different times or leave the UI waiting on two requests.
+ */
+export async function getPromoBannerSnapshot(): Promise<PromoBannerSnapshot> {
+  const sql = getSqlClient();
+  if (!sql) {
+    const [settings, slides] = await Promise.all([
+      readJsonFile(SETTINGS_FILE, DEFAULT_SETTINGS),
+      readJsonFile<PromoBannerSlide[]>(SLIDES_FILE, []),
+    ]);
+    return {
+      settings,
+      slides: [...slides].sort((left, right) => left.priority - right.priority),
+    };
+  }
+
+  await ensureSchema();
+  const [settingsRows, slideRows] = await Promise.all([
+    sql<SettingsRow[]>`SELECT * FROM promo_banner_settings WHERE id = 'default' LIMIT 1`,
+    sql<SlideRow[]>`SELECT * FROM promo_banner_slides ORDER BY priority ASC, created_at ASC`,
+  ]);
+
+  return {
+    settings: settingsRows[0] ? settingsRowToSettings(settingsRows[0]) : DEFAULT_SETTINGS,
+    slides: slideRows.map(slideRowToSlide),
+  };
 }
 
 // ---------------------------------------------------
