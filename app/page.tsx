@@ -54,7 +54,6 @@ import { submitCheckoutOrderToTelegram } from "@/components/telegram/submitCheck
 import { AboutSection } from "@/components/home/AboutSection";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
-import { DeliverySection } from "@/components/home/DeliverySection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
 import { Navbar } from "@/components/home/Navbar";
@@ -2259,7 +2258,6 @@ export default function Home() {
             onProductOpen={openProductExperience}
             catalogFocusNonce={catalogFocusNonce}
           />
-          <DeliverySection />
           <AboutSection />
           <ReviewsSection
             averageReviewRating={averageReviewRating}
