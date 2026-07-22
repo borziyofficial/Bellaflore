@@ -358,9 +358,9 @@
   right: 0;
   z-index: 8;
   display: grid;
-  gap: 2px;
+  gap: 1px;
   min-width: 52px;
-  padding: 4px;
+  padding: 3px;
   border: 1px solid rgba(212, 175, 55, 0.32);
   border-radius: 12px;
   background:
@@ -389,7 +389,8 @@
   justify-content: center;
   width: 100%;
   min-width: 44px;
-  min-height: 36px;
+  min-height: 32px;
+  margin: 0;
   padding: 0 12px;
   border: 0;
   border-radius: 8px;
@@ -461,6 +462,10 @@
 
   .sizePopover {
     max-width: calc(100vw - 24px);
+  }
+
+  .sizeOption {
+    min-height: 42px;
   }
 }
 

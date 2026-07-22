@@ -20,10 +20,13 @@ import {
   ADMIN_CATALOG_CACHE_EVENT,
 } from "@/components/adminCatalogManager/adminCatalogCache";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
+import { homeCatalogCategoryChips } from "@/components/catalog/homeCatalogConfig";
+import { useStorefrontCustomCategories } from "@/components/catalog/useStorefrontCustomCategories";
 import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
 
 type PromoBannerMode = "manual" | "auto";
 type PromoBannerAutoSource = "featured" | "popular" | "new" | "bestsellers" | "admin_selected";
+type SlideDestinationType = "url" | "category";
 
 type PromoBannerSettings = {
   mode: PromoBannerMode;
@@ -81,6 +84,8 @@ type SlideFormState = {
   subtitle: string;
   buttonText: string;
   buttonLink: string;
+  destinationType: SlideDestinationType;
+  categoryId: string;
   isEnabled: boolean;
   imageUrl: string;
   imageFile: File | null;
@@ -92,6 +97,8 @@ const EMPTY_SLIDE_FORM: SlideFormState = {
   subtitle: "",
   buttonText: "",
   buttonLink: "",
+  destinationType: "url",
+  categoryId: "",
   isEnabled: true,
   imageUrl: "",
   imageFile: null,
@@ -121,6 +128,18 @@ function getImageFileName(imageUrl: string): string {
   }
 }
 
+function getCategoryIdFromLink(buttonLink: string): string {
+  try {
+    return new URL(buttonLink, "https://bellaflore.ru").searchParams.get("category") ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function buildCategoryLink(categoryId: string): string {
+  return `/?category=${encodeURIComponent(categoryId)}#catalog`;
+}
+
 export function AdminSmartBannerModule({
   initialSnapshot,
 }: {
@@ -148,12 +167,12 @@ export function AdminSmartBannerModule({
 
   const [slides, setSlides] = useState<PromoBannerSlide[]>(initialSnapshot?.slides ?? []);
   const [products, setProducts] = useState<CatalogProductRecord[]>(getCachedProducts());
+  const customCategories = useStorefrontCustomCategories();
   const [ready, setReady] = useState(Boolean(initialSnapshot));
   const [savingSettings, setSavingSettings] = useState(false);
   const [notice, setNotice] = useState<{ tone: "success" | "error"; text: string } | null>(null);
   const [previewSlides, setPreviewSlides] = useState<ResolvedPromoSlide[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const [previewIndex, setPreviewIndex] = useState(0);
   const [productQuery, setProductQuery] = useState("");
   const [slideModal, setSlideModal] = useState<{ id: string | null; form: SlideFormState } | null>(
     null,
@@ -308,13 +327,6 @@ export function AdminSmartBannerModule({
   // manual mode, or the last auto-mode fetch result otherwise.
   const displayedPreviewSlides = draftMode === "manual" ? manualPreview : previewSlides;
   const isPreviewLoading = draftMode === "auto" && previewLoading;
-  // Clamp defensively at render time instead of resetting via an effect —
-  // avoids a derived-state effect entirely.
-  const safePreviewIndex =
-    displayedPreviewSlides.length === 0
-      ? 0
-      : Math.min(previewIndex, displayedPreviewSlides.length - 1);
-
   const hasUnsavedSettingsChanges =
     draftMode !== settings.mode ||
     draftSource !== settings.autoSource ||
@@ -375,6 +387,7 @@ export function AdminSmartBannerModule({
   };
 
   const openEditSlide = (slide: PromoBannerSlide) => {
+    const categoryId = getCategoryIdFromLink(slide.buttonLink);
     setSlideModal({
       id: slide.id,
       form: {
@@ -382,6 +395,8 @@ export function AdminSmartBannerModule({
         subtitle: slide.subtitle,
         buttonText: slide.buttonText,
         buttonLink: slide.buttonLink,
+        destinationType: categoryId ? "category" : "url",
+        categoryId,
         isEnabled: slide.isEnabled,
         imageUrl: slide.imageUrl,
         imageFile: null,
@@ -394,10 +409,22 @@ export function AdminSmartBannerModule({
 
   const saveSlide = async () => {
     if (!slideModal) return;
+    const hasImage = Boolean(
+      slideModal.form.imageFile ||
+        (!slideModal.form.removeImage && slideModal.form.imageUrl),
+    );
+    if (!hasImage) {
+      setNotice({ tone: "error", text: "Добавьте изображение для слайда." });
+      return;
+    }
     setSavingSlide(true);
     setNotice(null);
     try {
       const { id, form } = slideModal;
+      const buttonLink =
+        form.destinationType === "category" && form.categoryId
+          ? buildCategoryLink(form.categoryId)
+          : form.buttonLink.trim();
       if (id) {
         const patchResponse = await fetch(`/api/admin/promo-banner/slides/${id}`, {
           method: "PATCH",
@@ -408,7 +435,7 @@ export function AdminSmartBannerModule({
               title: form.title,
               subtitle: form.subtitle,
               buttonText: form.buttonText,
-              buttonLink: form.buttonLink,
+              buttonLink,
               isEnabled: form.isEnabled,
               imageUrl: form.removeImage ? "" : form.imageUrl,
             },
@@ -436,7 +463,7 @@ export function AdminSmartBannerModule({
         createForm.append("title", form.title);
         createForm.append("subtitle", form.subtitle);
         createForm.append("buttonText", form.buttonText);
-        createForm.append("buttonLink", form.buttonLink);
+        createForm.append("buttonLink", buttonLink);
         createForm.append("isEnabled", String(form.isEnabled));
         if (form.imageFile) {
           createForm.append("image", form.imageFile);
@@ -549,6 +576,16 @@ export function AdminSmartBannerModule({
         .filter((product): product is CatalogProductRecord => Boolean(product)),
     [draftSelectedIds, products],
   );
+  const destinationCategories = useMemo(() => {
+    const builtIn = homeCatalogCategoryChips
+      .filter((category) => category.id !== "all")
+      .map((category) => ({ id: category.id, title: category.label }));
+    const existingIds = new Set(builtIn.map((category) => category.id));
+    return [
+      ...builtIn,
+      ...customCategories.filter((category) => !existingIds.has(category.id)),
+    ];
+  }, [customCategories]);
 
   const toggleProductSelected = (id: string) => {
     setDraftSelectedIds((current) =>
@@ -829,29 +866,9 @@ export function AdminSmartBannerModule({
                 </div>
               </div>
             ) : (
-              <>
-                <div className={styles.productionPreview}>
-                  <SmartPromoBanner
-                    slides={[displayedPreviewSlides[safePreviewIndex]!]}
-                    preview
-                  />
-                </div>
-                {displayedPreviewSlides.length > 1 ? (
-                  <div className={styles.previewDots}>
-                    {displayedPreviewSlides.map((slide, index) => (
-                      <button
-                        key={slide.id}
-                        type="button"
-                        aria-label={`Слайд ${index + 1}`}
-                        className={`${styles.previewDot} ${
-                          index === safePreviewIndex ? styles.previewDotActive : ""
-                        }`}
-                        onClick={() => setPreviewIndex(index)}
-                      />
-                    ))}
-                  </div>
-                ) : null}
-              </>
+              <div className={styles.productionPreview}>
+                <SmartPromoBanner slides={displayedPreviewSlides} preview />
+              </div>
             )}
             <p className={styles.previewLabel}>
               {displayedPreviewSlides.length > 0
@@ -992,19 +1009,83 @@ export function AdminSmartBannerModule({
               />
             </div>
 
-            <div className={styles.field}>
-              <span>Ссылка кнопки</span>
-              <input
-                value={slideModal.form.buttonLink}
-                onChange={(event) =>
-                  setSlideModal({
-                    ...slideModal,
-                    form: { ...slideModal.form, buttonLink: event.target.value },
-                  })
-                }
-                placeholder="/#catalog или https://…"
-              />
+            <div className={styles.destinationBlock}>
+              <span className={styles.destinationLabel}>Куда ведёт кнопка</span>
+              <div className={styles.destinationToggle} role="group" aria-label="Назначение кнопки">
+                <button
+                  type="button"
+                  className={`${styles.destinationButton} ${
+                    slideModal.form.destinationType === "url"
+                      ? styles.destinationButtonActive
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setSlideModal({
+                      ...slideModal,
+                      form: { ...slideModal.form, destinationType: "url" },
+                    })
+                  }
+                >
+                  URL
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.destinationButton} ${
+                    slideModal.form.destinationType === "category"
+                      ? styles.destinationButtonActive
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setSlideModal({
+                      ...slideModal,
+                      form: {
+                        ...slideModal.form,
+                        destinationType: "category",
+                        categoryId:
+                          slideModal.form.categoryId || destinationCategories[0]?.id || "",
+                      },
+                    })
+                  }
+                >
+                  Категория
+                </button>
+              </div>
             </div>
+
+            {slideModal.form.destinationType === "category" ? (
+              <label className={styles.field}>
+                <span>Категория каталога</span>
+                <select
+                  value={slideModal.form.categoryId}
+                  onChange={(event) =>
+                    setSlideModal({
+                      ...slideModal,
+                      form: { ...slideModal.form, categoryId: event.target.value },
+                    })
+                  }
+                >
+                  {destinationCategories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : (
+              <label className={styles.field}>
+                <span>URL назначения</span>
+                <input
+                  value={slideModal.form.buttonLink}
+                  onChange={(event) =>
+                    setSlideModal({
+                      ...slideModal,
+                      form: { ...slideModal.form, buttonLink: event.target.value },
+                    })
+                  }
+                  placeholder="/#catalog или https://…"
+                />
+              </label>
+            )}
 
             <label className={styles.toggleRow}>
               <input
@@ -1027,7 +1108,16 @@ export function AdminSmartBannerModule({
               <button
                 type="button"
                 className={styles.primaryButton}
-                disabled={savingSlide || !slideModal.form.title.trim()}
+                disabled={
+                  savingSlide ||
+                  !slideModal.form.title.trim() ||
+                  !(
+                    slideModal.form.imageFile ||
+                    (!slideModal.form.removeImage && slideModal.form.imageUrl)
+                  ) ||
+                  (slideModal.form.destinationType === "category" &&
+                    !slideModal.form.categoryId)
+                }
                 onClick={() => void saveSlide()}
               >
                 {savingSlide ? "Сохранение…" : "Сохранить"}

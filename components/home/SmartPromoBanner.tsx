@@ -28,8 +28,26 @@ type SmartPromoBannerProps = {
   preview?: boolean;
 };
 
-const AUTOPLAY_INTERVAL_MS = 5500;
+const AUTOPLAY_INTERVAL_MS = 4000;
 const SWIPE_THRESHOLD_PX = 40;
+
+function resolveBannerLink(link: string): string {
+  const trimmedLink = link.trim();
+  if (!trimmedLink) {
+    return "/#catalog";
+  }
+
+  try {
+    const url = new URL(trimmedLink, "https://bellaflore.ru");
+    if (url.hostname === "bellaflore.ru" || url.hostname === "www.bellaflore.ru") {
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+  } catch {
+    return trimmedLink;
+  }
+
+  return trimmedLink;
+}
 
 function isExternalLink(link: string): boolean {
   return /^https?:\/\//i.test(link);
@@ -46,6 +64,7 @@ export function SmartPromoBanner({
   const [loadedSlides, setLoadedSlides] = useState<SmartPromoSlide[] | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isPageVisible, setIsPageVisible] = useState(true);
   const touchStartXRef = useRef<number | null>(null);
   const touchDeltaXRef = useRef(0);
 
@@ -87,6 +106,14 @@ export function SmartPromoBanner({
   const slides = controlledSlides === undefined ? loadedSlides : controlledSlides;
 
   const slideCount = slides?.length ?? 0;
+  const safeActiveIndex = slideCount === 0 ? 0 : activeIndex % slideCount;
+
+  useEffect(() => {
+    const handleVisibilityChange = () => setIsPageVisible(!document.hidden);
+    handleVisibilityChange();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   const goTo = useCallback(
     (index: number) => {
@@ -98,20 +125,20 @@ export function SmartPromoBanner({
     [slideCount],
   );
 
-  const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
-  const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
+  const goNext = useCallback(() => goTo(safeActiveIndex + 1), [safeActiveIndex, goTo]);
+  const goPrev = useCallback(() => goTo(safeActiveIndex - 1), [safeActiveIndex, goTo]);
 
   // Autoplay — paused on hover/touch interaction, and naturally inert when
   // there's only one slide (no dots, no movement needed).
   useEffect(() => {
-    if (slideCount <= 1 || isPaused) {
+    if (slideCount <= 1 || isPaused || !isPageVisible) {
       return;
     }
     const timer = window.setInterval(() => {
       setActiveIndex((current) => (current + 1) % slideCount);
     }, AUTOPLAY_INTERVAL_MS);
     return () => window.clearInterval(timer);
-  }, [slideCount, isPaused]);
+  }, [slideCount, isPaused, isPageVisible]);
 
   const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
     touchStartXRef.current = event.touches[0]?.clientX ?? null;
@@ -164,21 +191,28 @@ export function SmartPromoBanner({
       aria-label="Специальные предложения"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setIsPaused(false);
+        }
+      }}
     >
       <div
         className={styles.viewport}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
       >
         <div
           className={styles.track}
-          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+          style={{ transform: `translateX(-${safeActiveIndex * 100}%)` }}
         >
           {slides.map((slide, index) => {
             const isFirst = index === 0;
-            const external = isExternalLink(slide.buttonLink);
-            const href = slide.buttonLink || "/#catalog";
+            const href = resolveBannerLink(slide.buttonLink);
+            const external = isExternalLink(href);
             const title = hasMeaningfulBannerText(slide.title) ? slide.title : "";
             const subtitle = hasMeaningfulBannerText(slide.subtitle) ? slide.subtitle : "";
             const buttonText = hasMeaningfulBannerText(slide.buttonText)
@@ -186,7 +220,12 @@ export function SmartPromoBanner({
               : "";
 
             return (
-              <article className={styles.slide} key={slide.id} aria-hidden={index !== activeIndex}>
+              <article
+                className={`${styles.slide} ${index === safeActiveIndex ? styles.slideActive : ""}`}
+                key={slide.id}
+                aria-hidden={index !== safeActiveIndex}
+                inert={index !== safeActiveIndex}
+              >
                 <div className={styles.imageWrap}>
                   {/* Plain <img>, not next/image — banner images can come from
                       arbitrary admin uploads (Vercel Blob) with no fixed
@@ -249,19 +288,24 @@ export function SmartPromoBanner({
       </div>
 
       {slideCount > 1 ? (
-        <div className={styles.dots} role="tablist" aria-label="Слайды баннера">
-          {slides.map((slide, index) => (
-            <button
-              key={slide.id}
-              type="button"
-              role="tab"
-              aria-selected={index === activeIndex}
-              aria-label={`Слайд ${index + 1}`}
-              className={`${styles.dot} ${index === activeIndex ? styles.dotActive : ""}`}
-              onClick={() => goTo(index)}
-            />
-          ))}
-        </div>
+        <>
+          <div className={styles.dots} role="tablist" aria-label="Слайды баннера">
+            {slides.map((slide, index) => (
+              <button
+                key={slide.id}
+                type="button"
+                role="tab"
+                aria-selected={index === safeActiveIndex}
+                aria-label={`Слайд ${index + 1}`}
+                className={`${styles.dot} ${index === safeActiveIndex ? styles.dotActive : ""}`}
+                onClick={() => goTo(index)}
+              />
+            ))}
+          </div>
+          <p className={styles.slideStatus} aria-live="polite">
+            {safeActiveIndex + 1} из {slideCount}
+          </p>
+        </>
       ) : null}
     </section>
   );

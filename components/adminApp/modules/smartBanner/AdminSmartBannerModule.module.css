@@ -400,12 +400,55 @@
 }
 
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
   border: 1px solid rgba(138, 107, 61, 0.16);
   border-radius: 10px;
   padding: 10px 12px;
   font: inherit;
+}
+
+.destinationBlock {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.destinationLabel {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.destinationToggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 12px;
+}
+
+.destinationButton {
+  width: 100%;
+  max-width: none;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.destinationButtonActive {
+  border-color: rgba(138, 107, 61, 0.4);
+  background: rgba(138, 107, 61, 0.12);
 }
 
 .field textarea {
@@ -750,11 +793,27 @@
 
 .moduleRoot .pickerSearch,
 .moduleRoot .field input,
-.moduleRoot .field textarea {
+.moduleRoot .field textarea,
+.moduleRoot .field select {
   border-color: var(--banner-border);
   background: var(--banner-bg);
   color: var(--banner-text);
   caret-color: var(--banner-gold);
+}
+
+.moduleRoot .destinationToggle {
+  border-color: var(--banner-border);
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.moduleRoot .destinationButton {
+  color: var(--banner-muted);
+}
+
+.moduleRoot .destinationButtonActive {
+  border-color: var(--banner-border-strong);
+  background: rgba(229, 194, 116, 0.1);
+  color: var(--banner-gold);
 }
 
 .moduleRoot .pickerSearch::placeholder,
@@ -766,7 +825,8 @@
 
 .moduleRoot .pickerSearch:focus,
 .moduleRoot .field input:focus,
-.moduleRoot .field textarea:focus {
+.moduleRoot .field textarea:focus,
+.moduleRoot .field select:focus {
   border-color: var(--banner-border-strong);
   outline: 2px solid rgba(229, 194, 116, 0.1);
 }
