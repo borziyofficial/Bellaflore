@@ -248,3 +248,40 @@
   border-color: #d4af7a !important;
   box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.25) !important;
 }
+
+:global(html[data-theme="light-premium"]) .input {
+  border-color: var(--bf-line-strong, #d8d1c5);
+  background: var(--bf-paper, #fffdf8);
+  color: var(--bf-ink, #30342d);
+  -webkit-text-fill-color: var(--bf-ink, #30342d);
+  box-shadow: none;
+}
+
+:global(html[data-theme="light-premium"]) .input:focus {
+  border-color: rgba(70, 83, 58, 0.48);
+  box-shadow: 0 0 0 3px rgba(70, 83, 58, 0.08);
+}
+
+:global(html[data-theme="light-premium"]) .helper,
+:global(html[data-theme="light-premium"]) .suggestionLabel {
+  color: var(--bf-ink, #30342d);
+}
+
+:global(html[data-theme="light-premium"]) .secondaryHelper,
+:global(html[data-theme="light-premium"]) .emptyState,
+:global(html[data-theme="light-premium"]) .suggestionRegion,
+:global(html[data-theme="light-premium"]) .suggestionCity,
+:global(html[data-theme="light-premium"]) .suggestionSource {
+  color: var(--bf-copy-muted, #7d7a72);
+}
+
+:global(html[data-theme="light-premium"]) .suggestions {
+  border-color: var(--bf-line, #e5dfd4);
+  background: var(--bf-paper, #fffdf8);
+  box-shadow: var(--bf-shadow-float, 0 18px 54px rgba(52, 59, 45, 0.12));
+}
+
+:global(html[data-theme="light-premium"]) .suggestion:hover,
+:global(html[data-theme="light-premium"]) .suggestionActive {
+  background: var(--bf-rose-soft, #f2dfe0);
+}

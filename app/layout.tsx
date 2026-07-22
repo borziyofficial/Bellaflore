@@ -21,6 +21,7 @@ import "./bellaflore-ui-system.css";
 import "./dark-luxury-theme.css";
 import "./dark-luxury-overrides.css";
 import "./admin-theme-guard.css";
+import "./light-premium-theme.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { inter, playfairDisplay } from "@/lib/fonts";
 import {
@@ -117,7 +118,7 @@ const jsonLd = {
   ],
 };
 
-const themeInitScript = `(function(){try{var p=location.pathname;var t=/^\\/admin(?:\\/|$)/.test(p)?"day":"dark-luxury";document.documentElement.dataset.theme=t;localStorage.setItem("bellaflore-ui-theme",t);localStorage.removeItem("bellaflore-ui-theme-manual");}catch(e){}})();`;
+const themeInitScript = `(function(){try{var p=location.pathname;var t=/^\\/admin(?:\\/|$)/.test(p)?"day":"light-premium";document.documentElement.dataset.theme=t;localStorage.setItem("bellaflore-ui-theme",t);localStorage.removeItem("bellaflore-ui-theme-manual");}catch(e){}})();`;
 
 // NOTE: data-theme below is a static SSR default ("dark-luxury"). The inline
 // themeInitScript runs synchronously in <head>, before <body> paints, and

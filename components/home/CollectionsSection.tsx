@@ -12,6 +12,7 @@ import {
 } from "@/components/catalog/homeCatalogConfig";
 import { useStorefrontCustomCategories } from "@/components/catalog/useStorefrontCustomCategories";
 import { LuxuryCatalogProductCard } from "@/components/catalog/LuxuryCatalogProductCard";
+import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
 import styles from "@/components/home/CollectionsSection.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
@@ -110,6 +111,11 @@ export function CollectionsSection({
       }),
     [activeCategoryId, bouquets, customCategoryTitleById, isSearchMode, searchQuery],
   );
+  const showFeaturedProducts = isAllCategoryMode && !isSearchMode;
+  const featuredProducts = showFeaturedProducts ? displayedProducts.slice(0, 4) : [];
+  const catalogProducts = showFeaturedProducts
+    ? displayedProducts.slice(featuredProducts.length)
+    : displayedProducts;
 
   const handleSearchChange = (event: ReactChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -139,10 +145,6 @@ export function CollectionsSection({
 
   return (
     <section id="catalog" className={styles.section}>
-      <header className={`${styles.header} bf-reveal bf-reveal-up`}>
-        <h2>{homeCatalogTitle}</h2>
-      </header>
-
       <div className={`${styles.toolbar} bf-reveal bf-reveal-up`}>
         <label className={styles.searchField}>
           <span className={styles.searchIcon} aria-hidden="true">
@@ -173,6 +175,37 @@ export function CollectionsSection({
           ) : null}
         </label>
 
+      </div>
+
+      <SmartPromoBanner />
+
+      {featuredProducts.length > 0 ? (
+        <div className={styles.featuredSection}>
+          <header className={styles.sectionHeading}>
+            <p>Выбор флористов</p>
+            <h2>Популярные букеты</h2>
+          </header>
+          <div className={`${styles.grid} ${styles.featuredGrid}`}>
+            {featuredProducts.map((bouquet) => (
+              <LuxuryCatalogProductCard
+                key={`featured:${bouquet.id}`}
+                product={bouquet}
+                formatPrice={formatPrice}
+                isFavorite={favoriteBouquetIds.includes(bouquet.id)}
+                onFavoriteClick={handleFavoriteClick}
+                onBuyClick={handleBouquetOrderClick}
+                onProductOpen={onProductOpen}
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <div className={styles.categoriesBlock}>
+        <header className={styles.sectionHeading}>
+          <p>Коллекции</p>
+          <h2>{homeCatalogTitle}</h2>
+        </header>
         <div
           className={styles.categoryRow}
           role="tablist"
@@ -197,7 +230,7 @@ export function CollectionsSection({
         </div>
       </div>
 
-      {displayedProducts.length === 0 ? (
+      {catalogProducts.length === 0 && displayedProducts.length === 0 ? (
         <div
           key={`empty:${catalogViewKey}`}
           className={styles.emptyState}
@@ -217,7 +250,7 @@ export function CollectionsSection({
           }`}
           data-catalog-mode={activeCatalogMode}
         >
-          {displayedProducts.map((bouquet) => (
+          {catalogProducts.map((bouquet) => (
             <LuxuryCatalogProductCard
               key={`${catalogViewKey}:${bouquet.id}`}
               product={bouquet}

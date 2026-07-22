@@ -55,7 +55,6 @@ export function LuxuryCatalogProductCard({
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
     experienceData.defaultSizeId,
   );
-  const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [trackedProductId, setTrackedProductId] = useState(product.id);
   const actionGestureRef = useRef({
     startX: 0,
@@ -66,7 +65,6 @@ export function LuxuryCatalogProductCard({
   if (product.id !== trackedProductId) {
     setTrackedProductId(product.id);
     setSelectedSizeId(experienceData.defaultSizeId);
-    setDetailsExpanded(false);
   }
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
@@ -75,7 +73,6 @@ export function LuxuryCatalogProductCard({
   const visibleVariants = experienceData.sizeVariants.filter((variant) =>
     ["S", "M", "L", "XL"].includes(variant.sizeId),
   );
-  const detailsId = `catalog-card-details-${product.id}`;
 
   const handleActionTouchStart = (event: TouchEvent<HTMLButtonElement>) => {
     const touch = event.touches[0];
@@ -214,49 +211,6 @@ export function LuxuryCatalogProductCard({
               description would be shorter than ones with one, breaking the
               uniform-height grid. */}
           <p className={styles.description}>{description}</p>
-
-          <button
-            type="button"
-            className={styles.detailsButton}
-            aria-expanded={detailsExpanded}
-            aria-controls={detailsId}
-            onClick={(event) => {
-              if (!shouldSuppressActionClick(event)) {
-                setDetailsExpanded((current) => !current);
-              }
-            }}
-            onTouchStart={handleActionTouchStart}
-            onTouchMove={handleActionTouchMove}
-            onTouchEnd={handleActionTouchEnd}
-          >
-            {detailsExpanded ? "Скрыть" : "Подробнее"}
-          </button>
-
-          <div
-            id={detailsId}
-            className={`${styles.expandedDetails} ${
-              detailsExpanded ? styles.expandedDetailsOpen : ""
-            }`}
-            aria-hidden={!detailsExpanded}
-          >
-            <div className={styles.expandedDetailsInner}>
-              <p>{experienceData.description}</p>
-              <dl>
-                <div>
-                  <dt>Состав</dt>
-                  <dd>{experienceData.composition}</dd>
-                </div>
-                <div>
-                  <dt>Доставка</dt>
-                  <dd>{experienceData.deliveryNote}</dd>
-                </div>
-                <div>
-                  <dt>Преимущество</dt>
-                  <dd>{experienceData.freshnessGuarantee}</dd>
-                </div>
-              </dl>
-            </div>
-          </div>
 
           <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
         </div>

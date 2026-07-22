@@ -743,3 +743,86 @@
 :global(html[data-theme="dark-luxury"] .checkout-section-v3) {
   color: #111111 !important;
 }
+
+/* Shared light-premium checkout skin; checkout state and validation stay unchanged. */
+:global(html[data-theme="light-premium"]) .checkoutGlassStep,
+:global(html[data-theme="light-premium"]) .checkoutV3StickyFooter,
+:global(html[data-theme="light-premium"]) .checkoutPaymentInfo,
+:global(html[data-theme="light-premium"]) .checkoutPaymentOption,
+:global(html[data-theme="light-premium"]) .checkoutFlatSelector,
+:global(html[data-theme="light-premium"]) .checkoutFlatSelectWrap {
+  border-color: var(--bf-line, #e5dfd4);
+  background: var(--bf-paper, #fffdf8);
+  box-shadow: var(--bf-shadow-card, 0 8px 28px rgba(52, 59, 45, 0.06));
+}
+
+:global(html[data-theme="light-premium"]) .checkoutGlassStepOpen,
+:global(html[data-theme="light-premium"]) .checkoutPaymentOption:has(input:checked) {
+  border-color: rgba(200, 141, 148, 0.45);
+  background: var(--bf-rose-soft, #f2dfe0);
+  box-shadow: 0 0 0 2px rgba(200, 141, 148, 0.12);
+}
+
+:global(html[data-theme="light-premium"]) .checkoutGlassStepTrigger,
+:global(html[data-theme="light-premium"]) .checkoutGlassStepTitle,
+:global(html[data-theme="light-premium"]) .checkoutV3BlockTitle,
+:global(html[data-theme="light-premium"]) .checkoutV3SummaryRow,
+:global(html[data-theme="light-premium"]) .checkoutV3SummaryRow strong,
+:global(html[data-theme="light-premium"]) .checkoutV3SummaryTotal,
+:global(html[data-theme="light-premium"]) .checkoutV3SummaryTotal strong,
+:global(html[data-theme="light-premium"]) .checkoutPaymentValue,
+:global(html[data-theme="light-premium"]) .checkoutPaymentOption,
+:global(html[data-theme="light-premium"]) .checkoutFlatSelector,
+:global(html[data-theme="light-premium"]) .checkoutFlatSelector strong,
+:global(html[data-theme="light-premium"]) .checkoutFlatSelectWrap select,
+:global(html[data-theme="light-premium"]) .checkoutField span {
+  color: var(--bf-ink, #30342d) !important;
+  -webkit-text-fill-color: var(--bf-ink, #30342d) !important;
+}
+
+:global(html[data-theme="light-premium"]) .checkoutGlassStepSummary,
+:global(html[data-theme="light-premium"]) .checkoutFlatMuted,
+:global(html[data-theme="light-premium"]) .checkoutPaymentLabel,
+:global(html[data-theme="light-premium"]) .checkoutPaymentNote,
+:global(html[data-theme="light-premium"] .checkout-v3-sheet .checkout-delivery-alert) {
+  color: var(--bf-copy-muted, #7d7a72);
+}
+
+:global(html[data-theme="light-premium"]) .checkoutGlassStepIcon {
+  border-color: var(--bf-line, #e5dfd4);
+  background: var(--bf-paper-soft, #fbf8f1);
+  color: var(--bf-olive, #46533a);
+}
+
+:global(html[data-theme="light-premium"]) .checkoutField input,
+:global(html[data-theme="light-premium"]) .checkoutField textarea {
+  border-color: var(--bf-line-strong, #d8d1c5);
+  background: var(--bf-paper, #fffdf8);
+  color: var(--bf-ink, #30342d);
+  -webkit-text-fill-color: var(--bf-ink, #30342d);
+  box-shadow: none;
+}
+
+:global(html[data-theme="light-premium"]) .checkoutField input:focus,
+:global(html[data-theme="light-premium"]) .checkoutField textarea:focus,
+:global(html[data-theme="light-premium"]) .checkoutFlatSelector:focus-visible,
+:global(html[data-theme="light-premium"]) .checkoutFlatSelectWrap:focus-within {
+  border-color: rgba(70, 83, 58, 0.48);
+  box-shadow: 0 0 0 3px rgba(70, 83, 58, 0.08);
+}
+
+:global(html[data-theme="light-premium"]) .checkoutSubmitButton {
+  min-height: 48px;
+  border-radius: 13px;
+  background: var(--bf-olive, #46533a);
+  color: #fffdf8;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  :global(html[data-theme="light-premium"] .checkout-v3-sheet) {
+    max-height: calc(100dvh - 10px);
+    border-color: var(--bf-line, #e5dfd4) !important;
+    background: var(--bf-ivory, #f7f4ed) !important;
+  }
+}

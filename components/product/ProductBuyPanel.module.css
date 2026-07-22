@@ -1,11 +1,11 @@
 .panel {
   display: grid;
-  gap: 14px;
-  padding: 18px;
-  border-radius: 24px;
-  border: 1px solid rgba(212, 175, 55, 0.22);
-  background: var(--bg-secondary, #2a2a2a);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--bf-line, #e5dfd4);
+  background: var(--bf-paper, #fffdf8);
+  box-shadow: var(--bf-shadow-card, 0 8px 28px rgba(52, 59, 45, 0.06));
 }
 
 .selection {
@@ -16,7 +16,7 @@
 }
 
 .selectionLabel {
-  color: rgba(237, 237, 237, 0.62);
+  color: var(--bf-copy-muted, #7d7a72);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   letter-spacing: 0.04em;
@@ -24,9 +24,9 @@
 }
 
 .selectionPrice {
-  color: var(--gold-light, #f5d98c);
+  color: var(--bf-olive-deep, #303b29);
   font-family: var(--font-body, Inter, sans-serif);
-  font-size: clamp(24px, 4.5vw, 30px);
+  font-size: clamp(20px, 4.5vw, 25px);
   font-weight: 700;
   line-height: 1.05;
 }
@@ -40,9 +40,9 @@
 .buyButton,
 .favoriteButton {
   min-height: var(--bf-button-height, 44px);
-  border-radius: var(--bf-button-radius, 999px);
+  border-radius: 13px;
   font-family: var(--font-body, Inter, sans-serif);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition:
@@ -53,12 +53,9 @@
 
 .buyButton {
   border: 0;
-  background: var(
-    --bf-gold-gradient,
-    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
-  );
-  color: #1a1a1a;
-  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.22);
+  background: var(--bf-olive, #46533a);
+  color: #fffdf8;
+  box-shadow: none;
 }
 
 .buyButton:hover {
@@ -66,20 +63,20 @@
 }
 
 .favoriteButton {
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  background: #333333;
-  color: var(--text-light, #ededed);
+  border: 1px solid var(--bf-line, #e5dfd4);
+  background: var(--bf-paper-soft, #fbf8f1);
+  color: var(--bf-olive, #46533a);
 }
 
 .favoriteButtonActive {
-  border-color: rgba(230, 57, 70, 0.45);
-  background: rgba(230, 57, 70, 0.12);
-  color: #e63946;
+  border-color: rgba(200, 141, 148, 0.45);
+  background: var(--bf-rose-soft, #f2dfe0);
+  color: var(--bf-rose-deep, #aa6e77);
 }
 
 .deliveryNote {
   margin: 0;
-  color: rgba(237, 237, 237, 0.62);
+  color: var(--bf-copy-muted, #7d7a72);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   line-height: 1.45;

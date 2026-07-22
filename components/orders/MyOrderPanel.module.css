@@ -5,7 +5,8 @@
   display: flex;
   justify-content: flex-end;
   padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  background: rgba(0, 0, 0, 0.62);
+  background: rgba(47, 52, 45, 0.28);
+  backdrop-filter: blur(6px);
 }
 
 .sheet {
@@ -16,11 +17,11 @@
   min-height: 0;
   overflow: hidden;
   padding: 18px;
-  border: 1px solid rgba(212, 175, 55, 0.22);
-  border-radius: 8px;
-  background: #262626;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
-  color: var(--text-light, #ededed);
+  border: 1px solid var(--bf-line, #e5dfd4);
+  border-radius: 20px;
+  background: var(--bf-ivory, #f7f4ed);
+  box-shadow: 0 22px 60px rgba(52, 59, 45, 0.18);
+  color: var(--bf-copy, #53564f);
 }
 
 .expanded {
@@ -37,7 +38,7 @@
 
 .eyebrow {
   display: block;
-  color: var(--gold-dark, #d4af37);
+  color: var(--bf-rose-deep, #aa6e77);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 11px;
   letter-spacing: 0.18em;
@@ -47,7 +48,7 @@
 
 .title {
   margin: 8px 0 0;
-  color: var(--text-light, #ededed);
+  color: var(--bf-olive-deep, #303b29);
   font-family: var(--font-brand, "Playfair Display", serif);
   font-size: clamp(26px, 7vw, 34px);
   font-weight: 600;
@@ -64,7 +65,7 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: rgba(245, 217, 140, 0.72);
+  color: var(--bf-olive, #46533a);
   line-height: 1;
   cursor: pointer;
 }
@@ -74,9 +75,9 @@
   place-items: center;
   width: 26px;
   height: 26px;
-  border: 0.5px solid rgba(212, 175, 55, 0.2);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--bf-line, #e5dfd4);
+  border-radius: 11px;
+  background: var(--bf-paper, #fffdf8);
   font-size: 15px;
   font-weight: 300;
 }
@@ -97,7 +98,7 @@
   .expanded {
     width: 100%;
     max-height: min(82dvh, 100%);
-    border-radius: 14px 14px 0 0;
+    border-radius: 22px 22px 0 0;
     padding-bottom: 18px;
   }
 }

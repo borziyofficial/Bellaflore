@@ -1,40 +1,15 @@
 .section {
-  max-width: 1280px;
+  width: min(100%, 1280px);
   margin: 0 auto;
-  padding: 34px 16px calc(220px + env(safe-area-inset-bottom));
+  padding: calc(18px + env(safe-area-inset-top)) 14px calc(116px + env(safe-area-inset-bottom));
   overflow-x: clip;
-  background: var(--bg-primary, #1a1a1a);
-  scroll-margin-top: calc(72px + env(safe-area-inset-top));
-}
-
-.header {
-  margin-bottom: 18px;
-  text-align: center;
-}
-
-.header h2 {
-  margin: 0;
-  font-family: var(--font-brand, "Playfair Display", serif);
-  font-size: clamp(1.65rem, 4.5vw, 2.15rem);
-  font-weight: 600;
-  line-height: 1.15;
-  color: var(--text-light, #ededed);
-}
-
-.subtitle {
-  max-width: 420px;
-  margin: 10px auto 0;
-  color: rgba(237, 237, 237, 0.62);
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 15px;
-  line-height: 1.45;
+  background: var(--bf-ivory, #f7f4ed);
+  scroll-margin-top: 64px;
 }
 
 .toolbar {
-  display: grid;
-  gap: 12px;
-  max-width: 720px;
-  margin: 0 auto 28px;
+  width: min(100%, 720px);
+  margin: 0 auto 16px;
 }
 
 .searchField {
@@ -45,26 +20,31 @@
 
 .searchIcon {
   position: absolute;
-  left: 16px;
+  left: 15px;
   z-index: 1;
-  color: rgba(237, 237, 237, 0.45);
-  font-size: 17px;
+  color: var(--bf-olive, #46533a);
+  font-size: 18px;
   pointer-events: none;
 }
 
 .searchField input {
   width: 100%;
   min-width: 0;
-  padding: 14px 44px 14px 42px;
-  border-radius: 999px;
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  background: var(--bg-secondary, #2a2a2a);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  color: var(--text-light, #ededed);
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 16px;
+  min-height: 46px;
+  padding: 0 44px 0 42px;
+  border: 1px solid var(--bf-line, #e5dfd4);
+  border-radius: 15px;
+  background: var(--bf-paper, #fffdf8);
+  box-shadow: 0 6px 22px rgba(52, 59, 45, 0.05);
+  color: var(--bf-ink, #30342d);
+  font: 500 15px/1 var(--font-body, Inter, sans-serif);
   appearance: none;
   -webkit-appearance: none;
+}
+
+.searchField input:focus {
+  border-color: rgba(70, 83, 58, 0.48);
+  outline: 3px solid rgba(70, 83, 58, 0.08);
 }
 
 .searchField input::-webkit-search-cancel-button,
@@ -76,44 +56,72 @@
 }
 
 .searchField input::placeholder {
-  color: rgba(237, 237, 237, 0.42);
+  color: #99958d;
 }
 
 .searchClear {
   position: absolute;
-  right: 10px;
+  right: 9px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
   border: 0;
-  border-radius: 999px;
-  background: rgba(212, 175, 55, 0.14);
-  color: var(--gold-light, #f5d98c);
+  border-radius: 10px;
+  background: var(--bf-rose-soft, #f2dfe0);
+  color: var(--bf-rose-deep, #aa6e77);
   cursor: pointer;
 }
 
 .searchClear svg {
   width: 12px;
   height: 12px;
+  fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
-  fill: none;
+}
+
+.featuredSection,
+.categoriesBlock {
+  margin-top: 24px;
+}
+
+.sectionHeading {
+  display: grid;
+  gap: 3px;
+  margin: 0 2px 13px;
+}
+
+.sectionHeading p {
+  margin: 0;
+  color: var(--bf-rose-deep, #aa6e77);
+  font: 700 10px/1.2 var(--font-body, Inter, sans-serif);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sectionHeading h2 {
+  margin: 0;
+  color: var(--bf-olive-deep, #303b29);
+  font: 600 clamp(1.35rem, 5vw, 1.75rem)/1.16 var(--font-brand, Georgia, serif);
+}
+
+.categoriesBlock {
+  margin-bottom: 14px;
 }
 
 .categoryRow {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
-  justify-content: flex-start;
+  gap: 8px;
   width: 100%;
-  max-width: 100%;
   min-width: 0;
   overflow-x: auto;
-  padding: 0 2px 2px;
+  padding: 1px 2px 5px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
 }
 
 .categoryRow::-webkit-scrollbar {
@@ -122,49 +130,55 @@
 
 .categoryChip {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
-  width: fit-content;
-  max-width: none;
+  width: auto;
+  min-height: 36px;
   margin: 0;
-  min-height: 30px;
-  padding: 5px 11px;
-  border-radius: 999px;
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  background: var(--bg-secondary, #2a2a2a);
-  color: var(--text-light, #ededed);
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  line-height: 1.2;
+  padding: 0 13px;
+  border: 1px solid var(--bf-line, #e5dfd4);
+  border-radius: 12px;
+  background: var(--bf-paper, #fffdf8);
+  box-shadow: none;
+  color: var(--bf-copy, #53564f);
+  font: 600 12px/1 var(--font-body, Inter, sans-serif);
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: none;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .categoryChipActive {
-  border-color: var(--gold-dark, #d4af37);
-  background: rgba(212, 175, 55, 0.16);
-  color: var(--gold-light, #f5d98c);
+  border-color: rgba(200, 141, 148, 0.42);
+  background: var(--bf-rose-soft, #f2dfe0);
+  color: #784c53;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  /* Cards reserve identical space for every content slot (title,
-     description, etc. — see LuxuryCatalogProductCard.module.css), so every
-     card is already the same natural height. `stretch` (grid's default) is
-     kept explicit here as a defense-in-depth guard against any sub-pixel
-     rounding difference, so a whole grid row can never end up with cards of
-     visibly different heights. */
   align-items: stretch;
+  gap: 10px;
+}
+
+.featuredGrid {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(156px, 43vw);
+  grid-template-columns: none;
+  overflow-x: auto;
+  padding: 1px 2px 7px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+
+.featuredGrid::-webkit-scrollbar {
+  display: none;
+}
+
+.featuredGrid > * {
+  scroll-snap-align: start;
 }
 
 .gridAll,
@@ -172,123 +186,68 @@
   grid-auto-flow: row;
 }
 
-.gridAll {
-  gap: 10px;
-}
-
-.gridCategory {
-  gap: 12px;
-}
-
 .emptyState {
   max-width: 360px;
-  margin: 8px auto 0;
-  padding: 28px 22px;
-  border-radius: 22px;
+  margin: 18px auto 0;
+  padding: 26px 20px;
+  border: 1px solid var(--bf-line, #e5dfd4);
+  border-radius: 18px;
+  background: var(--bf-paper, #fffdf8);
+  box-shadow: var(--bf-shadow-card, 0 8px 28px rgba(52, 59, 45, 0.06));
   text-align: center;
-  background: var(--bg-secondary, #2a2a2a);
-  border: 1px solid rgba(212, 175, 55, 0.22);
 }
 
 .emptyTitle {
   margin: 0;
-  font-family: var(--font-brand, "Playfair Display", serif);
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text-light, #ededed);
+  color: var(--bf-ink, #30342d);
+  font: 600 1rem/1.2 var(--font-brand, Georgia, serif);
 }
 
 .emptyMessage {
-  margin: 8px 0 0;
-  color: rgba(237, 237, 237, 0.62);
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 14px;
-  line-height: 1.45;
+  margin: 7px 0 0;
+  color: var(--bf-copy-muted, #7d7a72);
+  font: 400 13px/1.45 var(--font-body, Inter, sans-serif);
 }
 
 .emptyReset {
-  margin-top: 16px;
-  padding: 11px 18px;
+  min-height: 42px;
+  margin-top: 15px;
+  padding: 0 16px;
   border: 0;
-  border-radius: var(--bf-button-radius, 999px);
-  background: var(
-    --bf-gold-gradient,
-    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
-  );
-  color: #1a1a1a;
-  font-family: var(--font-body, Inter, sans-serif);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+  border-radius: 12px;
+  background: var(--bf-olive, #46533a);
+  color: #fffdf8;
+  font: 650 13px/1 var(--font-body, Inter, sans-serif);
 }
 
-@media (min-width: 900px) {
+@media (min-width: 769px) {
   .section {
-    padding: 42px 24px calc(220px + env(safe-area-inset-bottom));
+    padding: 26px 24px 140px;
   }
 
   .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
-  }
-
-  .gridAll {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-  }
-
-  .gridCategory {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
   }
-}
 
-@media (min-width: 1180px) {
-  .grid {
+  .featuredGrid {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .gridAll {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
-  .gridCategory {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
   }
 }
 
-@media (max-width: 360px) {
-  .grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 359px) {
   .section {
-    scroll-padding-bottom: calc(148px + env(safe-area-inset-bottom));
+    padding-inline: 10px;
   }
 
-  .toolbar {
-    margin-bottom: 20px;
+  .grid {
+    gap: 8px;
   }
 
-  .categoryChip {
-    width: fit-content;
-    max-width: none;
-    margin: 0;
-    padding: 5px 11px;
-    font-size: 12px;
-    font-weight: 500;
-    box-shadow: none;
-  }
-
-  .subtitle {
-    font-size: 14px;
-  }
-
-  .searchField input {
-    font-size: 15px;
-    padding-top: 13px;
-    padding-bottom: 13px;
+  .featuredGrid {
+    grid-auto-columns: minmax(148px, 78vw);
   }
 }

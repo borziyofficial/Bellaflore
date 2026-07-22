@@ -24,7 +24,6 @@ export const PROFILE_HUB_MENU: ProfileHubMenuItem[] = [
   {
     id: "tracking",
     label: "Отслеживание заказа",
-    hint: "Скоро",
     action: "navigate",
   },
   { id: "favorites", label: "Избранное", action: "external" },

@@ -11,7 +11,7 @@ import type { ProductAvailabilityStatus } from "@/components/catalogEngine/catal
 export const AVAILABILITY_LABELS: Record<ProductAvailabilityStatus, string> = {
   in_stock: "В наличии",
   out_of_stock: "Нет в наличии",
-  coming_soon: "Скоро появится",
+  coming_soon: "Ожидается",
   made_to_order: "Только под заказ",
 };
 

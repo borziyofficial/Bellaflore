@@ -41,7 +41,12 @@ type ProductExperiencePageProps = {
   nearestFromConfidence: string | null;
   checkoutNow: Date;
   onClose: () => void;
-  onBuy: (productId: string, sizeId: ProductSizeId, priceRub: number) => void;
+  onBuy: (
+    productId: string,
+    sizeId: ProductSizeId,
+    priceRub: number,
+    quantity?: number,
+  ) => void;
   onToggleFavorite: (productId: string) => void;
   onProductSelect: (productId: string) => void;
   onImageError: (imageId: string) => void;
@@ -83,6 +88,7 @@ export function ProductExperiencePage({
   );
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
   const selectedSizeLabel = selectedVariant.sizeId;
@@ -91,7 +97,7 @@ export function ProductExperiencePage({
     experienceData.description.length > COLLAPSIBLE_DESCRIPTION_LENGTH;
 
   const handleBuy = () => {
-    onBuy(product.id, selectedSizeId, selectedVariant.priceRub);
+    onBuy(product.id, selectedSizeId, selectedVariant.priceRub, quantity);
   };
   const handleFavoriteToggle = useCallback(
     () => onToggleFavorite(product.id),
@@ -101,6 +107,18 @@ export function ProductExperiencePage({
     setSelectedSizeId(sizeId);
   }, []);
   const closeSizeSheet = useCallback(() => setSizeSheetOpen(false), []);
+  const handleShare = useCallback(async () => {
+    const shareUrl = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: product.title, url: shareUrl });
+        return;
+      }
+      await navigator.clipboard?.writeText(shareUrl);
+    } catch {
+      // Closing the native share sheet is an expected user action.
+    }
+  }, [product.title]);
 
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={product.title}>
@@ -109,9 +127,25 @@ export function ProductExperiencePage({
           <button type="button" className={styles.backButton} onClick={onClose}>
             ← Назад
           </button>
-          {experienceData.badge ? (
-            <span className={styles.badge}>{experienceData.badge}</span>
-          ) : null}
+          <div className={styles.topActions}>
+            <button
+              type="button"
+              className={`${styles.iconAction} ${isFavorite ? styles.iconActionActive : ""}`}
+              onClick={handleFavoriteToggle}
+              aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"}
+              aria-pressed={isFavorite}
+            >
+              <span aria-hidden="true">♡</span>
+            </button>
+            <button
+              type="button"
+              className={styles.iconAction}
+              onClick={() => void handleShare()}
+              aria-label="Поделиться букетом"
+            >
+              <span aria-hidden="true">↗</span>
+            </button>
+          </div>
         </div>
 
         <div className={styles.content}>
@@ -123,6 +157,9 @@ export function ProductExperiencePage({
           />
 
           <div className={styles.heroCopy}>
+            {experienceData.badge ? (
+              <span className={styles.badge}>{experienceData.badge}</span>
+            ) : null}
             {product.category ? (
               <span className={styles.category}>{product.category}</span>
             ) : null}
@@ -167,6 +204,29 @@ export function ProductExperiencePage({
             <strong>{priceLabel}</strong>
             <span aria-hidden="true">▼</span>
           </button>
+
+          <div className={styles.quantityRow} aria-label="Количество букетов">
+            <span>Количество</span>
+            <div className={styles.quantityStepper}>
+              <button
+                type="button"
+                onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                aria-label="Уменьшить количество"
+                disabled={quantity === 1}
+              >
+                −
+              </button>
+              <output aria-live="polite">{quantity}</output>
+              <button
+                type="button"
+                onClick={() => setQuantity((current) => Math.min(9, current + 1))}
+                aria-label="Увеличить количество"
+                disabled={quantity === 9}
+              >
+                +
+              </button>
+            </div>
+          </div>
 
           <ProductBuyPanel
             sizeLabel={selectedSizeLabel}

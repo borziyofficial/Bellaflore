@@ -18,10 +18,10 @@
   gap: 8px;
   min-height: 40px;
   padding: 8px 11px;
-  border: 1px solid rgba(212, 175, 55, 0.16);
-  border-radius: 10px;
-  background: #303030;
-  color: var(--text-light, #ededed);
+  border: 1px solid var(--bf-line, #e5dfd4);
+  border-radius: 12px;
+  background: var(--bf-paper, #fffdf8);
+  color: var(--bf-ink, #30342d);
   font-family: var(--font-body, Inter, sans-serif);
   text-align: left;
   cursor: pointer;
@@ -30,7 +30,7 @@
 
 .menuRow:active {
   transform: scale(0.99);
-  background: rgba(212, 175, 55, 0.12);
+  background: var(--bf-olive-soft, #e4e9df);
 }
 
 .menuRowLabel {
@@ -43,10 +43,10 @@
   flex-shrink: 0;
   max-width: 42%;
   padding: 4px 7px;
-  border: 1px solid rgba(212, 175, 55, 0.16);
+  border: 1px solid rgba(200, 141, 148, 0.28);
   border-radius: 999px;
-  background: rgba(212, 175, 55, 0.07);
-  color: rgba(245, 217, 140, 0.72);
+  background: var(--bf-rose-soft, #f2dfe0);
+  color: #754a51;
   font-size: 10px;
   font-weight: 650;
   line-height: 1.2;
@@ -73,8 +73,8 @@
   padding-bottom: 2px;
   background: linear-gradient(
     180deg,
-    var(--bg-secondary, #2a2a2a) 78%,
-    rgba(42, 42, 42, 0)
+    var(--bf-ivory, #f7f4ed) 78%,
+    rgba(247, 244, 237, 0)
   );
 }
 
@@ -85,10 +85,10 @@
   justify-self: start;
   min-height: 36px;
   padding: 6px 10px;
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  border-radius: 999px;
-  background: #333333;
-  color: var(--text-light, #ededed);
+  border: 1px solid var(--bf-line, #e5dfd4);
+  border-radius: 11px;
+  background: var(--bf-paper, #fffdf8);
+  color: var(--bf-olive, #46533a);
   font-family: var(--font-body, Inter, sans-serif);
   line-height: 1;
   cursor: pointer;
@@ -97,7 +97,7 @@
 
 .backButton:active {
   transform: scale(0.98);
-  background: rgba(212, 175, 55, 0.12);
+  background: var(--bf-olive-soft, #e4e9df);
 }
 
 .backButtonIcon {
@@ -114,7 +114,7 @@
 
 .sectionTitle {
   margin: 0;
-  color: var(--text-light, #ededed);
+  color: var(--bf-olive-deep, #303b29);
   font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 15px;
   font-weight: 600;
@@ -128,10 +128,10 @@
 .closeRow {
   min-height: 36px;
   padding: 7px 12px;
-  border: 1px solid rgba(212, 175, 55, 0.16);
-  border-radius: 10px;
-  background: #303030;
-  color: var(--text-light, #ededed);
+  border: 1px solid var(--bf-line, #e5dfd4);
+  border-radius: 12px;
+  background: var(--bf-paper, #fffdf8);
+  color: var(--bf-olive, #46533a);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   font-weight: 700;
@@ -143,7 +143,7 @@
 
 .closeRow:active {
   transform: scale(0.98);
-  background: rgba(212, 175, 55, 0.12);
+  background: var(--bf-olive-soft, #e4e9df);
 }
 
 @media (max-width: 768px) {

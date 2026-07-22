@@ -13,14 +13,14 @@
   grid-template-columns: minmax(86px, 0.24fr) minmax(0, 1fr);
   gap: 14px;
   padding: 12px 14px;
-  border: 1px solid rgba(212, 175, 55, 0.14);
+  border: 1px solid var(--bf-line, #e5dfd4);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--bf-paper, #fffdf8);
 }
 
 .row dt {
   margin: 0;
-  color: var(--gold-light, #f5d98c);
+  color: var(--bf-olive-deep, #303b29);
   font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 15px;
   font-weight: 600;
@@ -35,14 +35,14 @@
 .row dd {
   display: grid;
   gap: 6px;
-  color: rgba(237, 237, 237, 0.76);
+  color: var(--bf-copy, #53564f);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   line-height: 1.45;
 }
 
 .guarantee {
-  color: rgba(237, 237, 237, 0.56);
+  color: var(--bf-copy-muted, #7d7a72);
   font-size: 12px;
 }
 
@@ -65,7 +65,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--gold-light, #f5d98c);
+  color: var(--bf-olive, #46533a);
   font: 600 12px/1 var(--font-body, Inter, sans-serif);
   cursor: pointer;
 }

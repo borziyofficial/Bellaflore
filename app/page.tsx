@@ -54,8 +54,6 @@ import { submitCheckoutOrderToTelegram } from "@/components/telegram/submitCheck
 import { AboutSection } from "@/components/home/AboutSection";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
-import { HeroSection } from "@/components/home/HeroSection";
-import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
 import { Navbar } from "@/components/home/Navbar";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
@@ -1000,7 +998,7 @@ export default function Home() {
       window.history.pushState({}, "", "/");
     }
     requestAnimationFrame(() => {
-      document.getElementById("home")?.scrollIntoView({ behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   };
 
@@ -1659,6 +1657,7 @@ export default function Home() {
     bouquetId: string,
     sizeId: ProductSizeId,
     priceRub?: number,
+    quantity = 1,
   ) => {
     const selection = resolveBouquetSelection(bouquetId, sizeId, priceRub);
 
@@ -1669,7 +1668,7 @@ export default function Home() {
     setCartItems([
       {
         bouquetId,
-        quantity: 1,
+        quantity,
         sizeId: selection.sizeId,
         priceRub: selection.priceRub,
       },
@@ -1691,10 +1690,6 @@ export default function Home() {
     }
 
     prepareProductCheckout(bouquetId, sizeId, priceRub);
-  };
-
-  const handleHeroOrderBouquet = () => {
-    openCatalogView();
   };
 
   const scrollToHomeSection = (sectionId: string) => {
@@ -1929,8 +1924,9 @@ export default function Home() {
     productId: string,
     sizeId: ProductSizeId,
     priceRub: number,
+    quantity = 1,
   ) => {
-    prepareProductCheckout(productId, sizeId, priceRub);
+    prepareProductCheckout(productId, sizeId, priceRub, quantity);
     closeProductExperience();
   };
 
@@ -2234,18 +2230,6 @@ export default function Home() {
           elevated={Boolean(activeProductExperience)}
           onNavigate={handleTopNavNavigate}
         />
-
-      {/* ==================================================
-          SECTION: Hero
-          РАЗДЕЛ: Hero-секция
-
-          Purpose (EN): Full-viewport hero with brand imagery and primary call-to-action.
-
-          Назначение (RU): Hero на весь экран с брендовым изображением и основным призывом к действию.
-          ================================================== */}
-      <HeroSection onOrderBouquet={handleHeroOrderBouquet} />
-
-      <SmartPromoBanner />
 
       <CollectionsSection
         bouquets={bouquets}

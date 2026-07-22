@@ -4,9 +4,9 @@
 
 @media (max-width: 768px) {
   .frame {
-    --bottom-nav-height: 46px;
-    --bottom-nav-offset: 16px;
-    --bottom-nav-content-gap: 12px;
+    --bottom-nav-height: 62px;
+    --bottom-nav-offset: 8px;
+    --bottom-nav-content-gap: 8px;
     position: fixed;
     inset:
       0

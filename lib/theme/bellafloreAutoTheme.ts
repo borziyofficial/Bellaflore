@@ -1,4 +1,4 @@
-export type BellaFloreTheme = "day" | "night" | "dark-luxury";
+export type BellaFloreTheme = "day" | "night" | "dark-luxury" | "light-premium";
 
 const ADMIN_PATH_PREFIX = "/admin";
 
@@ -7,7 +7,7 @@ export function resolveThemeForPathname(pathname: string): BellaFloreTheme {
     return "day";
   }
 
-  return "dark-luxury";
+  return "light-premium";
 }
 
 export const THEME_STORAGE_KEY = "bellaflore-ui-theme";
