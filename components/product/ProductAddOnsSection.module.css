@@ -104,3 +104,29 @@
     transition: none;
   }
 }
+
+/* Public sandbox theme — swap the dark card + gold toggle for the cream +
+   olive + rose floral system used everywhere else on light-premium. */
+:global(html[data-theme="light-premium"]) .card {
+  border-color: var(--bf-line, #e5dfd4);
+  background: var(--bf-paper, #fffdf8);
+}
+
+:global(html[data-theme="light-premium"]) .cardSelected {
+  border-color: var(--bf-rose, #c88d94);
+  background: var(--bf-rose-soft, #f2dfe0);
+}
+
+:global(html[data-theme="light-premium"]) .description {
+  color: var(--bf-copy-muted, #7d7a72);
+}
+
+:global(html[data-theme="light-premium"]) .toggle {
+  background: var(--bf-olive-soft, #e4e9df);
+  color: var(--bf-olive-deep, #303b29);
+}
+
+:global(html[data-theme="light-premium"]) .toggleSelected {
+  background: var(--bf-olive, #46533a);
+  color: #fffdf8;
+}

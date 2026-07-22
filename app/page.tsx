@@ -2229,6 +2229,8 @@ export default function Home() {
           scrolled={scrolled}
           elevated={Boolean(activeProductExperience)}
           onNavigate={handleTopNavNavigate}
+          cartItemCount={cartItemCount}
+          onCartClick={openCheckoutPanel}
         />
 
       <CollectionsSection

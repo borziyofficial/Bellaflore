@@ -813,8 +813,8 @@
 
 :global(html[data-theme="light-premium"]) .checkoutSubmitButton {
   min-height: 48px;
-  border-radius: 13px;
-  background: var(--bf-olive, #46533a);
+  border-radius: 999px;
+  background: var(--bf-rose-deep, #aa6e77);
   color: #fffdf8;
   box-shadow: none;
 }

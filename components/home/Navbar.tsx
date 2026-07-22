@@ -18,6 +18,8 @@ type NavbarProps = {
   scrolled: boolean;
   elevated?: boolean;
   onNavigate?: (href: string) => void;
+  cartItemCount?: number;
+  onCartClick?: () => void;
 };
 
 export function Navbar({
@@ -25,6 +27,8 @@ export function Navbar({
   scrolled,
   elevated = false,
   onNavigate,
+  cartItemCount = 0,
+  onCartClick,
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -64,8 +68,6 @@ export function Navbar({
       <nav
         className={`navbar ${styles.navbar} ${menuOpen ? styles.navbarMenuOpen : ""} ${scrolled ? "scrolled" : ""} ${elevated ? "navbar-elevated" : ""}`}
       >
-        <BrandLogo variant="nav" className={`logo ${styles.logo}`} />
-
         <button
           type="button"
           className={`menu-button ${styles.menuButton} ${menuOpen ? styles.menuButtonOpen : ""}`}
@@ -75,7 +77,31 @@ export function Navbar({
           aria-controls={menuOpen ? "mobile-navigation" : undefined}
         >
           <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
-          МЕНЮ
+        </button>
+
+        <BrandLogo variant="nav" className={`logo ${styles.logo}`} />
+
+        <button
+          type="button"
+          className={styles.cartButton}
+          onClick={onCartClick}
+          aria-label="Открыть корзину"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" className={styles.cartIcon}>
+            <path
+              d="M6 7h14l-1.4 9.1a2 2 0 0 1-2 1.7H8.4a2 2 0 0 1-2-1.7L5 4H2"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <circle cx="9.5" cy="20.5" r="1.4" fill="currentColor" />
+            <circle cx="17.5" cy="20.5" r="1.4" fill="currentColor" />
+          </svg>
+          {cartItemCount > 0 ? (
+            <span className={styles.cartBadge}>{cartItemCount > 9 ? "9+" : cartItemCount}</span>
+          ) : null}
         </button>
       </nav>
       {menuOpen ? (

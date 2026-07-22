@@ -1,20 +1,64 @@
 .navbar {
   gap: 12px;
   align-items: center;
+  justify-content: space-between;
 }
 
 .logo {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 }
 
 .menuButton {
   flex: 0 0 auto;
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   position: relative;
+  width: 38px !important;
+  height: 38px !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+}
+
+.cartButton {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--bf-line, #e5dfd4);
+  border-radius: 12px;
+  background: var(--bf-paper, #fffdf8);
+  color: var(--bf-olive, #46533a);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cartIcon {
+  width: 19px;
+  height: 19px;
+}
+
+.cartBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--bf-rose-deep, #aa6e77);
+  color: #fffdf8;
+  font: 700 10px/1 var(--font-body, Inter, sans-serif);
 }
 
 .menuButtonOpen {
@@ -156,4 +200,33 @@
     animation: none !important;
     transition: none;
   }
+}
+
+/* Public sandbox theme — replace the dark charcoal/gold glass panel with the
+   cream + olive + rose floral system used everywhere else on light-premium. */
+:global(html[data-theme="light-premium"]) .mobileMenu {
+  --menu-gold: var(--bf-olive, #46533a);
+  --menu-gold-line: var(--bf-line, #e5dfd4);
+  --menu-ink: var(--bf-ink, #30342d);
+
+  border: 1px solid var(--bf-line, #e5dfd4) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.99) 0%, rgba(251, 248, 241, 0.98) 100%) !important;
+  box-shadow:
+    0 16px 40px rgba(52, 59, 45, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+:global(html[data-theme="light-premium"]) .mobileMenuLink:hover {
+  background: var(--bf-olive-soft, #e4e9df);
+  color: var(--menu-gold) !important;
+}
+
+:global(html[data-theme="light-premium"]) .mobileMenuLink:active {
+  background: var(--bf-rose-soft, #f2dfe0);
+  color: var(--bf-rose-deep, #aa6e77) !important;
+}
+
+:global(html[data-theme="light-premium"]) .menuOverlay {
+  background: rgba(48, 52, 45, 0.28) !important;
 }

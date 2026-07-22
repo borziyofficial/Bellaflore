@@ -33,9 +33,9 @@
   min-height: 46px;
   padding: 0 44px 0 42px;
   border: 1px solid var(--bf-line, #e5dfd4);
-  border-radius: 15px;
-  background: var(--bf-paper, #fffdf8);
-  box-shadow: 0 6px 22px rgba(52, 59, 45, 0.05);
+  border-radius: 999px;
+  background: var(--bf-paper-soft, #fbf8f1);
+  box-shadow: none;
   color: var(--bf-ink, #30342d);
   font: 500 15px/1 var(--font-body, Inter, sans-serif);
   appearance: none;
@@ -136,9 +136,9 @@
   width: auto;
   min-height: 36px;
   margin: 0;
-  padding: 0 13px;
+  padding: 0 15px;
   border: 1px solid var(--bf-line, #e5dfd4);
-  border-radius: 12px;
+  border-radius: 999px;
   background: var(--bf-paper, #fffdf8);
   box-shadow: none;
   color: var(--bf-copy, #53564f);
