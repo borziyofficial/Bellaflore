@@ -23,15 +23,14 @@
 }
 
 .sheet {
-  width: min(100%, 480px);
-  height: 38dvh;
-  min-height: 35dvh;
-  max-height: 40dvh;
-  padding: 10px 18px max(14px, env(safe-area-inset-bottom));
+  width: min(calc(100% - 20px), 460px);
+  min-height: 0;
+  max-height: min(360px, calc(100dvh - 120px));
+  margin-bottom: 12px;
+  padding: 9px 16px 16px;
   overflow: hidden;
   border: 1px solid rgba(212, 175, 55, 0.26);
-  border-bottom: 0;
-  border-radius: 26px 26px 0 0;
+  border-radius: 22px;
   background:
     radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08), transparent 38%),
     var(--bg-secondary, #2a2a2a);
@@ -59,15 +58,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 2px;
 }
 
 .title {
+  overflow: hidden;
   margin: 0;
   font-family: var(--font-brand, "Playfair Display", serif);
-  font-size: 1.12rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--gold-light, #f5d98c);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .closeButton {
@@ -85,14 +87,29 @@
   cursor: pointer;
 }
 
+.eyebrow {
+  margin: 0 0 10px;
+  color: rgba(237, 237, 237, 0.52);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .options {
-  display: grid;
+  display: flex;
   width: 100%;
-  gap: 7px;
-  max-height: calc(38dvh - 68px - env(safe-area-inset-bottom));
-  overflow-y: auto;
+  max-width: 100%;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 1px 1px 3px;
+  scroll-snap-type: x proximity;
   overscroll-behavior: contain;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
 }
 
 .options::-webkit-scrollbar {
@@ -100,22 +117,25 @@
 }
 
 .option {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: inline-flex;
+  flex: 1 0 58px;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  width: 100%;
+  width: auto;
   max-width: none;
-  min-height: 48px;
+  min-width: 58px;
+  min-height: 44px;
   margin: 0;
-  padding: 10px 14px;
+  padding: 0 14px;
   border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 15px;
+  border-radius: 13px;
   background: rgba(51, 51, 51, 0.92);
   color: var(--text-light, #ededed);
   font-family: var(--font-body, Inter, sans-serif);
-  text-align: left;
+  text-align: center;
   cursor: pointer;
+  scroll-snap-align: start;
   transition:
     transform 0.18s ease,
     border-color 0.18s ease,
@@ -128,36 +148,60 @@
 
 .optionActive {
   border-color: rgba(212, 175, 55, 0.62);
-  background: rgba(212, 175, 55, 0.12);
-}
-
-.optionRadio {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(212, 175, 55, 0.42);
-  border-radius: 999px;
-  box-sizing: border-box;
-}
-
-.optionActive .optionRadio {
-  border-color: var(--gold-dark, #d4af37);
-  background: radial-gradient(circle at center, var(--gold-dark, #d4af37) 0 5px, transparent 6px);
+  background: linear-gradient(180deg, #f0d27f, #bf933f);
+  box-shadow: 0 8px 18px rgba(212, 175, 55, 0.2);
+  color: #17130c;
 }
 
 .optionLabel {
-  overflow: hidden;
   font-size: 15px;
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-weight: 750;
 }
 
-.optionPrice {
+.selectionSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  color: rgba(237, 237, 237, 0.68);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 12px;
+}
+
+.selectionSummary strong {
   color: var(--gold-light, #f5d98c);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.confirmButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  min-height: 48px;
+  margin: 12px 0 0;
+  padding: 0 18px;
+  border: 1px solid rgba(245, 217, 140, 0.72);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f0d27f, #bf933f);
+  box-shadow: 0 10px 24px rgba(212, 175, 55, 0.22);
+  color: #17130c;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 768px) {
+  .sheet {
+    margin-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

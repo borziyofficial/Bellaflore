@@ -2247,32 +2247,28 @@ export default function Home() {
 
       <SmartPromoBanner />
 
-      {publicAppView === "catalog" ? (
-        <>
-          <CollectionsSection
-            bouquets={bouquets}
-            favoriteBouquetIds={favoriteBouquetIds}
-            formatPrice={formatPrice}
-            handleFavoriteClick={handleFavoriteClick}
-            handleBouquetOrderClick={handleBouquetOrderClick}
-            onProductOpen={openProductExperience}
-            catalogFocusNonce={catalogFocusNonce}
-          />
-          <AboutSection />
-          <ReviewsSection
-            averageReviewRating={averageReviewRating}
-            averageReviewRatingLabel={averageReviewRatingLabel}
-            reviewsCount={reviewsCount}
-            reviewForm={reviewForm}
-            reviewFormMessage={reviewFormMessage}
-            reviews={reviews}
-            renderRatingStars={renderRatingStars}
-            handleReviewSubmit={handleReviewSubmit}
-            handleReviewFieldChange={handleReviewFieldChange}
-          />
-          <ContactSection />
-        </>
-      ) : null}
+      <CollectionsSection
+        bouquets={bouquets}
+        favoriteBouquetIds={favoriteBouquetIds}
+        formatPrice={formatPrice}
+        handleFavoriteClick={handleFavoriteClick}
+        handleBouquetOrderClick={handleBouquetOrderClick}
+        onProductOpen={openProductExperience}
+        catalogFocusNonce={catalogFocusNonce}
+      />
+      <AboutSection />
+      <ReviewsSection
+        averageReviewRating={averageReviewRating}
+        averageReviewRatingLabel={averageReviewRatingLabel}
+        reviewsCount={reviewsCount}
+        reviewForm={reviewForm}
+        reviewFormMessage={reviewFormMessage}
+        reviews={reviews}
+        renderRatingStars={renderRatingStars}
+        handleReviewSubmit={handleReviewSubmit}
+        handleReviewFieldChange={handleReviewFieldChange}
+      />
+      <ContactSection />
 
       {/* ==================================================
           SECTION: Favorites Panel

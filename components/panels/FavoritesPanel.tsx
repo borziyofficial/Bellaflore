@@ -216,6 +216,7 @@ function FavoriteCard({
       <ProductSizePickerSheet
         open={sizeSheetOpen}
         title="Размер"
+        productName={bouquet.title}
         variants={experienceData.sizeVariants}
         selectedSizeId={selectedSizeId}
         formatPrice={formatPrice}

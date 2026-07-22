@@ -17,8 +17,6 @@ import {
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import {
-  useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -57,12 +55,8 @@ export function LuxuryCatalogProductCard({
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
     experienceData.defaultSizeId,
   );
-  const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [trackedProductId, setTrackedProductId] = useState(product.id);
-  const [dropdownPlacement, setDropdownPlacement] = useState<"down" | "up">("down");
-  const popoverRef = useRef<HTMLDivElement>(null);
-  const chevronRef = useRef<HTMLButtonElement>(null);
   const actionGestureRef = useRef({
     startX: 0,
     startY: 0,
@@ -72,53 +66,16 @@ export function LuxuryCatalogProductCard({
   if (product.id !== trackedProductId) {
     setTrackedProductId(product.id);
     setSelectedSizeId(experienceData.defaultSizeId);
-    setSizePopoverOpen(false);
     setDetailsExpanded(false);
   }
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
   const categoryLabel = getProductCategoryHint(product);
   const description = getProductCardDescription(product);
-  const hasMultipleSizes = experienceData.sizeVariants.length > 1;
   const visibleVariants = experienceData.sizeVariants.filter((variant) =>
     ["S", "M", "L", "XL"].includes(variant.sizeId),
   );
   const detailsId = `catalog-card-details-${product.id}`;
-
-  useLayoutEffect(() => {
-    if (!sizePopoverOpen || !chevronRef.current) {
-      return;
-    }
-
-    const buttonRect = chevronRef.current.getBoundingClientRect();
-    const bottomNav = document.querySelector<HTMLElement>(
-      'nav[aria-label="Быстрая мобильная навигация"]',
-    );
-    const navTop =
-      bottomNav?.getBoundingClientRect().top ?? window.innerHeight - 96;
-    const dropdownHeight = visibleVariants.length * 40 + 16;
-    const spaceBelow = navTop - buttonRect.bottom - 8;
-    const spaceAbove = buttonRect.top - 8;
-
-    setDropdownPlacement(
-      spaceBelow >= dropdownHeight || spaceBelow >= spaceAbove ? "down" : "up",
-    );
-  }, [sizePopoverOpen, visibleVariants.length]);
-
-  useEffect(() => {
-    if (!sizePopoverOpen) {
-      return;
-    }
-
-    const handlePointerDown = (event: globalThis.PointerEvent) => {
-      if (!popoverRef.current?.contains(event.target as Node)) {
-        setSizePopoverOpen(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [sizePopoverOpen]);
 
   const handleActionTouchStart = (event: TouchEvent<HTMLButtonElement>) => {
     const touch = event.touches[0];
@@ -186,7 +143,6 @@ export function LuxuryCatalogProductCard({
 
   const handleSizeSelect = (sizeId: ProductSizeId) => {
     setSelectedSizeId(sizeId);
-    setSizePopoverOpen(false);
   };
 
   return (
@@ -305,6 +261,43 @@ export function LuxuryCatalogProductCard({
           <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
         </div>
 
+        {visibleVariants.length > 0 ? (
+          <div className={styles.sizeSelectorBlock}>
+            <span className={styles.sizeSelectorLabel}>Размер</span>
+            <div
+              className={styles.sizeSelectorRow}
+              role="radiogroup"
+              aria-label={`Размер букета ${product.title}`}
+            >
+              {visibleVariants.map((variant) => {
+                const isActive = variant.sizeId === selectedSizeId;
+                return (
+                  <button
+                    key={variant.sizeId}
+                    type="button"
+                    role="radio"
+                    aria-checked={isActive}
+                    aria-label={`Размер ${variant.sizeId}, ${formatPrice(variant.priceRub)}`}
+                    className={`${styles.sizeOption} ${
+                      isActive ? styles.sizeOptionActive : ""
+                    }`}
+                    onClick={(event) => {
+                      if (!shouldSuppressActionClick(event)) {
+                        handleSizeSelect(variant.sizeId);
+                      }
+                    }}
+                    onTouchStart={handleActionTouchStart}
+                    onTouchMove={handleActionTouchMove}
+                    onTouchEnd={handleActionTouchEnd}
+                  >
+                    {variant.sizeId}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
         <div className={styles.actionRow}>
           <button
             type="button"
@@ -317,64 +310,6 @@ export function LuxuryCatalogProductCard({
           >
             Купить
           </button>
-
-          {hasMultipleSizes ? (
-            <div className={styles.sizePopoverWrap} ref={popoverRef}>
-              <button
-                ref={chevronRef}
-                type="button"
-                className={`${styles.chevronButton} ${sizePopoverOpen ? styles.chevronButtonOpen : ""}`}
-                onClick={(event) => {
-                  if (!shouldSuppressActionClick(event)) {
-                    setSizePopoverOpen((open) => !open);
-                  }
-                }}
-                onTouchStart={handleActionTouchStart}
-                onTouchMove={handleActionTouchMove}
-                onTouchEnd={handleActionTouchEnd}
-                aria-haspopup="listbox"
-                aria-expanded={sizePopoverOpen}
-                aria-label="Выбор размера"
-              >
-                <span className={styles.selectedSize}>{selectedVariant.sizeId}</span>
-                <svg aria-hidden="true" viewBox="0 0 12 12" className={styles.chevronIcon}>
-                  <path d="M3 4.5 6 7.5 9 4.5" />
-                </svg>
-              </button>
-
-              {sizePopoverOpen ? (
-                <div
-                  className={`${styles.sizePopover} ${
-                    dropdownPlacement === "up" ? styles.sizePopoverUp : styles.sizePopoverDown
-                  }`}
-                  role="listbox"
-                  aria-label="Размер"
-                >
-                  {visibleVariants.map((variant) => (
-                    <button
-                      key={variant.sizeId}
-                      type="button"
-                      role="option"
-                      aria-selected={variant.sizeId === selectedSizeId}
-                      className={`${styles.sizeOption} ${
-                        variant.sizeId === selectedSizeId ? styles.sizeOptionActive : ""
-                      }`}
-                      onClick={(event) => {
-                        if (!shouldSuppressActionClick(event)) {
-                          handleSizeSelect(variant.sizeId);
-                        }
-                      }}
-                      onTouchStart={handleActionTouchStart}
-                      onTouchMove={handleActionTouchMove}
-                      onTouchEnd={handleActionTouchEnd}
-                    >
-                      {variant.sizeId}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          ) : null}
         </div>
       </div>
     </article>

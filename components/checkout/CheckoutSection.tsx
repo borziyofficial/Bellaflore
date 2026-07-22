@@ -675,6 +675,7 @@ export function CheckoutSection({
         <ProductSizePickerSheet
           open={sizeSheetOpen}
           title="Размер"
+          productName={primaryCartItem.bouquet.title}
           variants={primaryCartItem.sizeVariants}
           selectedSizeId={primaryCartItem.sizeId as ProductSizeId}
           formatPrice={formatPrice}

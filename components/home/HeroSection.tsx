@@ -6,8 +6,6 @@
 
 import { useHeroBannerSettings } from "@/components/home/useHeroBannerSettings";
 import styles from "@/components/home/HeroSection.module.css";
-import Image from "next/image";
-import heroBouquet from "@/public/0003.jpg";
 
 type HeroSectionProps = {
   onOrderBouquet: () => void;
@@ -79,30 +77,6 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
           </ul>
         </div>
 
-        <div className={`bf-reveal bf-reveal-fade ${styles.visual}`}>
-          <div className={styles.imageFrame}>
-            <Image
-              src={heroBouquet}
-              alt="Премиальный букет белых роз BellaFlore"
-              fill
-              preload
-              sizes="(max-width: 860px) 100vw, 48vw"
-              className={styles.image}
-            />
-            <div className={styles.imageVeil} aria-hidden="true" />
-            <div className={styles.floristMark}>
-              <span aria-hidden="true">✦</span>
-              <p>
-                <strong>Собрано флористом</strong>
-                <small>с вниманием к каждой детали</small>
-              </p>
-            </div>
-          </div>
-          <p className={styles.imageCaption}>
-            <span>01</span>
-            Белые кустовые розы · коллекция Signature
-          </p>
-        </div>
       </div>
     </main>
   );
