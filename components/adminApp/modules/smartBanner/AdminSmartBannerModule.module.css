@@ -791,14 +791,15 @@
   color: var(--banner-gold);
 }
 
-.moduleRoot .pickerSearch,
-.moduleRoot .field input,
-.moduleRoot .field textarea,
-.moduleRoot .field select {
+.moduleRoot.moduleRoot .pickerSearch,
+.moduleRoot.moduleRoot .field input,
+.moduleRoot.moduleRoot .field textarea,
+.moduleRoot.moduleRoot .field select {
   border-color: var(--banner-border);
   background: var(--banner-bg);
   color: var(--banner-text);
   caret-color: var(--banner-gold);
+  appearance: none;
 }
 
 .moduleRoot .destinationToggle {
@@ -816,19 +817,26 @@
   color: var(--banner-gold);
 }
 
-.moduleRoot .pickerSearch::placeholder,
-.moduleRoot .field input::placeholder,
-.moduleRoot .field textarea::placeholder {
-  color: #716960;
+.moduleRoot.moduleRoot .pickerSearch::placeholder,
+.moduleRoot.moduleRoot .field input::placeholder,
+.moduleRoot.moduleRoot .field textarea::placeholder {
+  color: #8f867c;
   opacity: 1;
 }
 
-.moduleRoot .pickerSearch:focus,
-.moduleRoot .field input:focus,
-.moduleRoot .field textarea:focus,
-.moduleRoot .field select:focus {
+.moduleRoot.moduleRoot .pickerSearch:focus,
+.moduleRoot.moduleRoot .field input:focus,
+.moduleRoot.moduleRoot .field textarea:focus,
+.moduleRoot.moduleRoot .field select:focus {
   border-color: var(--banner-border-strong);
   outline: 2px solid rgba(229, 194, 116, 0.1);
+}
+
+.moduleRoot.moduleRoot .toggleRow input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--banner-gold-soft);
 }
 
 .moduleRoot .pickerList,
