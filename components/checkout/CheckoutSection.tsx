@@ -35,6 +35,7 @@ import type {
   CheckoutValidatedField,
   DeliveryDatePreset,
 } from "@/components/checkout/checkoutTypes";
+import type { CheckoutPaymentMethodUi } from "@/components/checkout/submitCheckoutOrder";
 import {
   getCheckoutFieldErrors,
   isCheckoutFormReady,
@@ -95,29 +96,30 @@ type CheckoutSectionProps = {
   handleCustomDeliveryDateChange: (value: string) => void;
   checkoutSubmitInProgress: boolean;
   checkoutSubmitError: string | null;
+  paymentMethod: CheckoutPaymentMethodUi;
+  onPaymentMethodChange: (paymentMethod: CheckoutPaymentMethodUi) => void;
   realDeliveryZoneResult: RealDeliveryZoneResult;
   deliveryPriceResult: DeliveryPriceResult;
   deliveryConfidenceResult: DeliveryConfidenceResult;
   deliveryValidationResult: DeliveryValidationResult;
   handleConfirmOrderClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
+    paymentMethod: CheckoutPaymentMethodUi,
   ) => void;
   handleConfirmOrderTouchEnd: (
     event: ReactTouchEvent<HTMLButtonElement>,
+    paymentMethod: CheckoutPaymentMethodUi,
   ) => void;
   onCheckoutSizeSelect: (sizeId: ProductSizeId) => void;
   embedded?: boolean;
 };
 
-type PaymentMethodUi = "online" | "cash" | "card";
-
-const PAYMENT_METHOD_LABELS: Record<PaymentMethodUi, string> = {
+const PAYMENT_METHOD_LABELS: Record<CheckoutPaymentMethodUi, string> = {
   online: "СБП",
   cash: "Наличными при получении",
-  card: "Картой при получении",
 };
 
-const CHECKOUT_V3_PAYMENT_METHODS: PaymentMethodUi[] = ["online", "cash"];
+const CHECKOUT_V3_PAYMENT_METHODS: CheckoutPaymentMethodUi[] = ["online", "cash"];
 
 type CheckoutStepId = "recipient" | "delivery" | "address" | "payment";
 
@@ -202,6 +204,8 @@ export function CheckoutSection({
   handleCustomDeliveryDateChange,
   checkoutSubmitInProgress,
   checkoutSubmitError,
+  paymentMethod,
+  onPaymentMethodChange,
   realDeliveryZoneResult,
   deliveryPriceResult,
   deliveryConfidenceResult,
@@ -222,7 +226,6 @@ export function CheckoutSection({
     () => new Set(),
   );
   const selectedSuggestionAddressRef = useRef<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodUi>("online");
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
   const [openStep, setOpenStep] = useState<CheckoutStepId>("recipient");
 
@@ -368,7 +371,7 @@ export function CheckoutSection({
       return;
     }
 
-    handleConfirmOrderClick(event);
+    handleConfirmOrderClick(event, paymentMethod);
   };
 
   const handleSubmitTouchEnd = (event: ReactTouchEvent<HTMLButtonElement>) => {
@@ -378,7 +381,7 @@ export function CheckoutSection({
       return;
     }
 
-    handleConfirmOrderTouchEnd(event);
+    handleConfirmOrderTouchEnd(event, paymentMethod);
   };
 
   const deliveryPriceLabel = formatDeliveryConfidencePriceLabel(
@@ -571,7 +574,9 @@ export function CheckoutSection({
                     <select
                       value={paymentMethod}
                       onChange={(event) =>
-                        setPaymentMethod(event.target.value as PaymentMethodUi)
+                        onPaymentMethodChange(
+                          event.target.value as CheckoutPaymentMethodUi,
+                        )
                       }
                       aria-label="Способ оплаты"
                     >
