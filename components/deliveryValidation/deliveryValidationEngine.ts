@@ -23,6 +23,7 @@ import {
 import { runDeliveryValidationRules } from "@/components/deliveryValidation/deliveryValidationRules";
 import { geocodeAddress } from "@/components/maps/geocodeAddress";
 import type { RealDeliveryZoneResult } from "@/components/deliveryZones/realDeliveryZoneTypes";
+import { resolveCheckoutPreviewTestGeocoding } from "@/components/checkout/checkoutPreviewTestMode";
 
 
 // ==================================================
@@ -164,7 +165,8 @@ export function resolveDeliveryValidationForCheckout(
 ): DeliveryValidationResult {
   return validateDeliveryAddress({
     address,
-    geocoding: geocodeAddress(address),
+    geocoding:
+      resolveCheckoutPreviewTestGeocoding(address) ?? geocodeAddress(address),
     realZoneResult,
   });
 }

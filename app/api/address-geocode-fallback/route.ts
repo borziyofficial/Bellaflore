@@ -36,6 +36,9 @@ export async function GET(request: Request) {
         "User-Agent": "BellaFloreCheckout/1.0 (delivery address validation)",
       },
       cache: "no-store",
+      // Bounds the upstream call — this is the last-resort fallback in the
+      // geocoding chain, so it must never be the reason checkout hangs.
+      signal: AbortSignal.timeout(6_000),
     });
 
     const payload = (await response.json().catch(() => [])) as Array<{

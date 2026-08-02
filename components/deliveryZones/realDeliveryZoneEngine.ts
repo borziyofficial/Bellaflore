@@ -32,6 +32,7 @@ import type { RoadDistanceZoneResult } from "@/components/deliveryZones/roadDist
 import { calculateYandexRoadDistanceFromBoundary } from "@/components/deliveryZones/yandexRoadDistanceAdapter";
 import { geocodeAddress } from "@/components/maps/geocodeAddress";
 import type { GeoCoordinate } from "@/components/maps/distanceTypes";
+import { resolveCheckoutPreviewTestGeocoding } from "@/components/checkout/checkoutPreviewTestMode";
 
 
 // ==================================================
@@ -486,7 +487,9 @@ export function resolveRealDeliveryZoneForCheckout(
     );
   }
 
-  const geocoding = geocodeAddress(normalizedAddress);
+  const geocoding =
+    resolveCheckoutPreviewTestGeocoding(normalizedAddress) ??
+    geocodeAddress(normalizedAddress);
 
   if (
     geocoding.status === "error" ||

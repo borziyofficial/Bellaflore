@@ -56,6 +56,10 @@ export async function GET(request: Request) {
         Origin: safeOrigin(clientReferer),
       },
       cache: "no-store",
+      // Bounds the upstream Yandex call so this route always resolves —
+      // without it, a slow/stuck upstream response left the address
+      // suggestions stuck loading indefinitely instead of failing over.
+      signal: AbortSignal.timeout(6_000),
     });
 
     const payload = (await response.json().catch(() => ({}))) as {

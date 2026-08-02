@@ -45,7 +45,7 @@
 
 .checkoutGlassStep {
   border: 1px solid rgba(80, 70, 60, 0.24);
-  border-radius: 18px;
+  border-radius: 16px;
   background: linear-gradient(
     155deg,
     rgba(255, 255, 255, 0.99) 0%,
@@ -140,9 +140,9 @@
 .checkoutV3StickyFooter {
   display: grid;
   gap: 14px;
-  padding: 18px;
+  padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px));
   border: 1px solid rgba(80, 70, 60, 0.24);
-  border-radius: 18px;
+  border-radius: 16px;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.99) 0%,
@@ -361,10 +361,11 @@
 
 .checkoutSubmitButton:disabled {
   cursor: not-allowed;
-  background: #ddd8cc;
-  color: #333333;
+  background: var(--color-surface-secondary, #ddd8cc);
+  color: var(--color-text-secondary, #746f68);
   font-weight: 700;
   opacity: 1;
+  box-shadow: none;
 }
 
 .checkoutFlatSelector {
@@ -575,7 +576,7 @@
 .checkoutAnonymousInfo {
   margin: 0;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid rgba(80, 70, 60, 0.24);
   background: rgba(255, 252, 245, 0.98);
   color: #111111;
@@ -629,7 +630,7 @@
   min-height: 50px;
   padding: 12px 14px;
   border: 1px solid rgba(80, 70, 60, 0.28);
-  border-radius: 14px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.98);
   color: #111111;
   font-size: 14px;

@@ -36,6 +36,38 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 const LIVE_GEOCODER_DEBOUNCE_MS = 280;
 const MIN_QUERY_LENGTH = 2;
+// Hard ceiling on how long the suggestion dropdown stays in a "loading"
+// state before falling back to a definitive error. The HTTP proxy and SDK
+// calls underneath have their own timeouts too, but this guarantees
+// "Ищем адрес…" can never spin forever regardless of how many fallback
+// layers are attempted internally.
+const LIVE_GEOCODER_OVERALL_TIMEOUT_MS = 9_000;
+
+function withOverallTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  onTimeout: () => T,
+): Promise<T> {
+  return new Promise<T>((resolve) => {
+    let settled = false;
+    const timerId = window.setTimeout(() => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve(onTimeout());
+    }, timeoutMs);
+
+    promise.then((value) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      window.clearTimeout(timerId);
+      resolve(value);
+    });
+  });
+}
 
 type FetchGeocoderState = {
   queryKey: string;
@@ -130,9 +162,23 @@ export function useLiveGeocoderSuggestions(
       });
     });
 
-    void fetchYandexAddressSuggestions(queryKey, {
-      signal: abortController.signal,
-    }).then((result) => {
+    void withOverallTimeout(
+      fetchYandexAddressSuggestions(queryKey, {
+        signal: abortController.signal,
+      }),
+      LIVE_GEOCODER_OVERALL_TIMEOUT_MS,
+      () => {
+        abortController.abort();
+        return {
+          status: "error" as const,
+          suggestions: [],
+          // null falls through to the existing Russian default message
+          // ("Сервис подсказок временно недоступен") in getLiveGeocoderUxMessage.
+          errorMessage: null,
+          provider: "yandex" as const,
+        };
+      },
+    ).then((result) => {
       if (cancelled || requestSequence !== requestSequenceRef.current) {
         return;
       }

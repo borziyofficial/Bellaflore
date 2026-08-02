@@ -17,6 +17,31 @@ import type { YandexMapsApi } from "@/components/maps/yandexMapsApi.types";
 const YANDEX_MAPS_SCRIPT_ID = "bellaflore-yandex-maps-sdk";
 const YANDEX_MAPS_API_READY_TIMEOUT_MS = 10_000;
 const YANDEX_MAPS_API_READY_POLL_MS = 50;
+// Guards the whole load — including the <script> network request itself,
+// before onload/onerror even fires. Without this, a stuck/blocked script
+// request (no clean network error, e.g. a silently dropped connection)
+// left the address suggestion + geocoding pipeline waiting forever, which
+// is what caused checkout to hang indefinitely on "Проверяем адрес…".
+const YANDEX_MAPS_SDK_LOAD_TIMEOUT_MS = 8_000;
+
+function withLoadTimeout<T>(promise: Promise<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timerId = window.setTimeout(() => {
+      reject(new Error("Yandex Maps SDK load timed out."));
+    }, YANDEX_MAPS_SDK_LOAD_TIMEOUT_MS);
+
+    promise.then(
+      (value) => {
+        window.clearTimeout(timerId);
+        resolve(value);
+      },
+      (error) => {
+        window.clearTimeout(timerId);
+        reject(error);
+      },
+    );
+  });
+}
 
 export type YandexMapsSdkLoadOptions = {
   apiKey: string;
@@ -190,11 +215,11 @@ export function loadYandexMapsSdk(
   }
 
   if (window.ymaps && loadedOptionsKey === optionsKey) {
-    return waitForYandexMapsApi();
+    return withLoadTimeout(waitForYandexMapsApi());
   }
 
   if (loadPromise && loadedOptionsKey === optionsKey) {
-    return loadPromise;
+    return withLoadTimeout(loadPromise);
   }
 
   const pendingPromise = new Promise<YandexMapsApi>((resolve, reject) => {
@@ -232,7 +257,7 @@ export function loadYandexMapsSdk(
   loadPromise = pendingPromise;
   loadedOptionsKey = optionsKey;
 
-  return pendingPromise;
+  return withLoadTimeout(pendingPromise);
 }
 
 export function loadConfiguredYandexMapsSdk(): Promise<YandexMapsApi> {
