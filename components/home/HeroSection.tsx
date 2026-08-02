@@ -4,6 +4,7 @@
 // ==================================================
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useHeroBannerSettings } from "@/components/home/useHeroBannerSettings";
 import styles from "@/components/home/HeroSection.module.css";
@@ -12,10 +13,19 @@ type HeroSectionProps = {
   onOrderBouquet: () => void;
 };
 
+// Guaranteed-present bundled photo — always shown if the admin-configured
+// banner image fails to load (missing file, blocked remote host, network error).
+const FALLBACK_PHOTO_URL = "/roza rouze royal.PNG";
+
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const banner = useHeroBannerSettings();
+  // Tracks which requested URL failed to load, if any. Comparing against the
+  // current request (rather than a plain boolean) means a new banner image
+  // automatically gets a fresh attempt with no effect/reset needed.
+  const [failedPhotoUrl, setFailedPhotoUrl] = useState<string | null>(null);
 
-  const photoUrl = banner?.imageUrl?.trim() || "/roza rouze royal.PNG";
+  const requestedPhotoUrl = banner?.imageUrl?.trim() || FALLBACK_PHOTO_URL;
+  const photoUrl = requestedPhotoUrl === failedPhotoUrl ? FALLBACK_PHOTO_URL : requestedPhotoUrl;
   const title = banner?.title?.trim() || "Цветы, которые остаются в памяти";
   const subtitle =
     banner?.subtitle?.trim() ||
@@ -34,12 +44,10 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const primaryAction = !opensStorefrontCatalog ? (
     <a href={buttonLink} className={styles.primaryAction}>
       {buttonText}
-      <span aria-hidden="true">↗</span>
     </a>
   ) : (
     <button type="button" className={styles.primaryAction} onClick={onOrderBouquet}>
       {buttonText}
-      <span aria-hidden="true">↗</span>
     </button>
   );
 
@@ -81,11 +89,13 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
 
         <div className={styles.photo}>
           <Image
+            key={photoUrl}
             src={photoUrl}
             alt="Премиальный букет BellaFlore"
             fill
             sizes="(max-width: 960px) 90vw, 480px"
             priority
+            onError={() => setFailedPhotoUrl(requestedPhotoUrl)}
           />
         </div>
       </div>
