@@ -2282,6 +2282,20 @@ export default function Home() {
   return (
     <>
       {/* ==================================================
+          SECTION: Smart Promo Banner
+          РАЗДЕЛ: Умный промо-баннер
+
+          Purpose (EN): Renders above the fixed Header/Navbar, at the very top
+          of the page. Renders nothing when there are no enabled slides, so it
+          never reserves empty space or pushes the Header down unexpectedly.
+
+          Назначение (RU): Отображается выше фиксированного Header/Navbar, в
+          самом верху страницы. Ничего не рендерит без активных слайдов —
+          не занимает место и не сдвигает Header.
+          ================================================== */}
+      <SmartPromoBanner />
+
+      {/* ==================================================
           SECTION: Navbar
           РАЗДЕЛ: Навбар
 
@@ -2305,8 +2319,6 @@ export default function Home() {
           Назначение (RU): Hero на весь экран с брендовым изображением и основным призывом к действию.
           ================================================== */}
       <HeroSection onOrderBouquet={handleHeroOrderBouquet} />
-
-      <SmartPromoBanner />
 
       <CollectionsSection
         bouquets={bouquets}

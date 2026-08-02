@@ -2,7 +2,10 @@
   position: relative;
   width: min(100%, 1280px);
   margin: 0 auto;
-  padding: 24px 16px 6px;
+  /* Section now renders above the fixed Navbar pill (top: 18px, ~44-68px
+     tall) — top padding keeps the floating pill clear of the banner card
+     instead of overlapping it, plus safe-area for the iPhone notch. */
+  padding: calc(clamp(96px, 13vw, 132px) + env(safe-area-inset-top)) 16px 6px;
 }
 
 .viewport {
@@ -263,7 +266,7 @@
 
 @media (max-width: 639px) {
   .section {
-    padding-top: 18px;
+    padding-top: calc(88px + env(safe-area-inset-top));
   }
 
   .content {
