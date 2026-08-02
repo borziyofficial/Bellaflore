@@ -13,9 +13,9 @@
   grid-template-columns: minmax(86px, 0.24fr) minmax(0, 1fr);
   gap: 14px;
   padding: 12px 14px;
-  border: 1px solid rgba(212, 175, 55, 0.14);
+  border: 1px solid rgba(201, 162, 75, 0.14);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--color-surface-secondary, #f1ede6);
 }
 
 .row dt {
@@ -35,14 +35,14 @@
 .row dd {
   display: grid;
   gap: 6px;
-  color: rgba(237, 237, 237, 0.76);
+  color: rgba(30, 27, 24, 0.76);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   line-height: 1.45;
 }
 
 .guarantee {
-  color: rgba(237, 237, 237, 0.56);
+  color: rgba(30, 27, 24, 0.56);
   font-size: 12px;
 }
 

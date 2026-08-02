@@ -214,6 +214,7 @@ export function ProductExperiencePage({
       <ProductSizePickerSheet
         open={sizeSheetOpen}
         title="Размер"
+        productName={product.title}
         variants={experienceData.sizeVariants}
         selectedSizeId={selectedSizeId}
         formatPrice={formatPrice}

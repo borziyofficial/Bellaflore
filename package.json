@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test:smoke": "playwright test",
+    "test:orders": "playwright test --config=playwright.orders.config.ts",
     "db:migrate": "node scripts/migrate-catalog-db.mjs",
     "maps:env": "node scripts/setup-yandex-vercel-env.mjs",
     "catalog:repair-seo": "node scripts/repair-catalog-seo.mjs",
@@ -20,6 +23,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

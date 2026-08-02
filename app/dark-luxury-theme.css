@@ -1,15 +1,37 @@
 /* ==================================================
-   Dark Luxury Theme — Preview Branch
+   Premium Light Theme — Storefront (cream + gold)
    Catalog + Checkout storefront
+
+   NOTE: the data-theme attribute value ("dark-luxury") and CSS custom
+   property names below are kept unchanged on purpose — dozens of component
+   CSS modules across the app already reference these exact tokens, and
+   renaming them would mean touching every one of those files individually.
+   Repointing the *values* here is the single, systematic way to apply the
+   new premium cream/gold visual direction across the whole storefront
+   without creating a second, parallel token system. Admin uses a separate
+   data-theme="day" and is untouched by this file (see admin-theme-guard.css).
    ================================================== */
 
 html[data-theme="dark-luxury"] {
-  /* Core palette */
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2a2a2a;
-  --gold-light: #f5d98c;
-  --gold-dark: #d4af37;
-  --text-light: #ededed;
+  /* ---- Canonical premium design tokens (spec) ---- */
+  --color-background: #f7f5f1;
+  --color-surface: #fffdf9;
+  --color-surface-secondary: #f1ede6;
+  --color-gold: #c9a24b;
+  --color-gold-hover: #b58d37;
+  --color-gold-light: #e8d9b5;
+  --color-text-primary: #1e1b18;
+  --color-text-secondary: #746f68;
+  --color-border: rgba(54, 45, 35, 0.12);
+  --color-error: #a54848;
+  --color-success: #5f7a61;
+
+  /* Core palette — legacy names, new light/gold values */
+  --bg-primary: var(--color-background);
+  --bg-secondary: var(--color-surface);
+  --gold-light: var(--color-gold);
+  --gold-dark: var(--color-gold-hover);
+  --text-light: var(--color-text-primary);
 
   /* Typography */
   --font-brand: var(--font-playfair, "Playfair Display", Georgia, serif);
@@ -20,76 +42,76 @@ html[data-theme="dark-luxury"] {
   /* Unified gold CTA */
   --bf-gold-gradient: linear-gradient(
     180deg,
-    var(--gold-light) 0%,
-    var(--gold-dark) 100%
+    var(--color-gold) 0%,
+    var(--color-gold-hover) 100%
   );
-  --bf-button-radius: 999px;
-  --bf-button-height: 44px;
+  --bf-button-radius: 14px;
+  --bf-button-height: 52px;
   --bf-card-radius: 16px;
   --bf-card-padding: 20px;
 
   /* Remap Pearl / UI system tokens */
   --background: var(--bg-primary);
   --surface: var(--bg-secondary);
-  --surface-glass: var(--bg-secondary);
-  --border: rgba(212, 175, 55, 0.22);
+  --surface-glass: rgba(255, 253, 249, 0.88);
+  --border: var(--color-border);
 
-  --text-strong: var(--text-light);
-  --text-main: var(--text-light);
-  --text-secondary: rgba(237, 237, 237, 0.72);
-  --text-label: rgba(237, 237, 237, 0.62);
-  --text-muted: rgba(237, 237, 237, 0.55);
-  --text-accent: var(--gold-light);
+  --text-strong: var(--color-text-primary);
+  --text-main: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-label: var(--color-text-secondary);
+  --text-muted: var(--color-text-secondary);
+  --text-accent: var(--color-gold);
 
   --bf-bg: var(--bg-primary);
   --bf-surface: var(--bg-secondary);
-  --bf-surface-soft: var(--bg-secondary);
-  --bf-text: var(--text-light);
-  --bf-text-secondary: rgba(237, 237, 237, 0.72);
-  --bf-muted: rgba(237, 237, 237, 0.62);
-  --bf-heading: var(--text-light);
-  --bf-border: rgba(212, 175, 55, 0.2);
+  --bf-surface-soft: var(--color-surface-secondary);
+  --bf-text: var(--color-text-primary);
+  --bf-text-secondary: var(--color-text-secondary);
+  --bf-muted: var(--color-text-secondary);
+  --bf-heading: var(--color-text-primary);
+  --bf-border: var(--color-border);
   --bf-card: var(--bg-secondary);
-  --bf-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-  --bf-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --bf-shadow: 0 16px 40px rgba(54, 45, 35, 0.1);
+  --bf-shadow-soft: 0 8px 24px rgba(54, 45, 35, 0.07);
 
   --bf-ui-bg: var(--bg-primary);
   --bf-ui-surface: var(--bg-secondary);
-  --bf-ui-surface-soft: var(--bg-secondary);
-  --bf-ui-text: var(--text-light);
-  --bf-ui-text-muted: rgba(237, 237, 237, 0.62);
-  --bf-ui-border: rgba(212, 175, 55, 0.22);
-  --bf-ui-gold-1: var(--gold-dark);
-  --bf-ui-gold-2: var(--gold-light);
-  --bf-ui-gold-3: var(--gold-dark);
-  --bf-ui-input-bg: #333333;
+  --bf-ui-surface-soft: var(--color-surface-secondary);
+  --bf-ui-text: var(--color-text-primary);
+  --bf-ui-text-muted: var(--color-text-secondary);
+  --bf-ui-border: var(--color-border);
+  --bf-ui-gold-1: var(--color-gold-hover);
+  --bf-ui-gold-2: var(--color-gold);
+  --bf-ui-gold-3: var(--color-gold-hover);
+  --bf-ui-input-bg: var(--color-surface);
   --bf-ui-checkout-card: var(--bg-secondary);
   --bf-ui-card-bg: var(--bg-secondary);
 
   --champagne-background: var(--bg-primary);
   --champagne-section: var(--bg-primary);
   --champagne-card: var(--bg-secondary);
-  --champagne-text: var(--text-light);
-  --champagne-muted: rgba(237, 237, 237, 0.62);
-  --champagne-border: rgba(212, 175, 55, 0.22);
-  --champagne-gold: var(--gold-light);
-  --champagne-gold-hover: var(--gold-dark);
+  --champagne-text: var(--color-text-primary);
+  --champagne-muted: var(--color-text-secondary);
+  --champagne-border: var(--color-border);
+  --champagne-gold: var(--color-gold);
+  --champagne-gold-hover: var(--color-gold-hover);
 
-  --glass-surface: var(--bg-secondary);
-  --glass-border: rgba(212, 175, 55, 0.22);
+  --glass-surface: rgba(255, 253, 249, 0.88);
+  --glass-border: var(--color-border);
   --glass-surface-strong: var(--bg-secondary);
 
-  --bf-brand-gold-1: var(--gold-light);
-  --bf-brand-gold-2: var(--gold-light);
-  --bf-brand-gold-3: var(--gold-dark);
-  --bf-brand-gold-4: var(--gold-dark);
-  --bf-brand-gold-5: var(--gold-dark);
+  --bf-brand-gold-1: var(--color-gold);
+  --bf-brand-gold-2: var(--color-gold);
+  --bf-brand-gold-3: var(--color-gold-hover);
+  --bf-brand-gold-4: var(--color-gold-hover);
+  --bf-brand-gold-5: var(--color-gold-hover);
 
-  --button-bg: var(--bf-gold-gradient);
-  --button-bg-hover: linear-gradient(180deg, #ffe9a8 0%, var(--gold-dark) 100%);
-  --button-text: #1a1a1a;
+  --button-bg: var(--color-gold);
+  --button-bg-hover: var(--color-gold-hover);
+  --button-text: #ffffff;
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html[data-theme="dark-luxury"],

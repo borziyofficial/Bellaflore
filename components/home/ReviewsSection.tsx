@@ -14,6 +14,7 @@ import {
   type ChangeEvent as ReactChangeEvent,
   type FormEvent as ReactFormEvent,
 } from "react";
+import styles from "@/components/home/ReviewsSection.module.css";
 
 type ReviewForm = {
   name: string;
@@ -53,42 +54,52 @@ export function ReviewsSection({
   handleReviewFieldChange,
 }: ReviewsSectionProps) {
   return (
-    <section id="reviews" className="reviews-section" aria-labelledby="reviews-title">
+    <section
+      id="reviews"
+      className={styles.section}
+      aria-labelledby="reviews-title"
+    >
       {/* ==================================================
 SECTION: REVIEWS
 РАЗДЕЛ: Заголовок секции и примечание о демо-отзывах
 Purpose (EN): Section header and demo disclaimer
 Назначение (RU): Заголовок секции и примечание о демо-отзывах
 ================================================== */}
-      <div className="section-header bf-reveal bf-reveal-up">
-        <span>Отзывы</span>
-        <h2 id="reviews-title">Отзывы клиентов</h2>
-        <p className="reviews-demo-note">
+      <div className={`bf-reveal bf-reveal-up ${styles.header}`}>
+        <span className={styles.kicker}>Отзывы</span>
+        <h2 id="reviews-title">Слова, которые остаются с нами</h2>
+        <p className={styles.demoNote}>
           Локальные демо-отзывы для предпросмотра. Не являются проверенными
           отзывами реальных клиентов.
         </p>
       </div>
 
-      <div className="reviews-shell">
+      <div className={styles.shell}>
         {/* ==================================================
 SECTION: REVIEWS
 РАЗДЕЛ: Карточки средней оценки и количества отзывов
 Purpose (EN): Average rating and total count cards
 Назначение (RU): Карточки средней оценки и количества отзывов
 ================================================== */}
-        <div className="reviews-summary-card bf-reveal bf-reveal-fade">
-          <div className="reviews-score">
+        <div className={`bf-reveal bf-reveal-fade ${styles.summary}`}>
+          <div className={styles.score}>
             <span>Средняя оценка</span>
             <strong>{averageReviewRatingLabel}</strong>
-            <p aria-label={`Средняя оценка ${averageReviewRatingLabel} из 5`}>
+            <p
+              className={styles.summaryStars}
+              aria-label={`Средняя оценка ${averageReviewRatingLabel} из 5`}
+            >
               {renderRatingStars(Math.round(averageReviewRating))}
             </p>
           </div>
-          <div className="reviews-count-card">
+          <div className={styles.count}>
             <span>Всего отзывов</span>
             <strong>{reviewsCount}</strong>
-            <p>Локальные демо-отзывы до подключения модерации.</p>
+            <p>в текущей коллекции впечатлений</p>
           </div>
+          <p className={styles.summaryQuote}>
+            «Дарить цветы — значит создавать воспоминания»
+          </p>
         </div>
 
         {/* ==================================================
@@ -97,8 +108,11 @@ SECTION: REVIEW FORM
 Purpose (EN): Submit a new customer review
 Назначение (RU): Форма отправки нового отзыва
 ================================================== */}
-        <form className="review-form-card" onSubmit={handleReviewSubmit}>
-          <div className="review-form-header">
+        <form
+          className={styles.form}
+          onSubmit={handleReviewSubmit}
+        >
+          <div className={styles.formHeader}>
             <span>Bellaflore Concierge</span>
             <h3>Оставить отзыв</h3>
           </div>
@@ -159,7 +173,10 @@ Purpose (EN): Interactive 1–5 star rating picker
               {reviewFormMessage}
             </p>
           )}
-          <button type="submit" className="buy-button review-submit-button">
+          <button
+            type="submit"
+            className={styles.submit}
+          >
             Оставить отзыв
           </button>
         </form>
@@ -173,22 +190,30 @@ Purpose (EN): Empty state or review card grid
         {reviews.length === 0 ? (
           <p className="reviews-empty">Пока нет отзывов</p>
         ) : (
-          <div className="reviews-grid bf-reveal-stagger">
+          <div className={`bf-reveal-stagger ${styles.grid}`}>
             {reviews.map((review) => (
-              <article className="review-card bf-reveal-up" key={review.id}>
-                <div className="review-card-header">
+              <article
+                className={`bf-reveal-up ${styles.card}`}
+                key={review.id}
+              >
+                <div className={styles.cardHeader}>
                   <div>
                     <span>{review.createdAtDisplay}</span>
                     {review.id.startsWith("demo-") && (
-                      <span className="review-demo-badge">Локальный пример</span>
+                      <span className={styles.demoBadge}>
+                        Локальный пример
+                      </span>
                     )}
                     <h3>{review.name}</h3>
                   </div>
-                  <strong aria-label={`Оценка ${review.rating} из 5`}>
+                  <strong
+                    className={styles.cardStars}
+                    aria-label={`Оценка ${review.rating} из 5`}
+                  >
                     {renderRatingStars(review.rating)}
                   </strong>
                 </div>
-                <p>{review.text}</p>
+                <p className={styles.reviewText}>{review.text}</p>
               </article>
             ))}
           </div>

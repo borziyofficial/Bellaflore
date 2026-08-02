@@ -3,11 +3,12 @@
 import styles from "@/components/product/ProductSizePickerSheet.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { ProductSizeVariant } from "@/components/product/productExperienceTypes";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, type TouchEvent } from "react";
 
 type ProductSizePickerSheetProps = {
   open: boolean;
   title?: string;
+  productName?: string;
   variants: ProductSizeVariant[];
   selectedSizeId: ProductSizeId;
   formatPrice: (priceRub: number) => string;
@@ -19,6 +20,7 @@ type ProductSizePickerSheetProps = {
 export function ProductSizePickerSheet({
   open,
   title = "Выберите размер",
+  productName,
   variants,
   selectedSizeId,
   formatPrice,
@@ -26,6 +28,8 @@ export function ProductSizePickerSheet({
   onSelect,
   onClose,
 }: ProductSizePickerSheetProps) {
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef({ startX: 0, startY: 0, deltaY: 0, dragging: false });
   const visibleVariants = useMemo(
     () =>
       variants.filter((variant) =>
@@ -33,6 +37,9 @@ export function ProductSizePickerSheet({
       ),
     [variants, visibleSizeIds],
   );
+  const selectedVariant =
+    visibleVariants.find((variant) => variant.sizeId === selectedSizeId) ??
+    visibleVariants[0];
 
   useEffect(() => {
     if (!open) {
@@ -56,6 +63,51 @@ export function ProductSizePickerSheet({
     };
   }, [open, onClose]);
 
+  const resetSheetDrag = () => {
+    const sheet = sheetRef.current;
+    if (sheet) {
+      sheet.style.removeProperty("transition");
+      sheet.style.removeProperty("transform");
+    }
+    dragRef.current = { startX: 0, startY: 0, deltaY: 0, dragging: false };
+  };
+
+  const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    dragRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      deltaY: 0,
+      dragging: false,
+    };
+  };
+
+  const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0];
+    const sheet = sheetRef.current;
+    if (!touch || !sheet) return;
+
+    const deltaX = touch.clientX - dragRef.current.startX;
+    const deltaY = Math.max(0, touch.clientY - dragRef.current.startY);
+    if (!dragRef.current.dragging && (deltaY < 8 || deltaY <= Math.abs(deltaX))) {
+      return;
+    }
+
+    dragRef.current.dragging = true;
+    dragRef.current.deltaY = deltaY;
+    sheet.style.transition = "none";
+    sheet.style.transform = `translate3d(0, ${deltaY}px, 0)`;
+  };
+
+  const handleTouchEnd = () => {
+    const shouldClose = dragRef.current.dragging && dragRef.current.deltaY >= 72;
+    resetSheetDrag();
+    if (shouldClose) {
+      onClose();
+    }
+  };
+
   return (
     <div
       className={`${styles.overlay} ${open ? styles.overlayOpen : ""}`}
@@ -68,15 +120,20 @@ export function ProductSizePickerSheet({
       }}
     >
       <div
+        ref={sheetRef}
         className={styles.sheet}
         role="dialog"
         aria-modal="true"
         aria-labelledby="product-size-picker-title"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={resetSheetDrag}
       >
         <span className={styles.grabber} aria-hidden="true" />
         <div className={styles.header}>
           <h3 id="product-size-picker-title" className={styles.title}>
-            {title}
+            {productName || title}
           </h3>
           <button
             type="button"
@@ -87,6 +144,8 @@ export function ProductSizePickerSheet({
             ×
           </button>
         </div>
+
+        {productName ? <p className={styles.eyebrow}>{title}</p> : null}
 
         <div className={styles.options} role="radiogroup" aria-label={title}>
           {visibleVariants.map((variant) => {
@@ -103,18 +162,24 @@ export function ProductSizePickerSheet({
                 className={`${styles.option} ${isActive ? styles.optionActive : ""}`}
                 onClick={() => {
                   onSelect(variant.sizeId);
-                  onClose();
                 }}
               >
-                <span className={styles.optionRadio} aria-hidden="true" />
                 <span className={styles.optionLabel}>{label}</span>
-                <span className={styles.optionPrice}>
-                  {formatPrice(variant.priceRub)}
-                </span>
               </button>
             );
           })}
         </div>
+
+        {selectedVariant ? (
+          <div className={styles.selectionSummary} aria-live="polite">
+            <span>Размер {selectedVariant.sizeId}</span>
+            <strong>{formatPrice(selectedVariant.priceRub)}</strong>
+          </div>
+        ) : null}
+
+        <button type="button" className={styles.confirmButton} onClick={onClose}>
+          Выбрать{selectedVariant ? ` · ${formatPrice(selectedVariant.priceRub)}` : ""}
+        </button>
       </div>
     </div>
   );

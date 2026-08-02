@@ -51,10 +51,21 @@ import {
   type DeliveryDatePreset,
 } from "@/components/checkout/checkoutTypes";
 import { submitCheckoutOrderToTelegram } from "@/components/telegram/submitCheckoutOrderToTelegram";
+import {
+  buildCheckoutOrderApiRequest,
+  buildServerConfirmedCheckoutPayload,
+  clearCheckoutOrderAttempt,
+  CheckoutOrderSubmitError,
+  readCheckoutOrderAttempt,
+  resolveCheckoutOrderAttempt,
+  submitCheckoutOrder,
+  writeCheckoutOrderAttempt,
+  type CheckoutOrderAttempt,
+  type CheckoutPaymentMethodUi,
+} from "@/components/checkout/submitCheckoutOrder";
 import { AboutSection } from "@/components/home/AboutSection";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
-import { DeliverySection } from "@/components/home/DeliverySection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
 import { Navbar } from "@/components/home/Navbar";
@@ -524,6 +535,9 @@ export default function Home() {
   const lastTouchActionRef = useRef(0);
   const favoritesTouchedRef = useRef(false);
   const checkoutSubmitInProgressRef = useRef(false);
+  const checkoutOrderAttemptRef = useRef<CheckoutOrderAttempt | null>(null);
+  const [checkoutPaymentMethod, setCheckoutPaymentMethod] =
+    useState<CheckoutPaymentMethodUi>("online");
   const [checkoutSubmitInProgress, setCheckoutSubmitInProgress] = useState(false);
   const [checkoutSubmitError, setCheckoutSubmitError] = useState<string | null>(
     null,
@@ -2039,7 +2053,9 @@ export default function Home() {
     }));
   };
 
-  const confirmCheckoutOrder = async () => {
+  const confirmCheckoutOrder = async (
+    selectedPaymentMethod: CheckoutPaymentMethodUi,
+  ) => {
     if (checkoutSubmitInProgressRef.current) {
       return;
     }
@@ -2081,53 +2097,71 @@ export default function Home() {
     setCheckoutSubmitError(null);
 
     try {
-      const storedOrders = readCheckoutOrders();
-      const orderId = `BF-${1001 + storedOrders.length}`;
-      const telegramResult = await submitCheckoutOrderToTelegram({
-        orderId,
+      const orderRequest = buildCheckoutOrderApiRequest(
         payload,
-        totalPriceRub: checkoutGrandTotalPrice,
-        cardMessage: checkoutForm.cardMessage,
-      });
+        selectedPaymentMethod,
+      );
+      const attempt = resolveCheckoutOrderAttempt(
+        orderRequest,
+        checkoutOrderAttemptRef.current ?? readCheckoutOrderAttempt(),
+      );
+      checkoutOrderAttemptRef.current = attempt;
+      writeCheckoutOrderAttempt(attempt);
 
-      if (!telegramResult.ok) {
-        setCheckoutSubmitError(telegramResult.message);
-        return;
-      }
+      const { order: serverOrder } = await submitCheckoutOrder(
+        orderRequest,
+        attempt.idempotencyKey,
+      );
+      const confirmedPayload = buildServerConfirmedCheckoutPayload(
+        payload,
+        serverOrder,
+      );
+      const storedOrders = readCheckoutOrders();
+      const paymentMethod = orderRequest.paymentMethod;
+      const paymentMethodLabel = paymentMethodLabels[paymentMethod];
 
-      setCheckoutOrderPayload(payload);
+      setCheckoutOrderPayload(confirmedPayload);
 
       const order = buildCheckoutStoredOrder({
-        orderId,
-        payload,
-        totalPriceRub: checkoutGrandTotalPrice,
+        orderId: serverOrder.orderNumber,
+        payload: confirmedPayload,
+        totalPriceRub: serverOrder.total,
         cardMessage: checkoutForm.cardMessage,
-        paymentMethodLabel: paymentMethodLabels.cardTransfer,
+        paymentMethodLabel,
       });
-      const nextOrders = [...storedOrders, order];
+      const nextOrders = [
+        ...storedOrders.filter(
+          (storedOrder) => storedOrder.orderId !== serverOrder.orderNumber,
+        ),
+        order,
+      ];
 
       setConfirmedOrders(nextOrders);
       writeCheckoutOrders(nextOrders);
-      const logisticsOrder = createAndSaveLogisticsOrderFromCheckout({
-        orderId,
-        payload,
-        totalPriceRub: checkoutGrandTotalPrice,
-        deliveryConfidenceResult,
-      });
-      bootstrapCrmFromLogisticsAndLifecycle(
-        logisticsOrder,
-        createOrderLifecycle(logisticsOrder),
-      );
-      persistOrderIntelligenceFromCheckout({
-        orderId,
-        payload,
-        totalPriceRub: checkoutGrandTotalPrice,
-        cardMessage: checkoutForm.cardMessage,
-        paymentMethodLabel: paymentMethodLabels.cardTransfer,
-      });
-      createAndSaveOrderLifecycleFromLogisticsOrder(logisticsOrder);
-      writeLatestCheckoutOrderId(orderId);
-      setLatestOrderId(orderId);
+      try {
+        const logisticsOrder = createAndSaveLogisticsOrderFromCheckout({
+          orderId: serverOrder.orderNumber,
+          payload: confirmedPayload,
+          totalPriceRub: serverOrder.total,
+          deliveryConfidenceResult,
+        });
+        bootstrapCrmFromLogisticsAndLifecycle(
+          logisticsOrder,
+          createOrderLifecycle(logisticsOrder),
+        );
+        persistOrderIntelligenceFromCheckout({
+          orderId: serverOrder.orderNumber,
+          payload: confirmedPayload,
+          totalPriceRub: serverOrder.total,
+          cardMessage: checkoutForm.cardMessage,
+          paymentMethodLabel,
+        });
+        createAndSaveOrderLifecycleFromLogisticsOrder(logisticsOrder);
+      } catch {
+        // The server order remains valid if a development-only local mirror fails.
+      }
+      writeLatestCheckoutOrderId(serverOrder.orderNumber);
+      setLatestOrderId(serverOrder.orderNumber);
       setCartItems([]);
       setCheckoutForm({
         name: "",
@@ -2138,8 +2172,30 @@ export default function Home() {
         cardMessage: "",
         comment: "",
       });
+      setCheckoutPaymentMethod("online");
       setDeliveryDateMode("today");
-      openMyOrderAfterCheckout(orderId);
+      checkoutOrderAttemptRef.current = null;
+      clearCheckoutOrderAttempt();
+      openMyOrderAfterCheckout(serverOrder.orderNumber);
+
+      const telegramResult = await submitCheckoutOrderToTelegram({
+        orderId: serverOrder.orderNumber,
+        payload: confirmedPayload,
+        totalPriceRub: serverOrder.total,
+        cardMessage: checkoutForm.cardMessage,
+      });
+
+      setBottomNavAction(
+        telegramResult.ok
+          ? `Заказ ${serverOrder.orderNumber} оформлен`
+          : `Заказ ${serverOrder.orderNumber} сохранён. Уведомление Telegram не отправлено.`,
+      );
+    } catch (error) {
+      setCheckoutSubmitError(
+        error instanceof CheckoutOrderSubmitError
+          ? error.message
+          : "Не удалось оформить заказ. Попробуйте ещё раз.",
+      );
     } finally {
       checkoutSubmitInProgressRef.current = false;
       setCheckoutSubmitInProgress(false);
@@ -2148,6 +2204,7 @@ export default function Home() {
 
   const handleConfirmOrderClick = (
     event: ReactMouseEvent<HTMLButtonElement>,
+    selectedPaymentMethod: CheckoutPaymentMethodUi,
   ) => {
     event.preventDefault();
 
@@ -2155,16 +2212,17 @@ export default function Home() {
       return;
     }
 
-    void confirmCheckoutOrder();
+    void confirmCheckoutOrder(selectedPaymentMethod);
   };
 
   const handleConfirmOrderTouchEnd = (
     event: ReactTouchEvent<HTMLButtonElement>,
+    selectedPaymentMethod: CheckoutPaymentMethodUi,
   ) => {
     event.preventDefault();
     lastTouchActionRef.current = event.timeStamp;
 
-    void confirmCheckoutOrder();
+    void confirmCheckoutOrder(selectedPaymentMethod);
   };
 
   const renderCheckoutSection = () => (
@@ -2188,6 +2246,8 @@ export default function Home() {
       onCheckoutSizeSelect={updateCheckoutPrimarySize}
       checkoutSubmitInProgress={checkoutSubmitInProgress}
       checkoutSubmitError={checkoutSubmitError}
+      paymentMethod={checkoutPaymentMethod}
+      onPaymentMethodChange={setCheckoutPaymentMethod}
       realDeliveryZoneResult={realDeliveryZoneResult}
       deliveryPriceResult={deliveryPriceResult}
       deliveryConfidenceResult={deliveryConfidenceResult}
@@ -2248,33 +2308,28 @@ export default function Home() {
 
       <SmartPromoBanner />
 
-      {publicAppView === "catalog" ? (
-        <>
-          <CollectionsSection
-            bouquets={bouquets}
-            favoriteBouquetIds={favoriteBouquetIds}
-            formatPrice={formatPrice}
-            handleFavoriteClick={handleFavoriteClick}
-            handleBouquetOrderClick={handleBouquetOrderClick}
-            onProductOpen={openProductExperience}
-            catalogFocusNonce={catalogFocusNonce}
-          />
-          <DeliverySection />
-          <AboutSection />
-          <ReviewsSection
-            averageReviewRating={averageReviewRating}
-            averageReviewRatingLabel={averageReviewRatingLabel}
-            reviewsCount={reviewsCount}
-            reviewForm={reviewForm}
-            reviewFormMessage={reviewFormMessage}
-            reviews={reviews}
-            renderRatingStars={renderRatingStars}
-            handleReviewSubmit={handleReviewSubmit}
-            handleReviewFieldChange={handleReviewFieldChange}
-          />
-          <ContactSection />
-        </>
-      ) : null}
+      <CollectionsSection
+        bouquets={bouquets}
+        favoriteBouquetIds={favoriteBouquetIds}
+        formatPrice={formatPrice}
+        handleFavoriteClick={handleFavoriteClick}
+        handleBouquetOrderClick={handleBouquetOrderClick}
+        onProductOpen={openProductExperience}
+        catalogFocusNonce={catalogFocusNonce}
+      />
+      <AboutSection />
+      <ReviewsSection
+        averageReviewRating={averageReviewRating}
+        averageReviewRatingLabel={averageReviewRatingLabel}
+        reviewsCount={reviewsCount}
+        reviewForm={reviewForm}
+        reviewFormMessage={reviewFormMessage}
+        reviews={reviews}
+        renderRatingStars={renderRatingStars}
+        handleReviewSubmit={handleReviewSubmit}
+        handleReviewFieldChange={handleReviewFieldChange}
+      />
+      <ContactSection />
 
       {/* ==================================================
           SECTION: Favorites Panel

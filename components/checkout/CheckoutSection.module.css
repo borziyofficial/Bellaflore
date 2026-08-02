@@ -20,6 +20,22 @@
 .checkoutV3Scroll {
   display: grid;
   gap: 16px;
+  min-height: auto;
+  overflow: visible;
+}
+
+:global(.checkout-v3-sheet .checkout-section-embedded) {
+  min-height: 0;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+:global(.checkout-v3-sheet .checkout-section-embedded) :global(.checkout-shell),
+:global(.checkout-v3-sheet .checkout-section-embedded) :global(.checkout-form-card) {
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0 !important;
 }
 
 .checkoutGlassFlow {
@@ -47,7 +63,7 @@
   border-color: rgba(80, 70, 60, 0.34);
   box-shadow:
     0 10px 28px rgba(17, 17, 17, 0.09),
-    0 0 0 1px rgba(212, 175, 122, 0.22),
+    0 0 0 1px rgba(201, 162, 75, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.98);
 }
 
@@ -64,11 +80,12 @@
   color: #111111;
   text-align: left;
   cursor: pointer;
+  scroll-margin-block: 12px;
   -webkit-tap-highlight-color: transparent;
 }
 
 .checkoutGlassStepTrigger:focus-visible {
-  outline: 2px solid #d4af7a;
+  outline: 2px solid #c9a24b;
   outline-offset: 2px;
 }
 
@@ -134,10 +151,8 @@
   box-shadow:
     0 -4px 20px rgba(17, 17, 17, 0.07),
     inset 0 1px 0 rgba(255, 255, 255, 0.98);
-  margin-top: auto;
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
+  margin-top: 0;
+  position: static;
 }
 
 @media (max-width: 768px) {
@@ -185,10 +200,10 @@
   }
 
   :global(.checkout-v3-sheet .checkout-v3-body) {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    padding-bottom: 0;
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
 
   :global(.checkout-v3-sheet .checkout-v3-body) .checkout-section-v3 .section-header {
@@ -196,38 +211,29 @@
   }
 
   :global(.checkout-v3-sheet .checkout-v3-body) .checkoutV3Layout {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 100%;
-    gap: 0;
+    display: grid;
+    min-height: auto;
+    height: auto;
+    gap: 12px;
   }
 
   :global(.checkout-v3-sheet .checkout-v3-body) .checkoutV3Scroll {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    padding-bottom: 12px;
+    min-height: auto;
+    overflow: visible;
+    padding-bottom: 0;
   }
 
   :global(.checkout-v3-sheet .checkout-v3-body) .checkoutV3StickyFooter {
-    flex: 0 0 auto;
-    margin-top: 10px;
+    margin-top: 0;
     border-radius: 18px 18px 14px 14px;
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
     margin-bottom: 0;
   }
 
   :global(.checkout-v3-sheet .checkout-v3-body) .checkout-section-v3 {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 100%;
+    display: block;
+    min-height: auto;
+    height: auto;
     padding-bottom: 0;
     color: #111111 !important;
   }
@@ -235,11 +241,9 @@
   :global(.checkout-v3-sheet .checkout-v3-body) .checkout-section-v3 .checkout-shell,
   :global(.checkout-v3-sheet .checkout-v3-body) .checkout-section-v3 .checkout-form-card,
   :global(.checkout-v3-sheet .checkout-v3-body) .checkout-section-v3 .checkoutV3Card {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 100%;
+    display: block;
+    min-height: auto;
+    height: auto;
     padding-bottom: 0;
     background: transparent !important;
     border: 0 !important;
@@ -317,8 +321,8 @@
 
 .checkoutField input:focus,
 .checkoutField textarea:focus {
-  border-color: #d4af7a;
-  box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.25);
+  border-color: #c9a24b;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
 }
 
 .checkoutField input:disabled,
@@ -347,11 +351,8 @@
   min-height: 50px;
   border: 0;
   border-radius: var(--bf-button-radius, 999px);
-  background: var(
-    --bf-gold-gradient,
-    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
-  );
-  color: #111111;
+  background: var(--color-gold, #c9a24b);
+  color: #ffffff;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 16px;
   font-weight: 700;
@@ -387,8 +388,8 @@
 
 .checkoutFlatSelector:focus-visible {
   outline: none;
-  border-color: #d4af7a;
-  box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.25);
+  border-color: #c9a24b;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
 }
 
 .checkoutFlatSelector span:first-child,
@@ -468,8 +469,8 @@
 }
 
 .checkoutFlatSelectWrap:focus-within {
-  border-color: #d4af7a;
-  box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.25);
+  border-color: #c9a24b;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
 }
 
 .checkoutFlatMuted {
@@ -562,8 +563,8 @@
 .checkoutMapToggle:hover,
 .checkoutMapToggle:focus-visible {
   outline: none;
-  border-color: #d4af7a;
-  box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.25);
+  border-color: #c9a24b;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
 }
 
 .checkoutSmartOptions {
@@ -639,16 +640,16 @@
 }
 
 .checkoutPaymentOption:has(input:checked) {
-  border-color: #d4af7a;
-  background: rgba(212, 175, 122, 0.14);
-  box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.2);
+  border-color: #c9a24b;
+  background: rgba(201, 162, 75, 0.14);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.2);
 }
 
 .checkoutPaymentOption input {
   width: 16px;
   height: 16px;
   margin: 0;
-  accent-color: #d4af7a;
+  accent-color: #c9a24b;
 }
 
 :global(.checkout-v3-sheet) :global(.checkout-delivery-alert) {
@@ -722,8 +723,8 @@
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 input:focus),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 textarea:focus),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 select:focus) {
-  border-color: #d4af7a !important;
-  box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.25) !important;
+  border-color: #c9a24b !important;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25) !important;
   outline: none !important;
 }
 

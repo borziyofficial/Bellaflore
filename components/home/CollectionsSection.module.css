@@ -3,7 +3,7 @@
   margin: 0 auto;
   padding: 34px 16px calc(220px + env(safe-area-inset-bottom));
   overflow-x: clip;
-  background: var(--bg-primary, #1a1a1a);
+  background: var(--bg-primary, #f7f5f1);
   scroll-margin-top: calc(72px + env(safe-area-inset-top));
 }
 
@@ -18,13 +18,13 @@
   font-size: clamp(1.65rem, 4.5vw, 2.15rem);
   font-weight: 600;
   line-height: 1.15;
-  color: var(--text-light, #ededed);
+  color: var(--text-light, #1e1b18);
 }
 
 .subtitle {
   max-width: 420px;
   margin: 10px auto 0;
-  color: rgba(237, 237, 237, 0.62);
+  color: var(--color-text-secondary, #746f68);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 15px;
   line-height: 1.45;
@@ -47,7 +47,7 @@
   position: absolute;
   left: 16px;
   z-index: 1;
-  color: rgba(237, 237, 237, 0.45);
+  color: var(--color-text-secondary, #746f68);
   font-size: 17px;
   pointer-events: none;
 }
@@ -57,10 +57,10 @@
   min-width: 0;
   padding: 14px 44px 14px 42px;
   border-radius: 999px;
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  background: var(--bg-secondary, #2a2a2a);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  color: var(--text-light, #ededed);
+  border: 1px solid var(--color-border, rgba(54, 45, 35, 0.16));
+  background: var(--bg-secondary, #fffdf9);
+  box-shadow: 0 8px 20px rgba(54, 45, 35, 0.08);
+  color: var(--text-light, #1e1b18);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 16px;
   appearance: none;
@@ -76,7 +76,7 @@
 }
 
 .searchField input::placeholder {
-  color: rgba(237, 237, 237, 0.42);
+  color: rgba(30, 27, 24, 0.4);
 }
 
 .searchClear {
@@ -89,8 +89,8 @@
   height: 28px;
   border: 0;
   border-radius: 999px;
-  background: rgba(212, 175, 55, 0.14);
-  color: var(--gold-light, #f5d98c);
+  background: rgba(201, 162, 75, 0.14);
+  color: var(--gold-hover, #b58d37);
   cursor: pointer;
 }
 
@@ -131,9 +131,9 @@
   min-height: 30px;
   padding: 5px 11px;
   border-radius: 999px;
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  background: var(--bg-secondary, #2a2a2a);
-  color: var(--text-light, #ededed);
+  border: 1px solid var(--color-border, rgba(54, 45, 35, 0.16));
+  background: var(--bg-secondary, #fffdf9);
+  color: var(--text-light, #1e1b18);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   font-weight: 500;
@@ -149,9 +149,9 @@
 }
 
 .categoryChipActive {
-  border-color: var(--gold-dark, #d4af37);
-  background: rgba(212, 175, 55, 0.16);
-  color: var(--gold-light, #f5d98c);
+  border-color: var(--color-gold, #c9a24b);
+  background: rgba(201, 162, 75, 0.14);
+  color: var(--color-gold-hover, #b58d37);
 }
 
 .grid {
@@ -186,8 +186,8 @@
   padding: 28px 22px;
   border-radius: 22px;
   text-align: center;
-  background: var(--bg-secondary, #2a2a2a);
-  border: 1px solid rgba(212, 175, 55, 0.22);
+  background: var(--bg-secondary, #fffdf9);
+  border: 1px solid var(--color-border, rgba(54, 45, 35, 0.16));
 }
 
 .emptyTitle {
@@ -195,12 +195,12 @@
   font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 1.05rem;
   font-weight: 600;
-  color: var(--text-light, #ededed);
+  color: var(--text-light, #1e1b18);
 }
 
 .emptyMessage {
   margin: 8px 0 0;
-  color: rgba(237, 237, 237, 0.62);
+  color: var(--color-text-secondary, #746f68);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   line-height: 1.45;
@@ -211,11 +211,8 @@
   padding: 11px 18px;
   border: 0;
   border-radius: var(--bf-button-radius, 999px);
-  background: var(
-    --bf-gold-gradient,
-    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
-  );
-  color: #1a1a1a;
+  background: var(--bf-gold-gradient, var(--color-gold, #c9a24b));
+  color: #ffffff;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   font-weight: 600;

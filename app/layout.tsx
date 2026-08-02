@@ -33,6 +33,8 @@ import {
   siteUrl,
 } from "./seo";
 
+const isSandbox = process.env.NEXT_PUBLIC_DEPLOY_ENV === "sandbox";
+
 export const metadata: Metadata = {
   metadataBase,
   title: homepageTitle,
@@ -41,6 +43,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  robots: isSandbox
+    ? {
+        index: false,
+        follow: false,
+        noarchive: true,
+      }
+    : undefined,
   openGraph: {
     title: homepageTitle,
     description: homepageDescription,
@@ -133,6 +142,11 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className={inter.className}>
+        {isSandbox ? (
+          <div className="sandbox-environment-badge" role="status">
+            SANDBOX — тестовая версия
+          </div>
+        ) : null}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -3,9 +3,9 @@
   gap: 14px;
   padding: 18px;
   border-radius: 24px;
-  border: 1px solid rgba(212, 175, 55, 0.22);
-  background: var(--bg-secondary, #2a2a2a);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(201, 162, 75, 0.22);
+  background: var(--bg-secondary, #fffdf9);
+  box-shadow: 0 16px 40px rgba(54, 45, 35, 0.35);
 }
 
 .selection {
@@ -16,7 +16,7 @@
 }
 
 .selectionLabel {
-  color: rgba(237, 237, 237, 0.62);
+  color: rgba(30, 27, 24, 0.62);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   letter-spacing: 0.04em;
@@ -55,10 +55,10 @@
   border: 0;
   background: var(
     --bf-gold-gradient,
-    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
+    var(--color-gold, #c9a24b)
   );
-  color: #1a1a1a;
-  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.22);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(201, 162, 75, 0.22);
 }
 
 .buyButton:hover {
@@ -66,9 +66,9 @@
 }
 
 .favoriteButton {
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  background: #333333;
-  color: var(--text-light, #ededed);
+  border: 1px solid rgba(201, 162, 75, 0.35);
+  background: var(--color-surface-secondary, #f1ede6);
+  color: var(--text-light, #1e1b18);
 }
 
 .favoriteButtonActive {
@@ -79,7 +79,7 @@
 
 .deliveryNote {
   margin: 0;
-  color: rgba(237, 237, 237, 0.62);
+  color: rgba(30, 27, 24, 0.62);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   line-height: 1.45;

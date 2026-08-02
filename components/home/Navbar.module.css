@@ -27,15 +27,15 @@
 
 .menuOverlay {
   z-index: 1001 !important;
-  background: rgba(4, 4, 5, 0.46) !important;
+  background: rgba(30, 27, 24, 0.4) !important;
   backdrop-filter: blur(10px) saturate(1.05) !important;
   -webkit-backdrop-filter: blur(10px) saturate(1.05) !important;
 }
 
 .mobileMenu {
-  --menu-gold: rgba(212, 175, 55, 0.92);
-  --menu-gold-line: rgba(212, 175, 55, 0.16);
-  --menu-ink: rgba(242, 235, 226, 0.94);
+  --menu-gold: #b58d37;
+  --menu-gold-line: rgba(54, 45, 35, 0.14);
+  --menu-ink: #1e1b18;
   --menu-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   position: fixed;
@@ -49,17 +49,16 @@
   max-width: calc(100vw - 32px);
   min-width: 0 !important;
   padding: 6px 0 !important;
-  border: 1px solid rgba(212, 175, 55, 0.28) !important;
+  border: 1px solid rgba(201, 162, 75, 0.3) !important;
   border-radius: 16px !important;
   background:
-    radial-gradient(circle at 88% 0%, rgba(212, 175, 55, 0.1), transparent 48%),
-    linear-gradient(180deg, rgba(34, 34, 36, 0.96), rgba(18, 18, 20, 0.94)) !important;
+    radial-gradient(circle at 88% 0%, rgba(201, 162, 75, 0.08), transparent 48%),
+    linear-gradient(180deg, #fffdf9, #f7f5f1) !important;
   backdrop-filter: blur(20px) saturate(1.08) !important;
   -webkit-backdrop-filter: blur(20px) saturate(1.08) !important;
   box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.34),
-    0 0 22px rgba(212, 175, 55, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    0 16px 40px rgba(54, 45, 35, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
   pointer-events: auto;
   transform-origin: top right;
   animation: menuPanelIn 0.28s var(--menu-ease) both;

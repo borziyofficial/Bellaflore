@@ -68,6 +68,22 @@ export function CollectionsSection({
   }, [customCategories]);
 
   useEffect(() => {
+    const requestedCategoryId = new URLSearchParams(window.location.search).get("category");
+    if (
+      !requestedCategoryId ||
+      !categoryChips.some((category) => category.id === requestedCategoryId)
+    ) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setActiveCategoryId(requestedCategoryId);
+      setSearchQuery("");
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [categoryChips]);
+
+  useEffect(() => {
     if (!catalogFocusNonce) {
       return;
     }
@@ -111,6 +127,14 @@ export function CollectionsSection({
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategoryId(categoryId);
     setSearchQuery("");
+    const url = new URL(window.location.href);
+    if (categoryId === "all") {
+      url.searchParams.delete("category");
+    } else {
+      url.searchParams.set("category", categoryId);
+    }
+    url.hash = "catalog";
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
   };
 
   return (

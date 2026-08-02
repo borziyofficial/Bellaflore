@@ -13,9 +13,9 @@
   gap: 8px;
   min-width: 0;
   padding: 10px 2px;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.14);
+  border-bottom: 1px solid rgba(201, 162, 75, 0.14);
   background: transparent;
-  color: rgba(237, 237, 237, 0.72);
+  color: rgba(30, 27, 24, 0.72);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   line-height: 1.35;
@@ -27,7 +27,7 @@
   height: 6px;
   border-radius: 999px;
   background: var(--gold-dark, #d4af37);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 10px rgba(201, 162, 75, 0.3);
   flex-shrink: 0;
 }
 

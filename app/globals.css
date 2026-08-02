@@ -1974,7 +1974,7 @@ button {
 }
 
 .checkout-delivery-alert-error {
-  color: #b42318;
+  color: var(--color-error, #a54848);
 }
 
 .delivery-zone-live-preview {
@@ -13766,5 +13766,33 @@ body {
 .checkout-v3-body {
   min-height: 0;
   flex: 1 1 auto;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-padding-block: 12px calc(24px + env(safe-area-inset-bottom));
+  touch-action: pan-y;
+}
+
+/* Visible only in builds with NEXT_PUBLIC_DEPLOY_ENV=sandbox. */
+.sandbox-environment-badge {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 2147483647;
+  padding: 8px 16px;
+  border: 1px solid rgba(245, 217, 140, 0.72);
+  border-radius: 999px;
+  background: rgba(93, 22, 22, 0.96);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.36);
+  color: #fff4cf;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  pointer-events: none;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
