@@ -63,6 +63,9 @@ export async function GET(request: Request) {
             Origin: safeOrigin(clientReferer),
           },
           cache: "no-store",
+          // Bounds each upstream attempt so this route can't hang the
+          // checkout address flow indefinitely on a stuck response.
+          signal: AbortSignal.timeout(6_000),
         });
 
         const payload = await response.json().catch(() => ({}));

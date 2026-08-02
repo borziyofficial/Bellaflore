@@ -33,25 +33,25 @@ export function getDeliveryValidationIssueMessage(
     case "geocoding_pending":
       return "Проверяем адрес…";
     case "geocoder_failed":
-      return "Geocoder failed";
+      return "Не удалось автоматически проверить адрес. Уточните адрес или повторите попытку.";
     case "coordinates_missing":
       return "Адрес не определён";
     case "house_number_missing":
-      return "Missing house number";
+      return "Укажите номер дома";
     case "address_ambiguous":
-      return "Multiple address matches";
+      return "Адрес указан неточно — уточните его";
     case "unsupported_region":
-      return "Unsupported area";
+      return "Доставка недоступна в этом районе";
     case "address_coordinate_mismatch":
-      return "Address does not match geocoder coordinates";
+      return "Адрес не соответствует найденным координатам";
     case "zone_not_detected":
-      return "Zone not detected";
+      return "Не удалось определить зону доставки";
     case "outside_delivery_area":
-      return "Delivery unavailable";
+      return "Доставка недоступна по этому адресу";
     case "road_distance_fallback":
-      return "Road distance unavailable — using approximate distance";
+      return "Точное расстояние недоступно — используется приблизительный расчёт";
     default:
-      return "Address validation issue";
+      return "Не удалось проверить адрес доставки";
   }
 }
 
@@ -60,13 +60,13 @@ export function getDeliveryValidationHeadline(
 ): string {
   switch (status) {
     case "VALID":
-      return "Address verified";
+      return "Адрес проверен";
     case "WARNING":
-      return "Address requires clarification";
+      return "Уточните адрес";
     case "ERROR":
-      return "Delivery unavailable";
+      return "Доставка недоступна";
     case "OUTSIDE_DELIVERY_AREA":
-      return "Delivery unavailable";
+      return "Доставка недоступна";
     case "UNKNOWN":
     default:
       return "Адрес не определён";

@@ -88,6 +88,10 @@ export async function GET(request: Request) {
         Origin: safeOrigin(clientReferer),
       },
       cache: "no-store",
+      // Bounds the upstream Yandex call so this route always resolves —
+      // without it, a slow/stuck upstream response left checkout stuck on
+      // "Проверяем адрес…" indefinitely instead of failing over cleanly.
+      signal: AbortSignal.timeout(6_000),
     });
 
     const payload = (await response.json().catch(() => ({}))) as YandexGeocoderResponse;

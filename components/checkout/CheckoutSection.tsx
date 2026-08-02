@@ -246,6 +246,11 @@ export function CheckoutSection({
   const deliveryUnavailableMessage = getDeliveryPriceUnavailableMessage(
     deliveryPriceResult.status,
   );
+  const deliveryZoneNeedsAttention =
+    checkoutForm.address.trim().length > 0 &&
+    (!canSubmitDeliveryPrice || !canSubmitDeliveryValidation) &&
+    deliveryPriceResult.status !== "outside_delivery_area" &&
+    deliveryValidationResult.status !== "OUTSIDE_DELIVERY_AREA";
   const canSubmitOrder =
     isFormReady &&
     canSubmitDeliveryPrice &&
@@ -307,6 +312,11 @@ export function CheckoutSection({
 
   const addressFieldShowValidation =
     submitAttempted || touchedFields.has("address");
+
+  const deliveryZoneUnavailableMessage =
+    addressFieldShowValidation && deliveryZoneNeedsAttention
+      ? "Не удалось определить зону доставки. Уточните адрес или повторите попытку."
+      : null;
 
   const showFieldError = (field: CheckoutValidatedField) => {
     const message = fieldErrors[field];
@@ -559,6 +569,14 @@ export function CheckoutSection({
                       required
                     />
                     {renderFieldError("address")}
+                    {deliveryZoneUnavailableMessage ? (
+                      <span
+                        className={checkoutSectionStyles.checkoutError}
+                        role="alert"
+                      >
+                        {deliveryZoneUnavailableMessage}
+                      </span>
+                    ) : null}
                   </label>
                 </CheckoutGlassStep>
 
@@ -635,13 +653,18 @@ export function CheckoutSection({
                 >
                   {deliveryUnavailableMessage}
                 </p>
-              ) : null}
-              {deliveryPriceResult.status === "unknown" ? (
+              ) : deliveryZoneUnavailableMessage ? (
+                <p
+                  className="checkout-delivery-alert checkout-delivery-alert-error"
+                  role="alert"
+                >
+                  {deliveryZoneUnavailableMessage}
+                </p>
+              ) : deliveryPriceResult.status === "unknown" ? (
                 <p className="checkout-delivery-alert" role="status">
                   {deliveryUnavailableMessage}
                 </p>
-              ) : null}
-              {deliveryPriceResult.status === "error" ? (
+              ) : deliveryPriceResult.status === "error" ? (
                 <p
                   className="checkout-delivery-alert checkout-delivery-alert-error"
                   role="alert"

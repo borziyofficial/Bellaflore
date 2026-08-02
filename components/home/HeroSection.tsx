@@ -14,8 +14,10 @@ type HeroSectionProps = {
 };
 
 // Guaranteed-present bundled photo — always shown if the admin-configured
-// banner image fails to load (missing file, blocked remote host, network error).
-const FALLBACK_PHOTO_URL = "/roza rouze royal.PNG";
+// banner image fails to load (missing file, blocked remote host, network
+// error). Plain ASCII path, no spaces/Cyrillic/uppercase extension, so it
+// can never be mangled by URL-encoding, case-sensitive hosting, or caching.
+const FALLBACK_PHOTO_URL = "/images/hero-bouquet.jpg";
 
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const banner = useHeroBannerSettings();

@@ -62,6 +62,7 @@ export function AddressIntelligenceInput({
     (geocoder.suggestions.length === 0 ? localHelperMessage : null);
   const publicHelperMessage =
     helperMessage &&
+    !geocoder.isLoading &&
     !/yandex|not configured|api key|ключ/i.test(helperMessage)
       ? helperMessage
       : null;

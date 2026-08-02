@@ -27,6 +27,39 @@ import { isYandexGeocodingEnabled } from "@/components/maps/mapProviderRegistry"
 import { geocodeAddressYandex } from "@/components/maps/yandexGeocoder";
 import { useEffect, useMemo, useState } from "react";
 
+// Hard ceiling on how long the UI waits for geocoding before treating it as
+// failed. The underlying HTTP/SDK calls have their own internal timeouts
+// too, but this top-level cap guarantees the "Проверяем адрес…" state can
+// never persist longer than this, regardless of how many fallback layers
+// the lower-level code attempts internally.
+const GEOCODING_OVERALL_TIMEOUT_MS = 9_000;
+
+function withOverallTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  onTimeout: () => T,
+): Promise<T> {
+  return new Promise<T>((resolve) => {
+    let settled = false;
+    const timerId = window.setTimeout(() => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve(onTimeout());
+    }, timeoutMs);
+
+    promise.then((value) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      window.clearTimeout(timerId);
+      resolve(value);
+    });
+  });
+}
+
 
 // ==================================================
 // SECTION: API
@@ -86,7 +119,19 @@ export function useRealDeliveryZoneForCheckout(
 
     let cancelled = false;
 
-    void geocodeAddressYandex(normalizedAddress).then((geocodingResult) => {
+    void withOverallTimeout(
+      geocodeAddressYandex(normalizedAddress),
+      GEOCODING_OVERALL_TIMEOUT_MS,
+      () => ({
+        address: normalizedAddress,
+        latitude: null,
+        longitude: null,
+        confidence: null,
+        provider: "yandex" as const,
+        status: "error" as const,
+        updatedAt: new Date().toISOString(),
+      }),
+    ).then((geocodingResult) => {
       if (cancelled) {
         return;
       }
