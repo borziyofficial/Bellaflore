@@ -13766,7 +13766,12 @@ body {
 .checkout-v3-body {
   min-height: 0;
   flex: 1 1 auto;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-padding-block: 12px calc(24px + env(safe-area-inset-bottom));
+  touch-action: pan-y;
 }
 
 /* Visible only in builds with NEXT_PUBLIC_DEPLOY_ENV=sandbox. */

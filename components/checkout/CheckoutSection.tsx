@@ -227,10 +227,10 @@ export function CheckoutSection({
   );
   const selectedSuggestionAddressRef = useRef<string | null>(null);
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
-  const [openStep, setOpenStep] = useState<CheckoutStepId>("recipient");
+  const [openStep, setOpenStep] = useState<CheckoutStepId | null>("recipient");
 
   const toggleCheckoutStep = (stepId: CheckoutStepId) => {
-    setOpenStep((current) => (current === stepId ? current : stepId));
+    setOpenStep((current) => (current === stepId ? null : stepId));
   };
 
   const fieldErrors = getCheckoutFieldErrors(checkoutForm, checkoutValidationNow);
