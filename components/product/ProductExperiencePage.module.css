@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 2147483012;
-  background: var(--bg-primary, #1a1a1a);
+  background: var(--bg-primary, #f7f5f1);
   animation: productPageIn 0.34s ease;
   overflow-x: hidden;
 }
@@ -36,10 +36,10 @@
 .backButton {
   min-height: 42px;
   padding: 0 14px;
-  border: 1px solid rgba(212, 175, 55, 0.28);
+  border: 1px solid rgba(201, 162, 75, 0.28);
   border-radius: 999px;
-  background: var(--bg-secondary, #2a2a2a);
-  color: var(--text-light, #ededed);
+  background: var(--bg-secondary, #fffdf9);
+  color: var(--text-light, #1e1b18);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   cursor: pointer;
@@ -48,13 +48,13 @@
 .badge {
   padding: 7px 12px;
   border-radius: 999px;
-  background: var(--bg-secondary, #2a2a2a);
+  background: var(--bg-secondary, #fffdf9);
   color: var(--gold-light, #f5d98c);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 8px 20px rgba(54, 45, 35, 0.28);
 }
 
 .content {
@@ -73,7 +73,7 @@
 }
 
 .category {
-  color: rgba(245, 217, 140, 0.72);
+  color: rgba(181, 141, 55, 0.72);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   letter-spacing: 0.05em;
@@ -91,7 +91,7 @@
 
 .lead {
   margin: 0;
-  color: rgba(237, 237, 237, 0.7);
+  color: rgba(30, 27, 24, 0.7);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 15px;
   line-height: 1.5;
@@ -145,14 +145,14 @@
   min-height: 52px;
   width: 100%;
   padding: 0 16px;
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  border: 1px solid rgba(201, 162, 75, 0.25);
   border-radius: 16px;
-  background: var(--bg-secondary, #2a2a2a);
+  background: var(--bg-secondary, #fffdf9);
   color: var(--champagne-text, var(--bf-text));
   font: inherit;
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 26px rgba(54, 45, 35, 0.2);
   transition:
     border-color 0.2s ease,
     transform 0.2s ease;
@@ -170,7 +170,7 @@
 }
 
 .sizePickerButton:hover {
-  border-color: rgba(212, 175, 55, 0.46);
+  border-color: rgba(201, 162, 75, 0.46);
 }
 
 .sizePickerButton:active {

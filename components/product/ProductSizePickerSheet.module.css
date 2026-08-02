@@ -5,7 +5,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba(0, 0, 0, 0);
+  background: rgba(54, 45, 35, 0);
   pointer-events: none;
   visibility: hidden;
   transition:
@@ -14,7 +14,7 @@
 }
 
 .overlayOpen {
-  background: rgba(0, 0, 0, 0.62);
+  background: rgba(30, 27, 24, 0.62);
   pointer-events: auto;
   visibility: visible;
   transition:
@@ -29,12 +29,12 @@
   margin-bottom: 12px;
   padding: 9px 16px 16px;
   overflow: hidden;
-  border: 1px solid rgba(212, 175, 55, 0.26);
+  border: 1px solid rgba(201, 162, 75, 0.26);
   border-radius: 22px;
   background:
-    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08), transparent 38%),
-    var(--bg-secondary, #2a2a2a);
-  box-shadow: 0 -22px 60px rgba(0, 0, 0, 0.46);
+    radial-gradient(circle at 50% 0%, rgba(201, 162, 75, 0.08), transparent 38%),
+    var(--bg-secondary, #fffdf9);
+  box-shadow: 0 -22px 60px rgba(54, 45, 35, 0.46);
   transform: translate3d(0, 104%, 0);
   transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
@@ -50,7 +50,7 @@
   height: 4px;
   margin: 0 auto 9px;
   border-radius: 999px;
-  background: rgba(245, 217, 140, 0.34);
+  background: rgba(181, 141, 55, 0.34);
 }
 
 .header {
@@ -78,9 +78,9 @@
   height: 34px;
   margin: 0;
   padding: 0;
-  border: 1px solid rgba(212, 175, 55, 0.28);
+  border: 1px solid rgba(201, 162, 75, 0.28);
   border-radius: 999px;
-  background: #333333;
+  background: var(--color-surface-secondary, #f1ede6);
   color: var(--gold-light, #f5d98c);
   font-size: 20px;
   line-height: 1;
@@ -89,7 +89,7 @@
 
 .eyebrow {
   margin: 0 0 10px;
-  color: rgba(237, 237, 237, 0.52);
+  color: rgba(30, 27, 24, 0.52);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 10px;
   font-weight: 700;
@@ -128,10 +128,10 @@
   min-height: 44px;
   margin: 0;
   padding: 0 14px;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(201, 162, 75, 0.2);
   border-radius: 13px;
-  background: rgba(51, 51, 51, 0.92);
-  color: var(--text-light, #ededed);
+  background: var(--color-surface, #fffdf9);
+  color: var(--text-light, #1e1b18);
   font-family: var(--font-body, Inter, sans-serif);
   text-align: center;
   cursor: pointer;
@@ -147,10 +147,10 @@
 }
 
 .optionActive {
-  border-color: rgba(212, 175, 55, 0.62);
-  background: linear-gradient(180deg, #f0d27f, #bf933f);
-  box-shadow: 0 8px 18px rgba(212, 175, 55, 0.2);
-  color: #17130c;
+  border-color: rgba(201, 162, 75, 0.62);
+  background: var(--color-gold, #c9a24b);
+  box-shadow: 0 8px 18px rgba(201, 162, 75, 0.2);
+  color: #ffffff;
 }
 
 .optionLabel {
@@ -164,7 +164,7 @@
   justify-content: space-between;
   gap: 12px;
   margin-top: 10px;
-  color: rgba(237, 237, 237, 0.68);
+  color: rgba(30, 27, 24, 0.68);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
 }
@@ -186,11 +186,11 @@
   min-height: 48px;
   margin: 12px 0 0;
   padding: 0 18px;
-  border: 1px solid rgba(245, 217, 140, 0.72);
+  border: 1px solid rgba(181, 141, 55, 0.72);
   border-radius: 999px;
-  background: linear-gradient(180deg, #f0d27f, #bf933f);
-  box-shadow: 0 10px 24px rgba(212, 175, 55, 0.22);
-  color: #17130c;
+  background: var(--color-gold, #c9a24b);
+  box-shadow: 0 10px 24px rgba(201, 162, 75, 0.22);
+  color: #ffffff;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   font-weight: 750;

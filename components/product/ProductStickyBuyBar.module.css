@@ -21,13 +21,13 @@
   gap: 10px;
   align-items: center;
   padding: 11px 12px;
-  border: 1px solid rgba(212, 175, 55, 0.22);
+  border: 1px solid rgba(201, 162, 75, 0.22);
   border-radius: 20px;
-  background: var(--bg-secondary, #2a2a2a);
+  background: var(--bg-secondary, #fffdf9);
   box-shadow:
-    0 18px 48px rgba(0, 0, 0, 0.48),
-    0 0 0 1px rgba(212, 175, 55, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 18px 48px rgba(54, 45, 35, 0.48),
+    0 0 0 1px rgba(201, 162, 75, 0.06),
+    inset 0 1px 0 var(--color-surface-secondary, #f1ede6);
   backdrop-filter: blur(16px);
 }
 
@@ -48,7 +48,7 @@
 
 .deliveryNote {
   margin: 0;
-  color: rgba(237, 237, 237, 0.58);
+  color: rgba(30, 27, 24, 0.58);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 11px;
   line-height: 1.25;
@@ -64,10 +64,10 @@
   min-width: 46px;
   min-height: 46px;
   padding: 0;
-  border: 1px solid rgba(212, 175, 55, 0.28);
+  border: 1px solid rgba(201, 162, 75, 0.28);
   border-radius: 14px;
-  background: #333333;
-  color: var(--text-light, #ededed);
+  background: var(--color-surface-secondary, #f1ede6);
+  color: var(--text-light, #1e1b18);
   cursor: pointer;
 }
 
@@ -90,15 +90,15 @@
   border-radius: var(--bf-button-radius, 999px);
   background: var(
     --bf-gold-gradient,
-    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
+    var(--color-gold, #c9a24b)
   );
-  color: #1a1a1a;
+  color: #ffffff;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 15px;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 8px 20px rgba(201, 162, 75, 0.2);
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease;
@@ -106,7 +106,7 @@
 
 .buyButton:active {
   transform: scale(0.97);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.16);
+  box-shadow: 0 4px 12px rgba(201, 162, 75, 0.16);
 }
 
 @keyframes stickyBuyIn {

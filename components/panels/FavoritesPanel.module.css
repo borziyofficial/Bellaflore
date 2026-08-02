@@ -5,7 +5,7 @@
   display: flex;
   justify-content: flex-end;
   padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  background: rgba(0, 0, 0, 0.62);
+  background: rgba(30, 27, 24, 0.62);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   overscroll-behavior: contain;
@@ -20,11 +20,11 @@
   min-height: 0;
   overflow: hidden;
   padding: 14px 16px 16px;
-  border: 1px solid rgba(212, 175, 55, 0.22);
+  border: 1px solid rgba(201, 162, 75, 0.22);
   border-radius: 16px;
-  background: var(--bg-secondary, #2a2a2a);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
-  color: var(--text-light, #ededed);
+  background: var(--bg-secondary, #fffdf9);
+  box-shadow: 0 24px 70px rgba(54, 45, 35, 0.45);
+  color: var(--text-light, #1e1b18);
   touch-action: pan-y;
 }
 
@@ -52,7 +52,7 @@
 
 .title {
   margin: 4px 0 0;
-  color: var(--text-light, #ededed);
+  color: var(--text-light, #1e1b18);
   font-family: var(--font-brand, "Playfair Display", serif);
   font-size: clamp(22px, 6vw, 28px);
   font-weight: 600;
@@ -60,7 +60,7 @@
 }
 
 .countInline {
-  color: rgba(237, 237, 237, 0.52);
+  color: rgba(30, 27, 24, 0.52);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 0.72em;
   font-weight: 500;
@@ -71,9 +71,9 @@
   height: 32px;
   flex: 0 0 auto;
   padding: 0;
-  border: 1px solid rgba(212, 175, 55, 0.28);
+  border: 1px solid rgba(201, 162, 75, 0.28);
   border-radius: 999px;
-  background: #333333;
+  background: var(--color-surface-secondary, #f1ede6);
   color: var(--gold-light, #f5d98c);
   font-size: 18px;
   line-height: 1;
@@ -95,9 +95,9 @@
   grid-template-columns: 64px minmax(0, 1fr);
   gap: 10px;
   padding: 10px;
-  border: 1px solid rgba(212, 175, 55, 0.18);
+  border: 1px solid rgba(201, 162, 75, 0.18);
   border-radius: 12px;
-  background: var(--bg-primary, #1a1a1a);
+  background: var(--bg-primary, #f7f5f1);
 }
 
 .image {
@@ -105,7 +105,7 @@
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 8px;
-  background: #333333;
+  background: var(--color-surface-secondary, #f1ede6);
 }
 
 .image img {
@@ -123,7 +123,7 @@
 
 .cardTitle {
   margin: 0;
-  color: var(--text-light, #ededed);
+  color: var(--text-light, #1e1b18);
   font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 13px;
   font-weight: 600;
@@ -160,9 +160,9 @@
 
 .sizeButton {
   padding: 0 10px;
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  background: #333333;
-  color: rgba(237, 237, 237, 0.82);
+  border: 1px solid rgba(201, 162, 75, 0.28);
+  background: var(--color-surface-secondary, #f1ede6);
+  color: rgba(30, 27, 24, 0.82);
 }
 
 .orderButton {
@@ -170,9 +170,9 @@
   border: 0;
   background: var(
     --bf-gold-gradient,
-    linear-gradient(180deg, #f5d98c 0%, #d4af37 100%)
+    var(--color-gold, #c9a24b)
   );
-  color: #1a1a1a;
+  color: #ffffff;
 }
 
 .removeButton {
@@ -200,7 +200,7 @@
   min-height: 180px;
   padding: 20px 16px;
   text-align: center;
-  color: var(--text-light, #ededed);
+  color: var(--text-light, #1e1b18);
 }
 
 .emptyMark {
@@ -217,7 +217,7 @@
 .emptyCopy {
   max-width: 240px;
   margin: 0;
-  color: rgba(237, 237, 237, 0.62);
+  color: rgba(30, 27, 24, 0.62);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   line-height: 1.45;
@@ -242,6 +242,6 @@
     height: 4px;
     margin: 0 auto 10px;
     border-radius: 999px;
-    background: rgba(212, 175, 55, 0.34);
+    background: rgba(201, 162, 75, 0.34);
   }
 }

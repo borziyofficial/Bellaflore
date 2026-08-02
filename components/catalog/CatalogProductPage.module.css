@@ -1,9 +1,9 @@
 .page {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 42%),
-    #120f0d;
-  color: #f7f1e8;
+    radial-gradient(circle at top, rgba(201, 162, 75, 0.1), transparent 42%),
+    var(--color-background, #f7f5f1);
+  color: var(--color-text-primary, #1e1b18);
   padding: 24px 20px 48px;
 }
 
@@ -20,12 +20,12 @@
   font-size: 1.1rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #e8c872;
+  color: var(--color-gold-hover, #b58d37);
   text-decoration: none;
 }
 
 .backLink {
-  color: #d8ccb8;
+  color: var(--color-text-secondary, #746f68);
   text-decoration: none;
 }
 
@@ -46,8 +46,8 @@
 .media {
   overflow: hidden;
   border-radius: 28px;
-  border: 1px solid rgba(232, 200, 114, 0.18);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border, rgba(54, 45, 35, 0.14));
+  background: var(--color-surface-secondary, #f1ede6);
 }
 
 .image {
@@ -63,7 +63,7 @@
 
 .category {
   margin: 0;
-  color: #c9b27a;
+  color: var(--color-gold-hover, #b58d37);
   font-size: 0.85rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -77,14 +77,14 @@
 
 .lead {
   margin: 0;
-  color: #d8ccb8;
+  color: var(--color-text-secondary, #746f68);
   font-size: 1.05rem;
   line-height: 1.6;
 }
 
 .price,
 .sizeItem strong {
-  color: #f3df9d;
+  color: var(--color-gold, #c9a24b);
   font-size: 1.35rem;
 }
 
@@ -102,8 +102,8 @@
   justify-content: space-between;
   padding: 12px 16px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(232, 200, 114, 0.12);
+  background: var(--color-surface-secondary, #f1ede6);
+  border: 1px solid var(--color-border, rgba(54, 45, 35, 0.14));
 }
 
 .section {
@@ -114,12 +114,12 @@
 .sectionTitle {
   margin: 0;
   font-size: 1rem;
-  color: #e8c872;
+  color: var(--color-gold-hover, #b58d37);
 }
 
 .section p {
   margin: 0;
-  color: #d8ccb8;
+  color: var(--color-text-secondary, #746f68);
   line-height: 1.6;
 }
 
@@ -136,14 +136,14 @@
   min-height: 52px;
   padding: 0 24px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #d4af37, #f3df9d);
-  color: #1a140f;
+  background: var(--color-gold, #c9a24b);
+  color: #ffffff;
   font-weight: 600;
   text-decoration: none;
 }
 
 .deliveryHint {
   margin: 0;
-  color: #b9aa92;
+  color: var(--color-text-secondary, #746f68);
   font-size: 0.95rem;
 }

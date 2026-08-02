@@ -4,8 +4,8 @@
   padding: clamp(86px, 11vw, 148px) 24px;
   background:
     radial-gradient(circle at 0 30%, rgba(180, 137, 55, 0.09), transparent 34%),
-    #0c0e0c;
-  color: #f6eedb;
+    var(--color-background, #f7f5f1);
+  color: var(--color-text-primary, #1e1b18);
 }
 
 .section::after {
@@ -13,7 +13,7 @@
   position: absolute;
   right: -0.04em;
   bottom: -0.22em;
-  color: rgba(225, 195, 126, 0.035);
+  color: rgba(54, 45, 35, 0.035);
   font-family: var(--font-playfair), "Times New Roman", serif;
   font-size: clamp(88px, 15vw, 230px);
   font-weight: 600;
@@ -39,7 +39,7 @@
 
 .kicker {
   margin: 0 0 24px;
-  color: #d3ae5e;
+  color: var(--color-gold-hover, #b58d37);
   font-size: 11px;
   font-weight: 750;
   letter-spacing: 0.2em;
@@ -50,7 +50,7 @@
 .intro h2 {
   max-width: 570px;
   margin: 0;
-  color: #fff9eb;
+  color: var(--color-text-primary, #1e1b18);
   font-family: var(--font-playfair), "Times New Roman", serif;
   font-size: clamp(46px, 5.4vw, 76px);
   font-weight: 600;
@@ -65,9 +65,9 @@
   width: 74px;
   height: 74px;
   margin-top: 42px;
-  border: 1px solid rgba(216, 183, 106, 0.38);
+  border: 1px solid var(--color-border, rgba(54, 45, 35, 0.2));
   border-radius: 50%;
-  color: #d7b66b;
+  color: var(--color-gold-hover, #b58d37);
   font-family: var(--font-playfair), "Times New Roman", serif;
   font-size: 19px;
   letter-spacing: 0.08em;
@@ -77,20 +77,20 @@
 .story {
   align-self: center;
   padding-top: 42px;
-  border-top: 1px solid rgba(228, 202, 142, 0.18);
+  border-top: 1px solid var(--color-border, rgba(54, 45, 35, 0.14));
 }
 
 .story p {
   max-width: 620px;
   margin: 22px 0 0;
-  color: rgba(240, 232, 214, 0.62);
+  color: var(--color-text-secondary, #746f68);
   font-size: 16px;
   line-height: 1.8;
 }
 
 .story .lead {
   margin-top: 0;
-  color: #f1e4c5;
+  color: var(--color-text-primary, #1e1b18);
   font-family: var(--font-playfair), "Times New Roman", serif;
   font-size: clamp(25px, 2.6vw, 34px);
   line-height: 1.42;
@@ -102,8 +102,8 @@
   gap: 16px;
   margin-top: 34px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(217, 180, 94, 0.42);
-  color: #e2c67e;
+  border-bottom: 1px solid rgba(181, 141, 55, 0.4);
+  color: var(--color-gold-hover, #b58d37);
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.11em;
@@ -118,8 +118,8 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   width: min(100%, 1240px);
   margin: 88px auto 0;
-  border-top: 1px solid rgba(228, 202, 142, 0.16);
-  border-bottom: 1px solid rgba(228, 202, 142, 0.16);
+  border-top: 1px solid var(--color-border, rgba(54, 45, 35, 0.12));
+  border-bottom: 1px solid var(--color-border, rgba(54, 45, 35, 0.12));
 }
 
 .values article {
@@ -127,13 +127,13 @@
 }
 
 .values article + article {
-  border-left: 1px solid rgba(228, 202, 142, 0.16);
+  border-left: 1px solid var(--color-border, rgba(54, 45, 35, 0.12));
 }
 
 .values span {
   display: block;
   margin-bottom: 34px;
-  color: #bb9140;
+  color: var(--color-gold-hover, #b58d37);
   font-size: 11px;
   font-weight: 750;
   letter-spacing: 0.16em;
@@ -141,7 +141,7 @@
 
 .values h3 {
   margin: 0;
-  color: #f8efd9;
+  color: var(--color-text-primary, #1e1b18);
   font-family: var(--font-playfair), "Times New Roman", serif;
   font-size: 25px;
   font-weight: 600;
@@ -149,7 +149,7 @@
 
 .values p {
   margin: 15px 0 0;
-  color: rgba(237, 229, 210, 0.55);
+  color: var(--color-text-secondary, #746f68);
   font-size: 14px;
   line-height: 1.68;
 }
@@ -213,7 +213,7 @@
   }
 
   .values article + article {
-    border-top: 1px solid rgba(228, 202, 142, 0.16);
+    border-top: 1px solid var(--color-border, rgba(54, 45, 35, 0.12));
     border-left: 0;
   }
 

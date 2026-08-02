@@ -1974,7 +1974,7 @@ button {
 }
 
 .checkout-delivery-alert-error {
-  color: #b42318;
+  color: var(--color-error, #a54848);
 }
 
 .delivery-zone-live-preview {

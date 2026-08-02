@@ -9,13 +9,13 @@
   position: relative;
   overflow: hidden;
   border-radius: 28px;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(201, 162, 75, 0.2);
   background:
-    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08), transparent 42%),
-    #242424;
+    radial-gradient(circle at 50% 0%, rgba(201, 162, 75, 0.08), transparent 42%),
+    var(--color-surface-secondary, #f1ede6);
   box-shadow:
-    0 20px 48px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 20px 48px rgba(54, 45, 35, 0.3),
+    inset 0 1px 0 var(--color-surface-secondary, #f1ede6);
   touch-action: pan-y;
 }
 
@@ -56,8 +56,8 @@
   height: 100%;
   min-height: 280px;
   background:
-    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12), transparent 42%),
-    linear-gradient(180deg, #2a2a2a, #202020);
+    radial-gradient(circle at 50% 0%, rgba(201, 162, 75, 0.12), transparent 42%),
+    linear-gradient(180deg, var(--color-surface-secondary, #f1ede6), var(--color-surface-secondary, #f1ede6));
 }
 
 .fallbackLogo {
@@ -87,9 +87,9 @@
   width: 72px;
   height: 72px;
   padding: 0;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(201, 162, 75, 0.2);
   border-radius: 16px;
-  background: #2a2a2a;
+  background: var(--color-surface-secondary, #f1ede6);
   cursor: pointer;
   flex-shrink: 0;
   transition:
@@ -98,10 +98,10 @@
 }
 
 .thumbnailActive {
-  border-color: rgba(245, 217, 140, 0.82);
+  border-color: rgba(181, 141, 55, 0.82);
   box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.28),
-    0 0 0 1px rgba(212, 175, 55, 0.2);
+    0 8px 20px rgba(54, 45, 35, 0.28),
+    0 0 0 1px rgba(201, 162, 75, 0.2);
 }
 
 .thumbnailImage {
@@ -112,7 +112,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(201, 162, 75, 0.1);
 }
 
 .dots {
@@ -127,12 +127,12 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: rgba(245, 217, 140, 0.24);
+  background: rgba(181, 141, 55, 0.24);
 }
 
 .dotActive {
   width: 22px;
-  background: rgba(245, 217, 140, 0.82);
+  background: rgba(181, 141, 55, 0.82);
 }
 
 .fullscreen {
@@ -141,7 +141,7 @@
   z-index: 2147483020;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  background: rgba(12, 10, 12, 0.96);
+  background: rgba(30, 27, 24, 0.96);
 }
 
 .fullscreenTop {

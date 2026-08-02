@@ -30,8 +30,8 @@
 
 .input:focus {
   outline: none;
-  border-color: #d4af7a;
-  box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.25);
+  border-color: #c9a24b;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
 }
 
 .input:disabled {
@@ -77,7 +77,7 @@
 }
 
 .loading .input {
-  border-color: #d4af7a;
+  border-color: #c9a24b;
 }
 
 .warnings,
@@ -131,7 +131,7 @@
 
 .suggestion:hover,
 .suggestionActive {
-  background: rgba(212, 175, 122, 0.16);
+  background: rgba(201, 162, 75, 0.16);
 }
 
 .suggestionLabel {
@@ -245,6 +245,6 @@
 
 :global(html[data-theme="dark-luxury"] .checkout-v3-sheet) .input:focus,
 :global(html[data-theme="dark-luxury"] .checkout-section-v3) .input:focus {
-  border-color: #d4af7a !important;
-  box-shadow: 0 0 0 3px rgba(212, 175, 122, 0.25) !important;
+  border-color: #c9a24b !important;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25) !important;
 }

@@ -4,6 +4,7 @@
 // ==================================================
 "use client";
 
+import Image from "next/image";
 import { useHeroBannerSettings } from "@/components/home/useHeroBannerSettings";
 import styles from "@/components/home/HeroSection.module.css";
 
@@ -14,6 +15,7 @@ type HeroSectionProps = {
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const banner = useHeroBannerSettings();
 
+  const photoUrl = banner?.imageUrl?.trim() || "/roza rouze royal.PNG";
   const title = banner?.title?.trim() || "Цветы, которые остаются в памяти";
   const subtitle =
     banner?.subtitle?.trim() ||
@@ -77,6 +79,15 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
           </ul>
         </div>
 
+        <div className={styles.photo}>
+          <Image
+            src={photoUrl}
+            alt="Премиальный букет BellaFlore"
+            fill
+            sizes="(max-width: 960px) 90vw, 480px"
+            priority
+          />
+        </div>
       </div>
     </main>
   );
