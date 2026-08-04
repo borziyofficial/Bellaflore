@@ -7,6 +7,7 @@ import type {
   NewOrderRecord,
   OrderCatalogGateway,
   OrderRepository,
+  StoredOrderRecord,
 } from "@/lib/orders/types";
 
 export type OrderServiceDependencies = {
@@ -31,6 +32,12 @@ function buildPublicNumber(now: Date, id: string): string {
   const suffix = id.replaceAll("-", "").slice(0, 10).toUpperCase();
   return `BF-${date}-${suffix}`;
 }
+
+function normalizePhoneDigits(phone: string): string {
+  return phone.replace(/[^0-9]/g, "");
+}
+
+const ORDER_NOT_FOUND_MESSAGE = "Заказ не найден. Проверьте номер заказа и телефон.";
 
 export function createOrderService(dependencies: OrderServiceDependencies) {
   return {
@@ -140,6 +147,35 @@ export function createOrderService(dependencies: OrderServiceDependencies) {
         );
       }
       return result;
+    },
+
+    async findByOrderNumber(
+      orderNumber: string,
+      phone?: string,
+    ): Promise<StoredOrderRecord> {
+      const order = await dependencies.repository.findByPublicNumber(orderNumber);
+      if (!order) {
+        throw new OrderError("ORDER_NOT_FOUND", ORDER_NOT_FOUND_MESSAGE, 404);
+      }
+      if (
+        phone &&
+        normalizePhoneDigits(phone) !== normalizePhoneDigits(order.customerPhone)
+      ) {
+        throw new OrderError("ORDER_NOT_FOUND", ORDER_NOT_FOUND_MESSAGE, 404);
+      }
+      return order;
+    },
+
+    async findByPhone(phone: string): Promise<StoredOrderRecord[]> {
+      const normalized = normalizePhoneDigits(phone);
+      if (normalized.length < 10) {
+        throw new OrderError(
+          "ORDER_LOOKUP_INVALID",
+          "Укажите корректный номер телефона.",
+          400,
+        );
+      }
+      return dependencies.repository.findRecentByPhone(phone);
     },
   };
 }

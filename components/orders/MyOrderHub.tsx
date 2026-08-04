@@ -10,15 +10,17 @@ import { ProfileHubSectionPanel } from "@/components/orders/ProfileHubSectionPan
 import { ProfilePersonalSection } from "@/components/orders/ProfilePersonalSection";
 import {
   MyOrderPassport,
-  MyOrderPassportEmpty,
   type OrderPassportData,
 } from "@/components/orders/MyOrderPassport";
+import { MyOrderLookupSection } from "@/components/orders/MyOrderLookupSection";
 import type { ProfileHubSectionId } from "@/components/orders/profileHubTypes";
 import styles from "@/components/orders/MyOrderHub.module.css";
 
 type MyOrderHubProps = {
   passport: OrderPassportData | null;
   hasDraftOrder: boolean;
+  /** Real server order number of the customer's most recent order (persists across visits). */
+  latestOrderNumber: string | null;
   favoritesCount?: number;
   activeSection?: ProfileHubSectionId | null;
   onActiveSectionChange?: (sectionId: ProfileHubSectionId | null) => void;
@@ -52,6 +54,7 @@ function resolveOrderMenuHint(
 export function MyOrderHub({
   passport,
   hasDraftOrder,
+  latestOrderNumber,
   favoritesCount = 0,
   activeSection = null,
   onActiveSectionChange,
@@ -85,12 +88,22 @@ export function MyOrderHub({
             phone={passport?.phone ?? ""}
           />
         );
-      case "myOrder":
-        return passport !== null && hasDraftOrder ? (
-          <MyOrderPassport data={passport} formatPrice={formatPrice} />
-        ) : (
-          <MyOrderPassportEmpty onOpenCatalog={onOpenCatalog} />
+      case "myOrder": {
+        const isUnconfirmedCartPreview =
+          passport !== null && hasDraftOrder && !passport.hasConfirmedOrder;
+
+        if (isUnconfirmedCartPreview) {
+          return <MyOrderPassport data={passport} formatPrice={formatPrice} />;
+        }
+
+        return (
+          <MyOrderLookupSection
+            initialOrderNumber={latestOrderNumber}
+            onOpenCatalog={onOpenCatalog}
+            formatPrice={formatPrice}
+          />
         );
+      }
       case "tracking":
         return (
           <ProfileHubPlaceholderSection

@@ -1,0 +1,120 @@
+.wrap {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.searchForm {
+  display: grid;
+  gap: 8px;
+}
+
+.modeToggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid rgba(201, 162, 75, 0.16);
+  border-radius: 999px;
+  background: var(--color-surface-secondary, #f1ede6);
+}
+
+.modeButton {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-light, #1e1b18);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11.5px;
+  font-weight: 650;
+  line-height: 1.2;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.modeButtonActive {
+  background: rgba(201, 162, 75, 0.18);
+  color: #7a5a12;
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.input {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0.5px solid rgba(201, 162, 75, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.62);
+  color: var(--text-light, #1e1b18);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.input:focus {
+  outline: 2px solid rgba(201, 162, 75, 0.42);
+  outline-offset: 1px;
+}
+
+.searchButton {
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 0.5px solid rgba(201, 162, 75, 0.32);
+  border-radius: 10px;
+  background: rgba(201, 162, 75, 0.22);
+  color: #5a4212;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 12.5px;
+  font-weight: 720;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.searchButton:active {
+  transform: scale(0.98);
+}
+
+.searchButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.statusMessage {
+  margin: 0;
+  padding: 12px;
+  border: 0.5px solid rgba(255, 244, 220, 0.42);
+  border-radius: 16px;
+  background: rgba(255, 253, 248, 0.52);
+  color: #75695c;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.results {
+  display: grid;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .inputRow {
+    grid-template-columns: 1fr;
+  }
+
+  .searchButton {
+    width: 100%;
+  }
+
+  .modeButton {
+    font-size: 11px;
+  }
+}

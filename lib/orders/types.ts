@@ -102,4 +102,6 @@ export interface OrderCatalogGateway {
 export interface OrderRepository {
   findByIdempotencyKey(key: string): Promise<StoredOrderRecord | null>;
   create(order: NewOrderRecord): Promise<CreateOrderResult>;
+  findByPublicNumber(publicNumber: string): Promise<StoredOrderRecord | null>;
+  findRecentByPhone(phone: string, limit?: number): Promise<StoredOrderRecord[]>;
 }

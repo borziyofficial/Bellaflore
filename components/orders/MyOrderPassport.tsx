@@ -4,9 +4,20 @@
 // ==================================================
 "use client";
 
+import type { CustomerOrderStatusId } from "@/components/orders/orderStatus";
 import styles from "@/components/orders/MyOrderPassport.module.css";
 
+export type OrderPassportItem = {
+  name: string;
+  sizeLabel: string;
+  quantity: number;
+  unitPrice: number | null;
+  lineTotal: number | null;
+};
+
 export type OrderPassportData = {
+  orderNumber?: string | null;
+  createdAtLabel?: string | null;
   recipientName: string;
   phone: string;
   address: string;
@@ -14,10 +25,13 @@ export type OrderPassportData = {
   deliveryTime: string;
   paymentMethod: string;
   bouquetName: string;
+  items?: OrderPassportItem[];
+  comment?: string;
   productPriceRub: number | null;
   deliveryPriceRub: number | null;
   totalRub: number | null;
   orderStatus: string;
+  statusColorId?: CustomerOrderStatusId;
   courierStatus: string;
   hasConfirmedOrder: boolean;
 };
@@ -55,42 +69,88 @@ function PassportRow({
 }
 
 export function MyOrderPassport({ data, formatPrice }: MyOrderPassportProps) {
+  const items = data.items ?? [];
+  const statusClassName = data.statusColorId
+    ? styles[`status${data.statusColorId}`]
+    : undefined;
+
   return (
-    <article className={styles.passport} aria-label="Детали заказа">
-      <PassportRow label="Получатель" value={displayValue(data.recipientName)} />
-      <PassportRow label="Телефон" value={displayValue(data.phone)} />
-      <PassportRow label="Адрес" value={displayValue(data.address)} />
-      <PassportRow
-        label="Доставка"
-        value={
-          data.deliveryDate.trim() || data.deliveryTime.trim()
-            ? [data.deliveryDate, data.deliveryTime].filter(Boolean).join(" · ")
-            : "Не указано"
-        }
-      />
-      <PassportRow label="Оплата" value={displayValue(data.paymentMethod)} />
-      <PassportRow label="Букет" value={displayValue(data.bouquetName)} />
-      <PassportRow
-        label="Стоимость букета"
-        value={displayPrice(data.productPriceRub, formatPrice)}
-      />
-      <PassportRow
-        label="Доставка"
-        value={displayPrice(data.deliveryPriceRub, formatPrice)}
-      />
-      <div className={`${styles.row} ${styles.totalRow}`}>
-        <span className={styles.label}>Итого</span>
-        <span className={styles.totalValue}>
-          {displayPrice(data.totalRub, formatPrice)}
+    <article className={styles.passportWrap} aria-label="Детали заказа">
+      <div className={styles.statusHeader}>
+        <span
+          className={`${styles.statusBadge} ${statusClassName ?? ""}`}
+          role="status"
+        >
+          {displayValue(data.orderStatus)}
         </span>
+        {data.orderNumber ? (
+          <span className={styles.orderNumber}>Заказ {data.orderNumber}</span>
+        ) : null}
+        {data.createdAtLabel ? (
+          <span className={styles.orderDate}>{data.createdAtLabel}</span>
+        ) : null}
       </div>
-      <PassportRow label="Статус заказа" value={displayValue(data.orderStatus)} />
-      <PassportRow label="Курьер" value={displayValue(data.courierStatus)} />
-      {!data.hasConfirmedOrder ? (
-        <p className={styles.trackingNote}>
-          Отслеживание появится после подтверждения заказа
-        </p>
-      ) : null}
+
+      <article className={styles.passport}>
+        {items.length > 0 ? (
+          <div className={`${styles.row} ${styles.itemsRow}`}>
+            <span className={styles.label}>Состав заказа</span>
+            <ul className={styles.itemsList}>
+              {items.map((item, index) => (
+                <li key={`${item.name}-${index}`} className={styles.itemRow}>
+                  <span className={styles.itemName}>
+                    {item.name}
+                    {item.sizeLabel ? ` · ${item.sizeLabel}` : ""}
+                    {item.quantity > 1 ? ` ×${item.quantity}` : ""}
+                  </span>
+                  <span className={styles.itemPrice}>
+                    {item.lineTotal !== null ? formatPrice(item.lineTotal) : "—"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <PassportRow label="Букет" value={displayValue(data.bouquetName)} />
+        )}
+        <PassportRow label="Получатель" value={displayValue(data.recipientName)} />
+        <PassportRow label="Телефон" value={displayValue(data.phone)} />
+        <PassportRow label="Адрес" value={displayValue(data.address)} />
+        <PassportRow
+          label="Дата и время доставки"
+          value={
+            data.deliveryDate.trim() || data.deliveryTime.trim()
+              ? [data.deliveryDate, data.deliveryTime].filter(Boolean).join(" · ")
+              : "Не указано"
+          }
+        />
+        {data.paymentMethod.trim() ? (
+          <PassportRow label="Оплата" value={displayValue(data.paymentMethod)} />
+        ) : null}
+        {data.comment?.trim() ? (
+          <PassportRow label="Комментарий" value={data.comment.trim()} />
+        ) : null}
+        <PassportRow
+          label="Стоимость товаров"
+          value={displayPrice(data.productPriceRub, formatPrice)}
+        />
+        <PassportRow
+          label="Доставка"
+          value={displayPrice(data.deliveryPriceRub, formatPrice)}
+        />
+        <div className={`${styles.row} ${styles.totalRow}`}>
+          <span className={styles.label}>Итого</span>
+          <span className={styles.totalValue}>
+            {displayPrice(data.totalRub, formatPrice)}
+          </span>
+        </div>
+        <PassportRow label="Курьер" value={displayValue(data.courierStatus)} />
+        {!data.hasConfirmedOrder ? (
+          <p className={styles.trackingNote}>
+            Отслеживание появится после подтверждения заказа
+          </p>
+        ) : null}
+      </article>
     </article>
   );
 }
