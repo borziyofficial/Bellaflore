@@ -2259,6 +2259,7 @@ export default function Home() {
     <MyOrderHub
       passport={orderPassport}
       hasDraftOrder={hasDraftOrder}
+      latestOrderNumber={latestOrderId || null}
       favoritesCount={favoriteBouquetIds.length}
       activeSection={profileActiveSection}
       onActiveSectionChange={setProfileActiveSection}

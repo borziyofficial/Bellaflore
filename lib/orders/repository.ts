@@ -142,10 +142,81 @@ async function findWithSql(
   return mapOrder(row, itemRows);
 }
 
+async function attachItems(
+  sql: postgres.Sql | postgres.TransactionSql,
+  rows: OrderRow[],
+): Promise<StoredOrderRecord[]> {
+  if (rows.length === 0) {
+    return [];
+  }
+  const orderIds = rows.map((row) => row.id);
+  const itemRows = await sql<OrderItemRow[]>`
+    SELECT * FROM order_items WHERE order_id IN ${sql(orderIds)} ORDER BY created_at, id
+  `;
+  return rows.map((row) =>
+    mapOrder(
+      row,
+      itemRows.filter((item) => item.order_id === row.id),
+    ),
+  );
+}
+
 export class PostgresOrderRepository implements OrderRepository {
   async findByIdempotencyKey(key: string): Promise<StoredOrderRecord | null> {
     try {
       return await findWithSql(getOrdersSqlClient(), key);
+    } catch (error) {
+      if (error instanceof OrderError) {
+        throw error;
+      }
+      throw storageError(error);
+    }
+  }
+
+  async findByPublicNumber(publicNumber: string): Promise<StoredOrderRecord | null> {
+    const normalized = publicNumber.trim().toUpperCase();
+    if (!normalized) {
+      return null;
+    }
+    try {
+      const sql = getOrdersSqlClient();
+      const rows = await sql<OrderRow[]>`
+        SELECT * FROM orders WHERE public_number = ${normalized} LIMIT 1
+      `;
+      const row = rows[0];
+      if (!row) {
+        return null;
+      }
+      const itemRows = await sql<OrderItemRow[]>`
+        SELECT * FROM order_items WHERE order_id = ${row.id} ORDER BY created_at, id
+      `;
+      return mapOrder(row, itemRows);
+    } catch (error) {
+      if (error instanceof OrderError) {
+        throw error;
+      }
+      throw storageError(error);
+    }
+  }
+
+  async findRecentByPhone(
+    phone: string,
+    limit = 20,
+  ): Promise<StoredOrderRecord[]> {
+    const normalized = phone.replace(/[^0-9]/g, "");
+    if (!normalized) {
+      return [];
+    }
+    const safeLimit = Math.min(Math.max(limit, 1), 50);
+    try {
+      const sql = getOrdersSqlClient();
+      const rows = await sql<OrderRow[]>`
+        SELECT * FROM orders
+        WHERE regexp_replace(customer_phone, '[^0-9]', '', 'g') = ${normalized}
+        ORDER BY created_at DESC
+        LIMIT ${safeLimit}
+      `;
+      return await attachItems(sql, rows);
     } catch (error) {
       if (error instanceof OrderError) {
         throw error;

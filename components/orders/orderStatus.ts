@@ -225,6 +225,95 @@ export function isKanbanDraggable(statusId: string): boolean {
   return Boolean(normalizedStatusId && normalizedStatusId !== "CANCELLED");
 }
 
+// ==================================================
+// SECTION: CUSTOMER STATUS
+// РАЗДЕЛ: Статусы заказа для покупателя («Мой заказ»)
+//
+// Purpose (EN):
+// Maps the raw server order status (7 internal values, incl. legacy
+// "NEW") down to exactly the 6 customer-facing Russian statuses used
+// in the "Мой заказ" section. Additive only — does not change the
+// admin/kanban registry above.
+//
+// Назначение (RU):
+// Сопоставляет статус заказа с сервера с 6 статусами для покупателя
+// в разделе «Мой заказ». Не изменяет реестр admin/kanban выше.
+// ==================================================
+export type CustomerOrderStatusId =
+  | "NEW"
+  | "CONFIRMED"
+  | "PREPARING"
+  | "COURIER"
+  | "DELIVERED"
+  | "CANCELLED";
+
+export type CustomerOrderStatusDefinition = {
+  id: CustomerOrderStatusId;
+  label: string;
+  colorToken: string;
+};
+
+const CUSTOMER_ORDER_STATUS_DEFINITIONS: Record<
+  CustomerOrderStatusId,
+  CustomerOrderStatusDefinition
+> = {
+  NEW: { id: "NEW", label: "Новый", colorToken: "order-status-created" },
+  CONFIRMED: {
+    id: "CONFIRMED",
+    label: "Подтверждён",
+    colorToken: "order-status-confirmed",
+  },
+  PREPARING: {
+    id: "PREPARING",
+    label: "Собирается",
+    colorToken: "order-status-preparing",
+  },
+  COURIER: {
+    id: "COURIER",
+    label: "Передан курьеру",
+    colorToken: "order-status-courier-assigned",
+  },
+  DELIVERED: {
+    id: "DELIVERED",
+    label: "Доставлен",
+    colorToken: "order-status-delivered",
+  },
+  CANCELLED: {
+    id: "CANCELLED",
+    label: "Отменён",
+    colorToken: "order-status-cancelled",
+  },
+};
+
+export function getCustomerFacingOrderStatus(
+  rawStatus: string,
+): CustomerOrderStatusDefinition {
+  const normalized = rawStatus.trim().toUpperCase();
+
+  switch (normalized) {
+    case "NEW":
+    case "CREATED":
+      return CUSTOMER_ORDER_STATUS_DEFINITIONS.NEW;
+    case "CONFIRMED":
+      return CUSTOMER_ORDER_STATUS_DEFINITIONS.CONFIRMED;
+    case "PREPARING":
+      return CUSTOMER_ORDER_STATUS_DEFINITIONS.PREPARING;
+    case "COURIER_ASSIGNED":
+    case "OUT_FOR_DELIVERY":
+      return CUSTOMER_ORDER_STATUS_DEFINITIONS.COURIER;
+    case "DELIVERED":
+      return CUSTOMER_ORDER_STATUS_DEFINITIONS.DELIVERED;
+    case "CANCELLED":
+      return CUSTOMER_ORDER_STATUS_DEFINITIONS.CANCELLED;
+    default:
+      return CUSTOMER_ORDER_STATUS_DEFINITIONS.NEW;
+  }
+}
+
+export function getCustomerFacingOrderStatusLabel(rawStatus: string): string {
+  return getCustomerFacingOrderStatus(rawStatus).label;
+}
+
 export function isValidKanbanDragTarget(
   fromStatusId: string,
   toStatusId: OrderStatusId,

@@ -41,6 +41,26 @@ class MemoryRepository implements OrderRepository {
     this.records.set(order.idempotencyKey, order);
     return { order, replayed: false };
   }
+
+  async findByPublicNumber(publicNumber: string) {
+    const normalized = publicNumber.trim().toUpperCase();
+    for (const record of this.records.values()) {
+      if (record.publicNumber === normalized) {
+        return record;
+      }
+    }
+    return null;
+  }
+
+  async findRecentByPhone(phone: string, limit = 20) {
+    const normalized = phone.replace(/[^0-9]/g, "");
+    return [...this.records.values()]
+      .filter(
+        (record) => record.customerPhone.replace(/[^0-9]/g, "") === normalized,
+      )
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+      .slice(0, limit);
+  }
 }
 
 function createHandler(options?: { catalog?: OrderCatalogGateway }) {

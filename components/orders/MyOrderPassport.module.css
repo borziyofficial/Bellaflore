@@ -18,6 +18,108 @@
   text-align: center;
 }
 
+.passportWrap {
+  display: grid;
+  gap: 10px;
+}
+
+.statusHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 2px 2px 0;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(234, 214, 214, 0.32);
+  color: #2f2a24;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+.statusNEW {
+  background: rgba(213, 224, 255, 0.42);
+  color: #2d3a66;
+}
+
+.statusCONFIRMED {
+  background: rgba(207, 232, 210, 0.5);
+  color: #2b5a34;
+}
+
+.statusPREPARING {
+  background: rgba(255, 231, 189, 0.55);
+  color: #7a4b12;
+}
+
+.statusCOURIER {
+  background: rgba(255, 214, 165, 0.55);
+  color: #7a3f12;
+}
+
+.statusDELIVERED {
+  background: rgba(198, 232, 205, 0.6);
+  color: #1f5a2a;
+}
+
+.statusCANCELLED {
+  background: rgba(240, 198, 198, 0.5);
+  color: #7a2020;
+}
+
+.orderNumber {
+  color: #3d3630;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.orderDate {
+  color: #75695c;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.itemsRow {
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.itemsList {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.itemRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.itemName {
+  color: #2f2a24;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.itemPrice {
+  color: #2f2a24;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .passport {
   display: grid;
   gap: 0;
@@ -142,5 +244,15 @@
   .value,
   .totalValue {
     text-align: left;
+  }
+
+  .itemRow {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .statusBadge {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }

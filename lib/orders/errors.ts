@@ -8,7 +8,9 @@ export type OrderErrorCode =
   | "DELIVERY_OUTSIDE_AREA"
   | "IDEMPOTENCY_CONFLICT"
   | "ORDER_STORAGE_NOT_READY"
-  | "ORDER_STORAGE_ERROR";
+  | "ORDER_STORAGE_ERROR"
+  | "ORDER_LOOKUP_INVALID"
+  | "ORDER_NOT_FOUND";
 
 export class OrderError extends Error {
   constructor(
