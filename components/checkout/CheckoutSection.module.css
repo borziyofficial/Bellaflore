@@ -342,6 +342,31 @@
   line-height: 1.4;
 }
 
+.checkoutMapWrap {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.checkoutMapToggle {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(201, 162, 75, 0.32);
+  border-radius: var(--bf-button-radius, 999px);
+  background: rgba(201, 162, 75, 0.1);
+  color: #6a4f14;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.checkoutMapToggle:active {
+  transform: scale(0.99);
+  background: rgba(201, 162, 75, 0.18);
+}
+
 .checkoutSubmitRow {
   margin: 0;
 }

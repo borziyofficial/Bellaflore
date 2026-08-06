@@ -79,6 +79,10 @@ import {
 } from "@/components/navigation/bottomNavPanels";
 import { OrdersSection } from "@/components/order/OrdersSection";
 import { MyOrderHub } from "@/components/orders/MyOrderHub";
+import {
+  readCustomerProfile,
+  writeCustomerProfile,
+} from "@/components/orders/customerProfileStorage";
 import type { OrderPassportData } from "@/components/orders/MyOrderPassport";
 import type { ProfileHubSectionId } from "@/components/orders/profileHubTypes";
 import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
@@ -513,6 +517,38 @@ export default function Home() {
     cardMessage: "",
     comment: "",
   });
+
+  // Prefill name/phone/address from the locally saved profile once, on
+  // first mount only — never overwrites what the customer is actively
+  // typing into checkout. Deferred to a microtask (rather than set
+  // directly in the effect body) so this reads as an async sync-from
+  // -external-storage step, matching the pattern used elsewhere for
+  // browser-storage-backed state in this codebase.
+  useEffect(() => {
+    let cancelled = false;
+
+    void Promise.resolve().then(() => {
+      if (cancelled) {
+        return;
+      }
+
+      const savedProfile = readCustomerProfile();
+      if (!savedProfile.name && !savedProfile.phone && !savedProfile.defaultAddress) {
+        return;
+      }
+
+      setCheckoutForm((current) => ({
+        ...current,
+        name: current.name || savedProfile.name,
+        phone: current.phone || savedProfile.phone,
+        address: current.address || savedProfile.defaultAddress,
+      }));
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [reviews, setReviews] = useState<BellafloreReview[]>(initialReviews);
   const [reviewForm, setReviewForm] = useState<ReviewForm>({
     name: "",
@@ -2121,6 +2157,11 @@ export default function Home() {
       const paymentMethodLabel = paymentMethodLabels[paymentMethod];
 
       setCheckoutOrderPayload(confirmedPayload);
+      writeCustomerProfile({
+        name: checkoutForm.name.trim(),
+        phone: checkoutForm.phone.trim(),
+        defaultAddress: checkoutForm.address.trim(),
+      });
 
       const order = buildCheckoutStoredOrder({
         orderId: serverOrder.orderNumber,
