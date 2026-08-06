@@ -13,6 +13,7 @@
 import {
   cacheGeocodingFromAddressSuggestion,
   confirmAddressSuggestionSelection,
+  confirmMapPointSelection,
 } from "@/components/checkout/checkoutGeocodingBridge";
 import {
   canSubmitCheckoutWithDeliveryPrice,
@@ -26,6 +27,11 @@ import type { DeliveryValidationResult } from "@/components/deliveryValidation/d
 import type { DeliveryPriceResult } from "@/components/deliveryZones/deliveryPriceTypes";
 import { getDeliveryPriceUnavailableMessage } from "@/components/deliveryZones/deliveryPriceTypes";
 import type { RealDeliveryZoneResult } from "@/components/deliveryZones/realDeliveryZoneTypes";
+import {
+  DeliveryZoneMap,
+  type MapPointSelection,
+} from "@/components/deliveryZones/DeliveryZoneMap";
+import type { DeliveryZoneMapMarker } from "@/components/deliveryZones/deliveryZoneMapTypes";
 import { AddressIntelligenceInput } from "@/components/checkout/AddressIntelligenceInput";
 import checkoutSectionStyles from "@/components/checkout/CheckoutSection.module.css";
 import type { AddressSuggestion } from "@/components/addressIntelligence/addressIntelligenceTypes";
@@ -55,6 +61,7 @@ import type {
 } from "@/components/product/productExperienceTypes";
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
@@ -228,6 +235,11 @@ export function CheckoutSection({
   const selectedSuggestionAddressRef = useRef<string | null>(null);
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
   const [openStep, setOpenStep] = useState<CheckoutStepId | null>("recipient");
+  // Map is never mounted (and the Yandex SDK never loaded) until the
+  // customer has a resolved address point or explicitly opens it — keeps
+  // checkout light until a map is actually useful.
+  const [mapVisible, setMapVisible] = useState(false);
+  const hasAutoOpenedMapRef = useRef(false);
 
   const toggleCheckoutStep = (stepId: CheckoutStepId) => {
     setOpenStep((current) => (current === stepId ? null : stepId));
@@ -308,6 +320,47 @@ export function CheckoutSection({
     }
 
     selectedSuggestionAddressRef.current = null;
+  };
+
+  // Coordinates for the currently resolved delivery address, if any — used
+  // to place the pin on the checkout map and to gate whether the map has
+  // anything worth showing yet.
+  const checkoutAddressLabel =
+    checkoutForm.address.trim() || realDeliveryZoneResult.address;
+  const checkoutMapMarker: DeliveryZoneMapMarker | null = useMemo(() => {
+    if (
+      realDeliveryZoneResult.latitude === null ||
+      realDeliveryZoneResult.longitude === null
+    ) {
+      return null;
+    }
+
+    return {
+      latitude: realDeliveryZoneResult.latitude,
+      longitude: realDeliveryZoneResult.longitude,
+      label: checkoutAddressLabel,
+    };
+  }, [
+    checkoutAddressLabel,
+    realDeliveryZoneResult.latitude,
+    realDeliveryZoneResult.longitude,
+  ]);
+
+  // Reveal the map the first time an address resolves to coordinates, so
+  // customers see their pin appear automatically; after that the visitor's
+  // own show/hide choice is respected instead of re-forcing it open.
+  useEffect(() => {
+    if (checkoutMapMarker && !hasAutoOpenedMapRef.current) {
+      hasAutoOpenedMapRef.current = true;
+      setMapVisible(true);
+    }
+  }, [checkoutMapMarker]);
+
+  const handleMapPointSelect = (point: MapPointSelection) => {
+    handleAddressEdit();
+    handleCheckoutFieldChange("address", point.address);
+    markFieldTouched("address");
+    void confirmMapPointSelection(point.latitude, point.longitude, point.address);
   };
 
   const addressFieldShowValidation =
@@ -578,6 +631,29 @@ export function CheckoutSection({
                       </span>
                     ) : null}
                   </label>
+
+                  {checkoutMapMarker ? (
+                    <div className={checkoutSectionStyles.checkoutMapWrap}>
+                      <button
+                        type="button"
+                        className={checkoutSectionStyles.checkoutMapToggle}
+                        aria-expanded={mapVisible}
+                        onClick={() => setMapVisible((current) => !current)}
+                      >
+                        {mapVisible ? "Скрыть карту" : "Показать на карте"}
+                      </button>
+                      {mapVisible ? (
+                        <DeliveryZoneMap
+                          variant="checkout"
+                          selectedZoneId={realDeliveryZoneResult.selectedZoneId}
+                          zoneStatus={realDeliveryZoneResult.status}
+                          marker={checkoutMapMarker}
+                          formatPrice={formatPrice}
+                          onMapPointSelect={handleMapPointSelect}
+                        />
+                      ) : null}
+                    </div>
+                  ) : null}
                 </CheckoutGlassStep>
 
                 <CheckoutGlassStep
