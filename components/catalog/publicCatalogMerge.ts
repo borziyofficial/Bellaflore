@@ -7,20 +7,38 @@ import { catalogProducts as SEED_CATALOG } from "@/data/catalogProducts";
 
 export const PUBLIC_CATALOG_PLACEHOLDER_IMAGE = "/roza rouze royal.PNG";
 
+function getSeedFallbackCatalog(): CatalogProduct[] {
+  return process.env.NODE_ENV === "production" ? [] : SEED_CATALOG;
+}
+
+export function isPublicStorefrontProductOrderable(product: CatalogProduct): boolean {
+  return (
+    product.sizes?.some(
+      (size) =>
+        Number.isSafeInteger(size.price) &&
+        size.price > 0 &&
+        typeof size.label === "string" &&
+        size.label.length > 0,
+    ) ?? false
+  );
+}
+
 /**
- * publicProducts = seedCatalogProducts + publishedDatabaseProducts
- * Seed entries are never replaced or removed.
+ * publicProducts = publishedDatabaseProducts.
+ * Seed entries are only a development fallback when the persisted catalog is unavailable.
  */
 export function mergePublicStorefrontCatalog(
   publishedDatabaseProducts: CatalogProduct[] = [],
 ): CatalogProduct[] {
-  const seedIds = new Set(SEED_CATALOG.map((product) => product.id));
-
-  const publishedAdminProducts = publishedDatabaseProducts.filter(
-    (product) => !seedIds.has(product.id),
+  const orderableProducts = publishedDatabaseProducts.filter(
+    isPublicStorefrontProductOrderable,
   );
 
-  return [...SEED_CATALOG, ...publishedAdminProducts];
+  if (orderableProducts.length > 0) {
+    return orderableProducts;
+  }
+
+  return getSeedFallbackCatalog();
 }
 
 export function findPublicStorefrontProduct(
