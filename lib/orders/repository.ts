@@ -162,6 +162,94 @@ async function attachItems(
 }
 
 export class PostgresOrderRepository implements OrderRepository {
+  async listRecent(options: {
+    status?: OrderStatus;
+    limit?: number;
+  } = {}): Promise<StoredOrderRecord[]> {
+    const safeLimit = Math.min(Math.max(options.limit ?? 50, 1), 100);
+    try {
+      const sql = getOrdersSqlClient();
+      const rows = options.status
+        ? await sql<OrderRow[]>`
+            SELECT * FROM orders
+            WHERE status = ${options.status}
+            ORDER BY created_at DESC
+            LIMIT ${safeLimit}
+          `
+        : await sql<OrderRow[]>`
+            SELECT * FROM orders
+            ORDER BY created_at DESC
+            LIMIT ${safeLimit}
+          `;
+      return await attachItems(sql, rows);
+    } catch (error) {
+      if (error instanceof OrderError) {
+        throw error;
+      }
+      throw storageError(error);
+    }
+  }
+
+  async findByIdOrPublicNumber(identifier: string): Promise<StoredOrderRecord | null> {
+    const normalized = identifier.trim();
+    if (!normalized) {
+      return null;
+    }
+    try {
+      const sql = getOrdersSqlClient();
+      const rows = await sql<OrderRow[]>`
+        SELECT * FROM orders
+        WHERE id::text = ${normalized} OR public_number = ${normalized.toUpperCase()}
+        LIMIT 1
+      `;
+      const row = rows[0];
+      if (!row) {
+        return null;
+      }
+      const itemRows = await sql<OrderItemRow[]>`
+        SELECT * FROM order_items WHERE order_id = ${row.id} ORDER BY created_at, id
+      `;
+      return mapOrder(row, itemRows);
+    } catch (error) {
+      if (error instanceof OrderError) {
+        throw error;
+      }
+      throw storageError(error);
+    }
+  }
+
+  async updateStatus(
+    identifier: string,
+    status: OrderStatus,
+  ): Promise<StoredOrderRecord | null> {
+    const normalized = identifier.trim();
+    if (!normalized) {
+      return null;
+    }
+    try {
+      const sql = getOrdersSqlClient();
+      const rows = await sql<OrderRow[]>`
+        UPDATE orders
+        SET status = ${status}, updated_at = NOW()
+        WHERE id::text = ${normalized} OR public_number = ${normalized.toUpperCase()}
+        RETURNING *
+      `;
+      const row = rows[0];
+      if (!row) {
+        return null;
+      }
+      const itemRows = await sql<OrderItemRow[]>`
+        SELECT * FROM order_items WHERE order_id = ${row.id} ORDER BY created_at, id
+      `;
+      return mapOrder(row, itemRows);
+    } catch (error) {
+      if (error instanceof OrderError) {
+        throw error;
+      }
+      throw storageError(error);
+    }
+  }
+
   async findByIdempotencyKey(key: string): Promise<StoredOrderRecord | null> {
     try {
       return await findWithSql(getOrdersSqlClient(), key);

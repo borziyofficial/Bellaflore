@@ -7,14 +7,16 @@ export const ORDER_PAYMENT_METHODS = [
 ] as const;
 export type OrderPaymentMethod = (typeof ORDER_PAYMENT_METHODS)[number];
 
-export type OrderStatus =
-  | "NEW"
-  | "CONFIRMED"
-  | "PREPARING"
-  | "COURIER_ASSIGNED"
-  | "OUT_FOR_DELIVERY"
-  | "DELIVERED"
-  | "CANCELLED";
+export const ORDER_STATUSES = [
+  "NEW",
+  "CONFIRMED",
+  "PREPARING",
+  "COURIER_ASSIGNED",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELLED",
+] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export type OrderProductSource = "catalog_products" | "admin_bouquets";
 
