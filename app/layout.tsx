@@ -49,7 +49,10 @@ export const metadata: Metadata = {
         follow: false,
         noarchive: true,
       }
-    : undefined,
+    : {
+        index: true,
+        follow: true,
+      },
   openGraph: {
     title: homepageTitle,
     description: homepageDescription,
