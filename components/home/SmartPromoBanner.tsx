@@ -10,6 +10,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type TouchEvent } from "react";
+import Image from "next/image";
 import styles from "@/components/home/SmartPromoBanner.module.css";
 
 export type SmartPromoSlide = {
@@ -227,15 +228,12 @@ export function SmartPromoBanner({
                 inert={index !== safeActiveIndex}
               >
                 <div className={styles.imageWrap}>
-                  {/* Plain <img>, not next/image — banner images can come from
-                      arbitrary admin uploads (Vercel Blob) with no fixed
-                      remote-pattern config, same approach already used for
-                      admin-uploaded images elsewhere in the admin panel. */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={slide.imageUrl}
                     alt={title || "Специальное предложение"}
                     className={styles.image}
+                    fill
+                    sizes="(max-width: 639px) 100vw, (max-width: 1279px) 100vw, 1280px"
                     loading={isFirst ? "eager" : "lazy"}
                     fetchPriority={isFirst ? "high" : "auto"}
                     decoding="async"
