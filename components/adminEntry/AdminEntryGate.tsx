@@ -8,7 +8,9 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import {
   getAdminEntrySession,
+  hasValidAdminServerSession,
   hasValidAdminEntrySession,
+  logoutAdminEntrySession,
 } from "@/components/adminEntry/adminEntryAuth";
 import type { AdminEntryGateProps, AdminEntryGateState } from "@/components/adminEntry/adminEntryTypes";
 import { buildAdminLoginRedirectUrl } from "@/components/adminEntry/adminEntryRoutes";
@@ -48,17 +50,39 @@ export function AdminEntryGate({ route, children }: AdminEntryGateProps) {
   const [deniedMessage, setDeniedMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const next = resolveGateState(route);
+    let cancelled = false;
 
-    if (next.state === "unauthenticated") {
-      router.replace(buildAdminLoginRedirectUrl(route));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setGateState("unauthenticated");
-      return;
-    }
+    const verifyAccess = async () => {
+      const next = resolveGateState(route);
 
-    setDeniedMessage(next.deniedMessage);
-    setGateState(next.state);
+      if (next.state === "unauthenticated") {
+        router.replace(buildAdminLoginRedirectUrl(route));
+        if (!cancelled) {
+          setGateState("unauthenticated");
+        }
+        return;
+      }
+
+      if (!(await hasValidAdminServerSession())) {
+        await logoutAdminEntrySession();
+        router.replace(buildAdminLoginRedirectUrl(route));
+        if (!cancelled) {
+          setGateState("unauthenticated");
+        }
+        return;
+      }
+
+      if (!cancelled) {
+        setDeniedMessage(next.deniedMessage);
+        setGateState(next.state);
+      }
+    };
+
+    void verifyAccess();
+
+    return () => {
+      cancelled = true;
+    };
   }, [route, router]);
 
   if (gateState === "loading" || gateState === "unauthenticated") {
