@@ -180,7 +180,12 @@ export async function getDeliveryZoneEntriesFromDb(): Promise<
     await seedIfEmpty(sql);
     const rows = await sql<DeliveryZoneRow[]>`SELECT * FROM delivery_zones`;
     return rowsToEntries(rows);
-  } catch {
+  } catch (err) {
+    // Defensive: return null rather than throwing, so hydration never breaks
+    // pricing. In development, log the error for debugging.
+    if (process.env.NODE_ENV !== "production") {
+      console.error("[deliveryZonesDb] getDeliveryZoneEntriesFromDb error:", err);
+    }
     return null;
   }
 }
