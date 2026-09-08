@@ -1,14 +1,17 @@
 // ==================================================
-// SECTION: ADMIN APP — Dashboard module (Stage 1 placeholder)
+// SECTION: ADMIN APP — Dashboard module
 // ==================================================
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import {
-  getNewOrdersCount,
-  getTodayOrdersCount,
-  getTodayRevenue,
-} from "@/components/admin/adminDashboardMetrics";
+  type AdminOrder,
+  buildDashboardOrderMetrics,
+  fetchAdminOrders,
+  formatOrderPrice,
+  orderStatusLabels,
+} from "@/lib/orders/adminClient";
 import {
   AdminModuleHeader,
   AdminPanel,
@@ -20,49 +23,87 @@ const QUICK_ACTIONS = [
   { label: "Добавить букет", hint: "Создать", href: "/admin/add" },
   { label: "Букеты", hint: "Каталог", href: "/admin/bouquets" },
   { label: "Заказы", hint: "Поток заказов", href: "/admin/orders" },
-  { label: "Умный баннер", hint: "Главная страница", href: "/admin/smart-banner" },
+  { label: "Клиенты", hint: "CRM", href: "/admin/crm/clients" },
+  { label: "Зоны доставки", hint: "Границы и тарифы", href: "/admin/delivery-zones" },
 ];
-
-const NOTIFICATIONS = [
-  "Новый заказ ожидает подтверждения",
-  "Низкий остаток: White Pearl",
-  "Доставка на сегодня: 3 маршрута",
-];
-
-function formatRub(value: number): string {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 export function AdminDashboardModule() {
-  const todayOrders = getTodayOrdersCount();
-  const todayRevenue = getTodayRevenue();
-  const pendingOrders = getNewOrdersCount();
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function loadOrders() {
+    setLoading(true);
+    setErrorMessage("");
+    try {
+      setOrders(await fetchAdminOrders());
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Не удалось загрузить сводку заказов.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => void loadOrders(), 0);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  const metrics = useMemo(() => buildDashboardOrderMetrics(orders), [orders]);
 
   return (
     <div className={ui.stack}>
       <AdminModuleHeader
         title="Главная"
-        subtitle="Сводка магазина на сегодня"
+        subtitle="Сводка из Production Orders DB"
+        action={
+          <button className={ui.actionButton} type="button" onClick={loadOrders}>
+            Обновить
+          </button>
+        }
       />
 
-      <div className={ui.statGrid}>
-        <AdminStatCard label="Заказы сегодня" value={String(todayOrders)} hint="Заказы за сегодня" />
+      {errorMessage ? <p>{errorMessage}</p> : null}
+
+      <div className={ui.statGrid} aria-busy={loading}>
+        <AdminStatCard
+          label="Заказы сегодня"
+          value={loading ? "—" : String(metrics.todayOrders)}
+          hint="По Москве"
+        />
         <AdminStatCard
           label="Выручка сегодня"
-          value={formatRub(todayRevenue)}
-          hint="Выручка за сегодня"
+          value={loading ? "—" : formatOrderPrice(metrics.todayRevenue)}
+          hint="Без отменённых"
         />
         <AdminStatCard
-          label="Ожидают обработки"
-          value={String(pendingOrders)}
+          label="Новые заказы"
+          value={loading ? "—" : String(metrics.newOrders)}
           hint="Ожидают обработки"
         />
-        <AdminStatCard label="Низкий остаток" value="—" hint="Появится на следующем этапе" />
+        <AdminStatCard
+          label="Всего заказов"
+          value={loading ? "—" : String(metrics.totalOrders)}
+          hint="Последние 100"
+        />
       </div>
+
+      <AdminPanel title="Статусы заказов">
+        {loading ? (
+          <div className={ui.emptyZone}>Загружаем статусы…</div>
+        ) : (
+          <ul className={ui.list}>
+            {Object.entries(metrics.statusCounts).map(([status, count]) => (
+              <li key={status} className={ui.listItem}>
+                <span>{orderStatusLabels[status as AdminOrder["status"]]}</span>
+                <span className={ui.listItemMuted}>{count}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </AdminPanel>
 
       <AdminPanel title="Быстрые действия">
         <div className={ui.quickGrid}>
@@ -73,17 +114,6 @@ export function AdminDashboardModule() {
             </Link>
           ))}
         </div>
-      </AdminPanel>
-
-      <AdminPanel title="Последние уведомления">
-        <ul className={ui.list}>
-          {NOTIFICATIONS.map((item) => (
-            <li key={item} className={ui.listItem}>
-              <span>{item}</span>
-              <span className={ui.listItemMuted}>Демо</span>
-            </li>
-          ))}
-        </ul>
       </AdminPanel>
     </div>
   );

@@ -22,7 +22,7 @@ export type MkadPolygonPoint = GeoCoordinate;
  * - Near outside MKAD north { latitude: 55.935, longitude: 37.620 } → ~7 km zone
  * - Far outside north { latitude: 56.25, longitude: 37.620 } → outside_delivery_area
  */
-export const MKAD_POLYGON_COORDINATES: MkadPolygonPoint[] = [
+export const DEFAULT_MKAD_POLYGON_COORDINATES: MkadPolygonPoint[] = [
   { latitude: 55.8267, longitude: 37.391 },
   { latitude: 55.8445, longitude: 37.418 },
   { latitude: 55.8592, longitude: 37.4455 },
@@ -71,3 +71,38 @@ export const MKAD_POLYGON_COORDINATES: MkadPolygonPoint[] = [
   { latitude: 55.8805, longitude: 37.352 },
   { latitude: 55.89, longitude: 37.384 },
 ];
+
+/**
+ * Effective MKAD polygon — Zone 1's boundary. Starts out equal to
+ * DEFAULT_MKAD_POLYGON_COORDINATES above (the built-in fallback), but its
+ * *contents* can be replaced in place (not the array reference) once an
+ * administrator saves an edited Zone 1 polygon via Admin → Delivery zones
+ * (see lib/deliveryZonesDb.ts). Every consumer that reads
+ * MKAD_POLYGON_COORDINATES at call time (all of them do today — none cache
+ * a copy at module load) automatically sees the admin-edited shape without
+ * any code changes on their part.
+ */
+export const MKAD_POLYGON_COORDINATES: MkadPolygonPoint[] = [
+  ...DEFAULT_MKAD_POLYGON_COORDINATES,
+];
+
+/**
+ * Replaces the effective MKAD polygon in place. Validated by the caller
+ * (lib/deliveryZonesDb.ts / the admin service layer) before this runs —
+ * this function itself only guards against an obviously-broken (too few
+ * points) replacement so a bad admin save can never leave Zone 1 empty.
+ */
+export function applyMkadPolygonOverride(points: MkadPolygonPoint[]): void {
+  if (points.length < 3) {
+    throw new Error(
+      "applyMkadPolygonOverride: a polygon needs at least 3 points",
+    );
+  }
+  MKAD_POLYGON_COORDINATES.length = 0;
+  MKAD_POLYGON_COORDINATES.push(...points.map((point) => ({ ...point })));
+}
+
+/** Testing/rollback helper — restores the built-in default MKAD shape. */
+export function resetMkadPolygonToDefault(): void {
+  applyMkadPolygonOverride(DEFAULT_MKAD_POLYGON_COORDINATES);
+}

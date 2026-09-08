@@ -23,6 +23,8 @@ const ORDER: StoredOrderRecord = {
   deliveryDate: "2026-08-30",
   deliveryInterval: "12:00–15:00",
   paymentMethod: "cashOnDelivery",
+  paymentStatus: "PENDING",
+  cancellationReason: null,
   customerComment: "Позвонить за час",
   subtotal: 5900,
   deliveryCost: 790,
@@ -68,7 +70,11 @@ class MemoryAdminOrderRepository implements AdminOrderRepository {
       : null;
   }
 
-  async updateStatus(identifier: string, status: OrderStatus) {
+  async updateStatus(
+    identifier: string,
+    status: OrderStatus,
+    options: { cancellationReason?: string | null } = {},
+  ) {
     const record = await this.findByIdOrPublicNumber(identifier);
     if (!record) {
       return null;
@@ -76,6 +82,8 @@ class MemoryAdminOrderRepository implements AdminOrderRepository {
     this.record = {
       ...record,
       status,
+      cancellationReason:
+        status === "CANCELLED" ? (options.cancellationReason ?? null) : null,
       updatedAt: "2026-08-29T10:00:00.000Z",
     };
     return this.record;
@@ -111,6 +119,7 @@ test("admin orders list is protected and returns production order details", asyn
     id: ORDER.id,
     orderNumber: ORDER.publicNumber,
     status: "NEW",
+    paymentStatus: "PENDING",
     customer: { name: "Анна", phone: "+7 999 111-22-33" },
     delivery: {
       address: "Москва, Красная площадь, 1",
@@ -155,7 +164,41 @@ test("admin order detail and status update are protected and persisted", async (
     request(`https://example.test/api/admin/orders/${ORDER.id}`),
     context(),
   );
-  expect((await updated.json()).order.status).toBe("CONFIRMED");
+  const updatedBody = await updated.json();
+  expect(updatedBody.order.status).toBe("CONFIRMED");
+  expect(updatedBody.order.paymentStatus).toBe("PENDING");
+});
+
+test("admin cancellation requires and persists a reason without changing payment", async () => {
+  const repository = new MemoryAdminOrderRepository();
+  const patch = createAdminOrderStatusPatchHandler({ repository, authorize: () => true });
+
+  const missingReason = await patch(
+    request(`https://example.test/api/admin/orders/${ORDER.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "CANCELLED" }),
+    }),
+    context(),
+  );
+  expect(missingReason.status).toBe(400);
+
+  const cancelled = await patch(
+    request(`https://example.test/api/admin/orders/${ORDER.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "CANCELLED", cancellationReason: "TEST отмена" }),
+    }),
+    context(),
+  );
+  expect(cancelled.status).toBe(200);
+  await expect(cancelled.json()).resolves.toMatchObject({
+    order: {
+      status: "CANCELLED",
+      paymentStatus: "PENDING",
+      cancellationReason: "TEST отмена",
+    },
+  });
 });
 
 test("admin order status update rejects invalid status", async () => {

@@ -42,9 +42,9 @@ const CHECKOUT_TEST_COORDINATES = {
 
 const CHECKOUT_TEST_GEOCODING_PROVIDER = "preview_test_fixture";
 
-function readPublicEnv(name: string): string {
-  return (process.env[name] ?? "").trim();
-}
+const PUBLIC_VERCEL_ENV = process.env.NEXT_PUBLIC_VERCEL_ENV?.trim() ?? "";
+const PUBLIC_CHECKOUT_PREVIEW_TEST_MODE =
+  process.env.NEXT_PUBLIC_CHECKOUT_PREVIEW_TEST_MODE?.trim() ?? "";
 
 /**
  * True only on a Vercel Preview deployment that has explicitly opted in via
@@ -53,8 +53,8 @@ function readPublicEnv(name: string): string {
  */
 export function isCheckoutPreviewTestModeEnabled(): boolean {
   return (
-    readPublicEnv("NEXT_PUBLIC_VERCEL_ENV") === "preview" &&
-    readPublicEnv("NEXT_PUBLIC_CHECKOUT_PREVIEW_TEST_MODE") === "1"
+    PUBLIC_VERCEL_ENV === "preview" &&
+    PUBLIC_CHECKOUT_PREVIEW_TEST_MODE === "1"
   );
 }
 

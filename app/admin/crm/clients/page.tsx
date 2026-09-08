@@ -10,11 +10,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AdminAppShell } from "@/components/adminEntry";
 import {
-  type BackendOrder,
-  formatDate,
-  formatPrice,
-  getOrdersUrl,
-} from "../../../orders/orderUtils";
+  type AdminOrder,
+  fetchAdminOrders,
+  formatOrderDate as formatDate,
+  formatOrderPrice as formatPrice,
+} from "@/lib/orders/adminClient";
 import { ADMIN_LOGIN_PATH, hasAdminSession } from "../../auth";
 import styles from "./CrmClientsPage.module.css";
 
@@ -34,38 +34,38 @@ function normalizeSearch(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function buildClientSummaries(orders: BackendOrder[]): ClientSummary[] {
+function buildClientSummaries(orders: AdminOrder[]): ClientSummary[] {
   const clientsByPhone = new Map<string, ClientSummary>();
 
   orders.forEach((order) => {
-    const phoneKey = normalizePhone(order.customer_phone) || order.customer_phone;
+    const phoneKey = normalizePhone(order.customer.phone) || order.customer.phone;
     const existingClient = clientsByPhone.get(phoneKey);
-    const currentOrderTime = new Date(order.created_at).getTime();
+    const currentOrderTime = new Date(order.createdAt).getTime();
     const existingOrderTime = existingClient
       ? new Date(existingClient.lastOrderDate).getTime()
       : Number.NEGATIVE_INFINITY;
 
     if (!existingClient) {
       clientsByPhone.set(phoneKey, {
-        name: order.customer_name,
-        phone: order.customer_phone,
+        name: order.customer.name,
+        phone: order.customer.phone,
         totalOrders: 1,
-        totalSpent: order.total_price,
-        lastOrderDate: order.created_at,
+        totalSpent: order.total,
+        lastOrderDate: order.createdAt,
       });
       return;
     }
 
     existingClient.totalOrders += 1;
-    existingClient.totalSpent += order.total_price;
+    existingClient.totalSpent += order.total;
 
     if (
       Number.isNaN(existingOrderTime) ||
       (!Number.isNaN(currentOrderTime) && currentOrderTime > existingOrderTime)
     ) {
-      existingClient.name = order.customer_name;
-      existingClient.phone = order.customer_phone;
-      existingClient.lastOrderDate = order.created_at;
+      existingClient.name = order.customer.name;
+      existingClient.phone = order.customer.phone;
+      existingClient.lastOrderDate = order.createdAt;
     }
   });
 
@@ -104,7 +104,7 @@ export default function CrmClientsPage() {
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [orders, setOrders] = useState<BackendOrder[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -136,13 +136,7 @@ export default function CrmClientsPage() {
       setErrorMessage("");
 
       try {
-        const response = await fetch(getOrdersUrl(), { cache: "no-store" });
-
-        if (!response.ok) {
-          throw new Error(`Orders request failed: ${response.status}`);
-        }
-
-        const loadedOrders = (await response.json()) as BackendOrder[];
+        const loadedOrders = await fetchAdminOrders();
 
         if (!ignore) {
           setOrders(loadedOrders);

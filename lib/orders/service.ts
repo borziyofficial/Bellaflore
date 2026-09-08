@@ -27,11 +27,9 @@ function fingerprintRequest(input: CreateOrderInput): string {
   return createHash("sha256").update(JSON.stringify(canonical)).digest("hex");
 }
 
-function buildPublicNumber(now: Date, id: string): string {
-  const date = now.toISOString().slice(0, 10).replaceAll("-", "");
-  const suffix = id.replaceAll("-", "").slice(0, 10).toUpperCase();
-  return `BF-${date}-${suffix}`;
-}
+// Public order numbers are now assigned atomically by the repository at
+// INSERT time (a sequential "BF-001" style number — see
+// orderNumberSequence.ts), not precomputed here.
 
 function normalizePhoneDigits(phone: string): string {
   return phone.replace(/[^0-9]/g, "");
@@ -96,7 +94,7 @@ export function createOrderService(dependencies: OrderServiceDependencies) {
       });
 
       const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
-      const delivery = calculateServerDeliveryPrice(
+      const delivery = await calculateServerDeliveryPrice(
         input.deliveryLatitude,
         input.deliveryLongitude,
       );
@@ -110,7 +108,6 @@ export function createOrderService(dependencies: OrderServiceDependencies) {
       const id = randomId();
       const order: NewOrderRecord = {
         id,
-        publicNumber: buildPublicNumber(now, id),
         idempotencyKey,
         requestFingerprint,
         customerName: input.customerName,
@@ -124,6 +121,8 @@ export function createOrderService(dependencies: OrderServiceDependencies) {
         deliveryDate: input.deliveryDate,
         deliveryInterval: input.deliveryInterval,
         paymentMethod: input.paymentMethod,
+        paymentStatus: "PENDING",
+        cancellationReason: null,
         customerComment: input.customerComment,
         subtotal,
         deliveryCost: delivery.cost,

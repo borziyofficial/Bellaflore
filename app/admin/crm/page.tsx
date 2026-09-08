@@ -14,41 +14,41 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import {
-  type BackendOrder,
-  formatDate,
-  formatPrice,
-  getOrdersUrl,
+  type AdminOrder,
+  fetchAdminOrders,
+  formatOrderDate as formatDate,
+  formatOrderPrice as formatPrice,
   orderStatusLabels,
-  paymentStatusLabels,
-  sortNewestFirst,
-} from "../../orders/orderUtils";
+  paymentMethodLabel,
+  sortAdminOrdersNewestFirst as sortNewestFirst,
+} from "@/lib/orders/adminClient";
 import { ADMIN_LOGIN_PATH, hasAdminSession } from "../auth";
 
 type CustomerProfile = {
   phoneKey: string;
   name: string;
   phone: string;
-  orders: BackendOrder[];
+  orders: AdminOrder[];
   totalOrders: number;
   totalSpent: number;
   lastOrderDate: string;
-  lastOrderStatus: BackendOrder["order_status"];
+  lastOrderStatus: AdminOrder["status"];
 };
 
 function normalizePhone(value: string): string {
   return value.replace(/\D/g, "");
 }
 
-function getOrderTime(order: BackendOrder): number {
-  const time = new Date(order.created_at).getTime();
+function getOrderTime(order: AdminOrder): number {
+  const time = new Date(order.createdAt).getTime();
   return Number.isNaN(time) ? Number.NEGATIVE_INFINITY : time;
 }
 
-function buildCustomerProfiles(orders: BackendOrder[]): CustomerProfile[] {
-  const customersByPhone = new Map<string, BackendOrder[]>();
+function buildCustomerProfiles(orders: AdminOrder[]): CustomerProfile[] {
+  const customersByPhone = new Map<string, AdminOrder[]>();
 
   orders.forEach((order) => {
-    const phoneKey = normalizePhone(order.customer_phone) || order.customer_phone;
+    const phoneKey = normalizePhone(order.customer.phone) || order.customer.phone;
     const customerOrders = customersByPhone.get(phoneKey) ?? [];
     customerOrders.push(order);
     customersByPhone.set(phoneKey, customerOrders);
@@ -59,19 +59,19 @@ function buildCustomerProfiles(orders: BackendOrder[]): CustomerProfile[] {
       const sortedOrders = sortNewestFirst(customerOrders);
       const lastOrder = sortedOrders[0];
       const totalSpent = sortedOrders.reduce(
-        (total, order) => total + order.total_price,
+        (total, order) => total + order.total,
         0,
       );
 
       return {
         phoneKey,
-        name: lastOrder.customer_name,
-        phone: lastOrder.customer_phone,
+        name: lastOrder.customer.name,
+        phone: lastOrder.customer.phone,
         orders: sortedOrders,
         totalOrders: sortedOrders.length,
         totalSpent,
-        lastOrderDate: lastOrder.created_at,
-        lastOrderStatus: lastOrder.order_status,
+        lastOrderDate: lastOrder.createdAt,
+        lastOrderStatus: lastOrder.status,
       };
     })
     .sort(
@@ -86,7 +86,7 @@ export default function AdminCrmPage() {
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [orders, setOrders] = useState<BackendOrder[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [selectedPhoneKey, setSelectedPhoneKey] = useState("");
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -118,13 +118,7 @@ export default function AdminCrmPage() {
       setErrorMessage("");
 
       try {
-        const response = await fetch(getOrdersUrl(), { cache: "no-store" });
-
-        if (!response.ok) {
-          throw new Error(`Orders request failed: ${response.status}`);
-        }
-
-        const loadedOrders = (await response.json()) as BackendOrder[];
+        const loadedOrders = await fetchAdminOrders();
 
         if (!ignore) {
           setOrders(loadedOrders);
@@ -303,14 +297,14 @@ export default function AdminCrmPage() {
 
                 <div style={styles.orderList}>
                   {selectedCustomer.orders.map((order) => (
-                    <article style={styles.orderCard} key={order.order_id}>
+                    <article style={styles.orderCard} key={order.id}>
                       <div style={styles.orderHeader}>
                         <div>
                           <span style={styles.label}>Order ID</span>
-                          <h3 style={styles.orderId}>{order.order_id}</h3>
+                          <h3 style={styles.orderId}>{order.orderNumber}</h3>
                         </div>
                         <span style={styles.orderTotal}>
-                          {formatPrice(order.total_price)}
+                          {formatPrice(order.total)}
                         </span>
                       </div>
 
@@ -318,26 +312,26 @@ export default function AdminCrmPage() {
                         <div>
                           <dt style={styles.label}>Created</dt>
                           <dd style={styles.value}>
-                            {formatDate(order.created_at)}
+                            {formatDate(order.createdAt)}
                           </dd>
                         </div>
                         <div>
-                          <dt style={styles.label}>Payment</dt>
+                          <dt style={styles.label}>Payment method</dt>
                           <dd style={styles.value}>
-                            {paymentStatusLabels[order.payment_status]}
+                            {paymentMethodLabel(order.paymentMethod)}
                           </dd>
                         </div>
                         <div>
                           <dt style={styles.label}>Status</dt>
                           <dd style={styles.value}>
-                            {orderStatusLabels[order.order_status]}
+                            {orderStatusLabels[order.status]}
                           </dd>
                         </div>
                       </dl>
 
                       <div style={styles.orderActions}>
                         <Link
-                          href={`/orders/${encodeURIComponent(order.order_id)}`}
+                          href={`/orders/${encodeURIComponent(order.orderNumber)}`}
                           style={styles.orderLink}
                         >
                           Открыть заказ

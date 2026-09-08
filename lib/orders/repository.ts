@@ -3,10 +3,12 @@ import "server-only";
 import type postgres from "postgres";
 import { getOrdersSqlClient } from "@/lib/orders/postgresClient";
 import { OrderError } from "@/lib/orders/errors";
+import { nextOrderPublicNumber } from "@/lib/orders/orderNumberSequence";
 import type {
   CreateOrderResult,
   NewOrderRecord,
   OrderPaymentMethod,
+  OrderPaymentStatus,
   OrderProductSource,
   OrderRepository,
   OrderSizeCode,
@@ -31,6 +33,8 @@ type OrderRow = {
   delivery_date: Date | string;
   delivery_interval: string;
   payment_method: OrderPaymentMethod;
+  payment_status: OrderPaymentStatus;
+  cancellation_reason: string | null;
   customer_comment: string;
   subtotal: string | number;
   delivery_cost: string | number;
@@ -93,6 +97,8 @@ function mapOrder(row: OrderRow, itemRows: OrderItemRow[]): StoredOrderRecord {
     deliveryDate: dateOnly(row.delivery_date),
     deliveryInterval: row.delivery_interval,
     paymentMethod: row.payment_method,
+    paymentStatus: row.payment_status,
+    cancellationReason: row.cancellation_reason,
     customerComment: row.customer_comment,
     subtotal: Number(row.subtotal),
     deliveryCost: Number(row.delivery_cost),
@@ -221,6 +227,7 @@ export class PostgresOrderRepository implements OrderRepository {
   async updateStatus(
     identifier: string,
     status: OrderStatus,
+    options: { cancellationReason?: string | null } = {},
   ): Promise<StoredOrderRecord | null> {
     const normalized = identifier.trim();
     if (!normalized) {
@@ -228,9 +235,11 @@ export class PostgresOrderRepository implements OrderRepository {
     }
     try {
       const sql = getOrdersSqlClient();
+      const cancellationReason =
+        status === "CANCELLED" ? (options.cancellationReason?.trim() || null) : null;
       const rows = await sql<OrderRow[]>`
         UPDATE orders
-        SET status = ${status}, updated_at = NOW()
+        SET status = ${status}, cancellation_reason = ${cancellationReason}, updated_at = NOW()
         WHERE id::text = ${normalized} OR public_number = ${normalized.toUpperCase()}
         RETURNING *
       `;
@@ -317,20 +326,36 @@ export class PostgresOrderRepository implements OrderRepository {
     const sql = getOrdersSqlClient();
     try {
       return await sql.begin(async (transaction) => {
+        // Assign the short sequential public number atomically, inside the
+        // same transaction as the insert. A pre-set order.publicNumber
+        // (legacy callers/tests) is only used as a last-resort fallback if
+        // the sequence can't be read, so order creation never fails because
+        // of numbering.
+        let publicNumber = order.publicNumber;
+        try {
+          publicNumber = await nextOrderPublicNumber(transaction);
+        } catch (sequenceError) {
+          if (!publicNumber) {
+            throw sequenceError;
+          }
+        }
+
         const inserted = await transaction<OrderRow[]>`
           INSERT INTO orders (
             id, public_number, idempotency_key, request_fingerprint,
             customer_name, customer_phone, recipient_name, recipient_phone,
             delivery_address, delivery_latitude, delivery_longitude, delivery_zone_id,
-            delivery_date, delivery_interval, payment_method, customer_comment,
+            delivery_date, delivery_interval, payment_method, payment_status,
+            cancellation_reason, customer_comment,
             subtotal, delivery_cost, total, currency, status, created_at, updated_at
           ) VALUES (
-            ${order.id}, ${order.publicNumber}, ${order.idempotencyKey},
+            ${order.id}, ${publicNumber}, ${order.idempotencyKey},
             ${order.requestFingerprint}, ${order.customerName}, ${order.customerPhone},
             ${order.recipientName}, ${order.recipientPhone}, ${order.deliveryAddress},
             ${order.deliveryLatitude}, ${order.deliveryLongitude}, ${order.deliveryZoneId},
             ${order.deliveryDate}, ${order.deliveryInterval}, ${order.paymentMethod},
-            ${order.customerComment}, ${order.subtotal}, ${order.deliveryCost},
+            ${order.paymentStatus}, ${order.cancellationReason}, ${order.customerComment},
+            ${order.subtotal}, ${order.deliveryCost},
             ${order.total}, ${order.currency}, ${order.status}, ${order.createdAt},
             ${order.updatedAt}
           )

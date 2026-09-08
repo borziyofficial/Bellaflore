@@ -14,14 +14,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import {
-  type BackendOrder,
-  formatDate,
-  formatPrice,
-  getOrdersUrl,
+  type AdminOrder,
+  fetchAdminOrders,
+  formatOrderDate as formatDate,
+  formatOrderPrice as formatPrice,
   orderStatusLabels,
-  paymentStatusLabels,
-  sortNewestFirst,
-} from "../../../orders/orderUtils";
+  paymentMethodLabel,
+  sortAdminOrdersNewestFirst as sortNewestFirst,
+} from "@/lib/orders/adminClient";
 import { ADMIN_LOGIN_PATH, hasAdminSession } from "../../auth";
 
 const VIP_SPEND_THRESHOLD_RUB = 50000;
@@ -29,7 +29,7 @@ const VIP_SPEND_THRESHOLD_RUB = 50000;
 type CustomerDetail = {
   name: string;
   phone: string;
-  orders: BackendOrder[];
+  orders: AdminOrder[];
   totalOrders: number;
   totalSpent: number;
   averageOrderValue: number;
@@ -49,17 +49,17 @@ function normalizePhone(value: string): string {
 }
 
 function buildCustomerDetail(
-  orders: BackendOrder[],
+  orders: AdminOrder[],
   phoneParam: string,
 ): CustomerDetail | null {
   const decodedPhone = decodeURIComponent(phoneParam);
   const normalizedParam = normalizePhone(decodedPhone);
   const customerOrders = sortNewestFirst(
     orders.filter((order) => {
-      const orderPhone = normalizePhone(order.customer_phone);
+      const orderPhone = normalizePhone(order.customer.phone);
       return normalizedParam
         ? orderPhone === normalizedParam
-        : order.customer_phone === decodedPhone;
+        : order.customer.phone === decodedPhone;
     }),
   );
 
@@ -68,19 +68,19 @@ function buildCustomerDetail(
   }
 
   const totalSpent = customerOrders.reduce(
-    (total, order) => total + order.total_price,
+    (total, order) => total + order.total,
     0,
   );
   const latestOrder = customerOrders[0];
 
   return {
-    name: latestOrder.customer_name,
-    phone: latestOrder.customer_phone,
+    name: latestOrder.customer.name,
+    phone: latestOrder.customer.phone,
     orders: customerOrders,
     totalOrders: customerOrders.length,
     totalSpent,
     averageOrderValue: Math.round(totalSpent / customerOrders.length),
-    lastOrderDate: latestOrder.created_at,
+    lastOrderDate: latestOrder.createdAt,
   };
 }
 
@@ -93,7 +93,7 @@ export default function AdminCrmCustomerPage() {
   );
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [orders, setOrders] = useState<BackendOrder[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
@@ -125,13 +125,7 @@ export default function AdminCrmCustomerPage() {
       setErrorMessage("");
 
       try {
-        const response = await fetch(getOrdersUrl(), { cache: "no-store" });
-
-        if (!response.ok) {
-          throw new Error(`Orders request failed: ${response.status}`);
-        }
-
-        const loadedOrders = (await response.json()) as BackendOrder[];
+        const loadedOrders = await fetchAdminOrders();
 
         if (!ignore) {
           setOrders(loadedOrders);
@@ -273,43 +267,43 @@ export default function AdminCrmCustomerPage() {
 
             <div style={styles.orderList}>
               {customer.orders.map((order) => (
-                <article style={styles.orderCard} key={order.order_id}>
+                <article style={styles.orderCard} key={order.id}>
                   <div style={styles.orderHeader}>
                     <div>
                       <span style={styles.label}>Order ID</span>
-                      <h3 style={styles.orderId}>{order.order_id}</h3>
+                      <h3 style={styles.orderId}>{order.orderNumber}</h3>
                     </div>
                     <span style={styles.orderTotal}>
-                      {formatPrice(order.total_price)}
+                      {formatPrice(order.total)}
                     </span>
                   </div>
 
                   <dl style={styles.orderDetails}>
                     <div>
                       <dt style={styles.label}>Date</dt>
-                      <dd style={styles.value}>{formatDate(order.created_at)}</dd>
+                      <dd style={styles.value}>{formatDate(order.createdAt)}</dd>
                     </div>
                     <div>
                       <dt style={styles.label}>Total amount</dt>
-                      <dd style={styles.value}>{formatPrice(order.total_price)}</dd>
+                      <dd style={styles.value}>{formatPrice(order.total)}</dd>
                     </div>
                     <div>
-                      <dt style={styles.label}>Payment status</dt>
+                      <dt style={styles.label}>Payment method</dt>
                       <dd style={styles.value}>
-                        {paymentStatusLabels[order.payment_status]}
+                        {paymentMethodLabel(order.paymentMethod)}
                       </dd>
                     </div>
                     <div>
                       <dt style={styles.label}>Order status</dt>
                       <dd style={styles.value}>
-                        {orderStatusLabels[order.order_status]}
+                        {orderStatusLabels[order.status]}
                       </dd>
                     </div>
                   </dl>
 
                   <div style={styles.orderActions}>
                     <Link
-                      href={`/orders/${encodeURIComponent(order.order_id)}`}
+                      href={`/orders/${encodeURIComponent(order.orderNumber)}`}
                       style={styles.orderLink}
                     >
                       Открыть заказ

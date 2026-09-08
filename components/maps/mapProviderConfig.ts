@@ -14,7 +14,23 @@ import type {
 
 const DEFAULT_PROVIDER: MapProviderId = "mock";
 
-function readFirstEnvKey(...names: string[]): string {
+// NEXT_PUBLIC_* values must be referenced statically so Next.js can inline
+// them into browser bundles during `next build`. Dynamic access such as
+// process.env[name] is intentionally reserved for server-only fallbacks.
+const PUBLIC_MAP_PROVIDER = process.env.NEXT_PUBLIC_MAP_PROVIDER?.trim() ?? "";
+const PUBLIC_YANDEX_MAPS_API_KEY =
+  process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY?.trim() ?? "";
+const PUBLIC_YANDEX_GEOCODER_API_KEY =
+  process.env.NEXT_PUBLIC_YANDEX_GEOCODER_API_KEY?.trim() ?? "";
+const PUBLIC_YANDEX_GEOSUGGEST_API_KEY =
+  process.env.NEXT_PUBLIC_YANDEX_GEOSUGGEST_API_KEY?.trim() ?? "";
+const PUBLIC_MAP_API_KEY = process.env.NEXT_PUBLIC_MAP_API_KEY?.trim() ?? "";
+
+function readFirstServerEnvKey(...names: string[]): string {
+  if (typeof window !== "undefined") {
+    return "";
+  }
+
   for (const name of names) {
     const value = process.env[name]?.trim();
     if (value) {
@@ -56,20 +72,22 @@ function normalizeProviderId(rawValue: string | undefined): MapProviderId {
 }
 
 function readUnifiedYandexApiKey(): string {
-  return readFirstEnvKey(
-    "NEXT_PUBLIC_YANDEX_MAPS_API_KEY",
-    "YANDEX_MAPS_API_KEY",
-    "NEXT_PUBLIC_YANDEX_GEOCODER_API_KEY",
-    "YANDEX_GEOCODER_API_KEY",
-    "NEXT_PUBLIC_YANDEX_GEOSUGGEST_API_KEY",
-    "YANDEX_GEOSUGGEST_API_KEY",
-    "NEXT_PUBLIC_MAP_API_KEY",
-    "YANDEX_API_KEY",
+  return (
+    PUBLIC_YANDEX_MAPS_API_KEY ||
+    PUBLIC_YANDEX_GEOCODER_API_KEY ||
+    PUBLIC_YANDEX_GEOSUGGEST_API_KEY ||
+    PUBLIC_MAP_API_KEY ||
+    readFirstServerEnvKey(
+      "YANDEX_MAPS_API_KEY",
+      "YANDEX_GEOCODER_API_KEY",
+      "YANDEX_GEOSUGGEST_API_KEY",
+      "YANDEX_API_KEY",
+    )
   );
 }
 
 function readConfiguredProviderId(): MapProviderId {
-  const explicitProvider = normalizeProviderId(process.env.NEXT_PUBLIC_MAP_PROVIDER);
+  const explicitProvider = normalizeProviderId(PUBLIC_MAP_PROVIDER);
   if (explicitProvider !== DEFAULT_PROVIDER) {
     return explicitProvider;
   }
@@ -86,7 +104,7 @@ function readProviderApiKey(provider: MapProviderId): string {
     return readUnifiedYandexApiKey();
   }
 
-  return readFirstEnvKey("NEXT_PUBLIC_MAP_API_KEY", "MAP_API_KEY");
+  return PUBLIC_MAP_API_KEY || readFirstServerEnvKey("MAP_API_KEY");
 }
 
 // ==================================================
@@ -98,12 +116,12 @@ function readProviderApiKey(provider: MapProviderId): string {
 // Назначение (RU): Публичные экспортируемые функции и константы.
 // ==================================================
 export function getYandexMapsApiKey(): string {
-  return readFirstEnvKey(
-    "NEXT_PUBLIC_YANDEX_MAPS_API_KEY",
-    "YANDEX_MAPS_API_KEY",
-    "NEXT_PUBLIC_MAP_API_KEY",
-    "YANDEX_API_KEY",
-  ) || readUnifiedYandexApiKey();
+  return (
+    PUBLIC_YANDEX_MAPS_API_KEY ||
+    PUBLIC_MAP_API_KEY ||
+    readFirstServerEnvKey("YANDEX_MAPS_API_KEY", "YANDEX_API_KEY") ||
+    readUnifiedYandexApiKey()
+  );
 }
 
 // ==================================================
@@ -112,19 +130,17 @@ export function getYandexMapsApiKey(): string {
 // ==================================================
 export function getYandexGeoSuggestApiKey(): string {
   return (
-    readFirstEnvKey(
-      "NEXT_PUBLIC_YANDEX_GEOSUGGEST_API_KEY",
-      "YANDEX_GEOSUGGEST_API_KEY",
-    ) || getYandexMapsApiKey()
+    readFirstServerEnvKey("YANDEX_GEOSUGGEST_API_KEY") ||
+    PUBLIC_YANDEX_GEOSUGGEST_API_KEY ||
+    getYandexMapsApiKey()
   );
 }
 
 export function getYandexGeocoderApiKey(): string {
   return (
-    readFirstEnvKey(
-      "NEXT_PUBLIC_YANDEX_GEOCODER_API_KEY",
-      "YANDEX_GEOCODER_API_KEY",
-    ) || getYandexMapsApiKey()
+    readFirstServerEnvKey("YANDEX_GEOCODER_API_KEY") ||
+    PUBLIC_YANDEX_GEOCODER_API_KEY ||
+    getYandexMapsApiKey()
   );
 }
 

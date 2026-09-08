@@ -413,50 +413,62 @@ function YandexDeliveryZoneMap({
     polygonRefsRef.current = [];
 
     for (const layer of model.layers) {
-      const rings = layer.ringCoordinates.map((ring) =>
-        ring.map(
-          (point) => [point.latitude, point.longitude] as [number, number],
-        ),
-      );
-      const legendItem = model.legend.find(
-        (item) => item.zoneId === layer.zoneId,
-      );
+      // Defensive: a malformed/self-intersecting ring should never be able
+      // to crash the whole checkout/map UI (there is no app-level error
+      // boundary). Skip just this one zone layer and keep going.
+      try {
+        const rings = layer.ringCoordinates.map((ring) =>
+          ring.map(
+            (point) => [point.latitude, point.longitude] as [number, number],
+          ),
+        );
+        const legendItem = model.legend.find(
+          (item) => item.zoneId === layer.zoneId,
+        );
 
-      if (!legendItem) {
-        continue;
+        if (!legendItem) {
+          continue;
+        }
+
+        const polygon = new ymaps.Polygon(
+          rings,
+          allowAddressPickOnZones
+            ? { hintContent: legendItem.label }
+            : {
+                hintContent: legendItem.label,
+                balloonContentHeader: legendItem.label,
+                balloonContentBody: buildZoneBalloonBody(
+                  legendItem,
+                  formatPriceRef.current,
+                ),
+              },
+          {
+            fillColor: layer.color,
+            strokeColor: layer.borderColor,
+            fillOpacity: layer.fillOpacity,
+            strokeOpacity: layer.strokeOpacity,
+            strokeWidth: layer.strokeWidth,
+            zIndex: layer.sortOrder,
+            openBalloonOnClick: !allowAddressPickOnZones,
+          },
+        );
+
+        if (allowAddressPickOnZones) {
+          polygon.events.add("click", (event) => {
+            handleMapSelectionClickRef.current(event as YandexMapEvent);
+          });
+        }
+
+        map.geoObjects.add(polygon);
+        polygonRefsRef.current.push(polygon);
+      } catch (error) {
+        if (process.env.NODE_ENV !== "production") {
+              console.error(
+            `[DeliveryZoneMap] failed to render zone layer "${layer.zoneId}", skipping it.`,
+            error,
+          );
+        }
       }
-
-      const polygon = new ymaps.Polygon(
-        rings,
-        allowAddressPickOnZones
-          ? { hintContent: legendItem.label }
-          : {
-              hintContent: legendItem.label,
-              balloonContentHeader: legendItem.label,
-              balloonContentBody: buildZoneBalloonBody(
-                legendItem,
-                formatPriceRef.current,
-              ),
-            },
-        {
-          fillColor: layer.color,
-          strokeColor: layer.borderColor,
-          fillOpacity: layer.fillOpacity,
-          strokeOpacity: layer.strokeOpacity,
-          strokeWidth: layer.strokeWidth,
-          zIndex: layer.sortOrder,
-          openBalloonOnClick: !allowAddressPickOnZones,
-        },
-      );
-
-      if (allowAddressPickOnZones) {
-        polygon.events.add("click", (event) => {
-          handleMapSelectionClickRef.current(event as YandexMapEvent);
-        });
-      }
-
-      map.geoObjects.add(polygon);
-      polygonRefsRef.current.push(polygon);
     }
   }, [loadState, mapVariant, model.layers, model.legend]);
 

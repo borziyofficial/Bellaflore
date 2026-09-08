@@ -22,6 +22,16 @@
   line-height: 1.35;
   text-align: left;
   cursor: pointer;
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.orderCard:hover,
+.orderCard:focus-visible {
+  border-color: rgba(241, 209, 139, 0.52);
+  background: rgba(215, 180, 106, 0.1);
+  outline: none;
+  transform: translateY(-1px);
 }
 
 .orderCardActive {
@@ -101,6 +111,98 @@
   font-size: 12px;
 }
 
+.statusSummary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.statusSummary span {
+  display: grid;
+  gap: 3px;
+  min-width: 150px;
+  padding: 10px 12px;
+  border: 1px solid rgba(241, 209, 139, 0.24);
+  border-radius: 12px;
+  background: rgba(215, 180, 106, 0.08);
+}
+
+.statusSummary small {
+  color: var(--admin-soft);
+  font-size: 10px;
+}
+
+.actions,
+.cancellationForm > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.acceptButton,
+.rejectButton,
+.secondaryButton {
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 780;
+  cursor: pointer;
+}
+
+.acceptButton {
+  border: 1px solid rgba(103, 211, 144, 0.48);
+  background: rgba(72, 176, 111, 0.18);
+  color: #c8f5d8;
+}
+
+.rejectButton {
+  border: 1px solid rgba(255, 112, 112, 0.42);
+  background: rgba(220, 76, 76, 0.15);
+  color: #ffc5c5;
+}
+
+.secondaryButton {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--admin-ink);
+}
+
+.acceptButton:disabled,
+.rejectButton:disabled,
+.secondaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.cancellationForm {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(255, 112, 112, 0.28);
+  border-radius: 14px;
+  background: rgba(220, 76, 76, 0.08);
+}
+
+.cancellationForm label {
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.cancellationForm textarea {
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--admin-ink);
+  font: inherit;
+}
+
 .facts,
 .totals {
   display: grid;
@@ -162,6 +264,16 @@
   font-size: 12px;
 }
 
+.success {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(103, 211, 144, 0.3);
+  border-radius: 14px;
+  background: rgba(72, 176, 111, 0.1);
+  color: #c8f5d8;
+  font-size: 12px;
+}
+
 @media (min-width: 1080px) {
   .layout {
     grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1.2fr);
@@ -183,6 +295,16 @@
   }
 
   .statusControl {
+    width: 100%;
+  }
+
+  .statusSummary {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .statusSummary span,
+  .actions button {
     width: 100%;
   }
 }

@@ -88,6 +88,33 @@ export function CollectionsSection({
       return;
     }
 
+    // A fresh page load — e.g. a shared "#catalog" link, a
+    // "?category=…#catalog" Smart Banner button, or any deep link that
+    // reaches this effect before the page has finished mounting — can fire
+    // while the Hero/Smart Banner images and fonts are still settling the
+    // layout above the catalog. Starting an animated `scroll-behavior:
+    // smooth` scroll against a page that is still shifting can get
+    // interrupted by that shift and land back at the top, which is why
+    // "go to catalog" links used to look like they did nothing. On a
+    // still-loading page we wait for the window to finish loading, then
+    // jump instantly (nothing left to interrupt) and repeat once more
+    // shortly after in case something still shifts the target late (a slow
+    // banner image swapping in, for example).
+    const focusCatalogInstantly = () => {
+      document.getElementById("catalog")?.scrollIntoView({ behavior: "auto", block: "start" });
+      window.setTimeout(() => {
+        document.getElementById("catalog")?.scrollIntoView({ behavior: "auto", block: "start" });
+      }, 350);
+    };
+
+    if (typeof document !== "undefined" && document.readyState !== "complete") {
+      window.addEventListener("load", focusCatalogInstantly, { once: true });
+      return () => window.removeEventListener("load", focusCatalogInstantly);
+    }
+
+    // Page is already loaded and stable (e.g. clicking "Каталог" in the
+    // header while already browsing the homepage) — a smooth scroll here
+    // looks nicer and has nothing to interrupt it.
     document.getElementById("catalog")?.scrollIntoView({
       behavior: "smooth",
       block: "start",

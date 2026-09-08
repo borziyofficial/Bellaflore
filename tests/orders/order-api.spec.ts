@@ -28,6 +28,9 @@ const VALID_BODY = {
 
 class MemoryRepository implements OrderRepository {
   private readonly records = new Map<string, StoredOrderRecord>();
+  // Mirrors the real Postgres sequence used by orderNumberSequence.ts:
+  // starts at 1, strictly increments, never reused.
+  private nextSequenceValue = 1;
 
   async findByIdempotencyKey(key: string) {
     return this.records.get(key) ?? null;
@@ -38,8 +41,10 @@ class MemoryRepository implements OrderRepository {
     if (existing) {
       return { order: existing, replayed: true };
     }
-    this.records.set(order.idempotencyKey, order);
-    return { order, replayed: false };
+    const publicNumber = `BF-${String(this.nextSequenceValue++).padStart(3, "0")}`;
+    const stored: StoredOrderRecord = { ...order, publicNumber };
+    this.records.set(order.idempotencyKey, stored);
+    return { order: stored, replayed: false };
   }
 
   async findByPublicNumber(publicNumber: string) {
@@ -109,7 +114,7 @@ test("creates an order with server prices, delivery and snapshots", async () => 
   expect(response.status).toBe(201);
   const payload = await response.json();
   expect(payload.replayed).toBe(false);
-  expect(payload.order.orderNumber).toMatch(/^BF-20260802-/);
+  expect(payload.order.orderNumber).toBe("BF-001");
   expect(payload.order).toMatchObject({
     status: "NEW",
     subtotal: 11800,
@@ -201,6 +206,35 @@ test("rejects unavailable products, sizes and delivery coordinates", async () =>
   expect((await outside.json()).error.code).toBe("DELIVERY_OUTSIDE_AREA");
 });
 
+test("public order numbers are short, sequential, and never reused", async () => {
+  const handler = createHandler();
+  const first = await handler(request({ ...VALID_BODY }, "checkout-seq-1"));
+  const second = await handler(request({ ...VALID_BODY }, "checkout-seq-2"));
+  const third = await handler(request({ ...VALID_BODY }, "checkout-seq-3"));
+
+  const firstNumber = (await first.json()).order.orderNumber as string;
+  const secondNumber = (await second.json()).order.orderNumber as string;
+  const thirdNumber = (await third.json()).order.orderNumber as string;
+
+  expect(firstNumber).toBe("BF-001");
+  expect(secondNumber).toBe("BF-002");
+  expect(thirdNumber).toBe("BF-003");
+
+  // Never reused: a replay of an already-used idempotency key must return
+  // the SAME stored number, not mint a new one.
+  const replay = await handler(request({ ...VALID_BODY }, "checkout-seq-1"));
+  expect((await replay.json()).order.orderNumber).toBe(firstNumber);
+});
+
+test("order number sequence is self-provisioned and never alters existing order data", async () => {
+  const source = await readFile(
+    join(process.cwd(), "lib", "orders", "orderNumberSequence.ts"),
+    "utf8",
+  );
+  expect(source).toContain("CREATE SEQUENCE IF NOT EXISTS");
+  expect(source).not.toMatch(/^\s*(?:DROP|TRUNCATE|DELETE|ALTER\s+TABLE)\s/gim);
+});
+
 test("migration is additive and defines order integrity constraints", async () => {
   const sql = await readFile(
     join(process.cwd(), "migrations", "20260802_001_create_orders.sql"),
@@ -213,4 +247,15 @@ test("migration is additive and defines order integrity constraints", async () =
   expect(sql).toContain("CHECK (total = subtotal + delivery_cost)");
   expect(sql).not.toMatch(/^\s*(?:DROP|TRUNCATE|DELETE)\s/gim);
   expect(sql).not.toMatch(/ALTER\s+TABLE\s+(?:catalog_products|admin_bouquets)/i);
+});
+
+test("admin order metadata migration is additive and keeps payment separate", async () => {
+  const sql = await readFile(
+    join(process.cwd(), "migrations", "20260905_001_add_order_payment_and_cancellation.sql"),
+    "utf8",
+  );
+  expect(sql).toContain("payment_status");
+  expect(sql).toContain("cancellation_reason");
+  expect(sql).toContain("DEFAULT 'PENDING'");
+  expect(sql).not.toMatch(/^\s*(?:DROP|TRUNCATE|DELETE)\s/gim);
 });

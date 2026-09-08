@@ -17,6 +17,7 @@ export type AdminSidebarId =
   | "orders"
   | "customers"
   | "delivery"
+  | "delivery-zones"
   | "promotions"
   | "smart-banner"
   | "analytics"

@@ -85,6 +85,13 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     sidebarOnly: true,
   },
   {
+    id: "delivery-zones",
+    label: "Зоны доставки",
+    href: "/admin/delivery-zones",
+    description: "Границы, тарифы и время доставки",
+    sidebarOnly: true,
+  },
+  {
     id: "promotions",
     label: "Акции",
     href: "/admin/promotions",
@@ -173,6 +180,9 @@ export function resolveAdminSidebarId(pathname: string): AdminSidebarId {
   if (pathname.startsWith("/admin/customers") || pathname.startsWith("/admin/crm")) {
     return "customers";
   }
+  if (pathname.startsWith("/admin/delivery-zones")) {
+    return "delivery-zones";
+  }
   if (pathname.startsWith("/admin/delivery")) {
     return "delivery";
   }
@@ -214,6 +224,7 @@ const ADMIN_PAGE_TITLES: Record<string, string> = {
   "/admin/orders": "Заказы",
   "/admin/profile": "Профиль",
   "/admin/smart-banner": "Умный баннер",
+  "/admin/delivery-zones": "Зоны доставки",
 };
 
 export function resolveAdminPageTitle(pathname: string): string {
@@ -222,6 +233,10 @@ export function resolveAdminPageTitle(pathname: string): string {
 
   if (ADMIN_PAGE_TITLES[normalized]) {
     return ADMIN_PAGE_TITLES[normalized];
+  }
+
+  if (normalized.startsWith("/admin/orders/")) {
+    return "Детали заказа";
   }
 
   if (normalized.startsWith("/admin/edit/")) {

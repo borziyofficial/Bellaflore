@@ -7,7 +7,11 @@ export type AdminOrderRepository = {
     limit?: number;
   }): Promise<StoredOrderRecord[]>;
   findByIdOrPublicNumber(identifier: string): Promise<StoredOrderRecord | null>;
-  updateStatus(identifier: string, status: OrderStatus): Promise<StoredOrderRecord | null>;
+  updateStatus(
+    identifier: string,
+    status: OrderStatus,
+    options?: { cancellationReason?: string | null },
+  ): Promise<StoredOrderRecord | null>;
 };
 
 type AdminOrderHandlerDependencies = {
@@ -39,6 +43,8 @@ function adminOrder(order: StoredOrderRecord) {
       interval: order.deliveryInterval,
     },
     paymentMethod: order.paymentMethod,
+    paymentStatus: order.paymentStatus,
+    cancellationReason: order.cancellationReason,
     customerComment: order.customerComment,
     subtotal: order.subtotal,
     deliveryCost: order.deliveryCost,
@@ -155,7 +161,10 @@ export function createAdminOrderStatusPatchHandler({
     }
 
     try {
-      const body = (await request.json().catch(() => null)) as { status?: unknown } | null;
+      const body = (await request.json().catch(() => null)) as {
+        status?: unknown;
+        cancellationReason?: unknown;
+      } | null;
       if (typeof body?.status !== "string") {
         return Response.json(
           { error: { code: "INVALID_STATUS", message: "Укажите статус заказа." } },
@@ -170,8 +179,32 @@ export function createAdminOrderStatusPatchHandler({
         );
       }
 
+      let cancellationReason: string | null = null;
+      if (status === "CANCELLED") {
+        if (typeof body.cancellationReason !== "string") {
+          return Response.json(
+            { error: { code: "CANCELLATION_REASON_REQUIRED", message: "Укажите причину отмены." } },
+            { status: 400, headers: { "Cache-Control": "no-store" } },
+          );
+        }
+        cancellationReason = body.cancellationReason.trim();
+        if (cancellationReason.length < 3 || cancellationReason.length > 500) {
+          return Response.json(
+            {
+              error: {
+                code: "INVALID_CANCELLATION_REASON",
+                message: "Причина отмены должна содержать от 3 до 500 символов.",
+              },
+            },
+            { status: 400, headers: { "Cache-Control": "no-store" } },
+          );
+        }
+      }
+
       const { id } = await context.params;
-      const order = await repository.updateStatus(decodeURIComponent(id), status);
+      const order = await repository.updateStatus(decodeURIComponent(id), status, {
+        cancellationReason,
+      });
       if (!order) {
         return Response.json(
           { error: { code: "ORDER_NOT_FOUND", message: "Заказ не найден." } },
