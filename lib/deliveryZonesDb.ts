@@ -135,9 +135,40 @@ async function seedIfEmpty(sql: ReturnType<typeof postgres>): Promise<void> {
   }
 }
 
+/**
+ * Parse polygon from database. JSONB may come as parsed array or as string
+ * depending on the postgres driver version. Ensure it's always an array.
+ */
+function parsePolygon(data: unknown): GeoCoordinate[] | null {
+  if (!data) return null;
+  
+  // If it's already an array, use it
+  if (Array.isArray(data)) {
+    return data as GeoCoordinate[];
+  }
+  
+  // If it's a string, parse it
+  if (typeof data === "string") {
+    try {
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+  
+  return null;
+}
+
 function rowsToEntries(rows: DeliveryZoneRow[]): DeliveryZoneCatalogEntry[] | null {
   const baseRow = rows.find((row) => row.zone_id === "base");
-  if (!baseRow || !baseRow.base_polygon || baseRow.base_polygon.length < 3) {
+  if (!baseRow) {
+    return null;
+  }
+
+  // Parse polygon from database (may be string or array)
+  const basePolygon = parsePolygon(baseRow.base_polygon);
+  if (!basePolygon || basePolygon.length < 3) {
     return null;
   }
 
@@ -159,7 +190,7 @@ function rowsToEntries(rows: DeliveryZoneRow[]): DeliveryZoneCatalogEntry[] | nu
 
   // Any zone missing a DB row (shouldn't happen once seeded) keeps its
   // built-in default metadata rather than being dropped.
-  return rebuildDeliveryZoneCatalogEntries(baseRow.base_polygon, metaByZoneId);
+  return rebuildDeliveryZoneCatalogEntries(basePolygon, metaByZoneId);
 }
 
 /**
