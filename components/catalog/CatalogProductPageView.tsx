@@ -5,6 +5,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
+import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import styles from "@/components/catalog/CatalogProductPage.module.css";
 
@@ -50,7 +51,7 @@ export function CatalogProductPageView({
             height={product.height}
             className={styles.image}
             priority
-            unoptimized={product.src.includes("blob.vercel-storage.com")}
+            unoptimized={shouldUseUnoptimizedImage(product.src)}
           />
         </div>
 

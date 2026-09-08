@@ -302,6 +302,117 @@
   margin-top: 6px;
 }
 
+.catalogPickerBlock {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.catalogPickerToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(138, 107, 61, 0.28);
+  border-radius: 11px;
+  padding: 10px 12px;
+  background: rgba(138, 107, 61, 0.08);
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.catalogPickerHint {
+  margin: 0;
+  color: var(--banner-muted, #75695c);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.slideProductPicker {
+  display: grid;
+  gap: 8px;
+}
+
+.slideProductList {
+  display: grid;
+  gap: 5px;
+  max-height: 248px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 11px;
+  padding: 6px;
+}
+
+.slideProductRow {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: 9px;
+  padding: 6px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.slideProductRow:hover,
+.slideProductRow:focus-visible {
+  background: rgba(138, 107, 61, 0.08);
+  outline: none;
+}
+
+.slideProductThumb {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(138, 107, 61, 0.08);
+  color: var(--banner-muted, #75695c);
+  font-size: 9px;
+  text-align: center;
+}
+
+.slideProductThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slideProductInfo {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.slideProductInfo strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slideProductInfo small {
+  color: var(--banner-muted, #75695c);
+  font-size: 11px;
+}
+
+.slideProductChoose {
+  color: #8a6b3d;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .previewDots {
   display: flex;
   align-items: center;
@@ -709,7 +820,8 @@
 
 .moduleRoot .modeButton,
 .moduleRoot .iconButton,
-.moduleRoot .secondaryButton {
+.moduleRoot .secondaryButton,
+.moduleRoot .catalogPickerToggle {
   border-color: var(--banner-border);
   background: rgba(255, 255, 255, 0.04);
   color: var(--banner-text);
@@ -840,6 +952,7 @@
 }
 
 .moduleRoot .pickerList,
+.moduleRoot .slideProductList,
 .moduleRoot .slideThumb,
 .moduleRoot .imagePreview {
   border-color: var(--banner-border);
@@ -848,6 +961,15 @@
 
 .moduleRoot .pickerRow:hover {
   background: rgba(229, 194, 116, 0.07);
+}
+
+.moduleRoot .slideProductRow:hover,
+.moduleRoot .slideProductRow:focus-visible {
+  background: rgba(229, 194, 116, 0.07);
+}
+
+.moduleRoot .slideProductChoose {
+  color: var(--banner-gold);
 }
 
 .moduleRoot .primaryButton {
@@ -903,6 +1025,36 @@
 
   .loadingPreview {
     min-height: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog {
+    max-height: calc(100dvh - 16px);
+    padding: 16px;
+  }
+
+  .imageRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .imagePreview {
+    width: 100%;
+    height: 180px;
+  }
+
+  .slideProductRow {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .slideProductThumb {
+    width: 48px;
+    height: 48px;
+  }
+
+  .slideProductChoose {
+    display: none;
   }
 }
 

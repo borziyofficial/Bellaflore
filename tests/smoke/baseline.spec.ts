@@ -24,10 +24,16 @@ type CategoriesPayload = {
   }>;
 };
 
-const expectedCanonical = normalizeUrl(
-  process.env.SMOKE_EXPECTED_CANONICAL?.trim() || "https://sandbox.bellaflore.ru",
+const smokeBaseUrl = normalizeUrl(
+  process.env.SMOKE_BASE_URL?.trim() || "https://sandbox.bellaflore.ru",
 );
-const expectedNoindex = readBooleanEnv("SMOKE_EXPECT_NOINDEX", true);
+const expectedCanonical = normalizeUrl(
+  process.env.SMOKE_EXPECTED_CANONICAL?.trim() || smokeBaseUrl,
+);
+const expectedNoindex = readBooleanEnv(
+  "SMOKE_EXPECT_NOINDEX",
+  new URL(smokeBaseUrl).hostname === "sandbox.bellaflore.ru",
+);
 
 function normalizeUrl(value: string): string {
   return value.replace(/\/+$/, "");

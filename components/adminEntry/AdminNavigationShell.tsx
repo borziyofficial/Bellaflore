@@ -37,8 +37,8 @@ export function AdminNavigationShell({
     session?.role ?? adminUser?.adminUserRole ?? "—",
   );
 
-  const handleLogout = () => {
-    logoutAdminEntrySession();
+  const handleLogout = async () => {
+    await logoutAdminEntrySession();
     window.location.assign(ADMIN_ENTRY_LOGIN_PATH);
   };
 

@@ -1,0 +1,310 @@
+.layout {
+  display: grid;
+  gap: 12px;
+}
+
+.orderList {
+  display: grid;
+  gap: 8px;
+}
+
+.orderCard {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--admin-ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.orderCard:hover,
+.orderCard:focus-visible {
+  border-color: rgba(241, 209, 139, 0.52);
+  background: rgba(215, 180, 106, 0.1);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.orderCardActive {
+  border-color: rgba(241, 209, 139, 0.42);
+  background: rgba(215, 180, 106, 0.1);
+}
+
+.orderCardHeader,
+.detailHeader,
+.itemRow,
+.totals div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.orderCardHeader span {
+  color: var(--admin-gold-strong);
+  font-weight: 750;
+}
+
+.detail {
+  display: grid;
+  gap: 16px;
+  color: var(--admin-ink);
+}
+
+.detailHeader {
+  align-items: center;
+}
+
+.detailHeader h3,
+.detailHeader p,
+.eyebrow,
+.facts,
+.totals {
+  margin: 0;
+}
+
+.detailHeader h3 {
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+.detailHeader p {
+  margin-top: 4px;
+  color: var(--admin-muted);
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.eyebrow {
+  color: var(--admin-soft);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.statusControl {
+  display: grid;
+  gap: 6px;
+  min-width: 160px;
+  color: var(--admin-muted);
+  font-size: 11px;
+  font-weight: 740;
+}
+
+.statusControl select {
+  min-height: 36px;
+  border: 1px solid rgba(241, 209, 139, 0.32);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--admin-ink);
+  font: inherit;
+  font-size: 12px;
+}
+
+.statusSummary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.statusSummary span {
+  display: grid;
+  gap: 3px;
+  min-width: 150px;
+  padding: 10px 12px;
+  border: 1px solid rgba(241, 209, 139, 0.24);
+  border-radius: 12px;
+  background: rgba(215, 180, 106, 0.08);
+}
+
+.statusSummary small {
+  color: var(--admin-soft);
+  font-size: 10px;
+}
+
+.actions,
+.cancellationForm > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.acceptButton,
+.rejectButton,
+.secondaryButton {
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 780;
+  cursor: pointer;
+}
+
+.acceptButton {
+  border: 1px solid rgba(103, 211, 144, 0.48);
+  background: rgba(72, 176, 111, 0.18);
+  color: #c8f5d8;
+}
+
+.rejectButton {
+  border: 1px solid rgba(255, 112, 112, 0.42);
+  background: rgba(220, 76, 76, 0.15);
+  color: #ffc5c5;
+}
+
+.secondaryButton {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--admin-ink);
+}
+
+.acceptButton:disabled,
+.rejectButton:disabled,
+.secondaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.cancellationForm {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(255, 112, 112, 0.28);
+  border-radius: 14px;
+  background: rgba(220, 76, 76, 0.08);
+}
+
+.cancellationForm label {
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.cancellationForm textarea {
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--admin-ink);
+  font: inherit;
+}
+
+.facts,
+.totals {
+  display: grid;
+  gap: 8px;
+}
+
+.facts div,
+.totals div {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.facts dt,
+.totals dt {
+  color: var(--admin-soft);
+  font-size: 11px;
+}
+
+.facts dd,
+.totals dd {
+  margin: 0;
+  text-align: right;
+}
+
+.items {
+  display: grid;
+  gap: 8px;
+}
+
+.itemRow {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.itemRow div {
+  display: grid;
+  gap: 4px;
+}
+
+.itemRow span {
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.totals {
+  padding-top: 4px;
+  font-weight: 760;
+}
+
+.error {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 96, 96, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 96, 96, 0.08);
+  color: #ffb4b4;
+  font-size: 12px;
+}
+
+.success {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(103, 211, 144, 0.3);
+  border-radius: 14px;
+  background: rgba(72, 176, 111, 0.1);
+  color: #c8f5d8;
+  font-size: 12px;
+}
+
+@media (min-width: 1080px) {
+  .layout {
+    grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1.2fr);
+    align-items: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .detailHeader,
+  .itemRow,
+  .totals div,
+  .facts div {
+    display: grid;
+  }
+
+  .facts dd,
+  .totals dd {
+    text-align: left;
+  }
+
+  .statusControl {
+    width: 100%;
+  }
+
+  .statusSummary {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .statusSummary span,
+  .actions button {
+    width: 100%;
+  }
+}

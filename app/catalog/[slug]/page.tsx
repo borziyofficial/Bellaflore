@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { absoluteUrl, metadataBase } from "@/app/seo";
 import { CatalogProductPageView } from "@/components/catalog/CatalogProductPageView";
+import { isPublicStorefrontProductOrderable } from "@/components/catalog/publicCatalogMerge";
 import { resolvePublishedCatalogProduct } from "@/lib/catalogDb/resolvePublishedCatalogProduct";
 
 export const revalidate = 60;
@@ -30,7 +31,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const resolved = await resolvePublishedCatalogProduct(decodeURIComponent(slug));
 
-  if (!resolved) {
+  if (!resolved || !isPublicStorefrontProductOrderable(resolved.product)) {
     return {};
   }
 
@@ -74,7 +75,7 @@ export default async function CatalogProductPage({ params }: CatalogProductPageP
   const slug = decodeURIComponent(rawSlug);
   const resolved = await resolvePublishedCatalogProduct(slug);
 
-  if (!resolved) {
+  if (!resolved || !isPublicStorefrontProductOrderable(resolved.product)) {
     notFound();
   }
 

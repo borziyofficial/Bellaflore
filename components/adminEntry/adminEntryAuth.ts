@@ -90,6 +90,20 @@ export function hasValidAdminEntrySession(): boolean {
   return getCurrentSecuritySession() !== null;
 }
 
+export async function hasValidAdminServerSession(): Promise<boolean> {
+  try {
+    const response = await fetch("/api/admin/session", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function loginWithAdminEntryCredentials(
   username: string,
   password: string,
@@ -142,7 +156,7 @@ export async function loginWithAdminEntryCredentials(
   }
 }
 
-export function logoutAdminEntrySession(): void {
+export async function logoutAdminEntrySession(): Promise<void> {
   destroySecuritySession();
 
   if (typeof window !== "undefined") {
@@ -151,6 +165,15 @@ export function logoutAdminEntrySession(): void {
     } catch {
       // Ignore storage errors.
     }
+  }
+
+  try {
+    await fetch("/api/admin/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch {
+    // The client session is already gone. A failed request cannot restore it.
   }
 }
 

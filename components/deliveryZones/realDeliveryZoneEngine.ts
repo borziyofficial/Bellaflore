@@ -33,6 +33,7 @@ import { calculateYandexRoadDistanceFromBoundary } from "@/components/deliveryZo
 import { geocodeAddress } from "@/components/maps/geocodeAddress";
 import type { GeoCoordinate } from "@/components/maps/distanceTypes";
 import { resolveCheckoutPreviewTestGeocoding } from "@/components/checkout/checkoutPreviewTestMode";
+import { ensureDeliveryZonesHydratedOnClient } from "@/components/deliveryZones/deliveryZonesClientHydration";
 
 
 // ==================================================
@@ -524,6 +525,11 @@ export async function resolveRealDeliveryZoneForCheckoutAsync(
   address: string,
   detectionMode: DeliveryZoneDetectionMode = DEFAULT_DETECTION_MODE,
 ): Promise<RealDeliveryZoneResult> {
+  // Picks up admin-saved zones (Admin -> Delivery zones) before resolving,
+  // so the live checkout preview matches what the server will actually
+  // price/detect. No-ops after the first successful fetch per page load;
+  // never blocks/throws on failure.
+  await ensureDeliveryZonesHydratedOnClient();
   const syncResult = resolveRealDeliveryZoneForCheckout(address, detectionMode);
   return enrichRealDeliveryZoneWithRoadDistance(syncResult);
 }

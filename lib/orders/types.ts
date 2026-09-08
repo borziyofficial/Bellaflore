@@ -7,14 +7,19 @@ export const ORDER_PAYMENT_METHODS = [
 ] as const;
 export type OrderPaymentMethod = (typeof ORDER_PAYMENT_METHODS)[number];
 
-export type OrderStatus =
-  | "NEW"
-  | "CONFIRMED"
-  | "PREPARING"
-  | "COURIER_ASSIGNED"
-  | "OUT_FOR_DELIVERY"
-  | "DELIVERED"
-  | "CANCELLED";
+export const ORDER_PAYMENT_STATUSES = ["PENDING", "PAID", "REFUNDED"] as const;
+export type OrderPaymentStatus = (typeof ORDER_PAYMENT_STATUSES)[number];
+
+export const ORDER_STATUSES = [
+  "NEW",
+  "CONFIRMED",
+  "PREPARING",
+  "COURIER_ASSIGNED",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELLED",
+] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export type OrderProductSource = "catalog_products" | "admin_bouquets";
 
@@ -61,7 +66,13 @@ export type PricedOrderItem = {
 
 export type NewOrderRecord = {
   id: string;
-  publicNumber: string;
+  /**
+   * Optional on purpose: the repository assigns the real sequential public
+   * number atomically at INSERT time (see orderNumberSequence.ts). A value
+   * set here is only used as a last-resort fallback if the sequence can't
+   * be read.
+   */
+  publicNumber?: string;
   idempotencyKey: string;
   requestFingerprint: string;
   customerName: string;
@@ -75,6 +86,8 @@ export type NewOrderRecord = {
   deliveryDate: string;
   deliveryInterval: string;
   paymentMethod: OrderPaymentMethod;
+  paymentStatus: "PENDING";
+  cancellationReason: null;
   customerComment: string;
   subtotal: number;
   deliveryCost: number;
@@ -86,8 +99,15 @@ export type NewOrderRecord = {
   items: PricedOrderItem[];
 };
 
-export type StoredOrderRecord = Omit<NewOrderRecord, "status"> & {
+export type StoredOrderRecord = Omit<
+  NewOrderRecord,
+  "status" | "paymentStatus" | "cancellationReason" | "publicNumber"
+> & {
+  /** Always present once stored — the DB column is NOT NULL. */
+  publicNumber: string;
   status: OrderStatus;
+  paymentStatus: OrderPaymentStatus;
+  cancellationReason: string | null;
 };
 
 export type CreateOrderResult = {

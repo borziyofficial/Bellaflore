@@ -31,7 +31,6 @@ import type {
 } from "@/components/addressIntelligence/liveGeocoderTypes";
 import { prioritizeYandexAddressSuggestions } from "@/components/addressIntelligence/yandexAddressPriority";
 import { fetchYandexAddressSuggestions } from "@/components/addressIntelligence/yandexLiveGeocoderAdapter";
-import { isYandexSuggestEnabled } from "@/components/maps/mapProviderRegistry";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const LIVE_GEOCODER_DEBOUNCE_MS = 280;
@@ -94,7 +93,6 @@ export type UseLiveGeocoderSuggestionsResult = {
 export function useLiveGeocoderSuggestions(
   input: string,
 ): UseLiveGeocoderSuggestionsResult {
-  const yandexEnabled = isYandexSuggestEnabled();
   const [debouncedInput, setDebouncedInput] = useState(input);
   const [fetchState, setFetchState] = useState<FetchGeocoderState | null>(null);
   const requestSequenceRef = useRef(0);
@@ -139,7 +137,7 @@ export function useLiveGeocoderSuggestions(
   );
 
   useEffect(() => {
-    if (!yandexEnabled || !isQueryReady || cachedLiveSuggestions.length > 0) {
+    if (!isQueryReady || cachedLiveSuggestions.length > 0) {
       return;
     }
 
@@ -218,14 +216,13 @@ export function useLiveGeocoderSuggestions(
     cachedLiveSuggestions.length,
     isQueryReady,
     normalizedInput,
-    yandexEnabled,
   ]);
 
   const activeFetchState =
     fetchState?.queryKey === normalizedInput ? fetchState : null;
 
   const liveSuggestions = useMemo(() => {
-    if (!yandexEnabled || !isQueryReady) {
+    if (!isQueryReady) {
       return [];
     }
 
@@ -238,16 +235,13 @@ export function useLiveGeocoderSuggestions(
     activeFetchState?.liveSuggestions,
     cachedLiveSuggestions,
     isQueryReady,
-    yandexEnabled,
   ]);
 
-  const status: LiveGeocoderStatus = !yandexEnabled
-    ? "provider_unavailable"
-    : !isQueryReady
-      ? "idle"
-      : cachedLiveSuggestions.length > 0
-        ? "ready"
-        : (activeFetchState?.status ?? "idle");
+  const status: LiveGeocoderStatus = !isQueryReady
+    ? "idle"
+    : cachedLiveSuggestions.length > 0
+      ? "ready"
+      : (activeFetchState?.status ?? "idle");
 
   const errorMessage = isQueryReady
     ? cachedLiveSuggestions.length > 0
@@ -255,23 +249,21 @@ export function useLiveGeocoderSuggestions(
       : (activeFetchState?.errorMessage ?? null)
     : null;
 
-  const source: LiveGeocoderSuggestionsSource = !yandexEnabled
+  const source: LiveGeocoderSuggestionsSource = !isQueryReady
     ? "fallback"
-    : !isQueryReady
-      ? "fallback"
-      : cachedLiveSuggestions.length > 0
-        ? "cache"
-        : (activeFetchState?.source ?? "fallback");
+    : cachedLiveSuggestions.length > 0
+      ? "cache"
+      : (activeFetchState?.source ?? "fallback");
 
   const suggestions = useMemo(() => {
-    if (yandexEnabled) {
+    if (liveSuggestions.length > 0) {
       return prioritizeYandexAddressSuggestions(liveSuggestions);
     }
 
     return prioritizeYandexAddressSuggestions(
       mergeLiveAndLocalSuggestions([], localIntelligence.suggestions),
     );
-  }, [liveSuggestions, localIntelligence.suggestions, yandexEnabled]);
+  }, [liveSuggestions, localIntelligence.suggestions]);
 
   const resolvedSource = resolveLiveGeocoderSource(
     liveSuggestions.length,
@@ -303,10 +295,8 @@ export function useLiveGeocoderSuggestions(
     isQueryReady,
     uxMessage,
     secondaryMessage,
-    localWarnings: yandexEnabled ? localIntelligence.warnings : [],
-    localErrors: yandexEnabled ? localIntelligence.errors : [],
-    intelligenceStatus: yandexEnabled
-      ? localIntelligence.status
-      : "needs_more_details",
+    localWarnings: localIntelligence.warnings,
+    localErrors: localIntelligence.errors,
+    intelligenceStatus: localIntelligence.status,
   };
 }

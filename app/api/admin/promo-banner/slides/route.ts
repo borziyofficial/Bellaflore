@@ -58,7 +58,10 @@ export async function POST(request: Request) {
   const buttonLink = String(formData.get("buttonLink") ?? "").trim();
   const isEnabled = formData.get("isEnabled") !== "false";
 
-  let imageUrl = "";
+  // A catalog-picked product contributes its existing image URL. We keep
+  // that URL on the slide instead of copying the asset or mutating the
+  // product. A manually uploaded file still takes precedence when present.
+  let imageUrl = String(formData.get("imageUrl") ?? "").trim();
   const image = formData.get("image");
   if (image instanceof File && image.size > 0) {
     const storageWarning = getImageStorageWarning();

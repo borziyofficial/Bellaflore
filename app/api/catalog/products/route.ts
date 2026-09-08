@@ -9,6 +9,7 @@ import {
   listBouquets,
 } from "@/lib/bouquetDb";
 import { storedBouquetsToLegacyCatalogProducts } from "@/lib/bouquetDb/publicCatalogMapper";
+import { isPublicStorefrontProductOrderable } from "@/components/catalog/publicCatalogMerge";
 import {
   storedProductToCatalogRecord,
   storedProductToLegacyCatalogProduct,
@@ -44,13 +45,17 @@ export async function GET(request: Request) {
     ]);
     const bouquetProducts = publishedOnly ? await listPublishedBouquetCatalogProducts() : [];
 
+    const storefrontProducts = [
+      ...products.map((product) =>
+        storedProductToLegacyCatalogProduct(product, customCategoryTitleById),
+      ),
+      ...bouquetProducts,
+    ];
+
     return Response.json({
-      products: [
-        ...products.map((product) =>
-          storedProductToLegacyCatalogProduct(product, customCategoryTitleById),
-        ),
-        ...bouquetProducts,
-      ],
+      products: publishedOnly
+        ? storefrontProducts.filter(isPublicStorefrontProductOrderable)
+        : storefrontProducts,
       records: products.map((product) =>
         storedProductToCatalogRecord(product, customCategoryTitleById),
       ),
@@ -74,5 +79,10 @@ async function listPublishedBouquetCatalogProducts() {
 }
 
 export async function resolvePublicCatalogProductBySlug(slug: string) {
-  return resolvePublishedCatalogProduct(slug);
+  const resolved = await resolvePublishedCatalogProduct(slug);
+  if (!resolved || !isPublicStorefrontProductOrderable(resolved.product)) {
+    return null;
+  }
+
+  return resolved;
 }

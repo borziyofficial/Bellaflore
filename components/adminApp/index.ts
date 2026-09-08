@@ -34,4 +34,5 @@ export { AdminAddModule } from "@/components/adminApp/modules/add/AdminAddModule
 export { AdminOrdersModule } from "@/components/adminApp/modules/orders/AdminOrdersModule";
 export { AdminProfileModule } from "@/components/adminApp/modules/profile/AdminProfileModule";
 export { AdminSmartBannerModule } from "@/components/adminApp/modules/smartBanner/AdminSmartBannerModule";
+export { AdminDeliveryZonesModule } from "@/components/adminApp/modules/deliveryZones/AdminDeliveryZonesModule";
 export { AdminFutureModule } from "@/components/adminApp/modules/shared/AdminFutureModule";

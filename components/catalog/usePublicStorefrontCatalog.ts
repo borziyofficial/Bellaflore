@@ -10,8 +10,11 @@ import { mergePublicStorefrontCatalog } from "@/components/catalog/publicCatalog
 import type { CatalogProduct } from "@/data/catalogProducts";
 import { catalogProducts as SEED_CATALOG } from "@/data/catalogProducts";
 
+const INITIAL_STOREFRONT_CATALOG =
+  process.env.NODE_ENV === "production" ? [] : SEED_CATALOG;
+
 export function usePublicStorefrontCatalog() {
-  const [catalog, setCatalog] = useState<CatalogProduct[]>(SEED_CATALOG);
+  const [catalog, setCatalog] = useState<CatalogProduct[]>(INITIAL_STOREFRONT_CATALOG);
   const [isReady, setIsReady] = useState(false);
 
   const reload = useCallback(async () => {
@@ -19,7 +22,7 @@ export function usePublicStorefrontCatalog() {
       const publishedProducts = await fetchPublishedStorefrontProducts();
       setCatalog(mergePublicStorefrontCatalog(publishedProducts));
     } catch {
-      setCatalog(SEED_CATALOG);
+      setCatalog(INITIAL_STOREFRONT_CATALOG);
     } finally {
       setIsReady(true);
     }
@@ -36,7 +39,7 @@ export function usePublicStorefrontCatalog() {
         }
       } catch {
         if (active) {
-          setCatalog(SEED_CATALOG);
+          setCatalog(INITIAL_STOREFRONT_CATALOG);
         }
       } finally {
         if (active) {

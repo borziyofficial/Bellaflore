@@ -10,7 +10,6 @@
 // ==================================================
 import { prioritizeYandexLiveSuggestions } from "@/components/addressIntelligence/yandexAddressPriority";
 import type { LiveGeocoderFetchResult } from "@/components/addressIntelligence/liveGeocoderTypes";
-import { isYandexSuggestEnabled } from "@/components/maps/mapProviderRegistry";
 import { normalizeAddressForYandexGeocoding } from "@/components/maps/geocodingNormalize";
 import { suggestWithYandexMapsSdk } from "@/components/maps/yandexJsSuggest";
 import { mapYandexSuggestItemToSuggestion } from "@/components/maps/yandexSuggestMappers";
@@ -38,15 +37,6 @@ export async function fetchYandexAddressSuggestions(
       status: "provider_unavailable",
       suggestions: [],
       errorMessage: "Yandex suggest requires a browser environment.",
-      provider: "fallback",
-    };
-  }
-
-  if (!isYandexSuggestEnabled()) {
-    return {
-      status: "provider_unavailable",
-      suggestions: [],
-      errorMessage: "Yandex GeoSuggest is not configured.",
       provider: "fallback",
     };
   }

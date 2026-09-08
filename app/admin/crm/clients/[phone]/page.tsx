@@ -14,14 +14,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import {
-  type BackendOrder,
-  formatDate,
-  formatPrice,
-  getOrdersUrl,
-  paymentStatusLabels,
+  type AdminOrder,
+  fetchAdminOrders,
+  formatOrderDate as formatDate,
+  formatOrderPrice as formatPrice,
+  paymentMethodLabel,
   orderStatusLabels,
-  sortNewestFirst,
-} from "../../../../orders/orderUtils";
+  sortAdminOrdersNewestFirst as sortNewestFirst,
+} from "@/lib/orders/adminClient";
 import { ADMIN_LOGIN_PATH, hasAdminSession } from "../../../auth";
 
 type ClientProfile = {
@@ -32,7 +32,7 @@ type ClientProfile = {
   averageOrderValue: number;
   firstOrderDate: string;
   lastOrderDate: string;
-  orders: BackendOrder[];
+  orders: AdminOrder[];
 };
 
 function getPhoneParam(phone: string | string[] | undefined): string {
@@ -47,19 +47,19 @@ function normalizePhone(value: string): string {
   return value.replace(/\D/g, "");
 }
 
-function getOrderTime(order: BackendOrder): number {
-  const time = new Date(order.created_at).getTime();
+function getOrderTime(order: AdminOrder): number {
+  const time = new Date(order.createdAt).getTime();
   return Number.isNaN(time) ? Number.NEGATIVE_INFINITY : time;
 }
 
 function buildClientProfile(
-  orders: BackendOrder[],
+  orders: AdminOrder[],
   phoneParam: string,
 ): ClientProfile | null {
   const normalizedParam = normalizePhone(decodeURIComponent(phoneParam));
   const clientOrders = sortNewestFirst(
     orders.filter(
-      (order) => normalizePhone(order.customer_phone) === normalizedParam,
+      (order) => normalizePhone(order.customer.phone) === normalizedParam,
     ),
   );
 
@@ -68,7 +68,7 @@ function buildClientProfile(
   }
 
   const totalSpent = clientOrders.reduce(
-    (total, order) => total + order.total_price,
+    (total, order) => total + order.total,
     0,
   );
   const oldestOrder = [...clientOrders].sort(
@@ -77,13 +77,13 @@ function buildClientProfile(
   const newestOrder = clientOrders[0];
 
   return {
-    name: newestOrder.customer_name,
-    phone: newestOrder.customer_phone,
+    name: newestOrder.customer.name,
+    phone: newestOrder.customer.phone,
     totalOrders: clientOrders.length,
     totalSpent,
     averageOrderValue: Math.round(totalSpent / clientOrders.length),
-    firstOrderDate: oldestOrder.created_at,
-    lastOrderDate: newestOrder.created_at,
+    firstOrderDate: oldestOrder.createdAt,
+    lastOrderDate: newestOrder.createdAt,
     orders: clientOrders,
   };
 }
@@ -97,7 +97,7 @@ export default function CrmClientDetailsPage() {
   );
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [orders, setOrders] = useState<BackendOrder[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -128,13 +128,7 @@ export default function CrmClientDetailsPage() {
       setErrorMessage("");
 
       try {
-        const response = await fetch(getOrdersUrl(), { cache: "no-store" });
-
-        if (!response.ok) {
-          throw new Error(`Orders request failed: ${response.status}`);
-        }
-
-        const loadedOrders = (await response.json()) as BackendOrder[];
+        const loadedOrders = await fetchAdminOrders();
 
         if (!ignore) {
           setOrders(loadedOrders);
@@ -253,36 +247,36 @@ export default function CrmClientDetailsPage() {
             <div style={styles.orderList}>
               {client.orders.map((order) => (
                 <Link
-                  href={`/orders/${encodeURIComponent(order.order_id)}`}
+                  href={`/orders/${encodeURIComponent(order.orderNumber)}`}
                   style={styles.orderLink}
-                  key={order.order_id}
+                  key={order.id}
                 >
                   <article style={styles.orderCard}>
                     <div style={styles.orderHeader}>
                       <div>
                         <span style={styles.label}>Order ID</span>
-                        <h3 style={styles.orderId}>{order.order_id}</h3>
+                        <h3 style={styles.orderId}>{order.orderNumber}</h3>
                       </div>
                       <span style={styles.orderTotal}>
-                        {formatPrice(order.total_price)}
+                        {formatPrice(order.total)}
                       </span>
                     </div>
 
                     <dl style={styles.orderDetailsGrid}>
                       <div style={styles.metricItem}>
                         <dt style={styles.label}>Created</dt>
-                        <dd style={styles.value}>{formatDate(order.created_at)}</dd>
+                        <dd style={styles.value}>{formatDate(order.createdAt)}</dd>
                       </div>
                       <div style={styles.metricItem}>
-                        <dt style={styles.label}>Payment</dt>
+                        <dt style={styles.label}>Payment method</dt>
                         <dd style={styles.value}>
-                          {paymentStatusLabels[order.payment_status]}
+                          {paymentMethodLabel(order.paymentMethod)}
                         </dd>
                       </div>
                       <div style={styles.metricItem}>
                         <dt style={styles.label}>Status</dt>
                         <dd style={styles.value}>
-                          {orderStatusLabels[order.order_status]}
+                          {orderStatusLabels[order.status]}
                         </dd>
                       </div>
                     </dl>

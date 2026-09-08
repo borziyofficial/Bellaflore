@@ -9,8 +9,10 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { CSSProperties } from "react";
 import {
+  hasValidAdminServerSession,
   hasValidAdminEntrySession,
   loginWithAdminEntryCredentials,
+  logoutAdminEntrySession,
 } from "@/components/adminEntry/adminEntryAuth";
 import {
   ADMIN_ENTRY_ROUTES,
@@ -27,9 +29,21 @@ export default function AdminLoginPageClient() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (hasValidAdminEntrySession()) {
-      router.replace(redirectPath);
-    }
+    if (!hasValidAdminEntrySession()) return;
+
+    let cancelled = false;
+    void hasValidAdminServerSession().then(async (valid) => {
+      if (cancelled) return;
+      if (valid) {
+        router.replace(redirectPath);
+        return;
+      }
+      await logoutAdminEntrySession();
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [redirectPath, router]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

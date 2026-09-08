@@ -93,8 +93,25 @@ export type YandexPolygonProperties = {
   balloonContentBody?: string;
 };
 
+export type YandexPolygonGeometry = {
+  getCoordinates: () => [number, number][][];
+  setCoordinates: (coordinates: [number, number][][]) => void;
+};
+
+export type YandexPolygonEditor = {
+  startEditing: () => void;
+  stopEditing: () => void;
+};
+
 export type YandexPolygon = {
+  // "geometrychange" fires on drag/add/remove-vertex while `.editor` is
+  // active, in addition to the usual placemark-style events (click, etc.).
   events: YandexPlacemarkEvents;
+  // Present on every polygon the SDK creates. Read-only display polygons
+  // (checkout/home map) never call these — only the Admin Zone 1 editor
+  // does — but the underlying Yandex object always has them.
+  geometry: YandexPolygonGeometry;
+  editor: YandexPolygonEditor;
 };
 
 export type YandexGeoObject = YandexPlacemark | YandexPolyline | YandexPolygon;

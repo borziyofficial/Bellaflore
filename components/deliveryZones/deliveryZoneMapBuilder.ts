@@ -17,13 +17,12 @@ import type {
 import { mapRealZoneStatusToMapAvailability } from "@/components/deliveryZones/deliveryZoneMapTypes";
 import { buildDeliveryZoneMapRingCoordinates } from "@/components/deliveryZones/deliveryZoneMapRingGeometry";
 import {
-  DELIVERY_ZONE_MAP_FILL_OPACITY,
-  DELIVERY_ZONE_MAP_SELECTED_FILL_OPACITY,
   DELIVERY_ZONE_MAP_SELECTED_STROKE_OPACITY,
   DELIVERY_ZONE_MAP_STROKE_OPACITY,
   DELIVERY_ZONE_MAP_STROKE_WIDTH,
   getDeliveryZoneMapBorderColor,
   getDeliveryZoneMapDisplayColor,
+  getDeliveryZoneMapFillOpacity,
 } from "@/components/deliveryZones/deliveryZoneMapVisualFoundation";
 import type { GeoCoordinate } from "@/components/maps/distanceTypes";
 
@@ -50,8 +49,11 @@ function buildLegendItems(
 }
 
 function buildZoneLayers(selectedZoneId: DeliveryZoneId | null): DeliveryZoneMapLayer[] {
+  // Include the base zone too, so the MKAD outline itself is drawn as a
+  // polygon layer (it used to be skipped, leaving Zone 1 invisible on the
+  // map even though it is a real, priced zone).
   const activeZones = DELIVERY_ZONES_CATALOG.filter(
-    (zone) => zone.isActive && !zone.isBaseZone,
+    (zone) => zone.isActive,
   ).sort((left, right) => left.sortOrder - right.sortOrder);
 
   return activeZones
@@ -74,8 +76,8 @@ function buildZoneLayers(selectedZoneId: DeliveryZoneId | null): DeliveryZoneMap
         ringCoordinates,
         strokeWidth: DELIVERY_ZONE_MAP_STROKE_WIDTH,
         fillOpacity: isSelected
-          ? DELIVERY_ZONE_MAP_SELECTED_FILL_OPACITY
-          : DELIVERY_ZONE_MAP_FILL_OPACITY,
+          ? Math.min(1, getDeliveryZoneMapFillOpacity(zone.zoneId) + 0.08)
+          : getDeliveryZoneMapFillOpacity(zone.zoneId),
         strokeOpacity: isSelected
           ? DELIVERY_ZONE_MAP_SELECTED_STROKE_OPACITY
           : DELIVERY_ZONE_MAP_STROKE_OPACITY,

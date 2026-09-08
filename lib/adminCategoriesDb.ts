@@ -274,6 +274,43 @@ export async function getCategoryUsageCount(id: string): Promise<number> {
   return products.filter((product) => product.category === id).length;
 }
 
+export async function getCategoryUsageCounts(): Promise<Record<string, number>> {
+  const products = await listCatalogProducts();
+  return products.reduce<Record<string, number>>((counts, product) => {
+    counts[product.category] = (counts[product.category] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+export async function setCustomCategoryActive(
+  id: string,
+  isActive: boolean,
+): Promise<MergedCategoryRecord | null> {
+  if (CATALOG_CATEGORY_BY_ID[id]) {
+    throw new CategoryValidationError("Статус встроенных категорий задаётся каталогом.");
+  }
+
+  const now = new Date().toISOString();
+  const sql = getSqlClient();
+  if (!sql) {
+    const categories = await readFileCategories();
+    const next = categories.map((category) =>
+      category.id === id ? { ...category, isActive, updatedAt: now } : category,
+    );
+    await writeFileCategories(next);
+    return next.find((category) => category.id === id) ?? null;
+  }
+
+  await ensureSchema();
+  const rows = await sql<CustomCategoryRow[]>`
+    UPDATE admin_custom_categories
+    SET is_active = ${isActive}, updated_at = ${now}
+    WHERE id = ${id}
+    RETURNING *
+  `;
+  return rows[0] ? rowToRecord(rows[0]) : null;
+}
+
 export async function deleteCustomCategory(
   id: string,
   options?: { reassignTo?: string },

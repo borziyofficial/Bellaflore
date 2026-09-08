@@ -61,7 +61,6 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     href: "/admin/categories",
     description: "Дерево категорий",
     sidebarOnly: true,
-    future: true,
   },
   {
     id: "orders",
@@ -75,7 +74,6 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     href: "/admin/customers",
     description: "CRM",
     sidebarOnly: true,
-    future: true,
   },
   {
     id: "delivery",
@@ -85,12 +83,18 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     sidebarOnly: true,
   },
   {
+    id: "delivery-zones",
+    label: "Зоны доставки",
+    href: "/admin/delivery-zones",
+    description: "Границы, тарифы и время доставки",
+    sidebarOnly: true,
+  },
+  {
     id: "promotions",
     label: "Акции",
     href: "/admin/promotions",
     description: "Кампании",
     sidebarOnly: true,
-    future: true,
   },
   {
     id: "smart-banner",
@@ -105,7 +109,6 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     href: "/admin/analytics",
     description: "Показатели",
     sidebarOnly: true,
-    future: true,
   },
   {
     id: "notifications",
@@ -113,7 +116,6 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     href: "/admin/notifications",
     description: "Оповещения",
     sidebarOnly: true,
-    future: true,
   },
   {
     id: "automation",
@@ -121,7 +123,6 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     href: "/admin/automation",
     description: "Рабочие процессы",
     sidebarOnly: true,
-    future: true,
   },
   {
     id: "settings",
@@ -129,7 +130,6 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     href: "/admin/settings",
     description: "Настройки магазина",
     sidebarOnly: true,
-    future: true,
   },
 ];
 
@@ -173,6 +173,9 @@ export function resolveAdminSidebarId(pathname: string): AdminSidebarId {
   if (pathname.startsWith("/admin/customers") || pathname.startsWith("/admin/crm")) {
     return "customers";
   }
+  if (pathname.startsWith("/admin/delivery-zones")) {
+    return "delivery-zones";
+  }
   if (pathname.startsWith("/admin/delivery")) {
     return "delivery";
   }
@@ -214,6 +217,14 @@ const ADMIN_PAGE_TITLES: Record<string, string> = {
   "/admin/orders": "Заказы",
   "/admin/profile": "Профиль",
   "/admin/smart-banner": "Умный баннер",
+  "/admin/delivery-zones": "Зоны доставки",
+  "/admin/categories": "Категории",
+  "/admin/customers": "Клиенты",
+  "/admin/promotions": "Акции",
+  "/admin/analytics": "Аналитика",
+  "/admin/notifications": "Уведомления",
+  "/admin/automation": "Автоматизация",
+  "/admin/settings": "Настройки",
 };
 
 export function resolveAdminPageTitle(pathname: string): string {
@@ -222,6 +233,10 @@ export function resolveAdminPageTitle(pathname: string): string {
 
   if (ADMIN_PAGE_TITLES[normalized]) {
     return ADMIN_PAGE_TITLES[normalized];
+  }
+
+  if (normalized.startsWith("/admin/orders/")) {
+    return "Детали заказа";
   }
 
   if (normalized.startsWith("/admin/edit/")) {
