@@ -181,11 +181,9 @@ export async function getDeliveryZoneEntriesFromDb(): Promise<
     const rows = await sql<DeliveryZoneRow[]>`SELECT * FROM delivery_zones`;
     return rowsToEntries(rows);
   } catch (err) {
-    // Defensive: return null rather than throwing, so hydration never breaks
-    // pricing. In development, log the error for debugging.
-    if (process.env.NODE_ENV !== "production") {
-      console.error("[deliveryZonesDb] getDeliveryZoneEntriesFromDb error:", err);
-    }
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    const errorCode = err instanceof Error && "code" in err ? (err as any).code : "UNKNOWN";
+    console.error(`[deliveryZonesDb] getDeliveryZoneEntriesFromDb: ${errorCode} - ${errorMsg}`);
     return null;
   }
 }
