@@ -23,7 +23,7 @@ const QUICK_ACTIONS = [
   { label: "Добавить букет", hint: "Создать", href: "/admin/add" },
   { label: "Букеты", hint: "Каталог", href: "/admin/bouquets" },
   { label: "Заказы", hint: "Поток заказов", href: "/admin/orders" },
-  { label: "Клиенты", hint: "CRM", href: "/admin/crm/clients" },
+  { label: "Клиенты", hint: "CRM", href: "/admin/customers" },
   { label: "Зоны доставки", hint: "Границы и тарифы", href: "/admin/delivery-zones" },
 ];
 

@@ -1,6 +1,7 @@
 import {
   CategoryValidationError,
   createCustomCategory,
+  getCategoryUsageCounts,
   listMergedCategories,
 } from "@/lib/adminCategoriesDb";
 import {
@@ -18,9 +19,17 @@ export async function GET(request: Request) {
   }
 
   try {
-    const categories = await listMergedCategories();
+    const [categories, usageCounts] = await Promise.all([
+      listMergedCategories(),
+      getCategoryUsageCounts(),
+    ]);
     return Response.json(
-      { categories },
+      {
+        categories: categories.map((category) => ({
+          ...category,
+          usageCount: usageCounts[category.id] ?? 0,
+        })),
+      },
       { headers: { "Cache-Control": "no-store, must-revalidate" } },
     );
   } catch {

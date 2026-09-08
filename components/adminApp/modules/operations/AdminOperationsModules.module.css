@@ -1,0 +1,164 @@
+.inlineForm,
+.actions,
+.modalHeader,
+.orderRow,
+.notificationCard button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inlineForm input,
+.fullInput,
+.formGrid input,
+.formGrid select,
+.formGrid textarea,
+.rowMain input {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--admin-ink);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.formGrid textarea { min-height: 88px; resize: vertical; }
+.formGrid option { color: #111; }
+.inlineForm input:focus,
+.fullInput:focus,
+.formGrid input:focus,
+.formGrid select:focus,
+.formGrid textarea:focus { border-color: rgba(241, 209, 139, 0.55); }
+
+.primaryButton,
+.actions button,
+.modalHeader button,
+.disabledButton {
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--admin-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.primaryButton { border-color: rgba(241, 209, 139, 0.4); background: rgba(215, 180, 106, 0.17); color: var(--admin-gold-strong); }
+.primaryButton:disabled,
+.actions button:disabled,
+.disabledButton { cursor: not-allowed; opacity: 0.48; }
+.dangerButton { border-color: rgba(255, 107, 107, 0.3) !important; color: #ffc1c1 !important; }
+
+.cardList { display: grid; gap: 9px; }
+.rowCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.028);
+}
+.rowMain { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.rowMain > div,
+.rowCard > div:first-child { min-width: 0; }
+.rowCard strong { overflow-wrap: anywhere; }
+.rowCard p,
+.muted { margin: 4px 0 0; color: var(--admin-muted); font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
+.categoryIcon { display: grid; flex: 0 0 auto; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: rgba(215, 180, 106, 0.1); }
+.actions { flex-wrap: wrap; justify-content: flex-end; }
+.activeBadge,
+.inactiveBadge,
+.importantBadge,
+.counter {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.activeBadge { border: 1px solid rgba(84, 205, 130, 0.3); background: rgba(84, 205, 130, 0.1); color: #bdf1d0; }
+.inactiveBadge { border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.04); color: var(--admin-muted); }
+.importantBadge { border: 1px solid rgba(255, 112, 112, 0.32); background: rgba(220, 76, 76, 0.12); color: #ffc5c5; }
+.counter { border: 1px solid rgba(241, 209, 139, 0.35); background: rgba(215, 180, 106, 0.12); color: var(--admin-gold-strong); }
+
+.customerCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(120px, .7fr) minmax(150px, .8fr);
+  gap: 12px;
+  width: 100%;
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.028);
+  color: var(--admin-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.customerCard:hover { border-color: rgba(241, 209, 139, 0.38); }
+.customerCard span { display: grid; gap: 4px; min-width: 0; }
+.customerCard small,
+.orderRow small,
+.notificationCard small { color: var(--admin-muted); overflow-wrap: anywhere; }
+
+.modalBackdrop { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); }
+.modal { width: min(720px, 100%); max-height: min(760px, 90dvh); overflow: auto; padding: 18px; border: 1px solid var(--admin-border-strong); border-radius: 22px; background: #101013; box-shadow: 0 30px 100px rgba(0,0,0,.6); }
+.modalHeader { justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.modalHeader h3 { margin: 3px 0; font-size: 24px; }
+.modalHeader p { margin: 0; color: var(--admin-muted); }
+.eyebrow { color: var(--admin-gold) !important; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+
+.orderRow { justify-content: space-between; min-width: 0; padding: 11px 12px; border: 1px solid rgba(255,255,255,.075); border-radius: 13px; background: rgba(255,255,255,.025); color: var(--admin-ink); font-size: 12px; text-decoration: none; }
+.orderRow > span:first-child { display: grid; gap: 3px; min-width: 0; }
+
+.formGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.formGrid label { display: grid; align-content: start; gap: 6px; min-width: 0; color: var(--admin-muted); font-size: 11px; font-weight: 750; }
+.fullField { grid-column: 1 / -1; }
+.checkbox { display: flex !important; align-items: center; align-self: end; min-height: 42px; }
+.checkbox input { width: 18px; min-height: 18px; }
+
+.warning,
+.info,
+.error,
+.success { margin: 0; padding: 11px 13px; border-radius: 13px; font-size: 12px; line-height: 1.45; }
+.warning { border: 1px solid rgba(241, 209, 139, .28); background: rgba(215, 180, 106, .09); color: #f3d99d; }
+.info { border: 1px solid rgba(115, 175, 255, .25); background: rgba(70, 130, 210, .09); color: #c8deff; }
+.error { border: 1px solid rgba(255, 96, 96, .25); background: rgba(220, 76, 76, .1); color: #ffc5c5; }
+.success { border: 1px solid rgba(84, 205, 130, .25); background: rgba(84, 205, 130, .08); color: #c5f4d6; }
+
+.notificationCard { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 11px; border: 1px solid rgba(255,255,255,.075); border-radius: 14px; background: rgba(255,255,255,.025); }
+.notificationUnread { border-color: rgba(241, 209, 139, .3); background: rgba(215,180,106,.07); }
+.notificationCard button { justify-content: space-between; min-width: 0; padding: 0; border: 0; background: transparent; color: var(--admin-ink); font: inherit; text-align: left; cursor: pointer; }
+.notificationCard button > span:first-child { display: grid; gap: 4px; min-width: 0; }
+.notificationCard > a { color: var(--admin-gold-strong); font-size: 11px; white-space: nowrap; }
+
+.automationGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.automationGrid article { padding: 13px; border: 1px solid rgba(255,255,255,.075); border-radius: 14px; background: rgba(255,255,255,.025); }
+.automationGrid p { margin: 5px 0 0; color: var(--admin-muted); font-size: 12px; line-height: 1.4; }
+
+@media (max-width: 700px) {
+  .rowCard { align-items: stretch; flex-direction: column; }
+  .actions { justify-content: flex-start; }
+  .customerCard { grid-template-columns: 1fr; }
+  .formGrid,
+  .automationGrid { grid-template-columns: 1fr; }
+  .fullField { grid-column: auto; }
+  .inlineForm { align-items: stretch; flex-direction: column; }
+  .orderRow { align-items: flex-start; flex-wrap: wrap; }
+  .notificationCard { grid-template-columns: 1fr; }
+  .notificationCard button { align-items: flex-start; }
+}

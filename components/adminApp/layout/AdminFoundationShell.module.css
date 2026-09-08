@@ -77,6 +77,54 @@
   backdrop-filter: blur(18px);
 }
 
+.mobileMenuButton {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid rgba(215, 180, 106, 0.25);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--admin-gold-strong);
+  font: inherit;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.mobileMenuBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  display: flex;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(10px);
+}
+
+.mobileMenu {
+  width: min(330px, 88vw);
+  height: 100%;
+  overflow: auto;
+  padding: max(18px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+  border-right: 1px solid var(--admin-border-strong);
+  background: #0c0c0f;
+  box-shadow: 24px 0 70px rgba(0, 0, 0, 0.5);
+}
+
+.mobileMenuHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.mobileMenuHeader h2 { margin: 3px 0 0; color: var(--admin-ink); font-size: 22px; }
+.mobileMenuHeader button { width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.12); border-radius: 11px; background: rgba(255,255,255,.05); color: var(--admin-ink); font-size: 22px; cursor: pointer; }
+.mobileMenuNav { display: grid; gap: 5px; }
+.mobileMenuNav a { display: grid; gap: 3px; padding: 11px 12px; border: 1px solid transparent; border-radius: 13px; color: var(--admin-ink); text-decoration: none; }
+.mobileMenuNav a span { color: var(--admin-muted); font-size: 11px; }
+.mobileMenuNav a.mobileMenuLinkActive { border-color: rgba(241, 209, 139, .28); background: rgba(215, 180, 106, .1); color: var(--admin-gold-strong); }
+
 .topBarMain {
   min-width: 0;
 }
@@ -347,6 +395,11 @@
   }
 
   .tabBar {
+    display: none;
+  }
+
+  .mobileMenuButton,
+  .mobileMenuBackdrop {
     display: none;
   }
 

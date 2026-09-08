@@ -3,6 +3,7 @@ import {
   CategoryValidationError,
   deleteCustomCategory,
   renameCustomCategory,
+  setCustomCategoryActive,
 } from "@/lib/adminCategoriesDb";
 import {
   isAdminRequestAuthorized,
@@ -24,12 +25,15 @@ export async function PUT(request: Request, context: RouteContext) {
 
   try {
     const { id } = await context.params;
-    const body = (await request.json()) as { title?: unknown };
-    if (typeof body.title !== "string") {
-      return Response.json({ message: "Укажите название категории." }, { status: 400 });
+    const body = (await request.json()) as { title?: unknown; isActive?: unknown };
+    let category = null;
+    if (typeof body.title === "string") {
+      category = await renameCustomCategory(decodeURIComponent(id), body.title);
+    } else if (typeof body.isActive === "boolean") {
+      category = await setCustomCategoryActive(decodeURIComponent(id), body.isActive);
+    } else {
+      return Response.json({ message: "Изменения категории не указаны." }, { status: 400 });
     }
-
-    const category = await renameCustomCategory(decodeURIComponent(id), body.title);
     if (!category) {
       return Response.json({ message: "Категория не найдена." }, { status: 404 });
     }

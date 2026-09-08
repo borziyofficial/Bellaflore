@@ -140,6 +140,18 @@ function buildCategoryLink(categoryId: string): string {
   return `/?category=${encodeURIComponent(categoryId)}#catalog`;
 }
 
+function getProductImageUrl(product: CatalogProductRecord): string {
+  return (
+    product.images.find((image) => image.isPrimary)?.url ??
+    [...product.images].sort((left, right) => left.sortOrder - right.sortOrder)[0]?.url ??
+    ""
+  );
+}
+
+function buildProductLink(product: CatalogProductRecord): string {
+  return `/catalog/${encodeURIComponent(product.seo.slug || product.slug)}`;
+}
+
 export function AdminSmartBannerModule({
   initialSnapshot,
 }: {
@@ -174,6 +186,8 @@ export function AdminSmartBannerModule({
   const [previewSlides, setPreviewSlides] = useState<ResolvedPromoSlide[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [productQuery, setProductQuery] = useState("");
+  const [slideProductQuery, setSlideProductQuery] = useState("");
+  const [slideProductPickerOpen, setSlideProductPickerOpen] = useState(false);
   const [slideModal, setSlideModal] = useState<{ id: string | null; form: SlideFormState } | null>(
     null,
   );
@@ -383,11 +397,15 @@ export function AdminSmartBannerModule({
   }, []);
 
   const openCreateSlide = () => {
-    setSlideModal({ id: null, form: EMPTY_SLIDE_FORM });
+    setSlideProductQuery("");
+    setSlideProductPickerOpen(false);
+    setSlideModal({ id: null, form: { ...EMPTY_SLIDE_FORM } });
   };
 
   const openEditSlide = (slide: PromoBannerSlide) => {
     const categoryId = getCategoryIdFromLink(slide.buttonLink);
+    setSlideProductQuery("");
+    setSlideProductPickerOpen(false);
     setSlideModal({
       id: slide.id,
       form: {
@@ -465,6 +483,9 @@ export function AdminSmartBannerModule({
         createForm.append("buttonText", form.buttonText);
         createForm.append("buttonLink", buttonLink);
         createForm.append("isEnabled", String(form.isEnabled));
+        if (!form.removeImage && form.imageUrl) {
+          createForm.append("imageUrl", form.imageUrl);
+        }
         if (form.imageFile) {
           createForm.append("image", form.imageFile);
         }
@@ -569,6 +590,13 @@ export function AdminSmartBannerModule({
     if (!query) return publishedProducts;
     return publishedProducts.filter((product) => product.title.toLowerCase().includes(query));
   }, [publishedProducts, productQuery]);
+  const filteredSlideProducts = useMemo(() => {
+    const query = slideProductQuery.trim().toLocaleLowerCase("ru-RU");
+    if (!query) return publishedProducts;
+    return publishedProducts.filter((product) =>
+      product.title.toLocaleLowerCase("ru-RU").includes(query),
+    );
+  }, [publishedProducts, slideProductQuery]);
   const selectedProducts = useMemo(
     () =>
       draftSelectedIds
@@ -591,6 +619,29 @@ export function AdminSmartBannerModule({
     setDraftSelectedIds((current) =>
       current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id],
     );
+  };
+
+  const selectProductForSlide = (product: CatalogProductRecord) => {
+    if (!slideModal) return;
+
+    const imageUrl = getProductImageUrl(product);
+    setSlideModal({
+      ...slideModal,
+      form: {
+        ...slideModal.form,
+        title: slideModal.form.title.trim() ? slideModal.form.title : product.title,
+        buttonText: slideModal.form.buttonText.trim()
+          ? slideModal.form.buttonText
+          : "Смотреть букет",
+        buttonLink: buildProductLink(product),
+        destinationType: "url",
+        imageUrl,
+        imageFile: null,
+        removeImage: false,
+      },
+    });
+    setSlideProductPickerOpen(false);
+    setSlideProductQuery("");
   };
 
   const selectSlideImage = (file: File | undefined) => {
@@ -889,6 +940,65 @@ export function AdminSmartBannerModule({
           >
             <h3>{slideModal.id ? "Изменить слайд" : "Новый слайд"}</h3>
 
+            <div className={styles.catalogPickerBlock}>
+              <button
+                type="button"
+                className={styles.catalogPickerToggle}
+                aria-expanded={slideProductPickerOpen}
+                onClick={() => setSlideProductPickerOpen((current) => !current)}
+              >
+                <span>Выбрать товар из каталога</span>
+                <span aria-hidden="true">{slideProductPickerOpen ? "−" : "+"}</span>
+              </button>
+              <p className={styles.catalogPickerHint}>
+                Главное фото и ссылка подставятся без копирования изображения. Все текстовые поля
+                можно изменить вручную.
+              </p>
+              {slideProductPickerOpen ? (
+                <div className={styles.slideProductPicker}>
+                  <input
+                    className={styles.pickerSearch}
+                    value={slideProductQuery}
+                    onChange={(event) => setSlideProductQuery(event.target.value)}
+                    placeholder="Поиск по названию…"
+                    aria-label="Поиск товара для слайда"
+                    autoFocus
+                  />
+                  <div className={styles.slideProductList}>
+                    {filteredSlideProducts.length === 0 ? (
+                      <p className={ui.listItemMuted}>Ничего не найдено.</p>
+                    ) : (
+                      filteredSlideProducts.slice(0, 50).map((product) => {
+                        const imageUrl = getProductImageUrl(product);
+                        return (
+                          <button
+                            key={product.id}
+                            type="button"
+                            className={styles.slideProductRow}
+                            onClick={() => selectProductForSlide(product)}
+                          >
+                            <span className={styles.slideProductThumb}>
+                              {imageUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={imageUrl} alt="" />
+                              ) : (
+                                <span>Нет фото</span>
+                              )}
+                            </span>
+                            <span className={styles.slideProductInfo}>
+                              <strong>{product.title}</strong>
+                              <small>{formatPriceLabel(product.basePriceRub)}</small>
+                            </span>
+                            <span className={styles.slideProductChoose}>Выбрать</span>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
             <div className={styles.imageRow}>
               <div className={styles.imagePreview}>
                 {slideModalFilePreviewUrl ? (
@@ -964,7 +1074,9 @@ export function AdminSmartBannerModule({
             ) : null}
 
             <p className={styles.uploadNote}>
-              Фото будет загружено только после нажатия «Сохранить».
+              {slideModal.form.imageFile
+                ? "Новое фото будет загружено только после нажатия «Сохранить»."
+                : "Для товара используется его существующий URL фото; сам товар не изменяется."}
             </p>
 
             <div className={styles.field}>

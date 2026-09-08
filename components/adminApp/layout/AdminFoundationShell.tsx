@@ -5,7 +5,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import Link from "next/link";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   adminUserFromSecuritySession,
   getAdminEntrySession,
@@ -15,6 +16,7 @@ import { ADMIN_ENTRY_LOGIN_PATH } from "@/components/adminEntry/adminEntryRoutes
 import { formatAdminRoleLabel } from "@/components/adminEntry/adminNavigationItems";
 import { AdminBottomNav } from "@/components/adminApp/layout/AdminBottomNav";
 import { AdminSidebar } from "@/components/adminApp/layout/AdminSidebar";
+import { ADMIN_SIDEBAR_ITEMS, resolveAdminSidebarId } from "@/components/adminApp/foundation/navigation";
 import { prefetchAdminCatalog } from "@/components/adminCatalogManager/adminCatalogCache";
 import { fetchAdminCategories } from "@/components/adminCatalogManager/adminCustomCategories";
 import styles from "@/components/adminApp/layout/AdminFoundationShell.module.css";
@@ -29,6 +31,8 @@ export function AdminFoundationShell({
   title = "Admin",
 }: AdminFoundationShellProps) {
   const pathname = usePathname() ?? "/admin";
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const activeSidebarId = resolveAdminSidebarId(pathname);
   const session = getAdminEntrySession();
   const adminUser = session ? adminUserFromSecuritySession(session) : null;
   const displayName = adminUser?.adminUserName ?? session?.userName ?? "—";
@@ -57,6 +61,15 @@ export function AdminFoundationShell({
 
         <div className={styles.mainColumn}>
           <header className={styles.topBar}>
+            <button
+              type="button"
+              className={styles.mobileMenuButton}
+              aria-label="Открыть все разделы"
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              ☰
+            </button>
             <div className={styles.topBarMain}>
               <p className={styles.eyebrow}>BellaFlore Админ</p>
               <h1 className={styles.pageTitle}>{title}</h1>
@@ -78,6 +91,34 @@ export function AdminFoundationShell({
               </div>
             ) : null}
           </header>
+
+          {mobileMenuOpen ? (
+            <div className={styles.mobileMenuBackdrop} role="presentation" onMouseDown={() => setMobileMenuOpen(false)}>
+              <aside className={styles.mobileMenu} aria-label="Все разделы админ-панели" onMouseDown={(event) => event.stopPropagation()}>
+                <div className={styles.mobileMenuHeader}>
+                  <div>
+                    <p className={styles.sidebarEyebrow}>BellaFlore</p>
+                    <h2>Все разделы</h2>
+                  </div>
+                  <button type="button" onClick={() => setMobileMenuOpen(false)} aria-label="Закрыть меню">×</button>
+                </div>
+                <nav className={styles.mobileMenuNav}>
+                  {ADMIN_SIDEBAR_ITEMS.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      aria-current={item.id === activeSidebarId ? "page" : undefined}
+                      className={item.id === activeSidebarId ? styles.mobileMenuLinkActive : ""}
+                    >
+                      <strong>{item.label}</strong>
+                      <span>{item.description}</span>
+                    </Link>
+                  ))}
+                </nav>
+              </aside>
+            </div>
+          ) : null}
 
           <main className={styles.content}>
             <div className={styles.contentInner}>{children}</div>
