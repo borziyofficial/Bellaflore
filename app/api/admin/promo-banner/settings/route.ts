@@ -43,6 +43,9 @@ export async function PUT(request: Request) {
     }
 
     const patch: PromoBannerSettingsUpdateInput = {};
+    if (typeof body.settings.isEnabled === "boolean") {
+      patch.isEnabled = body.settings.isEnabled;
+    }
     if (body.settings.mode === "manual" || body.settings.mode === "auto") {
       patch.mode = body.settings.mode;
     }

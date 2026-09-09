@@ -99,7 +99,10 @@ export function SmartPromoBanner({
 
     fetch("/api/promo-banner", { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
-        const body = (await response.json()) as { slides?: SmartPromoSlide[] };
+        const body = (await response.json()) as {
+          isEnabled?: boolean;
+          slides?: SmartPromoSlide[];
+        };
         if (!response.ok) {
           throw new Error("Promo banner request failed");
         }
@@ -109,7 +112,9 @@ export function SmartPromoBanner({
         if (!active) {
           return;
         }
-        const validSlides = (body.slides ?? []).filter((slide) => slide.imageUrl);
+        const validSlides = body.isEnabled
+          ? (body.slides ?? []).filter((slide) => slide.imageUrl)
+          : [];
         setLoadedSlides(validSlides);
       })
       .catch(() => {
@@ -188,18 +193,11 @@ export function SmartPromoBanner({
     setIsPaused(false);
   };
 
-  // Nothing fetched yet, or fetched and empty — the banner takes no space
-  // at all (no skeleton) so it can never shift the Hero/catalog layout.
+  // While the public status is loading, reserve no space. This is important
+  // for the global DISABLED state: the catalog must sit directly below the
+  // Hero without a transient empty banner slot.
   if (slides === null) {
-    return (
-      <section
-        className={`${styles.section} ${preview ? styles.previewSection : ""}`.trim()}
-        aria-label="Загрузка специальных предложений"
-        aria-busy="true"
-      >
-        <div className={`${styles.viewport} ${styles.skeleton}`} />
-      </section>
-    );
+    return null;
   }
 
   if (slides.length === 0) {

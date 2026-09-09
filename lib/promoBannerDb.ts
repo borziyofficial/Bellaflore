@@ -24,6 +24,7 @@ export type PromoBannerAutoSource =
   | "admin_selected";
 
 export type PromoBannerSettings = {
+  isEnabled: boolean;
   mode: PromoBannerMode;
   autoSource: PromoBannerAutoSource;
   autoSelectedProductIds: string[];
@@ -50,6 +51,7 @@ export type PromoBannerSnapshot = {
 };
 
 const DEFAULT_SETTINGS: PromoBannerSettings = {
+  isEnabled: false,
   mode: "manual",
   autoSource: "featured",
   autoSelectedProductIds: [],
@@ -67,6 +69,7 @@ const VALID_SOURCES: PromoBannerAutoSource[] = [
 ];
 
 type SettingsRow = {
+  is_enabled: boolean;
   mode: string;
   auto_source: string;
   auto_selected_product_ids: string;
@@ -115,12 +118,17 @@ async function ensureSchema(): Promise<void> {
       await sql`
         CREATE TABLE IF NOT EXISTS promo_banner_settings (
           id TEXT PRIMARY KEY DEFAULT 'default',
+          is_enabled BOOLEAN NOT NULL DEFAULT FALSE,
           mode TEXT NOT NULL DEFAULT 'manual',
           auto_source TEXT NOT NULL DEFAULT 'featured',
           auto_selected_product_ids TEXT NOT NULL DEFAULT '[]',
           auto_slide_limit INT NOT NULL DEFAULT 8,
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
+      `;
+      await sql`
+        ALTER TABLE promo_banner_settings
+        ADD COLUMN IF NOT EXISTS is_enabled BOOLEAN NOT NULL DEFAULT FALSE
       `;
       await sql`
         CREATE TABLE IF NOT EXISTS promo_banner_slides (
@@ -165,6 +173,7 @@ function parseProductIds(raw: string): string[] {
 
 function settingsRowToSettings(row: SettingsRow): PromoBannerSettings {
   return {
+    isEnabled: row.is_enabled === true,
     mode: sanitizeMode(row.mode),
     autoSource: sanitizeSource(row.auto_source),
     autoSelectedProductIds: parseProductIds(row.auto_selected_product_ids),
@@ -263,6 +272,7 @@ export async function updatePromoBannerSettings(
 ): Promise<PromoBannerSettings> {
   const current = await getPromoBannerSettings();
   const next: PromoBannerSettings = {
+    isEnabled: patch.isEnabled ?? current.isEnabled,
     mode: patch.mode ? sanitizeMode(patch.mode) : current.mode,
     autoSource: patch.autoSource ? sanitizeSource(patch.autoSource) : current.autoSource,
     autoSelectedProductIds: patch.autoSelectedProductIds ?? current.autoSelectedProductIds,
@@ -278,9 +288,10 @@ export async function updatePromoBannerSettings(
 
   await ensureSchema();
   const rows = await sql<SettingsRow[]>`
-    INSERT INTO promo_banner_settings (id, mode, auto_source, auto_selected_product_ids, auto_slide_limit, updated_at)
-    VALUES ('default', ${next.mode}, ${next.autoSource}, ${JSON.stringify(next.autoSelectedProductIds)}, ${next.autoSlideLimit}, ${next.updatedAt})
+    INSERT INTO promo_banner_settings (id, is_enabled, mode, auto_source, auto_selected_product_ids, auto_slide_limit, updated_at)
+    VALUES ('default', ${next.isEnabled}, ${next.mode}, ${next.autoSource}, ${JSON.stringify(next.autoSelectedProductIds)}, ${next.autoSlideLimit}, ${next.updatedAt})
     ON CONFLICT (id) DO UPDATE SET
+      is_enabled = EXCLUDED.is_enabled,
       mode = EXCLUDED.mode,
       auto_source = EXCLUDED.auto_source,
       auto_selected_product_ids = EXCLUDED.auto_selected_product_ids,

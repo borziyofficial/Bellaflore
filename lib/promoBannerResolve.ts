@@ -12,6 +12,10 @@ import { resolveAutoPromoSlides, type ResolvedPromoSlide } from "@/lib/promoBann
 export async function resolvePromoBannerSlidesForSettings(
   settings: PromoBannerSettings,
 ): Promise<ResolvedPromoSlide[]> {
+  if (!settings.isEnabled) {
+    return [];
+  }
+
   if (settings.mode === "auto") {
     return resolveAutoPromoSlides(
       settings.autoSource,
@@ -35,10 +39,15 @@ export async function resolvePromoBannerSlidesForSettings(
 }
 
 export async function resolveCurrentPromoBannerSlides(): Promise<{
+  isEnabled: boolean;
   mode: PromoBannerSettings["mode"];
   slides: ResolvedPromoSlide[];
 }> {
   const { settings, slides: manualSlides } = await getPromoBannerSnapshot();
+  if (!settings.isEnabled) {
+    return { isEnabled: false, mode: settings.mode, slides: [] };
+  }
+
   const slides =
     settings.mode === "auto"
       ? await resolvePromoBannerSlidesForSettings(settings)
@@ -52,5 +61,5 @@ export async function resolveCurrentPromoBannerSlides(): Promise<{
             buttonText: slide.buttonText,
             buttonLink: slide.buttonLink,
           }));
-  return { mode: settings.mode, slides };
+  return { isEnabled: true, mode: settings.mode, slides };
 }

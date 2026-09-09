@@ -41,6 +41,7 @@ export async function POST(request: Request) {
 
     const current = await getPromoBannerSettings();
     const draftSettings = {
+      isEnabled: true,
       mode: body.mode === "auto" ? ("auto" as const) : ("manual" as const),
       autoSource: VALID_SOURCES.includes(body.autoSource as PromoBannerAutoSource)
         ? (body.autoSource as PromoBannerAutoSource)

@@ -29,6 +29,7 @@ type PromoBannerAutoSource = "featured" | "popular" | "new" | "bestsellers" | "a
 type SlideDestinationType = "url" | "category";
 
 type PromoBannerSettings = {
+  isEnabled: boolean;
   mode: PromoBannerMode;
   autoSource: PromoBannerAutoSource;
   autoSelectedProductIds: string[];
@@ -72,6 +73,7 @@ const SOURCE_OPTIONS: { id: PromoBannerAutoSource; label: string; hint: string }
 ];
 
 const EMPTY_SETTINGS: PromoBannerSettings = {
+  isEnabled: false,
   mode: "manual",
   autoSource: "featured",
   autoSelectedProductIds: [],
@@ -160,6 +162,9 @@ export function AdminSmartBannerModule({
   const [settings, setSettings] = useState<PromoBannerSettings>(
     initialSnapshot?.settings ?? EMPTY_SETTINGS,
   );
+  const [draftEnabled, setDraftEnabled] = useState(
+    initialSnapshot?.settings.isEnabled ?? false,
+  );
   // Draft settings mirror the form the admin is editing. They start equal to
   // the saved settings and only diverge until "Сохранить настройки" is
   // pressed — this is what lets the preview panel react instantly to a
@@ -243,6 +248,7 @@ export function AdminSmartBannerModule({
       .then((body) => {
         if (!active) return;
         setSettings(body.settings);
+        setDraftEnabled(body.settings.isEnabled);
         setDraftMode(body.settings.mode);
         setDraftSource(body.settings.autoSource);
         setDraftSelectedIds(body.settings.autoSelectedProductIds);
@@ -339,9 +345,14 @@ export function AdminSmartBannerModule({
 
   // The banner actually shown in the preview: the live manual slide list in
   // manual mode, or the last auto-mode fetch result otherwise.
-  const displayedPreviewSlides = draftMode === "manual" ? manualPreview : previewSlides;
-  const isPreviewLoading = draftMode === "auto" && previewLoading;
+  const displayedPreviewSlides = draftEnabled
+    ? draftMode === "manual"
+      ? manualPreview
+      : previewSlides
+    : [];
+  const isPreviewLoading = draftEnabled && draftMode === "auto" && previewLoading;
   const hasUnsavedSettingsChanges =
+    draftEnabled !== settings.isEnabled ||
     draftMode !== settings.mode ||
     draftSource !== settings.autoSource ||
     draftLimit !== settings.autoSlideLimit ||
@@ -357,6 +368,7 @@ export function AdminSmartBannerModule({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           settings: {
+            isEnabled: draftEnabled,
             mode: draftMode,
             autoSource: draftSource,
             autoSelectedProductIds: draftSelectedIds,
@@ -370,6 +382,7 @@ export function AdminSmartBannerModule({
       }
       if (body.settings) {
         setSettings(body.settings);
+        setDraftEnabled(body.settings.isEnabled);
         setDraftMode(body.settings.mode);
         setDraftSource(body.settings.autoSource);
         setDraftSelectedIds(body.settings.autoSelectedProductIds);
@@ -384,7 +397,7 @@ export function AdminSmartBannerModule({
     } finally {
       setSavingSettings(false);
     }
-  }, [draftMode, draftSource, draftSelectedIds, draftLimit]);
+  }, [draftEnabled, draftMode, draftSource, draftSelectedIds, draftLimit]);
 
   // --- manual slide CRUD ---
   const reloadSlides = useCallback(async () => {
@@ -696,6 +709,57 @@ export function AdminSmartBannerModule({
 
       <div className={styles.layout}>
         <div className={styles.mainColumn}>
+          <AdminPanel title="Статус баннера">
+            <div className={styles.statusControl}>
+              <div className={styles.statusCopy}>
+                <strong>Публичный показ</strong>
+                <span>
+                  {draftEnabled
+                    ? "Smart Banner отображается на главной странице."
+                    : "Smart Banner скрыт; слайды и настройки сохранены."}
+                </span>
+              </div>
+              <div
+                className={styles.statusToggle}
+                role="radiogroup"
+                aria-label="Публичный показ Smart Banner"
+              >
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={draftEnabled}
+                  className={`${styles.statusButton} ${
+                    draftEnabled ? styles.statusButtonActive : ""
+                  }`}
+                  onClick={() => setDraftEnabled(true)}
+                >
+                  ENABLED
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={!draftEnabled}
+                  className={`${styles.statusButton} ${
+                    !draftEnabled ? styles.statusButtonDisabled : ""
+                  }`}
+                  onClick={() => setDraftEnabled(false)}
+                >
+                  DISABLED
+                </button>
+              </div>
+            </div>
+            <div className={styles.buttonRow}>
+              <button
+                type="button"
+                className={styles.primaryButton}
+                disabled={savingSettings || !hasUnsavedSettingsChanges}
+                onClick={() => void saveSettings()}
+              >
+                {savingSettings ? "Сохранение…" : "Сохранить статус"}
+              </button>
+            </div>
+          </AdminPanel>
+
           <AdminPanel title="Режим баннера">
             <div className={styles.modeToggle} role="tablist" aria-label="Режим баннера">
               <button
@@ -906,7 +970,13 @@ export function AdminSmartBannerModule({
 
         <AdminPanel title="Просмотр (iPhone)" className={styles.previewPanel}>
           <div className={styles.previewWrap}>
-            {isPreviewLoading ? (
+            {!draftEnabled ? (
+              <div className={styles.phoneFrame}>
+                <div className={styles.phoneEmpty}>
+                  Smart Banner DISABLED — на витрине блок полностью скрыт.
+                </div>
+              </div>
+            ) : isPreviewLoading ? (
               <div className={styles.productionPreview}>
                 <SmartPromoBanner slides={null} preview />
               </div>
@@ -922,7 +992,9 @@ export function AdminSmartBannerModule({
               </div>
             )}
             <p className={styles.previewLabel}>
-              {displayedPreviewSlides.length > 0
+              {!draftEnabled
+                ? "DISABLED — слайды и настройки сохранены"
+                : displayedPreviewSlides.length > 0
                 ? `Активно на витрине: ${displayedPreviewSlides.length} слайд(ов)`
                 : "Баннер скрыт — включите или добавьте слайды"}
             </p>
