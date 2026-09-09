@@ -408,6 +408,7 @@ export function finalizeCatalogRecord(
     searchIndexText: "",
     metadata: {
       catalogVersion: CATALOG_ENGINE_VERSION,
+      catalogNumber: input.metadata?.catalogNumber,
       createdAt: input.metadata?.createdAt ?? new Date().toISOString(),
       updatedAt: input.metadata?.updatedAt ?? new Date().toISOString(),
       legacyCategory: input.metadata?.legacyCategory,

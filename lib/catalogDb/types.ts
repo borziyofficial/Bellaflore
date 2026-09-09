@@ -41,6 +41,7 @@ export type StoredCatalogProduct = {
   isNew: boolean;
   isBestseller: boolean;
   isPromotion: boolean;
+  catalogNumber?: string;
   createdAt: string;
   updatedAt: string;
 };

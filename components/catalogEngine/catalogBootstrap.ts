@@ -287,6 +287,7 @@ export function bootstrapCatalogProduct(
     searchIndexText: "",
     metadata: {
       catalogVersion: CATALOG_ENGINE_VERSION,
+      catalogNumber: undefined,
       createdAt: now,
       updatedAt: now,
       legacyCategory: product.category,

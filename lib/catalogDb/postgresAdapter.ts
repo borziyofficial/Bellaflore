@@ -73,7 +73,12 @@ type CatalogRow = {
   is_promotion: boolean;
   created_at: Date | string;
   updated_at: Date | string;
+  catalog_number: string;
 };
+
+function formatCatalogNumber(rowNumber: number): string {
+  return `BF-${String(rowNumber).padStart(3, "0")}`;
+}
 
 function rowToProduct(row: CatalogRow): StoredCatalogProduct {
   return {
@@ -110,6 +115,7 @@ function rowToProduct(row: CatalogRow): StoredCatalogProduct {
     isNew: row.is_new,
     isBestseller: row.is_bestseller,
     isPromotion: row.is_promotion ?? false,
+    catalogNumber: row.catalog_number,
     createdAt: new Date(row.created_at).toISOString(),
     updatedAt: new Date(row.updated_at).toISOString(),
   };
@@ -123,9 +129,52 @@ export async function postgresListCatalogProducts(): Promise<StoredCatalogProduc
 
   await ensureSchema();
   const rows = await sql<CatalogRow[]>`
-    SELECT *
-    FROM catalog_products
-    ORDER BY updated_at DESC
+    WITH published_with_number AS (
+      SELECT 
+        *,
+        LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0') as row_number
+      FROM catalog_products
+      WHERE status = 'published'
+    )
+    SELECT 
+      id,
+      slug,
+      title,
+      category,
+      status,
+      short_description,
+      full_description,
+      composition,
+      tags,
+      sizes,
+      old_price_rub,
+      flower_count,
+      height_cm,
+      width_cm,
+      color_palette,
+      occasion,
+      image_url,
+      gallery_images,
+      images,
+      seo_title,
+      seo_description,
+      seo_h1,
+      seo_slug,
+      seo_image_alt,
+      seo_keywords,
+      seo_faq,
+      open_graph_title,
+      open_graph_description,
+      schema_product_json_ld,
+      is_featured,
+      is_new,
+      is_bestseller,
+      is_promotion,
+      created_at,
+      updated_at,
+      CONCAT('BF-', row_number) as catalog_number
+    FROM published_with_number
+    ORDER BY created_at ASC
   `;
   return rows.map(rowToProduct);
 }
@@ -140,9 +189,55 @@ export async function postgresGetCatalogProductById(
 
   await ensureSchema();
   const rows = await sql<CatalogRow[]>`
-    SELECT *
-    FROM catalog_products
-    WHERE id = ${id}
+    WITH published_with_number AS (
+      SELECT 
+        *,
+        LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0') as row_number
+      FROM catalog_products
+      WHERE status = 'published'
+    )
+    SELECT 
+      p.id,
+      p.slug,
+      p.title,
+      p.category,
+      p.status,
+      p.short_description,
+      p.full_description,
+      p.composition,
+      p.tags,
+      p.sizes,
+      p.old_price_rub,
+      p.flower_count,
+      p.height_cm,
+      p.width_cm,
+      p.color_palette,
+      p.occasion,
+      p.image_url,
+      p.gallery_images,
+      p.images,
+      p.seo_title,
+      p.seo_description,
+      p.seo_h1,
+      p.seo_slug,
+      p.seo_image_alt,
+      p.seo_keywords,
+      p.seo_faq,
+      p.open_graph_title,
+      p.open_graph_description,
+      p.schema_product_json_ld,
+      p.is_featured,
+      p.is_new,
+      p.is_bestseller,
+      p.is_promotion,
+      p.created_at,
+      p.updated_at,
+      CASE 
+        WHEN p.status = 'published' THEN CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY p.created_at ASC)::TEXT, 3, '0'))
+        ELSE ''
+      END as catalog_number
+    FROM catalog_products p
+    WHERE p.id = ${id}
     LIMIT 1
   `;
   return rows[0] ? rowToProduct(rows[0]) : null;
@@ -158,9 +253,48 @@ export async function postgresGetCatalogProductBySlug(
 
   await ensureSchema();
   const rows = await sql<CatalogRow[]>`
-    SELECT *
-    FROM catalog_products
-    WHERE slug = ${slug} OR seo_slug = ${slug} OR id = ${slug}
+    SELECT 
+      p.id,
+      p.slug,
+      p.title,
+      p.category,
+      p.status,
+      p.short_description,
+      p.full_description,
+      p.composition,
+      p.tags,
+      p.sizes,
+      p.old_price_rub,
+      p.flower_count,
+      p.height_cm,
+      p.width_cm,
+      p.color_palette,
+      p.occasion,
+      p.image_url,
+      p.gallery_images,
+      p.images,
+      p.seo_title,
+      p.seo_description,
+      p.seo_h1,
+      p.seo_slug,
+      p.seo_image_alt,
+      p.seo_keywords,
+      p.seo_faq,
+      p.open_graph_title,
+      p.open_graph_description,
+      p.schema_product_json_ld,
+      p.is_featured,
+      p.is_new,
+      p.is_bestseller,
+      p.is_promotion,
+      p.created_at,
+      p.updated_at,
+      CASE 
+        WHEN p.status = 'published' THEN CONCAT('BF-', LPAD((SELECT COUNT(*)::TEXT FROM catalog_products WHERE status = 'published' AND created_at <= p.created_at), 3, '0'))
+        ELSE ''
+      END as catalog_number
+    FROM catalog_products p
+    WHERE p.slug = ${slug} OR p.seo_slug = ${slug}
     LIMIT 1
   `;
   return rows[0] ? rowToProduct(rows[0]) : null;
@@ -171,56 +305,30 @@ export async function postgresUpsertCatalogProduct(
 ): Promise<StoredCatalogProduct> {
   const sql = getSqlClient();
   if (!sql) {
-    throw new Error("DATABASE_URL is not configured.");
+    throw new Error("Database not configured");
   }
 
   await ensureSchema();
-  await sql`
+  const rows = await sql<CatalogRow[]>`
     INSERT INTO catalog_products (
-      id, slug, title, category, status,
-      short_description, full_description, composition,
-      tags, sizes,
-      old_price_rub, flower_count, height_cm, width_cm, color_palette, occasion,
-      image_url, gallery_images, images,
-      seo_title, seo_description, seo_h1, seo_slug, seo_image_alt, seo_keywords, seo_faq,
-      open_graph_title, open_graph_description, schema_product_json_ld,
+      id, slug, title, category, status, short_description, full_description,
+      composition, tags, sizes, old_price_rub, flower_count, height_cm, width_cm,
+      color_palette, occasion, image_url, gallery_images, images,
+      seo_title, seo_description, seo_h1, seo_slug, seo_image_alt, seo_keywords,
+      seo_faq, open_graph_title, open_graph_description, schema_product_json_ld,
       is_featured, is_new, is_bestseller, is_promotion, created_at, updated_at
     ) VALUES (
-      ${product.id},
-      ${product.slug},
-      ${product.title},
-      ${product.category},
-      ${product.status},
-      ${product.shortDescription},
-      ${product.fullDescription},
-      ${product.composition},
-      ${sql.json(product.tags)},
-      ${sql.json(product.sizes)},
-      ${product.oldPriceRub},
-      ${product.flowerCount},
-      ${product.heightCm},
-      ${product.widthCm},
-      ${sql.json(product.colorPalette)},
-      ${product.occasion},
-      ${product.imageUrl},
-      ${sql.json(product.galleryImages)},
-      ${sql.json(product.images)},
-      ${product.seoTitle},
-      ${product.seoDescription},
-      ${product.seoH1},
-      ${product.seoSlug},
-      ${product.seoImageAlt},
-      ${sql.json(product.seoKeywords)},
-      ${sql.json(product.seoFaq)},
-      ${product.openGraphTitle},
-      ${product.openGraphDescription},
-      ${sql.json(JSON.parse(JSON.stringify(product.schemaProductJsonLd)))},
-      ${product.isFeatured},
-      ${product.isNew},
-      ${product.isBestseller},
-      ${product.isPromotion},
-      ${product.createdAt},
-      ${product.updatedAt}
+      ${product.id}, ${product.slug}, ${product.title}, ${product.category},
+      ${product.status}, ${product.shortDescription}, ${product.fullDescription},
+      ${product.composition}, ${JSON.stringify(product.tags)}, ${JSON.stringify(product.sizes)},
+      ${product.oldPriceRub}, ${product.flowerCount}, ${product.heightCm}, ${product.widthCm},
+      ${JSON.stringify(product.colorPalette)}, ${product.occasion}, ${product.imageUrl},
+      ${JSON.stringify(product.galleryImages)}, ${JSON.stringify(product.images)},
+      ${product.seoTitle}, ${product.seoDescription}, ${product.seoH1}, ${product.seoSlug},
+      ${product.seoImageAlt}, ${JSON.stringify(product.seoKeywords)}, ${JSON.stringify(product.seoFaq)},
+      ${product.openGraphTitle}, ${product.openGraphDescription}, ${JSON.stringify(product.schemaProductJsonLd)},
+      ${product.isFeatured}, ${product.isNew}, ${product.isBestseller}, ${product.isPromotion},
+      NOW(), NOW()
     )
     ON CONFLICT (id) DO UPDATE SET
       slug = EXCLUDED.slug,
@@ -255,10 +363,11 @@ export async function postgresUpsertCatalogProduct(
       is_new = EXCLUDED.is_new,
       is_bestseller = EXCLUDED.is_bestseller,
       is_promotion = EXCLUDED.is_promotion,
-      updated_at = EXCLUDED.updated_at
+      updated_at = NOW()
+    RETURNING *
   `;
-
-  return product;
+  if (!rows[0]) throw new Error("Failed to upsert product");
+  return rowToProduct(rows[0]);
 }
 
 export async function postgresSetCatalogProductStatus(
@@ -275,11 +384,14 @@ export async function postgresSetCatalogProductStatus(
     UPDATE catalog_products
     SET status = ${status}, updated_at = NOW()
     WHERE id = ${id}
-    RETURNING *
+    RETURNING *,
+    CASE 
+      WHEN status = 'published' THEN CONCAT('BF-', LPAD((SELECT COUNT(*)::TEXT FROM catalog_products WHERE status = 'published' AND created_at <= catalog_products.created_at), 3, '0'))
+      ELSE ''
+    END as catalog_number
   `;
   return rows[0] ? rowToProduct(rows[0]) : null;
 }
-
 export async function postgresDeleteCatalogProduct(
   id: string,
 ): Promise<StoredCatalogProduct | null> {
@@ -289,10 +401,15 @@ export async function postgresDeleteCatalogProduct(
   }
 
   await ensureSchema();
-  const rows = await sql<CatalogRow[]>`
-    DELETE FROM catalog_products
-    WHERE id = ${id}
-    RETURNING *
-  `;
-  return rows[0] ? rowToProduct(rows[0]) : null;
+  
+  // First, retrieve the product to delete
+  const existing = await postgresGetCatalogProductById(id);
+  if (!existing) {
+    return null;
+  }
+
+  // Then delete it
+  await sql`DELETE FROM catalog_products WHERE id = ${id}`;
+  
+  return existing;
 }

@@ -70,6 +70,7 @@ function normalizeUpsertInput(
     searchIndexText: "",
     metadata: {
       catalogVersion: CATALOG_ENGINE_VERSION,
+      catalogNumber: input.metadata?.catalogNumber,
       createdAt: input.metadata?.createdAt ?? now,
       updatedAt: now,
       legacyCategory: input.metadata?.legacyCategory,

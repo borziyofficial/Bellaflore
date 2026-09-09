@@ -59,6 +59,9 @@ export function CatalogProductPageView({
           {product.category ? (
             <p className={styles.category}>{product.category}</p>
           ) : null}
+          {record.metadata?.catalogNumber ? (
+            <p className={styles.category}><small>Каталог: {record.metadata.catalogNumber}</small></p>
+          ) : null}
           <h1 className={styles.title}>{heading}</h1>
           <p className={styles.lead}>{product.description}</p>
 

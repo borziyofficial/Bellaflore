@@ -390,6 +390,7 @@ export function storedProductToCatalogRecord(
     searchIndexText: "",
     metadata: {
       catalogVersion: "catalog-db-v1",
+      catalogNumber: product.catalogNumber,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
       legacyCategory: category?.title,

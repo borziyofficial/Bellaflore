@@ -51,6 +51,7 @@ export function AdminProductList({
         !query ||
         product.title.toLowerCase().includes(query) ||
         product.slug.toLowerCase().includes(query) ||
+        product.metadata?.catalogNumber?.toLowerCase().includes(query) ||
         product.tags.some((tag) => tag.toLowerCase().includes(query));
 
       const matchesCategory =
@@ -88,7 +89,7 @@ export function AdminProductList({
       <div className={styles.toolbar}>
         <input
           className={styles.searchInput}
-          placeholder="Поиск по названию, slug или тегам"
+          placeholder="Поиск по названию, slug, BF-номеру или тегам"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
@@ -166,6 +167,10 @@ export function AdminProductList({
                 <span>{categoryTitle}</span>
               </div>
               <div className={styles.mobileCardRow}>
+                <p className={styles.mobileCardLabel}>BF-номер</p>
+                <span>{product.metadata?.catalogNumber || "-"}</span>
+              </div>
+              <div className={styles.mobileCardRow}>
                 <p className={styles.mobileCardLabel}>Цена от</p>
                 <strong>{formatPrice(product.basePriceRub)} ₽</strong>
               </div>
@@ -202,6 +207,7 @@ export function AdminProductList({
           <thead>
             <tr>
               <th>Товар</th>
+              <th>BF-номер</th>
               <th>Категория</th>
               <th>Цена от</th>
               <th>Статус</th>
@@ -241,6 +247,7 @@ export function AdminProductList({
                       </div>
                     </div>
                   </td>
+                  <td>{product.metadata?.catalogNumber || "-"}</td>
                   <td>{categoryTitle}</td>
                   <td>{formatPrice(product.basePriceRub)} ₽</td>
                   <td>

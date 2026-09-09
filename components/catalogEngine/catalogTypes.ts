@@ -115,6 +115,7 @@ export type CatalogProductRecord = {
   searchIndexText: string;
   metadata: {
     catalogVersion: string;
+    catalogNumber?: string;
     createdAt: string;
     updatedAt: string;
     legacyCategory?: string;
