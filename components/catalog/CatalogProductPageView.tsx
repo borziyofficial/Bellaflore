@@ -26,6 +26,7 @@ export function CatalogProductPageView({
   product,
   record,
 }: CatalogProductPageViewProps) {
+  const catalogNumber = record.metadata?.catalogNumber ?? product.catalogNumber;
   const pageTitle = record.metadata.adminSeoDraft?.seoH1 || record.title;
   const heading =
     pageTitle.startsWith("Букет") ? pageTitle : `Букет «${record.title}»`;
@@ -59,8 +60,10 @@ export function CatalogProductPageView({
           {product.category ? (
             <p className={styles.category}>{product.category}</p>
           ) : null}
-          {record.metadata?.catalogNumber ? (
-            <p className={styles.category}><small>Каталог: {record.metadata.catalogNumber}</small></p>
+          {catalogNumber ? (
+            <p className={styles.category}>
+              <small>Каталог: {catalogNumber}</small>
+            </p>
           ) : null}
           <h1 className={styles.title}>{heading}</h1>
           <p className={styles.lead}>{product.description}</p>

@@ -73,12 +73,8 @@ type CatalogRow = {
   is_promotion: boolean;
   created_at: Date | string;
   updated_at: Date | string;
-  catalog_number: string;
+  catalog_number?: string | null;
 };
-
-function formatCatalogNumber(rowNumber: number): string {
-  return `BF-${String(rowNumber).padStart(3, "0")}`;
-}
 
 function rowToProduct(row: CatalogRow): StoredCatalogProduct {
   return {
@@ -115,7 +111,7 @@ function rowToProduct(row: CatalogRow): StoredCatalogProduct {
     isNew: row.is_new,
     isBestseller: row.is_bestseller,
     isPromotion: row.is_promotion ?? false,
-    catalogNumber: row.catalog_number,
+    catalogNumber: row.catalog_number ?? undefined,
     createdAt: new Date(row.created_at).toISOString(),
     updatedAt: new Date(row.updated_at).toISOString(),
   };
@@ -130,9 +126,9 @@ export async function postgresListCatalogProducts(): Promise<StoredCatalogProduc
   await ensureSchema();
   const rows = await sql<CatalogRow[]>`
     WITH published_with_number AS (
-      SELECT 
+      SELECT
         *,
-        LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0') as row_number
+        CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0')) as catalog_number
       FROM catalog_products
       WHERE status = 'published'
     )
@@ -172,7 +168,7 @@ export async function postgresListCatalogProducts(): Promise<StoredCatalogProduc
       is_promotion,
       created_at,
       updated_at,
-      CONCAT('BF-', row_number) as catalog_number
+      catalog_number
     FROM published_with_number
     ORDER BY created_at ASC
   `;
@@ -190,9 +186,9 @@ export async function postgresGetCatalogProductById(
   await ensureSchema();
   const rows = await sql<CatalogRow[]>`
     WITH published_with_number AS (
-      SELECT 
-        *,
-        LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0') as row_number
+      SELECT
+        id,
+        CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0')) as catalog_number
       FROM catalog_products
       WHERE status = 'published'
     )
@@ -232,11 +228,9 @@ export async function postgresGetCatalogProductById(
       p.is_promotion,
       p.created_at,
       p.updated_at,
-      CASE 
-        WHEN p.status = 'published' THEN CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY p.created_at ASC)::TEXT, 3, '0'))
-        ELSE ''
-      END as catalog_number
+      COALESCE(published_with_number.catalog_number, '') as catalog_number
     FROM catalog_products p
+    LEFT JOIN published_with_number ON published_with_number.id = p.id
     WHERE p.id = ${id}
     LIMIT 1
   `;
@@ -253,6 +247,13 @@ export async function postgresGetCatalogProductBySlug(
 
   await ensureSchema();
   const rows = await sql<CatalogRow[]>`
+    WITH published_with_number AS (
+      SELECT
+        id,
+        CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0')) as catalog_number
+      FROM catalog_products
+      WHERE status = 'published'
+    )
     SELECT 
       p.id,
       p.slug,
@@ -289,11 +290,9 @@ export async function postgresGetCatalogProductBySlug(
       p.is_promotion,
       p.created_at,
       p.updated_at,
-      CASE 
-        WHEN p.status = 'published' THEN CONCAT('BF-', LPAD((SELECT COUNT(*)::TEXT FROM catalog_products WHERE status = 'published' AND created_at <= p.created_at), 3, '0'))
-        ELSE ''
-      END as catalog_number
+      COALESCE(published_with_number.catalog_number, '') as catalog_number
     FROM catalog_products p
+    LEFT JOIN published_with_number ON published_with_number.id = p.id
     WHERE p.slug = ${slug} OR p.seo_slug = ${slug}
     LIMIT 1
   `;
@@ -367,7 +366,9 @@ export async function postgresUpsertCatalogProduct(
     RETURNING *
   `;
   if (!rows[0]) throw new Error("Failed to upsert product");
-  return rowToProduct(rows[0]);
+  const resolved = await postgresGetCatalogProductById(rows[0].id);
+  if (!resolved) throw new Error("Failed to resolve saved product");
+  return resolved;
 }
 
 export async function postgresSetCatalogProductStatus(
@@ -380,17 +381,13 @@ export async function postgresSetCatalogProductStatus(
   }
 
   await ensureSchema();
-  const rows = await sql<CatalogRow[]>`
+  const rows = await sql<Array<{ id: string }>>`
     UPDATE catalog_products
     SET status = ${status}, updated_at = NOW()
     WHERE id = ${id}
-    RETURNING *,
-    CASE 
-      WHEN status = 'published' THEN CONCAT('BF-', LPAD((SELECT COUNT(*)::TEXT FROM catalog_products WHERE status = 'published' AND created_at <= catalog_products.created_at), 3, '0'))
-      ELSE ''
-    END as catalog_number
+    RETURNING id
   `;
-  return rows[0] ? rowToProduct(rows[0]) : null;
+  return rows[0] ? postgresGetCatalogProductById(rows[0].id) : null;
 }
 export async function postgresDeleteCatalogProduct(
   id: string,

@@ -462,6 +462,7 @@ export function storedProductToLegacyCatalogProduct(
     slug: product.seoSlug || product.slug,
     seoTitle: product.seoTitle,
     seoDescription: product.seoDescription,
+    catalogNumber: product.catalogNumber,
     isAdminProduct: true,
     galleryImages: record.images
       .slice()

@@ -15,6 +15,7 @@ export type CatalogProduct = SearchableBouquet &
     slug?: string;
     seoTitle?: string;
     seoDescription?: string;
+    catalogNumber?: string;
     /** Ordered storefront gallery. The primary image is included exactly once. */
     galleryImages?: Array<{
       id: string;
