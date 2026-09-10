@@ -17,7 +17,7 @@ type HeroSectionProps = {
 // banner image fails to load (missing file, blocked remote host, network
 // error). Plain ASCII path, no spaces/Cyrillic/uppercase extension, so it
 // can never be mangled by URL-encoding, case-sensitive hosting, or caching.
-const FALLBACK_PHOTO_URL = "/images/hero-bouquet.jpg";
+const FALLBACK_PHOTO_URL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const banner = useHeroBannerSettings();
