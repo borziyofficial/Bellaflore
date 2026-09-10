@@ -32,7 +32,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const subtitle =
     banner?.subtitle?.trim() ||
     "Авторские букеты из свежих цветов с деликатной доставкой по Москве";
-  const buttonText = banner?.buttonText?.trim() || "Выбрать букет";
+  const buttonText = banner?.buttonText?.trim() || "ПЕРЕЙТИ В КАТАЛОГ";
   const buttonLink = banner?.buttonLink?.trim() || "";
   const subtitleText = subtitle.replace(/\n+/g, " ");
   const normalizedButtonLink = buttonLink.toLowerCase();
