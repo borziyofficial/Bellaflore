@@ -35,15 +35,20 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const buttonText = banner?.buttonText?.trim() || "ПЕРЕЙТИ В КАТАЛОГ";
   const buttonLink = banner?.buttonLink?.trim() || "";
   const subtitleText = subtitle.replace(/\n+/g, " ");
-  const normalizedButtonLink = buttonLink.toLowerCase();
-  const opensStorefrontCatalog =
-    !buttonLink ||
-    normalizedButtonLink === "#catalog" ||
-    normalizedButtonLink === "/catalog" ||
-    normalizedButtonLink === "https://bellaflore.ru/catalog" ||
-    normalizedButtonLink === "https://www.bellaflore.ru/catalog";
 
-  const primaryAction = !opensStorefrontCatalog ? (
+  // Determine if button should open storefront catalog or external link
+  // Default to catalog if buttonLink is empty or explicitly points to catalog
+  const isExternalLink =
+    buttonLink &&
+    buttonLink !== "" &&
+    buttonLink.toLowerCase() !== "#catalog" &&
+    buttonLink.toLowerCase() !== "/catalog" &&
+    buttonLink.toLowerCase() !== "https://bellaflore.ru/catalog" &&
+    buttonLink.toLowerCase() !== "https://www.bellaflore.ru/catalog";
+
+  // Always render as native button element for catalog (ensures touch works on iOS)
+  // Only render as link if explicitly configured to external URL
+  const primaryAction = isExternalLink ? (
     <a href={buttonLink} className={styles.primaryAction}>
       {buttonText}
     </a>
