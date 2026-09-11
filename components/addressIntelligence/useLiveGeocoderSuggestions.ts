@@ -109,6 +109,11 @@ export function useLiveGeocoderSuggestions(
     () => normalizeAddressInput(debouncedInput).normalizedInput,
     [debouncedInput],
   );
+  const currentNormalizedInput = useMemo(
+    () => normalizeAddressInput(input).normalizedInput,
+    [input],
+  );
+  const isDebouncedInputCurrent = currentNormalizedInput === normalizedInput;
   const isQueryReady = normalizedInput.length >= MIN_QUERY_LENGTH;
 
   const cachedEntry = useMemo(() => {
@@ -222,6 +227,10 @@ export function useLiveGeocoderSuggestions(
     fetchState?.queryKey === normalizedInput ? fetchState : null;
 
   const liveSuggestions = useMemo(() => {
+    if (!isDebouncedInputCurrent) {
+      return [];
+    }
+
     if (!isQueryReady) {
       return [];
     }
@@ -234,11 +243,14 @@ export function useLiveGeocoderSuggestions(
   }, [
     activeFetchState?.liveSuggestions,
     cachedLiveSuggestions,
+    isDebouncedInputCurrent,
     isQueryReady,
   ]);
 
   const status: LiveGeocoderStatus = !isQueryReady
     ? "idle"
+    : !isDebouncedInputCurrent
+      ? "loading"
     : cachedLiveSuggestions.length > 0
       ? "ready"
       : (activeFetchState?.status ?? "idle");
@@ -256,6 +268,10 @@ export function useLiveGeocoderSuggestions(
       : (activeFetchState?.source ?? "fallback");
 
   const suggestions = useMemo(() => {
+    if (!isDebouncedInputCurrent) {
+      return [];
+    }
+
     if (liveSuggestions.length > 0) {
       return prioritizeYandexAddressSuggestions(liveSuggestions);
     }
@@ -263,7 +279,11 @@ export function useLiveGeocoderSuggestions(
     return prioritizeYandexAddressSuggestions(
       mergeLiveAndLocalSuggestions([], localIntelligence.suggestions),
     );
-  }, [liveSuggestions, localIntelligence.suggestions]);
+  }, [
+    isDebouncedInputCurrent,
+    liveSuggestions,
+    localIntelligence.suggestions,
+  ]);
 
   const resolvedSource = resolveLiveGeocoderSource(
     liveSuggestions.length,
