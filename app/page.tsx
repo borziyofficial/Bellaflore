@@ -671,7 +671,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!contactHubOpen && !closingBottomNavPanel) {
+    const contactHubLockActive =
+      contactHubOpen || closingBottomNavPanel === "contact";
+
+    if (!contactHubLockActive) {
       return;
     }
 
