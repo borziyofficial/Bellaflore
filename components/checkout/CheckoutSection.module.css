@@ -770,3 +770,64 @@
 :global(html[data-theme="dark-luxury"] .checkout-section-v3) {
   color: #111111 !important;
 }
+
+/* Map controls container */
+.checkoutMapControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+/* Expand map button */
+.checkoutMapExpandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.1), rgba(201, 162, 75, 0.05));
+  border: 1px solid rgba(201, 162, 75, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  color: #c9a24b;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.checkoutMapExpandButton:hover {
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.15), rgba(201, 162, 75, 0.1));
+  border-color: rgba(201, 162, 75, 0.4);
+  color: #d4b15f;
+}
+
+.checkoutMapExpandButton:active {
+  transform: scale(0.95);
+}
+
+.checkoutMapExpandIcon {
+  display: block;
+  font-size: 16px;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .checkoutMapControls {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .checkoutMapToggle {
+    flex: 1;
+    min-height: 36px;
+  }
+
+  .checkoutMapExpandButton {
+    width: 36px;
+    height: 36px;
+  }
+}

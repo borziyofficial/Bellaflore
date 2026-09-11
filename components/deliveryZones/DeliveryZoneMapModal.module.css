@@ -1,0 +1,186 @@
+/* Delivery Zone Map Modal */
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 12px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 90vw;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(176, 141, 87, 0.1);
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1a1a1a;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.closeButton:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.closeButton:active {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.closeIcon {
+  display: block;
+  font-size: 20px;
+  line-height: 1;
+  color: #666666;
+  font-weight: 400;
+}
+
+.mapContainer {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  background: #eef1f4;
+}
+
+.modalFooter {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(176, 141, 87, 0.1);
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.confirmButton {
+  flex: 1;
+  min-height: 44px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #c9a24b, #d4b15f);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  border: 1px solid #c9a24b;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(201, 162, 75, 0.24);
+}
+
+.confirmButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(201, 162, 75, 0.32);
+}
+
+.confirmButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(201, 162, 75, 0.16);
+}
+
+/* Desktop: large modal */
+@media (min-width: 768px) {
+  .modalContent {
+    width: min(90vw, 900px);
+    height: min(90vh, 600px);
+    max-width: none;
+    max-height: none;
+  }
+
+  .mapContainer {
+    flex: 1;
+    min-height: 300px;
+  }
+}
+
+/* Mobile: full-screen modal with safe areas */
+@media (max-width: 767px) {
+  .modalBackdrop {
+    padding: 0;
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+
+  .modalContent {
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100%;
+    border-radius: 16px;
+  }
+
+  .mapContainer {
+    min-height: 200px;
+  }
+}
+
+/* iOS Safari: ensure proper viewport handling */
+@supports (padding: max(0px)) {
+  .modalBackdrop {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+
+  .modalContent {
+    margin: max(0px, env(safe-area-inset-top)) 0 max(0px, env(safe-area-inset-bottom)) 0;
+  }
+}

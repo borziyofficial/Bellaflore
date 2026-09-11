@@ -31,6 +31,7 @@ import {
   DeliveryZoneMap,
   type MapPointSelection,
 } from "@/components/deliveryZones/DeliveryZoneMap";
+import { DeliveryZoneMapModal } from "@/components/deliveryZones/DeliveryZoneMapModal";
 import type { DeliveryZoneMapMarker } from "@/components/deliveryZones/deliveryZoneMapTypes";
 import { AddressIntelligenceInput } from "@/components/checkout/AddressIntelligenceInput";
 import checkoutSectionStyles from "@/components/checkout/CheckoutSection.module.css";
@@ -239,6 +240,7 @@ export function CheckoutSection({
   // customer has a resolved address point or explicitly opens it — keeps
   // checkout light until a map is actually useful.
   const [mapVisible, setMapVisible] = useState(false);
+  const [expandedMapOpen, setExpandedMapOpen] = useState(false);
   const hasAutoOpenedMapRef = useRef(false);
 
   const toggleCheckoutStep = (stepId: CheckoutStepId) => {
@@ -634,14 +636,26 @@ export function CheckoutSection({
 
                   {checkoutMapMarker ? (
                     <div className={checkoutSectionStyles.checkoutMapWrap}>
-                      <button
-                        type="button"
-                        className={checkoutSectionStyles.checkoutMapToggle}
-                        aria-expanded={mapVisible}
-                        onClick={() => setMapVisible((current) => !current)}
-                      >
-                        {mapVisible ? "Скрыть карту" : "Показать на карте"}
-                      </button>
+                      <div className={checkoutSectionStyles.checkoutMapControls}>
+                        <button
+                          type="button"
+                          className={checkoutSectionStyles.checkoutMapToggle}
+                          aria-expanded={mapVisible}
+                          onClick={() => setMapVisible((current) => !current)}
+                        >
+                          {mapVisible ? "Скрыть карту" : "Показать на карте"}
+                        </button>
+                        {mapVisible ? (
+                          <button
+                            type="button"
+                            className={checkoutSectionStyles.checkoutMapExpandButton}
+                            onClick={() => setExpandedMapOpen(true)}
+                            title="Открыть большую карту"
+                          >
+                            <span className={checkoutSectionStyles.checkoutMapExpandIcon}>↗</span>
+                          </button>
+                        ) : null}
+                      </div>
                       {mapVisible ? (
                         <DeliveryZoneMap
                           variant="checkout"
@@ -786,6 +800,20 @@ export function CheckoutSection({
           visibleSizeIds={["S", "M", "L", "XL"]}
           onSelect={onCheckoutSizeSelect}
           onClose={() => setSizeSheetOpen(false)}
+        />
+      ) : null}
+
+      {/* Expanded map modal */}
+      {checkoutMapMarker ? (
+        <DeliveryZoneMapModal
+          isOpen={expandedMapOpen}
+          selectedZoneId={realDeliveryZoneResult.selectedZoneId}
+          zoneStatus={realDeliveryZoneResult.status}
+          marker={checkoutMapMarker}
+          formatPrice={formatPrice}
+          onMapPointSelect={handleMapPointSelect}
+          onConfirm={() => setExpandedMapOpen(false)}
+          onClose={() => setExpandedMapOpen(false)}
         />
       ) : null}
     </section>
