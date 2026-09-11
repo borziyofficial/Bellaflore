@@ -42,12 +42,22 @@
 }
 
 .content {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
   min-height: 0;
   padding: 0;
+  pointer-events: auto;
+}
+
+.content a,
+.content button {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .photo {
@@ -132,6 +142,7 @@
 }
 
 .primaryAction {
+  max-width: 100%;
   min-width: 228px;
   padding: 0 28px;
   border: 1px solid var(--color-gold, #c9a24b);
@@ -139,6 +150,9 @@
   box-shadow: 0 12px 28px rgba(201, 162, 75, 0.24);
   color: #ffffff;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .primaryAction > span,

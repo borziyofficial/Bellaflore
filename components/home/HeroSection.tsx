@@ -4,7 +4,7 @@
 // ==================================================
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useHeroBannerSettings } from "@/components/home/useHeroBannerSettings";
 import styles from "@/components/home/HeroSection.module.css";
@@ -13,11 +13,34 @@ type HeroSectionProps = {
   onOrderBouquet: () => void;
 };
 
-// Guaranteed-present bundled photo — always shown if the admin-configured
-// banner image fails to load (missing file, blocked remote host, network
-// error). Plain ASCII path, no spaces/Cyrillic/uppercase extension, so it
-// can never be mangled by URL-encoding, case-sensitive hosting, or caching.
-const FALLBACK_PHOTO_URL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+// Warm neutral placeholder (light beige #F5F3F0) shown during initial load
+// while admin-configured banner image loads. SVG data URI prevents caching
+// issues and empty flash. Smooth transition: fallback → admin image.
+const FALLBACK_PHOTO_URL = "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1 1%27%3E%3Crect fill=%27%23F5F3F0%27/%3E%3C/svg%3E";
+
+function isCatalogHeroLink(buttonLink: string): boolean {
+  const link = buttonLink.trim();
+  if (!link) {
+    return true;
+  }
+
+  const normalized = link.toLowerCase().replace(/\/+$/, "");
+  if (["#catalog", "/#catalog", "/catalog"].includes(normalized)) {
+    return true;
+  }
+
+  try {
+    const url = new URL(link, "https://bellaflore.vercel.app");
+    const hostname = url.hostname.toLowerCase();
+    const pathname = url.pathname.toLowerCase().replace(/\/+$/, "");
+    return (
+      pathname === "/catalog" &&
+      ["bellaflore.vercel.app", "bellaflore.ru", "www.bellaflore.ru"].includes(hostname)
+    );
+  } catch {
+    return false;
+  }
+}
 
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const banner = useHeroBannerSettings();
@@ -25,9 +48,13 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   // current request (rather than a plain boolean) means a new banner image
   // automatically gets a fresh attempt with no effect/reset needed.
   const [failedPhotoUrl, setFailedPhotoUrl] = useState<string | null>(null);
+  const [displayedPhotoUrl, setDisplayedPhotoUrl] = useState(FALLBACK_PHOTO_URL);
 
-  const requestedPhotoUrl = banner?.imageUrl?.trim() || FALLBACK_PHOTO_URL;
-  const photoUrl = requestedPhotoUrl === failedPhotoUrl ? FALLBACK_PHOTO_URL : requestedPhotoUrl;
+  const requestedPhotoUrl = banner?.imageUrl?.trim() || "";
+  const targetPhotoUrl =
+    requestedPhotoUrl && requestedPhotoUrl !== failedPhotoUrl
+      ? requestedPhotoUrl
+      : FALLBACK_PHOTO_URL;
   const title = banner?.title?.trim() || "Цветы, которые остаются в памяти";
   const subtitle =
     banner?.subtitle?.trim() ||
@@ -36,18 +63,41 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const buttonLink = banner?.buttonLink?.trim() || "";
   const subtitleText = subtitle.replace(/\n+/g, " ");
 
-  // Determine if button should open storefront catalog or external link
-  // Default to catalog if buttonLink is empty or explicitly points to catalog
-  const isExternalLink =
-    buttonLink &&
-    buttonLink !== "" &&
-    buttonLink.toLowerCase() !== "#catalog" &&
-    buttonLink.toLowerCase() !== "/catalog" &&
-    buttonLink.toLowerCase() !== "https://bellaflore.ru/catalog" &&
-    buttonLink.toLowerCase() !== "https://www.bellaflore.ru/catalog";
+  useEffect(() => {
+    if (targetPhotoUrl === displayedPhotoUrl) {
+      return;
+    }
+
+    if (targetPhotoUrl === FALLBACK_PHOTO_URL) {
+      if (!requestedPhotoUrl || displayedPhotoUrl === FALLBACK_PHOTO_URL) {
+        setDisplayedPhotoUrl(FALLBACK_PHOTO_URL);
+      }
+      return;
+    }
+
+    let active = true;
+    const preload = new window.Image();
+    preload.decoding = "async";
+    preload.onload = () => {
+      if (active) {
+        setDisplayedPhotoUrl(targetPhotoUrl);
+      }
+    };
+    preload.onerror = () => {
+      if (active) {
+        setFailedPhotoUrl(targetPhotoUrl);
+      }
+    };
+    preload.src = targetPhotoUrl;
+
+    return () => {
+      active = false;
+    };
+  }, [displayedPhotoUrl, requestedPhotoUrl, targetPhotoUrl]);
 
   // Always render as native button element for catalog (ensures touch works on iOS)
   // Only render as link if explicitly configured to external URL
+  const isExternalLink = !isCatalogHeroLink(buttonLink);
   const primaryAction = isExternalLink ? (
     <a href={buttonLink} className={styles.primaryAction}>
       {buttonText}
@@ -96,13 +146,15 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
 
         <div className={styles.photo}>
           <Image
-            key={photoUrl}
-            src={photoUrl}
+            src={displayedPhotoUrl}
             alt="Премиальный букет BellaFlore"
             fill
             sizes="(max-width: 960px) 90vw, 480px"
             priority
-            onError={() => setFailedPhotoUrl(requestedPhotoUrl)}
+            onError={() => {
+              setFailedPhotoUrl(displayedPhotoUrl);
+              setDisplayedPhotoUrl(FALLBACK_PHOTO_URL);
+            }}
           />
         </div>
       </div>

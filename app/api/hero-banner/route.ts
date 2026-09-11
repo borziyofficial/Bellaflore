@@ -10,7 +10,7 @@ export async function GET() {
     const settings = await getHeroBannerSettings();
     return Response.json(
       { settings },
-      { headers: { "Cache-Control": "public, max-age=15, stale-while-revalidate=60" } },
+      { headers: { "Cache-Control": "no-store, must-revalidate" } },
     );
   } catch {
     return Response.json({ settings: null }, { status: 200 });

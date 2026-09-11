@@ -5,8 +5,8 @@
 // This manages a real promotional-slide system that renders between the
 // Hero and the catalog grid on the storefront (see
 // components/home/SmartPromoBanner.tsx). It is intentionally separate from
-// the Hero itself (components/home/HeroSection.tsx / lib/heroBannerDb.ts),
-// which this section no longer edits.
+// the Hero itself (components/home/HeroSection.tsx / lib/heroBannerDb.ts).
+// The Hero control panel below uses that existing separate data source.
 // ==================================================
 "use client";
 
@@ -14,6 +14,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminModuleHeader, AdminPanel } from "@/components/adminApp/shared/AdminModuleUi";
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
 import styles from "@/components/adminApp/modules/smartBanner/AdminSmartBannerModule.module.css";
+import {
+  AdminHeroBannerPanel,
+  type AdminHeroBannerSettings,
+} from "@/components/adminApp/modules/smartBanner/AdminHeroBannerPanel";
 import {
   ensureCatalogLoaded,
   getCachedProducts,
@@ -156,8 +160,10 @@ function buildProductLink(product: CatalogProductRecord): string {
 
 export function AdminSmartBannerModule({
   initialSnapshot,
+  initialHeroSettings,
 }: {
   initialSnapshot?: PromoBannerSnapshot | null;
+  initialHeroSettings?: AdminHeroBannerSettings | null;
 }) {
   const [settings, setSettings] = useState<PromoBannerSettings>(
     initialSnapshot?.settings ?? EMPTY_SETTINGS,
@@ -709,6 +715,8 @@ export function AdminSmartBannerModule({
 
       <div className={styles.layout}>
         <div className={styles.mainColumn}>
+          <AdminHeroBannerPanel initialSettings={initialHeroSettings} />
+
           <AdminPanel title="Статус баннера">
             <div className={styles.statusControl}>
               <div className={styles.statusCopy}>

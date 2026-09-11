@@ -103,6 +103,68 @@
   }
 }
 
+.heroControlGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.65fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.heroFields {
+  min-width: 0;
+}
+
+.heroPreviewCard {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.heroPreview {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 12px;
+  background: rgba(138, 107, 61, 0.08);
+}
+
+.heroPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-orientation: from-image;
+}
+
+.heroPreviewEmpty,
+.heroUpdatedAt {
+  color: #75695c;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.heroUpdatedAt {
+  margin: 0;
+}
+
+.heroFileInput {
+  width: 100%;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 10px;
+  padding: 9px;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .heroControlGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .modeToggle {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1029,9 +1091,16 @@
 .moduleRoot .pickerList,
 .moduleRoot .slideProductList,
 .moduleRoot .slideThumb,
-.moduleRoot .imagePreview {
+.moduleRoot .imagePreview,
+.moduleRoot .heroPreview,
+.moduleRoot .heroFileInput {
   border-color: var(--banner-border);
   background: rgba(0, 0, 0, 0.2);
+}
+
+.moduleRoot .heroPreviewEmpty,
+.moduleRoot .heroUpdatedAt {
+  color: var(--banner-muted);
 }
 
 .moduleRoot .pickerRow:hover {

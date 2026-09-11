@@ -8,18 +8,25 @@ import {
   ADMIN_SESSION_COOKIE,
   verifyAdminSessionToken,
 } from "@/lib/adminApiAuth";
+import { getHeroBannerSettings } from "@/lib/heroBannerDb";
 import { getPromoBannerSnapshot } from "@/lib/promoBannerDb";
 
 export default async function AdminSmartBannerPage() {
   const token = (await cookies()).get(ADMIN_SESSION_COOKIE)?.value;
-  const initialSnapshot =
-    token && verifyAdminSessionToken(token)
-      ? await getPromoBannerSnapshot().catch(() => null)
-      : null;
+  const isAuthorized = Boolean(token && verifyAdminSessionToken(token));
+  const [initialSnapshot, initialHeroSettings] = isAuthorized
+    ? await Promise.all([
+        getPromoBannerSnapshot().catch(() => null),
+        getHeroBannerSettings().catch(() => null),
+      ])
+    : [null, null];
 
   return (
     <AdminAppPage route="/admin" title="Умный баннер">
-      <AdminSmartBannerModule initialSnapshot={initialSnapshot} />
+      <AdminSmartBannerModule
+        initialSnapshot={initialSnapshot}
+        initialHeroSettings={initialHeroSettings}
+      />
     </AdminAppPage>
   );
 }
