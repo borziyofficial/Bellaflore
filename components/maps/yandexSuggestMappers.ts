@@ -157,8 +157,10 @@ export function mapYandexSuggestItemToSuggestion(
     districtLine: districtLine || undefined,
     street,
     house: "",
+    latitude: item.latitude,
+    longitude: item.longitude,
     confidence: 0.82,
-    provider: "yandex",
+    provider: item.provider ?? "yandex",
     raw: value,
     yandexUri: item.uri?.trim() || undefined,
   };

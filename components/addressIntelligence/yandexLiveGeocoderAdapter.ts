@@ -61,6 +61,11 @@ export async function fetchYandexAddressSuggestions(
         .map((item, index) => mapYandexSuggestItemToSuggestion(item, index))
         .filter((suggestion) => suggestion !== null),
     );
+    const provider = suggestions.some(
+      (suggestion) => suggestion.provider === "yandex",
+    )
+      ? "yandex"
+      : "fallback";
 
     if (suggestions.length === 0) {
       return {
@@ -75,7 +80,7 @@ export async function fetchYandexAddressSuggestions(
       status: "ready",
       suggestions,
       errorMessage: null,
-      provider: "yandex",
+      provider,
     };
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {

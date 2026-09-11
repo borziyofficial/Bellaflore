@@ -11,7 +11,6 @@ import {
   normalizeAddressForYandexGeocoding,
   normalizeGeocodingAddress,
 } from "@/components/maps/geocodingNormalize";
-import { getYandexGeocoderApiKey } from "@/components/maps/mapProviderConfig";
 import {
   geocodeWithYandexMapsSdk,
   iterateGeoObjects,
@@ -52,18 +51,6 @@ async function geocodeYandexQuery(
       confidence: null,
       provider: "yandex",
       status: "pending",
-    });
-  }
-
-  const apiKey = getYandexGeocoderApiKey();
-  if (!apiKey) {
-    return createGeocodingResult({
-      address: normalizedAddress,
-      latitude: null,
-      longitude: null,
-      confidence: null,
-      provider: "yandex",
-      status: "error",
     });
   }
 
@@ -154,18 +141,6 @@ export async function geocodeAddressYandex(
       confidence: null,
       provider: "yandex",
       status: "pending",
-    });
-  }
-
-  const apiKey = getYandexGeocoderApiKey();
-  if (!apiKey) {
-    return createGeocodingResult({
-      address: normalizedAddress,
-      latitude: null,
-      longitude: null,
-      confidence: null,
-      provider: "yandex",
-      status: "error",
     });
   }
 

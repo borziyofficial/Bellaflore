@@ -89,7 +89,7 @@ async function suggestWithYandexGeocodeFallback(
   });
 
   const items = iterateGeoObjects(result)
-    .map((geoObject, index) => {
+    .map((geoObject, index): YandexSuggestItem | null => {
       const suggestion = mapJsGeoObjectToSuggestion(geoObject, index);
       if (!suggestion) {
         return null;
@@ -98,6 +98,9 @@ async function suggestWithYandexGeocodeFallback(
       return {
         displayName: suggestion.label,
         value: suggestion.fullAddress,
+        latitude: suggestion.latitude,
+        longitude: suggestion.longitude,
+        provider: suggestion.provider,
       } satisfies YandexSuggestItem;
     })
     .filter((item): item is YandexSuggestItem => item !== null);

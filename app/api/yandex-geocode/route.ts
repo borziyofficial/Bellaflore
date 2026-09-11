@@ -12,6 +12,11 @@ import { getYandexGeocoderApiKey } from "@/components/maps/mapProviderConfig";
 
 const MIN_QUERY_LENGTH = 2;
 const MAX_RESULTS = 10;
+const KNOWN_LATIN_MOSCOW_ADDRESS_ALIASES = [
+  { pattern: /\btverskaya\b/i, replacement: "Тверская" },
+  { pattern: /\bprospe?kt\s+mira\b/i, replacement: "проспект Мира" },
+  { pattern: /\barbat\b/i, replacement: "Арбат" },
+];
 
 type YandexGeocoderFeature = {
   GeoObject?: {
@@ -43,6 +48,18 @@ export type YandexHttpGeocodeResult = {
   precision?: string;
 };
 
+type NominatimSearchItem = {
+  lat?: string;
+  lon?: string;
+  display_name?: string;
+};
+
+type NominatimReverseResult = {
+  lat?: string;
+  lon?: string;
+  display_name?: string;
+};
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const geocode = requestUrl.searchParams.get("geocode")?.trim() ?? "";
@@ -57,6 +74,14 @@ export async function GET(request: Request) {
 
   const apiKey = getYandexGeocoderApiKey();
   if (!apiKey) {
+    const fallbackResults = uri ? [] : await fetchFallbackGeocodeResults(geocode);
+    if (fallbackResults.length > 0) {
+      return Response.json(
+        { results: fallbackResults, provider: "fallback" },
+        noStoreResponseInit(),
+      );
+    }
+
     return Response.json(
       { results: [], error: "Yandex Geocoder API key is not configured." },
       { status: 503 },
@@ -97,6 +122,14 @@ export async function GET(request: Request) {
     const payload = (await response.json().catch(() => ({}))) as YandexGeocoderResponse;
 
     if (!response.ok) {
+      const fallbackResults = uri ? [] : await fetchFallbackGeocodeResults(geocode);
+      if (fallbackResults.length > 0) {
+        return Response.json(
+          { results: fallbackResults, provider: "fallback" },
+          noStoreResponseInit(),
+        );
+      }
+
       return Response.json(
         {
           results: [],
@@ -111,6 +144,15 @@ export async function GET(request: Request) {
     }
 
     const results = mapGeocoderPayload(payload);
+    if (results.length === 0 && !uri) {
+      const fallbackResults = await fetchFallbackGeocodeResults(geocode);
+      if (fallbackResults.length > 0) {
+        return Response.json(
+          { results: fallbackResults, provider: "fallback" },
+          noStoreResponseInit(),
+        );
+      }
+    }
 
     return Response.json(
       { results },
@@ -134,12 +176,173 @@ export async function GET(request: Request) {
   }
 }
 
+function noStoreResponseInit(): ResponseInit {
+  return {
+    headers: {
+      "Cache-Control": "no-store",
+    },
+  };
+}
+
 function safeOrigin(referer: string): string {
   try {
     return new URL(referer).origin;
   } catch {
     return referer;
   }
+}
+
+function parseCoordinateQuery(
+  query: string,
+): { latitude: number; longitude: number } | null {
+  const match = query.match(
+    /^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/,
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const longitude = Number.parseFloat(match[1] ?? "");
+  const latitude = Number.parseFloat(match[2] ?? "");
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    return null;
+  }
+
+  return { latitude, longitude };
+}
+
+function buildFallbackQuery(query: string): string | null {
+  const trimmedQuery = query.trim();
+
+  if (!/[a-z]/i.test(trimmedQuery)) {
+    return /(?:^|[\s,])москва(?:[\s,]|$)/i.test(trimmedQuery)
+      ? trimmedQuery
+      : `Москва, ${trimmedQuery}`;
+  }
+
+  let normalizedQuery = trimmedQuery;
+  let matchedKnownAlias = false;
+  for (const alias of KNOWN_LATIN_MOSCOW_ADDRESS_ALIASES) {
+    if (!alias.pattern.test(normalizedQuery)) {
+      continue;
+    }
+
+    normalizedQuery = normalizedQuery.replace(alias.pattern, alias.replacement);
+    matchedKnownAlias = true;
+  }
+
+  return matchedKnownAlias ? `Москва, ${normalizedQuery}` : null;
+}
+
+function readFallbackCoordinate(value: string | undefined): number | null {
+  const parsed = Number.parseFloat(value ?? "");
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function mapFallbackGeocodeItem(
+  item: NominatimSearchItem,
+): YandexHttpGeocodeResult | null {
+  const formattedAddress = item.display_name?.trim() ?? "";
+  const latitude = readFallbackCoordinate(item.lat);
+  const longitude = readFallbackCoordinate(item.lon);
+
+  if (!formattedAddress || latitude === null || longitude === null) {
+    return null;
+  }
+
+  return {
+    formattedAddress,
+    latitude,
+    longitude,
+    precision: "other",
+  };
+}
+
+async function fetchFallbackReverseGeocode(
+  latitude: number,
+  longitude: number,
+): Promise<YandexHttpGeocodeResult[]> {
+  const nominatimUrl = new URL("https://nominatim.openstreetmap.org/reverse");
+  nominatimUrl.searchParams.set("lat", String(latitude));
+  nominatimUrl.searchParams.set("lon", String(longitude));
+  nominatimUrl.searchParams.set("format", "json");
+  nominatimUrl.searchParams.set("zoom", "18");
+  nominatimUrl.searchParams.set("addressdetails", "1");
+
+  try {
+    const response = await fetch(nominatimUrl.toString(), {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "BellaFloreCheckout/1.0 (delivery address reverse geocode)",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(6_000),
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload = (await response.json().catch(() => ({}))) as NominatimReverseResult;
+    const mapped = mapFallbackGeocodeItem(payload);
+    return mapped ? [mapped] : [];
+  } catch {
+    return [];
+  }
+}
+
+async function fetchFallbackSearchGeocode(
+  query: string,
+): Promise<YandexHttpGeocodeResult[]> {
+  const fallbackQuery = buildFallbackQuery(query);
+  if (!fallbackQuery) {
+    return [];
+  }
+
+  const nominatimUrl = new URL("https://nominatim.openstreetmap.org/search");
+  nominatimUrl.searchParams.set("q", fallbackQuery);
+  nominatimUrl.searchParams.set("format", "json");
+  nominatimUrl.searchParams.set("limit", String(MAX_RESULTS));
+  nominatimUrl.searchParams.set("countrycodes", "ru");
+  nominatimUrl.searchParams.set("addressdetails", "1");
+
+  try {
+    const response = await fetch(nominatimUrl.toString(), {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "BellaFloreCheckout/1.0 (delivery address geocode)",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(6_000),
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload = (await response.json().catch(() => [])) as NominatimSearchItem[];
+    return payload
+      .map((item) => mapFallbackGeocodeItem(item))
+      .filter((item): item is YandexHttpGeocodeResult => item !== null);
+  } catch {
+    return [];
+  }
+}
+
+async function fetchFallbackGeocodeResults(
+  query: string,
+): Promise<YandexHttpGeocodeResult[]> {
+  const coordinates = parseCoordinateQuery(query);
+  if (coordinates) {
+    return fetchFallbackReverseGeocode(
+      coordinates.latitude,
+      coordinates.longitude,
+    );
+  }
+
+  return fetchFallbackSearchGeocode(query);
 }
 
 function mapGeocoderPayload(

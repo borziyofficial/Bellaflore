@@ -59,15 +59,15 @@ export function geocodeAddress(
       : geocodeAddressMock(address);
   }
 
-  if (isYandexGeocodingEnabled()) {
-    const cachedResult = readGeocodingCacheEntry(normalizedAddress);
-    if (cachedResult) {
-      return {
-        ...cachedResult,
-        fromCache: true,
-      };
-    }
+  const cachedResult = readGeocodingCacheEntry(normalizedAddress);
+  if (cachedResult) {
+    return {
+      ...cachedResult,
+      fromCache: true,
+    };
+  }
 
+  if (isYandexGeocodingEnabled()) {
     return createPendingYandexResult(normalizedAddress);
   }
 

@@ -21,7 +21,12 @@ type YandexHttpSuggestResult = {
   address?: {
     formatted_address?: string;
   };
+  coordinates?: {
+    latitude?: number;
+    longitude?: number;
+  };
   uri?: string;
+  provider?: "yandex" | "fallback";
 };
 
 type YandexHttpSuggestResponse = {
@@ -48,6 +53,9 @@ function mapHttpSuggestResultToItem(
     displayName: title,
     value,
     uri: result.uri?.trim() || undefined,
+    latitude: result.coordinates?.latitude,
+    longitude: result.coordinates?.longitude,
+    provider: result.provider,
   };
 }
 

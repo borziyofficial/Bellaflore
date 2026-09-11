@@ -155,6 +155,9 @@ export type YandexSuggestItem = {
   value: string;
   type?: string;
   uri?: string;
+  latitude?: number;
+  longitude?: number;
+  provider?: "yandex" | "fallback";
 };
 
 export type YandexSuggestOptions = {

@@ -171,11 +171,12 @@ function DeliverySelectionCard({
 
 function buildSelectionCardProps(
   selectedZoneId: DeliveryZoneId | null,
+  zoneStatus: RealDeliveryZoneStatus | undefined,
   marker: DeliveryZoneMapMarker | null,
   legend: DeliveryZoneMapLegendItem[],
   formatPrice: (priceRub: number) => string,
 ) {
-  if (!marker || !selectedZoneId) {
+  if (!marker || zoneStatus !== "available" || !selectedZoneId) {
     return null;
   }
 
@@ -232,6 +233,7 @@ function YandexDeliveryZoneMap({
 
   const selectionCardProps = buildSelectionCardProps(
     selectedZoneId,
+    zoneStatus,
     marker ?? null,
     model.legend,
     formatPrice,
