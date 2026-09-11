@@ -9,7 +9,7 @@
 "use client";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import Image from "next/image";
+import { ProtectedProductImage } from "@/components/images/ProtectedProductImage";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import type { CatalogProductBase } from "@/components/product/productExperienceTypes";
 import styles from "@/components/product/ProductRecommendations.module.css";
@@ -50,7 +50,7 @@ export function ProductRecommendations({
                   <BrandLogo variant="compact" className={styles.fallbackLogo} />
                 </div>
               ) : (
-                <Image
+                <ProtectedProductImage
                   src={product.src}
                   alt={product.alt}
                   fill

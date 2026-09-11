@@ -2,9 +2,9 @@
 // SECTION: Public Catalog Product Page
 // РАЗДЕЛ: Страница товара /catalog/[slug]
 // ==================================================
-import Image from "next/image";
 import Link from "next/link";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
+import { ProtectedProductImage } from "@/components/images/ProtectedProductImage";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import styles from "@/components/catalog/CatalogProductPage.module.css";
@@ -45,7 +45,7 @@ export function CatalogProductPageView({
 
       <article className={styles.layout}>
         <div className={styles.media}>
-          <Image
+          <ProtectedProductImage
             src={product.src}
             alt={product.alt}
             width={product.width}

@@ -9,7 +9,7 @@
 "use client";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import Image from "next/image";
+import { ProtectedProductImage } from "@/components/images/ProtectedProductImage";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ProductGalleryImage } from "@/components/product/productExperienceTypes";
@@ -145,7 +145,7 @@ export function ProductGallery({
     }
 
     return (
-      <Image
+      <ProtectedProductImage
         src={image.src}
         alt={image.alt}
         fill
@@ -197,7 +197,7 @@ export function ProductGallery({
                 onClick={() => goToSlide(index)}
               >
                 {!failedImageIds.has(image.id) ? (
-                  <Image
+                  <ProtectedProductImage
                     src={image.src}
                     alt=""
                     fill
@@ -243,7 +243,7 @@ export function ProductGallery({
               {orderedImages.map((image) => (
                 <div className={styles.fullscreenSlide} key={`full-${image.id}`}>
                   {!failedImageIds.has(image.id) ? (
-                    <Image
+                    <ProtectedProductImage
                       src={image.src}
                       alt={image.alt}
                       width={image.width}

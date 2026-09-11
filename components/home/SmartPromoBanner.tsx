@@ -10,7 +10,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type TouchEvent } from "react";
-import Image from "next/image";
+import { ProtectedProductImage } from "@/components/images/ProtectedProductImage";
 import styles from "@/components/home/SmartPromoBanner.module.css";
 
 export type SmartPromoSlide = {
@@ -246,7 +246,7 @@ export function SmartPromoBanner({
                 inert={index !== safeActiveIndex}
               >
                 <div className={styles.imageWrap}>
-                  <Image
+                  <ProtectedProductImage
                     src={slide.imageUrl}
                     alt={title || "Специальное предложение"}
                     className={styles.image}

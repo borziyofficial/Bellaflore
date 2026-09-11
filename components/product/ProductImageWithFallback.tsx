@@ -9,8 +9,8 @@
 "use client";
 
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { ProtectedProductImage } from "@/components/images/ProtectedProductImage";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
-import Image from "next/image";
 import styles from "@/components/product/ProductImageWithFallback.module.css";
 import { useState } from "react";
 
@@ -49,7 +49,7 @@ export function ProductImageWithFallback({
   }
 
   return (
-    <Image
+    <ProtectedProductImage
       className={imageClassName}
       src={src}
       alt={alt}
