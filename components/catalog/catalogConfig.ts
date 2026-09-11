@@ -128,16 +128,15 @@ export const catalogPremiumMenu: CatalogMenuItem[] = [
     icon: "💐",
     dividerBefore: true,
     children: [
-      catalogItem("bouquets-mono", "Монобукеты", "монобукет", { sortOrder: 1 }),
-      catalogItem("bouquets-mix", "Микс-букеты", "микс букет", { sortOrder: 2 }),
+      catalogItem("bouquets-mix", "Микс-букеты", "микс букет", { sortOrder: 1 }),
       catalogItem("bouquets-author", "Авторские", "авторский букет", {
-        sortOrder: 3,
+        sortOrder: 2,
       }),
       catalogItem("bouquets-premium", "Premium Collection", "premium collection", {
-        sortOrder: 4,
+        sortOrder: 3,
       }),
       catalogItem("bouquets-luxury", "Luxury Collection", "luxury collection", {
-        sortOrder: 5,
+        sortOrder: 4,
       }),
     ],
   }),
@@ -156,7 +155,6 @@ export const catalogPremiumMenu: CatalogMenuItem[] = [
     icon: "✨",
     dividerBefore: true,
   }),
-  menuItem("vip", "VIP", "vip", { sortOrder: 24, icon: "👑", dividerBefore: true }),
   menuItem("wedding-collection", "Свадебная коллекция", "свадебная коллекция", {
     sortOrder: 25,
     icon: "💍",

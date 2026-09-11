@@ -40,7 +40,7 @@ const OCCASION_LABELS: Record<string, string> = {
   birthday: "день рождения",
   romantic: "для любимой",
   gift: "подарок",
-  vip: "VIP",
+  vip: "премиум",
 };
 
 const STYLE_LABELS: Record<string, string> = {

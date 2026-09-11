@@ -43,11 +43,11 @@ const SIZE_PRICE_OVERRIDES: Record<
 };
 
 const LEGACY_CATEGORY_MAP: Record<string, string[]> = {
-  Розы: ["roses", "mono-bouquets"],
+  Розы: ["roses"],
   "Авторские букеты": ["author"],
   Коробки: ["boxes"],
-  Композиции: ["author", "vip"],
-  "Премиальные букеты": ["author", "vip"],
+  Композиции: ["compositions"],
+  "Премиальные букеты": ["author"],
   "Пионы и гортензии": ["peonies", "hydrangeas"],
 };
 
@@ -125,10 +125,6 @@ function resolveCategoryIds(product: CatalogProduct): string[] {
 
   if (flowerType.includes("гортенз")) {
     mapped.push("hydrangeas");
-  }
-
-  if (product.tags?.some((tag) => tag.includes("моно"))) {
-    mapped.push("mono-bouquets");
   }
 
   if (NEW_PRODUCT_IDS.has(product.id)) {

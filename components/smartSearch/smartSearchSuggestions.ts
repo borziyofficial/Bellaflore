@@ -16,7 +16,7 @@ export const SMART_SEARCH_SUGGESTIONS: SmartSearchSuggestion[] = [
   { id: "under-7000", label: "до 7000", query: "до 7000" },
   { id: "birthday", label: "день рождения", query: "день рождения" },
   { id: "hydrangeas", label: "гортензии", query: "гортензии" },
-  { id: "vip", label: "VIP букет", query: "VIP букет" },
+  { id: "premium", label: "премиум букет", query: "премиум букет" },
 ];
 
 export function getSmartSearchSuggestions(limit = 8): SmartSearchSuggestion[] {
