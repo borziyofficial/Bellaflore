@@ -54,6 +54,12 @@ type FallbackSuggestResult = {
   provider: "fallback";
 };
 
+type RequestedFallbackTitle = {
+  title: string;
+  streetTokens: string[];
+  house: string;
+};
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const text = requestUrl.searchParams.get("text")?.trim() ?? "";
@@ -203,7 +209,13 @@ function buildFallbackQuery(query: string): string | null {
     matchedKnownAlias = true;
   }
 
-  return matchedKnownAlias ? `Москва, ${normalizedQuery}` : null;
+  if (!matchedKnownAlias) {
+    return null;
+  }
+
+  return /(?:^|[\s,])москва(?:[\s,]|$)/i.test(normalizedQuery)
+    ? normalizedQuery
+    : `Москва, ${normalizedQuery}`;
 }
 
 function readFallbackCoordinate(value: string | undefined): number | null {
@@ -218,7 +230,96 @@ function compactAddressParts(value: string): string[] {
     .filter(Boolean);
 }
 
-function buildFallbackTitle(item: NominatimSearchItem): string {
+function normalizeFallbackAddressToken(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/ё/g, "е")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildFallbackStreetTokens(street: string): string[] {
+  const stopWords = new Set([
+    "д",
+    "дом",
+    "пр",
+    "проспект",
+    "ул",
+    "улица",
+  ]);
+
+  return normalizeFallbackAddressToken(street)
+    .split(" ")
+    .filter((token) => token.length > 1 && !stopWords.has(token));
+}
+
+function stripLeadingMoscowParts(query: string): string {
+  let normalizedQuery = query.trim();
+
+  while (/^(?:москва|moscow)\s*,\s*/i.test(normalizedQuery)) {
+    normalizedQuery = normalizedQuery.replace(
+      /^(?:москва|moscow)\s*,\s*/i,
+      "",
+    );
+  }
+
+  return normalizedQuery;
+}
+
+function buildRequestedFallbackTitle(
+  fallbackQuery: string,
+): RequestedFallbackTitle | null {
+  const queryBody = stripLeadingMoscowParts(fallbackQuery);
+  const match = queryBody.match(/^(.+?)\s*,?\s*(\d+[^\s,]*)\s*$/iu);
+  const street = match?.[1]?.trim() ?? "";
+  const house = match?.[2]?.trim() ?? "";
+
+  if (!street || !house) {
+    return null;
+  }
+
+  const streetTokens = buildFallbackStreetTokens(street);
+  if (streetTokens.length === 0) {
+    return null;
+  }
+
+  return {
+    title: `${street}, ${house}`,
+    streetTokens,
+    house: normalizeFallbackAddressToken(house),
+  };
+}
+
+function formattedAddressMatchesRequestedTitle(
+  formattedAddress: string,
+  requestedTitle: RequestedFallbackTitle,
+): boolean {
+  const formattedTokens = new Set(
+    normalizeFallbackAddressToken(formattedAddress).split(" ").filter(Boolean),
+  );
+
+  return (
+    requestedTitle.streetTokens.every((token) => formattedTokens.has(token)) &&
+    formattedTokens.has(requestedTitle.house)
+  );
+}
+
+function buildFallbackTitle(
+  item: NominatimSearchItem,
+  requestedTitle: RequestedFallbackTitle | null,
+): string {
+  if (
+    requestedTitle &&
+    formattedAddressMatchesRequestedTitle(
+      item.display_name ?? "",
+      requestedTitle,
+    )
+  ) {
+    return requestedTitle.title;
+  }
+
   const address = item.address ?? {};
   const street =
     address.road ??
@@ -255,11 +356,12 @@ function buildFallbackSubtitle(item: NominatimSearchItem): string {
 
 function mapFallbackSuggestItem(
   item: NominatimSearchItem,
+  requestedTitle: RequestedFallbackTitle | null,
 ): FallbackSuggestResult | null {
   const formattedAddress = item.display_name?.trim() ?? "";
   const latitude = readFallbackCoordinate(item.lat);
   const longitude = readFallbackCoordinate(item.lon);
-  const title = buildFallbackTitle(item);
+  const title = buildFallbackTitle(item, requestedTitle);
 
   if (!formattedAddress || !title || latitude === null || longitude === null) {
     return null;
@@ -283,6 +385,7 @@ async function fetchFallbackSuggestResults(
   if (!fallbackQuery) {
     return [];
   }
+  const requestedTitle = buildRequestedFallbackTitle(fallbackQuery);
 
   const nominatimUrl = new URL("https://nominatim.openstreetmap.org/search");
   nominatimUrl.searchParams.set("q", fallbackQuery);
@@ -309,7 +412,7 @@ async function fetchFallbackSuggestResults(
     const seen = new Set<string>();
 
     return payload
-      .map((item) => mapFallbackSuggestItem(item))
+      .map((item) => mapFallbackSuggestItem(item, requestedTitle))
       .filter((item): item is FallbackSuggestResult => item !== null)
       .filter((item) => {
         const key = item.address.formatted_address.toLowerCase();

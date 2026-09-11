@@ -233,7 +233,13 @@ function buildFallbackQuery(query: string): string | null {
     matchedKnownAlias = true;
   }
 
-  return matchedKnownAlias ? `Москва, ${normalizedQuery}` : null;
+  if (!matchedKnownAlias) {
+    return null;
+  }
+
+  return /(?:^|[\s,])москва(?:[\s,]|$)/i.test(normalizedQuery)
+    ? normalizedQuery
+    : `Москва, ${normalizedQuery}`;
 }
 
 function readFallbackCoordinate(value: string | undefined): number | null {
