@@ -410,10 +410,7 @@ function readStoredCartItems(catalog: CatalogProduct[]): CartItem[] {
           bouquetId: item.bouquetId,
           quantity: Math.min(Math.floor(item.quantity), 99),
           sizeId,
-          priceRub:
-            typeof item.priceRub === "number" && Number.isFinite(item.priceRub)
-              ? item.priceRub
-              : selectedVariant.priceRub,
+          priceRub: selectedVariant.priceRub,
         },
       ];
     });
@@ -1189,7 +1186,7 @@ export default function Home() {
         sizeVariants: experienceData.sizeVariants,
         bouquet: {
           ...bouquet,
-          priceRub: cartItem.priceRub ?? selectedVariant.priceRub,
+          priceRub: selectedVariant.priceRub,
         },
       },
     ];
@@ -1352,7 +1349,7 @@ export default function Home() {
   const resolveBouquetSelection = (
     bouquetId: string,
     sizeId: ProductSizeId = "S",
-    priceRub?: number,
+    _priceRub?: number,
   ) => {
     const bouquet = bouquets.find((item) => item.id === bouquetId);
     if (!bouquet) {
@@ -1369,10 +1366,7 @@ export default function Home() {
       bouquet,
       sizeId: selectedVariant.sizeId,
       sizeLabel: selectedVariant.label,
-      priceRub:
-        typeof priceRub === "number" && Number.isFinite(priceRub)
-          ? priceRub
-          : selectedVariant.priceRub,
+      priceRub: selectedVariant.priceRub,
     };
   };
 

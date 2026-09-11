@@ -4,7 +4,10 @@
 // ==================================================
 "use client";
 
-import { filterHomeCatalogProducts } from "@/components/catalog/filterHomeCatalogProducts";
+import {
+  filterHomeCatalogProducts,
+  type HomeCatalogSortMode,
+} from "@/components/catalog/filterHomeCatalogProducts";
 import {
   homeCatalogCategoryChips,
   homeCatalogSearchPlaceholder,
@@ -41,6 +44,21 @@ type CollectionsSectionProps = {
   catalogFocusNonce?: number;
 };
 
+function normalizeBudgetInput(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 7);
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+function parseBudgetInput(value: string): number | null {
+  const normalized = value.replace(/\D/g, "");
+  if (!normalized) {
+    return null;
+  }
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
 export function CollectionsSection({
   bouquets,
   favoriteBouquetIds,
@@ -52,6 +70,9 @@ export function CollectionsSection({
 }: CollectionsSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState("all");
+  const [budgetFrom, setBudgetFrom] = useState("");
+  const [budgetTo, setBudgetTo] = useState("");
+  const [sortMode, setSortMode] = useState<HomeCatalogSortMode>("default");
   const customCategories = useStorefrontCustomCategories();
 
   const customCategoryTitleById = useMemo(
@@ -123,9 +144,16 @@ export function CollectionsSection({
 
   const normalizedSearchQuery = searchQuery.trim();
   const isSearchMode = normalizedSearchQuery.length > 0;
+  const parsedBudgetFrom = parseBudgetInput(budgetFrom);
+  const parsedBudgetTo = parseBudgetInput(budgetTo);
+  const normalizedBudgetFrom = parsedBudgetFrom ?? undefined;
+  const normalizedBudgetTo = parsedBudgetTo ?? undefined;
+  const hasBudgetFilter =
+    typeof normalizedBudgetFrom === "number" ||
+    typeof normalizedBudgetTo === "number";
   const activeCatalogMode = isSearchMode ? "search" : activeCategoryId;
   const isAllCategoryMode = activeCatalogMode === "all";
-  const catalogViewKey = `${activeCatalogMode}:${normalizedSearchQuery}`;
+  const catalogViewKey = `${activeCatalogMode}:${normalizedSearchQuery}:${budgetFrom}:${budgetTo}:${sortMode}`;
 
   const displayedProducts = useMemo(
     () =>
@@ -134,8 +162,20 @@ export function CollectionsSection({
         quickFilterId: "all",
         searchQuery,
         customCategoryTitleById,
+        minPriceRub: normalizedBudgetFrom,
+        maxPriceRub: normalizedBudgetTo,
+        sortMode,
       }),
-    [activeCategoryId, bouquets, customCategoryTitleById, isSearchMode, searchQuery],
+    [
+      activeCategoryId,
+      bouquets,
+      customCategoryTitleById,
+      isSearchMode,
+      normalizedBudgetFrom,
+      normalizedBudgetTo,
+      searchQuery,
+      sortMode,
+    ],
   );
 
   const handleSearchChange = (event: ReactChangeEvent<HTMLInputElement>) => {
@@ -162,6 +202,18 @@ export function CollectionsSection({
     }
     url.hash = "catalog";
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  };
+
+  const handleBudgetChange =
+    (setter: (value: string) => void) =>
+    (event: ReactChangeEvent<HTMLInputElement>) => {
+      setter(normalizeBudgetInput(event.target.value));
+    };
+
+  const resetBudgetControls = () => {
+    setBudgetFrom("");
+    setBudgetTo("");
+    setSortMode("default");
   };
 
   return (
@@ -221,6 +273,50 @@ export function CollectionsSection({
               </button>
             );
           })}
+        </div>
+
+        <div className={styles.priceTools} aria-label="Фильтр бюджета">
+          <label className={styles.priceField}>
+            <span>От</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9 ]*"
+              value={budgetFrom}
+              onChange={handleBudgetChange(setBudgetFrom)}
+              placeholder="₽"
+              aria-label="Цена от"
+            />
+          </label>
+          <label className={styles.priceField}>
+            <span>До</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9 ]*"
+              value={budgetTo}
+              onChange={handleBudgetChange(setBudgetTo)}
+              placeholder="₽"
+              aria-label="Цена до"
+            />
+          </label>
+          <label className={styles.sortField}>
+            <span>Цена</span>
+            <select
+              value={sortMode}
+              onChange={(event) => setSortMode(event.target.value as HomeCatalogSortMode)}
+              aria-label="Сортировка по цене"
+            >
+              <option value="default">По умолчанию</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </label>
+          {hasBudgetFilter || sortMode !== "default" ? (
+            <button type="button" className={styles.priceReset} onClick={resetBudgetControls}>
+              Сброс
+            </button>
+          ) : null}
         </div>
       </div>
 

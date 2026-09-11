@@ -9,6 +9,9 @@ import {
   normalizeSearchText,
 } from "@/components/search/searchFoundation";
 import type { CatalogProduct } from "@/data/catalogProducts";
+import { getProductSizeOptions } from "@/data/productSizeFoundation";
+
+export type HomeCatalogSortMode = "default" | "price-asc" | "price-desc";
 
 const HOME_CATEGORY_TITLE_MAP: Record<string, string[]> = Object.fromEntries(
   CATALOG_CATEGORIES.map((category) => [category.id, [category.title]]),
@@ -133,6 +136,54 @@ function matchesSearch(product: CatalogProduct, searchQuery: string): boolean {
   return tokens.some((token) => token.length >= 2 && haystack.includes(token));
 }
 
+export function getHomeCatalogProductDisplayPrice(product: CatalogProduct): number {
+  return getProductSizeOptions(product)[0]?.price ?? product.priceRub;
+}
+
+function matchesBudget(
+  product: CatalogProduct,
+  minPriceRub?: number,
+  maxPriceRub?: number,
+): boolean {
+  const priceRub = getHomeCatalogProductDisplayPrice(product);
+  if (!Number.isFinite(priceRub)) {
+    return false;
+  }
+
+  if (typeof minPriceRub === "number" && priceRub < minPriceRub) {
+    return false;
+  }
+
+  if (typeof maxPriceRub === "number" && priceRub > maxPriceRub) {
+    return false;
+  }
+
+  return true;
+}
+
+function sortProductsByMode(
+  products: CatalogProduct[],
+  sortMode: HomeCatalogSortMode,
+): CatalogProduct[] {
+  if (sortMode === "price-asc") {
+    return [...products].sort(
+      (left, right) =>
+        getHomeCatalogProductDisplayPrice(left) -
+        getHomeCatalogProductDisplayPrice(right),
+    );
+  }
+
+  if (sortMode === "price-desc") {
+    return [...products].sort(
+      (left, right) =>
+        getHomeCatalogProductDisplayPrice(right) -
+        getHomeCatalogProductDisplayPrice(left),
+    );
+  }
+
+  return products;
+}
+
 export function filterHomeCatalogProducts(
   products: CatalogProduct[],
   options: {
@@ -140,14 +191,20 @@ export function filterHomeCatalogProducts(
     quickFilterId: string;
     searchQuery: string;
     customCategoryTitleById?: Record<string, string>;
+    minPriceRub?: number;
+    maxPriceRub?: number;
+    sortMode?: HomeCatalogSortMode;
   },
 ): CatalogProduct[] {
-  return products.filter(
+  const filtered = products.filter(
     (product) =>
       matchesCategory(product, options.categoryId, options.customCategoryTitleById) &&
       matchesQuickFilter(product, options.quickFilterId) &&
-      matchesSearch(product, options.searchQuery),
+      matchesSearch(product, options.searchQuery) &&
+      matchesBudget(product, options.minPriceRub, options.maxPriceRub),
   );
+
+  return sortProductsByMode(filtered, options.sortMode ?? "default");
 }
 
 export function getProductCategoryHint(product: CatalogProduct): string {
