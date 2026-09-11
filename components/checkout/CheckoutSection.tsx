@@ -810,6 +810,9 @@ export function CheckoutSection({
           selectedZoneId={realDeliveryZoneResult.selectedZoneId}
           zoneStatus={realDeliveryZoneResult.status}
           marker={checkoutMapMarker}
+          currentAddress={checkoutForm.address.trim() || realDeliveryZoneResult.address}
+          currentZoneLabel={deliveryPriceResult.deliveryZoneLabel}
+          currentPrice={deliveryPriceResult.deliveryPriceRub}
           formatPrice={formatPrice}
           onMapPointSelect={handleMapPointSelect}
           onConfirm={() => setExpandedMapOpen(false)}

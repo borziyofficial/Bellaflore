@@ -22,6 +22,9 @@ type DeliveryZoneMapModalProps = {
   selectedZoneId: DeliveryZoneId | null;
   zoneStatus?: RealDeliveryZoneStatus;
   marker?: DeliveryZoneMapMarker | null;
+  currentAddress?: string;
+  currentZoneLabel?: string | null;
+  currentPrice?: number | null;
   formatPrice: (priceRub: number) => string;
   onMapPointSelect?: (point: MapPointSelection) => void;
   onConfirm?: () => void;
@@ -33,6 +36,9 @@ export function DeliveryZoneMapModal({
   selectedZoneId,
   zoneStatus,
   marker,
+  currentAddress,
+  currentZoneLabel,
+  currentPrice,
   formatPrice,
   onMapPointSelect,
   onConfirm,
@@ -104,6 +110,28 @@ export function DeliveryZoneMapModal({
             formatPrice={formatPrice}
             onMapPointSelect={handleMapPointSelect}
           />
+        </div>
+
+        {/* Summary section showing current selection */}
+        <div className={styles.modalSummary}>
+          {currentAddress && (
+            <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>Адрес:</span>
+              <span className={styles.summaryValue}>{currentAddress}</span>
+            </div>
+          )}
+          {currentZoneLabel && (
+            <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>Зона:</span>
+              <span className={styles.summaryValue}>{currentZoneLabel}</span>
+            </div>
+          )}
+          {currentPrice !== null && currentPrice !== undefined && (
+            <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>Доставка:</span>
+              <span className={styles.summaryValue}>{formatPrice(currentPrice)}</span>
+            </div>
+          )}
         </div>
 
         {/* Footer with action button */}
