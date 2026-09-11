@@ -15,7 +15,7 @@ import { suggestWithYandexMapsSdk } from "@/components/maps/yandexJsSuggest";
 import { mapYandexSuggestItemToSuggestion } from "@/components/maps/yandexSuggestMappers";
 
 const MAX_SUGGESTIONS = 10;
-const MIN_QUERY_LENGTH = 2;
+const MIN_QUERY_LENGTH = 3;
 
 export async function fetchYandexAddressSuggestions(
   input: string,

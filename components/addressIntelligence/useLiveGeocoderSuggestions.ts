@@ -34,7 +34,7 @@ import { fetchYandexAddressSuggestions } from "@/components/addressIntelligence/
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const LIVE_GEOCODER_DEBOUNCE_MS = 280;
-const MIN_QUERY_LENGTH = 2;
+const MIN_QUERY_LENGTH = 3;
 // Hard ceiling on how long the suggestion dropdown stays in a "loading"
 // state before falling back to a definitive error. The HTTP proxy and SDK
 // calls underneath have their own timeouts too, but this guarantees
