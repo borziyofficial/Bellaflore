@@ -413,8 +413,12 @@ function YandexDeliveryZoneMap({
       return;
     }
 
-    const allowAddressPickOnZones =
-      mapVariant === "home" || mapVariant === "checkout";
+    // Zone polygons cover most of the map, so wherever address picking is
+    // offered they must forward the click instead of opening their own
+    // balloon. isCheckout covers both "checkout" and "checkoutExpanded" —
+    // omitting the expanded variant here is what made clicks in the large
+    // modal map do nothing.
+    const allowAddressPickOnZones = mapVariant === "home" || isCheckout;
 
     for (const polygon of polygonRefsRef.current) {
       map.geoObjects.remove(polygon);
@@ -479,7 +483,7 @@ function YandexDeliveryZoneMap({
         }
       }
     }
-  }, [loadState, mapVariant, model.layers, model.legend]);
+  }, [isCheckout, loadState, mapVariant, model.layers, model.legend]);
 
   useEffect(() => {
     const map = mapInstanceRef.current;
@@ -498,15 +502,31 @@ function YandexDeliveryZoneMap({
       return;
     }
 
+    const allowAddressPickOnMarker = mapVariant === "home" || isCheckout;
+
     const placemark = new ymaps.Placemark(
       [model.marker.latitude, model.marker.longitude],
+      allowAddressPickOnMarker
+        ? { hintContent: model.marker.label }
+        : {
+            hintContent: model.marker.label,
+            balloonContentHeader: "Адрес доставки",
+            balloonContentBody: escapeHtml(model.marker.label),
+          },
       {
-        hintContent: model.marker.label,
-        balloonContentHeader: "Адрес доставки",
-        balloonContentBody: escapeHtml(model.marker.label),
+        ...getBellafloreMapPinPlacemarkOptions(),
+        openBalloonOnClick: !allowAddressPickOnMarker,
       },
-      getBellafloreMapPinPlacemarkOptions(),
     );
+
+    // Same reason as the polygons: the pin sits exactly where people aim
+    // when they want to nudge the delivery point, so it must forward the
+    // click rather than absorb it.
+    if (allowAddressPickOnMarker) {
+      placemark.events.add("click", (event) => {
+        handleMapSelectionClickRef.current(event as YandexMapEvent);
+      });
+    }
 
     map.geoObjects.add(placemark);
     placemarkRef.current = placemark;
@@ -514,7 +534,7 @@ function YandexDeliveryZoneMap({
       [model.marker.latitude, model.marker.longitude],
       isCheckout ? CHECKOUT_ADDRESS_MAP_ZOOM : model.defaultZoom,
     );
-  }, [isCheckout, loadState, model.defaultZoom, model.marker]);
+  }, [isCheckout, loadState, mapVariant, model.defaultZoom, model.marker]);
 
   useEffect(() => {
     if (loadState !== "ready") {

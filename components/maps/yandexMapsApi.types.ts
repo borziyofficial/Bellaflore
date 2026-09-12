@@ -53,6 +53,8 @@ export type YandexPlacemarkOptions = {
   iconImageHref?: string;
   iconImageSize?: [number, number];
   iconImageOffset?: [number, number];
+  /** Off where the pin must forward map clicks instead of opening a balloon. */
+  openBalloonOnClick?: boolean;
 };
 
 export type YandexPlacemarkEvents = {
