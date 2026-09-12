@@ -33,6 +33,18 @@ type YandexHttpSuggestResponse = {
   results?: YandexHttpSuggestResult[];
   error?: string;
   yandexStatus?: number;
+  /** Set by the proxy when every upstream answered and none knew the address. */
+  exhausted?: boolean;
+};
+
+export type YandexHttpSuggestOutcome = {
+  items: YandexSuggestItem[];
+  /**
+   * True when the proxy definitively resolved the query to "no such address".
+   * The caller uses it to stop early with a clear message instead of running
+   * further fallback layers that would only add seconds of spinner.
+   */
+  exhausted: boolean;
 };
 
 function mapHttpSuggestResultToItem(
@@ -62,7 +74,7 @@ function mapHttpSuggestResultToItem(
 export async function fetchYandexSuggestViaApiProxy(
   query: string,
   options?: { signal?: AbortSignal },
-): Promise<YandexSuggestItem[]> {
+): Promise<YandexHttpSuggestOutcome> {
   const biasedQuery = normalizeAddressForYandexGeocoding(query);
   const params = new URLSearchParams({
     text: biasedQuery,
@@ -82,7 +94,12 @@ export async function fetchYandexSuggestViaApiProxy(
     );
   }
 
-  return (payload.results ?? [])
+  const items = (payload.results ?? [])
     .map((result) => mapHttpSuggestResultToItem(result))
     .filter((item): item is YandexSuggestItem => item !== null);
+
+  return {
+    items,
+    exhausted: items.length === 0 && payload.exhausted === true,
+  };
 }

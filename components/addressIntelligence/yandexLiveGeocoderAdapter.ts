@@ -11,7 +11,10 @@
 import { prioritizeYandexLiveSuggestions } from "@/components/addressIntelligence/yandexAddressPriority";
 import type { LiveGeocoderFetchResult } from "@/components/addressIntelligence/liveGeocoderTypes";
 import { normalizeAddressForYandexGeocoding } from "@/components/maps/geocodingNormalize";
-import { suggestWithYandexMapsSdk } from "@/components/maps/yandexJsSuggest";
+import {
+  suggestWithYandexMapsSdk,
+  YandexSuggestNoResultsError,
+} from "@/components/maps/yandexJsSuggest";
 import { mapYandexSuggestItemToSuggestion } from "@/components/maps/yandexSuggestMappers";
 
 const MAX_SUGGESTIONS = 10;
@@ -86,6 +89,17 @@ export async function fetchYandexAddressSuggestions(
     if (error instanceof DOMException && error.name === "AbortError") {
       return {
         status: "idle",
+        suggestions: [],
+        errorMessage: null,
+        provider: "yandex",
+      };
+    }
+
+    // Every provider answered and none knows this address — that is a real
+    // answer, not an outage, so the dropdown must say "адрес не найден".
+    if (error instanceof YandexSuggestNoResultsError) {
+      return {
+        status: "no_results",
         suggestions: [],
         errorMessage: null,
         provider: "yandex",

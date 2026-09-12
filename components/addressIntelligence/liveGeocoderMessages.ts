@@ -108,7 +108,10 @@ export function getLiveGeocoderUxMessage(params: {
   }
 
   if (status === "error") {
-    return params.errorMessage ?? "Сервис подсказок временно недоступен";
+    // The raw message is a chain of internal provider failures
+    // ("geosuggest-http: ... | ymaps.suggest: ..."), which must never reach
+    // the customer — they get an actionable sentence instead.
+    return "Не удалось получить подсказки. Введите адрес полностью или выберите точку на карте";
   }
 
   if (source === "mixed" && suggestionCount > 0) {
@@ -119,11 +122,10 @@ export function getLiveGeocoderUxMessage(params: {
     return "Выберите подходящий адрес";
   }
 
-  if (
-    (status === "no_results" || suggestionCount === 0) &&
-    status !== "idle"
-  ) {
-    return null;
+  // Providers answered and none of them knows this address. Saying so
+  // explicitly stops the dropdown from looking like it is still working.
+  if (status === "no_results" || (status !== "idle" && suggestionCount === 0)) {
+    return "Адрес не найден. Уточните улицу и номер дома или выберите точку на карте";
   }
 
   return null;

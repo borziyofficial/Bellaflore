@@ -11,6 +11,7 @@
 import { fetchYandexSuggestViaApiProxy } from "@/components/maps/yandexHttpSuggest";
 import { loadConfiguredYandexMapsSdk } from "@/components/maps/loadYandexMapsSdk";
 import { normalizeAddressForYandexGeocoding } from "@/components/maps/geocodingNormalize";
+import { buildRussianAddressQueryVariants } from "@/components/maps/latinAddressTransliteration";
 import {
   geocodeWithYandexMapsSdk,
   iterateGeoObjects,
@@ -112,33 +113,84 @@ async function suggestWithYandexGeocodeFallback(
   return items;
 }
 
+// ==================================================
+// SECTION: YANDEX MAP / ADDRESS INTELLIGENCE
+// РАЗДЕЛ: Яндекс Карта / Умный поиск адресов
+//
+// Purpose (EN):
+// Distinguishes "every provider answered, nobody knows this address" from a
+// real provider outage, so the dropdown can say "адрес не найден" instead of
+// "сервис недоступен".
+//
+// Назначение (RU):
+// Отличает «адрес не найден» от сбоя провайдера, чтобы подсказки показывали
+// корректное сообщение.
+// ==================================================
+export class YandexSuggestNoResultsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "YandexSuggestNoResultsError";
+  }
+}
+
 export async function suggestWithYandexMapsSdk(
   query: string,
   options: YandexSuggestOptions & { signal?: AbortSignal } = {},
 ): Promise<YandexSuggestItem[]> {
-  const biasedQuery = normalizeAddressForYandexGeocoding(query);
+  // Latin input is transliterated first ("Palekhskaya street 17" ->
+  // "Палехская улица 17"); Cyrillic input yields a single unchanged variant.
+  const queryVariants = buildRussianAddressQueryVariants(query).map(
+    (variant) => normalizeAddressForYandexGeocoding(variant),
+  );
+  const orderedQueries = queryVariants.length > 0
+    ? Array.from(new Set(queryVariants))
+    : [normalizeAddressForYandexGeocoding(query)];
+  const primaryQuery = orderedQueries[0];
   const errors: string[] = [];
 
   try {
-    const items = await fetchYandexSuggestViaApiProxy(biasedQuery, {
+    const outcome = await fetchYandexSuggestViaApiProxy(primaryQuery, {
       signal: options.signal,
     });
-    if (items.length > 0) {
-      return items;
+    if (outcome.items.length > 0) {
+      return outcome.items;
     }
+
+    // The proxy already tried Yandex Geosuggest for every query variant and
+    // the OSM fallback. Running the SDK layers would add seconds of spinner
+    // for an address that demonstrably does not exist.
+    if (outcome.exhausted) {
+      throw new YandexSuggestNoResultsError(
+        "Yandex Geosuggest and fallback geocoder returned no results.",
+      );
+    }
+
     throw new Error("Yandex Geosuggest HTTP returned no results.");
   } catch (error) {
+    if (error instanceof YandexSuggestNoResultsError) {
+      throw error;
+    }
     errors.push(formatSuggestError(error, "geosuggest-http"));
   }
 
-  try {
-    return await suggestWithYandexJsApi(biasedQuery, options);
-  } catch (error) {
-    errors.push(formatSuggestError(error, "ymaps.suggest"));
+  if (options.signal?.aborted) {
+    throw new Error(errors.join(" | "));
+  }
+
+  for (const candidateQuery of orderedQueries) {
+    try {
+      return await suggestWithYandexJsApi(candidateQuery, options);
+    } catch (error) {
+      errors.push(formatSuggestError(error, "ymaps.suggest"));
+    }
+
+    if (options.signal?.aborted) {
+      throw new Error(errors.join(" | "));
+    }
   }
 
   try {
-    return await suggestWithYandexGeocodeFallback(biasedQuery, options);
+    return await suggestWithYandexGeocodeFallback(primaryQuery, options);
   } catch (error) {
     errors.push(formatSuggestError(error, "ymaps.geocode"));
   }

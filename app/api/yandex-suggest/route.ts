@@ -9,15 +9,18 @@
 // Серверный прокси официального HTTP API Yandex Geosuggest с пробросом Referer клиента.
 // ==================================================
 import { getYandexGeoSuggestApiKey } from "@/components/maps/mapProviderConfig";
+import {
+  buildRussianAddressQueryVariants,
+  transliterateLatinAddressToRussian,
+} from "@/components/maps/latinAddressTransliteration";
 
 const MIN_QUERY_LENGTH = 3;
 const MAX_RESULTS = 10;
 const FALLBACK_RESULTS = 5;
-const KNOWN_LATIN_MOSCOW_ADDRESS_ALIASES = [
-  { pattern: /\btverskaya\b/i, replacement: "Тверская" },
-  { pattern: /\bprospe?kt\s+mira\b/i, replacement: "проспект Мира" },
-  { pattern: /\barbat\b/i, replacement: "Арбат" },
-];
+// Upstream budgets are deliberately short: the browser hook gives the whole
+// suggestion pipeline 9s and this route may chain two upstream calls, so
+// each one must fail fast rather than let "Ищем адрес…" spin.
+const UPSTREAM_TIMEOUT_MS = 3_000;
 
 type YandexSuggestPayload = {
   results?: unknown[];
@@ -60,6 +63,42 @@ type RequestedFallbackTitle = {
   house: string;
 };
 
+async function fetchYandexSuggestPayload(
+  apiKey: string,
+  text: string,
+  clientReferer: string,
+): Promise<{ ok: boolean; status: number; payload: YandexSuggestPayload }> {
+  const yandexUrl = new URL("https://suggest-maps.yandex.ru/v1/suggest");
+  yandexUrl.searchParams.set("apikey", apiKey);
+  yandexUrl.searchParams.set("text", text);
+  yandexUrl.searchParams.set("lang", "ru_RU");
+  yandexUrl.searchParams.set("results", String(MAX_RESULTS));
+  yandexUrl.searchParams.set("print_address", "1");
+  yandexUrl.searchParams.set("attrs", "uri");
+  yandexUrl.searchParams.set("types", "geo,street,house");
+  yandexUrl.searchParams.set("countries", "ru");
+  yandexUrl.searchParams.set("bbox", "35.05,55.05~39.2,56.95");
+
+  const response = await fetch(yandexUrl.toString(), {
+    headers: {
+      Accept: "application/json",
+      Referer: clientReferer,
+      Origin: safeOrigin(clientReferer),
+    },
+    cache: "no-store",
+    // Bounds the upstream Yandex call so this route always resolves —
+    // without it, a slow/stuck upstream response left the address
+    // suggestions stuck loading indefinitely instead of failing over.
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+  });
+
+  const payload = (await response
+    .json()
+    .catch(() => ({}))) as YandexSuggestPayload;
+
+  return { ok: response.ok, status: response.status, payload };
+}
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const text = requestUrl.searchParams.get("text")?.trim() ?? "";
@@ -70,6 +109,11 @@ export async function GET(request: Request) {
       { status: 400 },
     );
   }
+
+  // Latin / transliterated input ("Palekhskaya street 17") is converted to
+  // its Russian form first, because every upstream here is queried with
+  // lang=ru_RU and silently returns nothing for Latin street names.
+  const queryVariants = buildRussianAddressQueryVariants(text);
 
   const apiKey = getYandexGeoSuggestApiKey();
   if (!apiKey) {
@@ -92,85 +136,65 @@ export async function GET(request: Request) {
     request.headers.get("origin")?.trim() ||
     requestUrl.origin;
 
-  const yandexUrl = new URL("https://suggest-maps.yandex.ru/v1/suggest");
-  yandexUrl.searchParams.set("apikey", apiKey);
-  yandexUrl.searchParams.set("text", text);
-  yandexUrl.searchParams.set("lang", "ru_RU");
-  yandexUrl.searchParams.set("results", String(MAX_RESULTS));
-  yandexUrl.searchParams.set("print_address", "1");
-  yandexUrl.searchParams.set("attrs", "uri");
-  yandexUrl.searchParams.set("types", "geo,street,house");
-  yandexUrl.searchParams.set("countries", "ru");
-  yandexUrl.searchParams.set("bbox", "35.05,55.05~39.2,56.95");
+  let lastFailureStatus: number | null = null;
+  let lastFailureMessage: string | null = null;
 
-  try {
-    const response = await fetch(yandexUrl.toString(), {
-      headers: {
-        Accept: "application/json",
-        Referer: clientReferer,
-        Origin: safeOrigin(clientReferer),
-      },
-      cache: "no-store",
-      // Bounds the upstream Yandex call so this route always resolves —
-      // without it, a slow/stuck upstream response left the address
-      // suggestions stuck loading indefinitely instead of failing over.
-      signal: AbortSignal.timeout(6_000),
-    });
-
-    const payload = (await response.json().catch(() => ({}))) as YandexSuggestPayload;
-
-    if (!response.ok) {
-      const fallbackResults = await fetchFallbackSuggestResults(text);
-      if (fallbackResults.length > 0) {
-        return Response.json(
-          {
-            results: fallbackResults,
-            provider: "fallback",
-            fallbackReason: `Yandex Geosuggest HTTP ${response.status}.`,
-          },
-          noStoreResponseInit(),
-        );
-      }
-
-      return Response.json(
-        {
-          results: [],
-          error:
-            payload.error ??
-            `Yandex Geosuggest HTTP ${response.status}.`,
-          yandexStatus: response.status,
-        },
-        { status: response.status },
+  for (const queryVariant of queryVariants) {
+    try {
+      const { ok, status, payload } = await fetchYandexSuggestPayload(
+        apiKey,
+        queryVariant,
+        clientReferer,
       );
-    }
 
-    if (!Array.isArray(payload.results) || payload.results.length === 0) {
-      const fallbackResults = await fetchFallbackSuggestResults(text);
-      if (fallbackResults.length > 0) {
-        return Response.json(
-          { results: fallbackResults, provider: "fallback" },
-          noStoreResponseInit(),
-        );
+      if (!ok) {
+        lastFailureStatus = status;
+        lastFailureMessage =
+          payload.error ?? `Yandex Geosuggest HTTP ${status}.`;
+        continue;
       }
-    }
 
-    return Response.json(payload, {
-      headers: {
-        "Cache-Control": "no-store",
+      if (Array.isArray(payload.results) && payload.results.length > 0) {
+        return Response.json(payload, noStoreResponseInit());
+      }
+    } catch (error) {
+      lastFailureStatus = 502;
+      lastFailureMessage =
+        error instanceof Error
+          ? error.message
+          : "Yandex Geosuggest proxy request failed.";
+    }
+  }
+
+  const fallbackResults = await fetchFallbackSuggestResults(text);
+  if (fallbackResults.length > 0) {
+    return Response.json(
+      {
+        results: fallbackResults,
+        provider: "fallback",
+        ...(lastFailureMessage ? { fallbackReason: lastFailureMessage } : {}),
       },
-    });
-  } catch (error) {
+      noStoreResponseInit(),
+    );
+  }
+
+  // Every upstream failed outright — surface it as an error so the client can
+  // retry through its SDK layers instead of telling the customer "not found".
+  if (lastFailureMessage) {
     return Response.json(
       {
         results: [],
-        error:
-          error instanceof Error
-            ? error.message
-            : "Yandex Geosuggest proxy request failed.",
+        error: lastFailureMessage,
+        ...(lastFailureStatus ? { yandexStatus: lastFailureStatus } : {}),
       },
-      { status: 502 },
+      { status: lastFailureStatus ?? 502 },
     );
   }
+
+  // Every upstream answered successfully and none of them knows this address.
+  // `exhausted` lets the client stop immediately with a definitive
+  // "address not found" instead of grinding through more fallback layers.
+  return Response.json({ results: [], exhausted: true }, noStoreResponseInit());
 }
 
 function noStoreResponseInit(): ResponseInit {
@@ -192,24 +216,16 @@ function safeOrigin(referer: string): string {
 function buildFallbackQuery(query: string): string | null {
   const trimmedQuery = query.trim();
 
-  if (!/[a-z]/i.test(trimmedQuery)) {
-    return /(?:^|[\s,])москва(?:[\s,]|$)/i.test(trimmedQuery)
-      ? trimmedQuery
-      : `Москва, ${trimmedQuery}`;
+  if (!trimmedQuery) {
+    return null;
   }
 
-  let normalizedQuery = trimmedQuery;
-  let matchedKnownAlias = false;
-  for (const alias of KNOWN_LATIN_MOSCOW_ADDRESS_ALIASES) {
-    if (!alias.pattern.test(normalizedQuery)) {
-      continue;
-    }
+  // Generic transliteration replaces the old three-street alias whitelist,
+  // so arbitrary Latin input ("Palekhskaya street 17") reaches the fallback
+  // geocoder as "Палехская улица 17" instead of being dropped.
+  const normalizedQuery = transliterateLatinAddressToRussian(trimmedQuery);
 
-    normalizedQuery = normalizedQuery.replace(alias.pattern, alias.replacement);
-    matchedKnownAlias = true;
-  }
-
-  if (!matchedKnownAlias) {
+  if (!normalizedQuery) {
     return null;
   }
 
@@ -401,7 +417,7 @@ async function fetchFallbackSuggestResults(
         "User-Agent": "BellaFloreCheckout/1.0 (delivery address suggestions)",
       },
       cache: "no-store",
-      signal: AbortSignal.timeout(6_000),
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
 
     if (!response.ok) {

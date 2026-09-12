@@ -365,6 +365,64 @@ export function CheckoutSection({
     void confirmMapPointSelection(point.latitude, point.longitude, point.address);
   };
 
+  // Expanded-map transaction boundary.
+  //
+  // Picking a point on the map writes straight into checkout state, because
+  // that is what keeps zone and price live while the customer is still
+  // choosing — the delivery pipeline is derived from checkoutForm.address, so
+  // there is no second source of truth to keep in sync. Cancelling therefore
+  // has to put back exactly what was there when the map opened: address text,
+  // the "this came from a suggestion" marker, and whether the field had been
+  // touched. Confirming simply drops the snapshot.
+  const expandedMapBaselineRef = useRef<{
+    address: string;
+    suggestionAddress: string | null;
+    addressTouched: boolean;
+  } | null>(null);
+
+  const handleExpandedMapOpen = () => {
+    expandedMapBaselineRef.current = {
+      address: checkoutForm.address,
+      suggestionAddress: selectedSuggestionAddressRef.current,
+      addressTouched: touchedFields.has("address"),
+    };
+    setExpandedMapOpen(true);
+  };
+
+  const handleExpandedMapConfirm = () => {
+    expandedMapBaselineRef.current = null;
+    markFieldTouched("address");
+    setExpandedMapOpen(false);
+  };
+
+  const handleExpandedMapCancel = () => {
+    const baseline = expandedMapBaselineRef.current;
+    expandedMapBaselineRef.current = null;
+    setExpandedMapOpen(false);
+
+    if (!baseline) {
+      return;
+    }
+
+    if (baseline.address !== checkoutForm.address) {
+      handleCheckoutFieldChange("address", baseline.address);
+    }
+
+    selectedSuggestionAddressRef.current = baseline.suggestionAddress;
+
+    if (!baseline.addressTouched) {
+      setTouchedFields((current) => {
+        if (!current.has("address")) {
+          return current;
+        }
+
+        const next = new Set(current);
+        next.delete("address");
+        return next;
+      });
+    }
+  };
+
   const addressFieldShowValidation =
     submitAttempted || touchedFields.has("address");
 
@@ -634,6 +692,23 @@ export function CheckoutSection({
                     ) : null}
                   </label>
 
+                  {/*
+                    Map-first entry point. Deliberately NOT gated on an
+                    existing marker: a customer whose street will not resolve
+                    by text must still be able to open the map and place the
+                    pin by hand.
+                  */}
+                  <button
+                    type="button"
+                    className={checkoutSectionStyles.checkoutMapOpenButton}
+                    onClick={handleExpandedMapOpen}
+                  >
+                    Показать карту
+                  </button>
+                  <span className={checkoutSectionStyles.checkoutMapOpenHint}>
+                    Нажмите, чтобы уточнить точку на карте
+                  </span>
+
                   {checkoutMapMarker ? (
                     <div className={checkoutSectionStyles.checkoutMapWrap}>
                       <div className={checkoutSectionStyles.checkoutMapControls}>
@@ -649,7 +724,7 @@ export function CheckoutSection({
                           <button
                             type="button"
                             className={checkoutSectionStyles.checkoutMapExpandButton}
-                            onClick={() => setExpandedMapOpen(true)}
+                            onClick={handleExpandedMapOpen}
                             title="Открыть большую карту"
                           >
                             <span className={checkoutSectionStyles.checkoutMapExpandIcon}>↗</span>
@@ -803,22 +878,28 @@ export function CheckoutSection({
         />
       ) : null}
 
-      {/* Expanded map modal */}
-      {checkoutMapMarker ? (
-        <DeliveryZoneMapModal
-          isOpen={expandedMapOpen}
-          selectedZoneId={realDeliveryZoneResult.selectedZoneId}
-          zoneStatus={realDeliveryZoneResult.status}
-          marker={checkoutMapMarker}
-          currentAddress={checkoutForm.address.trim() || realDeliveryZoneResult.address}
-          currentZoneLabel={deliveryPriceResult.deliveryZoneLabel}
-          currentPrice={deliveryPriceResult.deliveryPriceRub}
-          formatPrice={formatPrice}
-          onMapPointSelect={handleMapPointSelect}
-          onConfirm={() => setExpandedMapOpen(false)}
-          onClose={() => setExpandedMapOpen(false)}
-        />
-      ) : null}
+      {/*
+        Rendered unconditionally: the map-first flow opens this with no
+        marker and no address, centred on Moscow, so the customer can place
+        the pin themselves.
+      */}
+      <DeliveryZoneMapModal
+        isOpen={expandedMapOpen}
+        selectedZoneId={realDeliveryZoneResult.selectedZoneId}
+        zoneStatus={realDeliveryZoneResult.status}
+        marker={checkoutMapMarker}
+        currentAddress={checkoutAddressLabel}
+        currentZoneLabel={deliveryPriceResult.deliveryZoneLabel}
+        currentPrice={deliveryPriceResult.deliveryPriceRub}
+        zoneUnavailable={
+          deliveryPriceResult.status === "outside_delivery_area" ||
+          realDeliveryZoneResult.status === "outside_delivery_area"
+        }
+        formatPrice={formatPrice}
+        onMapPointSelect={handleMapPointSelect}
+        onConfirm={handleExpandedMapConfirm}
+        onCancel={handleExpandedMapCancel}
+      />
     </section>
   );
 }
