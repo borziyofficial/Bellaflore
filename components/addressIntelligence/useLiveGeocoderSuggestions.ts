@@ -36,11 +36,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 const LIVE_GEOCODER_DEBOUNCE_MS = 280;
 const MIN_QUERY_LENGTH = 3;
 // Hard ceiling on how long the suggestion dropdown stays in a "loading"
-// state before falling back to a definitive error. The HTTP proxy and SDK
-// calls underneath have their own timeouts too, but this guarantees
-// "Ищем адрес…" can never spin forever regardless of how many fallback
-// layers are attempted internally.
-const LIVE_GEOCODER_OVERALL_TIMEOUT_MS = 9_000;
+// state before falling back to a definitive error. The proxy (2 x 2.5s) and
+// the single SDK retry underneath are budgeted to finish inside it, so
+// "Ищем адрес…" resolves one way or the other within a few seconds.
+const LIVE_GEOCODER_OVERALL_TIMEOUT_MS = 7_000;
 
 function withOverallTimeout<T>(
   promise: Promise<T>,

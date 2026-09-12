@@ -45,7 +45,7 @@ type DeliveryZoneMapProps = {
   zoneStatus?: RealDeliveryZoneStatus;
   marker?: DeliveryZoneMapMarker | null;
   formatPrice: (priceRub: number) => string;
-  variant?: "checkout" | "admin" | "home";
+  variant?: "checkout" | "checkoutExpanded" | "admin" | "home";
   onMapPointSelect?: (point: MapPointSelection) => void;
 };
 
@@ -60,6 +60,12 @@ function resolveMapFrameClass(variant: DeliveryZoneMapVariant): string {
 
   if (variant === "home") {
     return styles.homeMapFrame;
+  }
+
+  // The expanded modal owns its own height: the frame stretches to fill it
+  // instead of being capped at the 220px inline-checkout strip.
+  if (variant === "checkoutExpanded") {
+    return styles.checkoutExpandedMapFrame;
   }
 
   return styles.checkoutMapFrame;
@@ -218,7 +224,8 @@ function YandexDeliveryZoneMap({
   );
   const [loadErrorDetail, setLoadErrorDetail] = useState<string | null>(null);
   const mapVariant = variant ?? "admin";
-  const isCheckout = mapVariant === "checkout";
+  const isExpandedCheckout = mapVariant === "checkoutExpanded";
+  const isCheckout = mapVariant === "checkout" || isExpandedCheckout;
 
   const model = useMemo(
     () =>
@@ -530,14 +537,22 @@ function YandexDeliveryZoneMap({
     };
   }, [loadState, mapVariant]);
 
+  // In the expanded modal the surrounding sheet already shows address, zone
+  // and price, so the in-map card would duplicate it and eat map height.
   const showSelectionCard =
-    mapVariant !== "home" && selectionCardProps !== null;
+    mapVariant !== "home" &&
+    !isExpandedCheckout &&
+    selectionCardProps !== null;
 
   return (
     <div
-      className={`${styles.deliveryZoneMapShell} ${
-        isCheckout ? styles.deliveryZoneMapShellCheckout : ""
-      }`}
+      className={[
+        styles.deliveryZoneMapShell,
+        isCheckout ? styles.deliveryZoneMapShellCheckout : "",
+        isExpandedCheckout ? styles.deliveryZoneMapShellExpanded : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <div
         className={`${styles.deliveryZoneMapFrame} ${resolveMapFrameClass(mapVariant)}`}
@@ -592,7 +607,8 @@ function canMountYandexMap(): boolean {
 }
 
 export function DeliveryZoneMap(props: DeliveryZoneMapProps) {
-  const isCheckoutVariant = props.variant === "checkout";
+  const isCheckoutVariant =
+    props.variant === "checkout" || props.variant === "checkoutExpanded";
 
   if (!canMountYandexMap()) {
     return (
@@ -607,6 +623,10 @@ export function DeliveryZoneMap(props: DeliveryZoneMapProps) {
 
   if (variant === "home") {
     return <YandexDeliveryZoneMap {...props} variant="home" />;
+  }
+
+  if (variant === "checkoutExpanded") {
+    return <YandexDeliveryZoneMap {...props} variant="checkoutExpanded" />;
   }
 
   if (variant === "checkout") {

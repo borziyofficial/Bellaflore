@@ -1,4 +1,7 @@
-/* Delivery Zone Map Modal — BellaFlore-owned expanded map */
+/* Delivery Zone Map Modal — BellaFlore-owned expanded map.
+   The map is the point of this screen, so it gets every pixel the chrome
+   does not need: header, summary and actions are all fixed-height rows and
+   the map fills the rest. */
 
 .modalBackdrop {
   position: fixed;
@@ -35,8 +38,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(80vw, 1100px);
-  height: min(82vh, 760px);
+  width: min(90vw, 1440px);
+  height: min(88vh, 1000px);
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -49,7 +52,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 20px;
+  padding: 12px 20px;
   border-bottom: 1px solid rgba(176, 141, 87, 0.16);
   flex-shrink: 0;
 }
@@ -108,6 +111,7 @@
   color: #666666;
 }
 
+/* Takes all height the fixed rows leave over. */
 .mapContainer {
   position: relative;
   flex: 1 1 auto;
@@ -116,7 +120,6 @@
   background: #eef1f4;
 }
 
-/* The embedded map fills the modal body on every breakpoint. */
 .mapContainer > * {
   width: 100%;
   height: 100%;
@@ -125,11 +128,12 @@
 .modalSummary {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 20px;
+  gap: 4px;
+  padding: 10px 20px;
   background: #ffffff;
   border-top: 1px solid rgba(176, 141, 87, 0.16);
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .summaryRow {
@@ -137,13 +141,14 @@
   align-items: baseline;
   gap: 10px;
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.35;
+  min-width: 0;
 }
 
 .summaryLabel {
   flex-shrink: 0;
-  min-width: 72px;
-  font-size: 12px;
+  min-width: 68px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -165,14 +170,15 @@
 .summaryWarning {
   margin: 2px 0 0;
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.35;
   color: #b3261e;
 }
 
 .modalFooter {
   display: flex;
+  align-items: center;
   gap: 10px;
-  padding: 12px 20px 16px;
+  padding: 10px 20px 14px;
   border-top: 1px solid rgba(176, 141, 87, 0.16);
   background: #ffffff;
   flex-shrink: 0;
@@ -233,7 +239,44 @@
   box-shadow: none;
 }
 
-/* Mobile / iPhone: true full-screen sheet with safe-area aware chrome. */
+/* Desktop: summary and actions share one bottom row so the map keeps the
+   height that a stacked layout would spend on chrome. */
+@media (min-width: 768px) {
+  .modalContent {
+    display: grid;
+    grid-template-rows: auto minmax(420px, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .modalHeader,
+  .mapContainer {
+    grid-column: 1 / -1;
+  }
+
+  .modalSummary {
+    grid-column: 1;
+    justify-content: center;
+  }
+
+  .modalFooter {
+    grid-column: 2;
+    border-left: 1px solid rgba(176, 141, 87, 0.16);
+  }
+
+  .confirmButton {
+    flex: 0 0 auto;
+    min-width: 210px;
+  }
+}
+
+@media (min-width: 768px) and (min-height: 880px) {
+  .modalContent {
+    grid-template-rows: auto minmax(560px, 1fr) auto;
+  }
+}
+
+/* Mobile / iPhone: true full-screen sheet, map takes everything the
+   address summary and the pinned confirm bar do not need. */
 @media (max-width: 767px) {
   .modalBackdrop {
     padding: 0;
@@ -249,7 +292,7 @@
   }
 
   .modalHeader {
-    padding-top: calc(14px + env(safe-area-inset-top));
+    padding-top: calc(12px + env(safe-area-inset-top));
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
   }
@@ -259,14 +302,13 @@
     padding-right: max(16px, env(safe-area-inset-right));
   }
 
-  /* Confirm stays pinned above the home indicator. */
   .modalFooter {
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
   }
 
   .summaryLabel {
-    min-width: 64px;
+    min-width: 62px;
   }
 }

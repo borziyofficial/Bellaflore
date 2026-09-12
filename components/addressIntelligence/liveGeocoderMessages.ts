@@ -22,6 +22,13 @@ import type { LiveGeocoderStatus } from "@/components/addressIntelligence/liveGe
 //
 // Назначение (RU): Публичные экспортируемые функции и константы.
 // ==================================================
+// Cyrillic search is the supported flow; Latin / transliterated input is
+// best-effort. Either way, a miss must point the customer at the two things
+// that always work: writing the address in Russian, or picking the point on
+// the map.
+const ADDRESS_NOT_FOUND_MESSAGE =
+  "Не нашли адрес. Попробуйте написать по-русски или выберите точку на карте.";
+
 export function mapLiveGeocoderSuggestionToAddressSuggestion(
   suggestion: LiveGeocoderSuggestion,
 ): AddressSuggestion {
@@ -110,8 +117,8 @@ export function getLiveGeocoderUxMessage(params: {
   if (status === "error") {
     // The raw message is a chain of internal provider failures
     // ("geosuggest-http: ... | ymaps.suggest: ..."), which must never reach
-    // the customer — they get an actionable sentence instead.
-    return "Не удалось получить подсказки. Введите адрес полностью или выберите точку на карте";
+    // the customer — they get the same actionable sentence as a miss.
+    return ADDRESS_NOT_FOUND_MESSAGE;
   }
 
   if (source === "mixed" && suggestionCount > 0) {
@@ -125,7 +132,7 @@ export function getLiveGeocoderUxMessage(params: {
   // Providers answered and none of them knows this address. Saying so
   // explicitly stops the dropdown from looking like it is still working.
   if (status === "no_results" || (status !== "idle" && suggestionCount === 0)) {
-    return "Адрес не найден. Уточните улицу и номер дома или выберите точку на карте";
+    return ADDRESS_NOT_FOUND_MESSAGE;
   }
 
   return null;

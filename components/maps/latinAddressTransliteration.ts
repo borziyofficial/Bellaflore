@@ -135,11 +135,21 @@ function transliterateLatinWord(word: string): string {
       continue;
     }
 
-    // A bare "y" that no digraph claimed is either the glide in "Tverskoy"
-    // -> "Тверской" (after a vowel) or the vowel in "Krasny" -> "Красны".
+    // A bare "y" that no digraph claimed is one of three things: the glide in
+    // "Tverskoy" -> "Тверской" (after a vowel), the adjectival ending in
+    // "Novy" -> "Новый" (word-final after a consonant), or a plain vowel.
     if (lowerCaseWord[cursor] === "y") {
       const previousCharacter = output[output.length - 1] ?? "";
-      output += CYRILLIC_VOWELS.has(previousCharacter) ? "й" : "ы";
+      const isWordFinal = cursor === lowerCaseWord.length - 1;
+
+      if (CYRILLIC_VOWELS.has(previousCharacter)) {
+        output += "й";
+      } else if (isWordFinal && previousCharacter) {
+        output += "ый";
+      } else {
+        output += "ы";
+      }
+
       cursor += 1;
       continue;
     }

@@ -129,7 +129,7 @@ export function DeliveryZoneMapModal({
 
         <div className={styles.mapContainer}>
           <DeliveryZoneMap
-            variant="checkout"
+            variant="checkoutExpanded"
             selectedZoneId={selectedZoneId}
             zoneStatus={zoneStatus}
             marker={marker ?? null}

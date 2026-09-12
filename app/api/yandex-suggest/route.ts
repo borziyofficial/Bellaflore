@@ -17,10 +17,10 @@ import {
 const MIN_QUERY_LENGTH = 3;
 const MAX_RESULTS = 10;
 const FALLBACK_RESULTS = 5;
-// Upstream budgets are deliberately short: the browser hook gives the whole
-// suggestion pipeline 9s and this route may chain two upstream calls, so
-// each one must fail fast rather than let "Ищем адрес…" spin.
-const UPSTREAM_TIMEOUT_MS = 3_000;
+// Upstream budgets are deliberately short. This route chains at most two
+// upstream calls (Yandex, then the OSM fallback), and the browser hook caps
+// the whole pipeline at 7s, so neither call may linger.
+const UPSTREAM_TIMEOUT_MS = 2_500;
 
 type YandexSuggestPayload = {
   results?: unknown[];
@@ -110,10 +110,11 @@ export async function GET(request: Request) {
     );
   }
 
-  // Latin / transliterated input ("Palekhskaya street 17") is converted to
-  // its Russian form first, because every upstream here is queried with
-  // lang=ru_RU and silently returns nothing for Latin street names.
-  const queryVariants = buildRussianAddressQueryVariants(text);
+  // Cyrillic is the supported flow. Latin / transliterated input is
+  // best-effort: it is converted to its Russian form once and queried once —
+  // every upstream here runs with lang=ru_RU and returns nothing for Latin
+  // street names, so retrying the raw Latin text only burns the time budget.
+  const queryVariants = buildRussianAddressQueryVariants(text).slice(0, 1);
 
   const apiKey = getYandexGeoSuggestApiKey();
   if (!apiKey) {
