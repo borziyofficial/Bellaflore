@@ -11,10 +11,7 @@
 import { fetchYandexSuggestViaApiProxy } from "@/components/maps/yandexHttpSuggest";
 import { loadConfiguredYandexMapsSdk } from "@/components/maps/loadYandexMapsSdk";
 import { normalizeAddressForYandexGeocoding } from "@/components/maps/geocodingNormalize";
-import {
-  buildRussianAddressQueryVariants,
-  hasLatinLetters,
-} from "@/components/maps/latinAddressTransliteration";
+import { buildRussianAddressQueryVariants } from "@/components/maps/latinAddressTransliteration";
 import {
   geocodeWithYandexMapsSdk,
   iterateGeoObjects,
@@ -149,7 +146,6 @@ export async function suggestWithYandexMapsSdk(
     ? Array.from(new Set(queryVariants))
     : [normalizeAddressForYandexGeocoding(query)];
   const primaryQuery = orderedQueries[0];
-  const isTransliteratedQuery = hasLatinLetters(query);
   const errors: string[] = [];
 
   try {
@@ -160,9 +156,13 @@ export async function suggestWithYandexMapsSdk(
       return outcome.items;
     }
 
-    // The proxy already tried Yandex Geosuggest for every query variant and
-    // the OSM fallback. Running the SDK layers would add seconds of spinner
-    // for an address that demonstrably does not exist.
+    // `exhausted` means every server-side provider ANSWERED and none knew
+    // this address. That is a definitive miss, so stop here instead of
+    // spending seconds on layers that are looking for the same thing.
+    //
+    // A provider FAILURE is different and must not short-circuit: Geosuggest
+    // is currently answering 403 in production, and when it does the SDK
+    // layers below are the only ones that can still resolve an address.
     if (outcome.exhausted) {
       throw new YandexSuggestNoResultsError(
         "Yandex Geosuggest and fallback geocoder returned no results.",
@@ -181,8 +181,10 @@ export async function suggestWithYandexMapsSdk(
     throw new Error(errors.join(" | "));
   }
 
-  // One SDK retry, on the Russian form only. Re-running it per variant and
-  // then geocoding again is what used to stretch a miss into a ~9s stall.
+  // SDK layers, on the Russian form only. These run on the JS API key rather
+  // than the Geosuggest HTTP key, so they keep working while the latter is
+  // rejected. Both are tried for Cyrillic and transliterated input alike —
+  // restricting the geocoder to Cyrillic is what broke translit lookups.
   try {
     return await suggestWithYandexJsApi(primaryQuery, options);
   } catch (error) {
@@ -193,20 +195,10 @@ export async function suggestWithYandexMapsSdk(
     throw new Error(errors.join(" | "));
   }
 
-  // The geocoder fallback is reserved for the primary (Cyrillic) flow.
-  // Transliterated input is best-effort: if Geosuggest and the SDK both drew
-  // a blank, another round trip will not rescue it, so fail fast and let the
-  // customer retype in Russian or drop a pin on the map.
-  if (!isTransliteratedQuery) {
-    try {
-      return await suggestWithYandexGeocodeFallback(primaryQuery, options);
-    } catch (error) {
-      errors.push(formatSuggestError(error, "ymaps.geocode"));
-    }
-  }
-
-  if (isTransliteratedQuery) {
-    throw new YandexSuggestNoResultsError(errors.join(" | "));
+  try {
+    return await suggestWithYandexGeocodeFallback(primaryQuery, options);
+  } catch (error) {
+    errors.push(formatSuggestError(error, "ymaps.geocode"));
   }
 
   throw new Error(errors.join(" | "));

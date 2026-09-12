@@ -20,7 +20,7 @@ const FALLBACK_RESULTS = 5;
 // Upstream budgets are deliberately short. This route chains at most two
 // upstream calls (Yandex, then the OSM fallback), and the browser hook caps
 // the whole pipeline at 7s, so neither call may linger.
-const UPSTREAM_TIMEOUT_MS = 2_500;
+const UPSTREAM_TIMEOUT_MS = 2_000;
 
 type YandexSuggestPayload = {
   results?: unknown[];
