@@ -1112,15 +1112,7 @@ export default function Home() {
   const removeFavoriteBouquet = (bouquetId: string) => {
     favoritesTouchedRef.current = true;
     setFavoriteBouquetIds((currentIds) => {
-      const nextIds = currentIds.filter((id) => id !== bouquetId);
-
-      if (nextIds.length === 0) {
-        requestAnimationFrame(() => {
-          closeBottomNavPanel("favorites", true);
-        });
-      }
-
-      return nextIds;
+      return currentIds.filter((id) => id !== bouquetId);
     });
     setBottomNavAction("Букет удалён из избранного");
   };
@@ -1349,7 +1341,6 @@ export default function Home() {
   const resolveBouquetSelection = (
     bouquetId: string,
     sizeId: ProductSizeId = "S",
-    _priceRub?: number,
   ) => {
     const bouquet = bouquets.find((item) => item.id === bouquetId);
     if (!bouquet) {
@@ -1383,7 +1374,8 @@ export default function Home() {
     sizeId: ProductSizeId,
     priceRub?: number,
   ) => {
-    const selection = resolveBouquetSelection(bouquetId, sizeId, priceRub);
+    void priceRub;
+    const selection = resolveBouquetSelection(bouquetId, sizeId);
     if (!selection) {
       return;
     }
@@ -1708,7 +1700,8 @@ export default function Home() {
     sizeId: ProductSizeId,
     priceRub?: number,
   ) => {
-    const selection = resolveBouquetSelection(bouquetId, sizeId, priceRub);
+    void priceRub;
+    const selection = resolveBouquetSelection(bouquetId, sizeId);
 
     if (!selection) {
       return;
@@ -2399,6 +2392,10 @@ export default function Home() {
             favoriteBouquets={favoriteBouquets}
             formatPrice={formatPrice}
             onCloseFavoritesPanel={closeFavoritesPanel}
+            onOpenCatalog={() => {
+              closeAllBottomNavPanelsImmediate();
+              openCatalogView();
+            }}
             handleFavoriteRemoveClick={handleFavoriteRemoveClick}
             handleFavoriteBuyClick={handleFavoriteBuyClick}
           />

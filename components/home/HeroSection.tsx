@@ -245,16 +245,6 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
               }
             }}
           />
-          {activeHeroPhotos.length > 1 ? (
-            <div className={styles.photoCue} aria-hidden="true">
-              {activeHeroPhotos.map((photo, index) => (
-                <span
-                  key={photo.id}
-                  className={index === currentPhotoIndex ? styles.photoCueActive : undefined}
-                />
-              ))}
-            </div>
-          ) : null}
         </div>
       </div>
     </main>

@@ -557,6 +557,18 @@ export function AdminHeroBannerPanel({
                             />
                             <span />
                           </label>
+                          <span
+                            className={`${styles.heroPhotoState} ${
+                              photo.isEnabled
+                                ? styles.heroPhotoStateActive
+                                : styles.heroPhotoStateInactive
+                            }`}
+                          >
+                            {photo.isEnabled ? "Активно" : "Неактивно"}
+                          </span>
+                          {photo.isPrimary ? (
+                            <span className={styles.heroPhotoPrimaryBadge}>Основное</span>
+                          ) : null}
                           <button
                             type="button"
                             className={styles.iconButton}
@@ -581,7 +593,7 @@ export function AdminHeroBannerPanel({
                             disabled={photo.isPrimary}
                             onClick={() => markPrimary(photo.id)}
                           >
-                            По умолчанию
+                            Основное
                           </button>
                           <button
                             type="button"

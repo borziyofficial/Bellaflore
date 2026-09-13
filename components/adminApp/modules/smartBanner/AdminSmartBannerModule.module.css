@@ -126,9 +126,9 @@
   width: 100%;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  border: 1px solid rgba(138, 107, 61, 0.16);
-  border-radius: 12px;
-  background: rgba(138, 107, 61, 0.08);
+  border: 1px solid rgba(138, 107, 61, 0.14);
+  border-radius: 10px;
+  background: #f8f4ed;
 }
 
 .heroPreview img {
@@ -163,8 +163,10 @@
   display: grid;
   gap: 10px;
   margin-top: 4px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(138, 107, 61, 0.12);
+  padding: 14px;
+  border: 1px solid rgba(138, 107, 61, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 253, 249, 0.78);
 }
 
 .heroPhotoToolbar {
@@ -203,11 +205,11 @@
   justify-content: center;
   min-height: 36px;
   flex: 0 0 auto;
-  border: 1px solid rgba(138, 107, 61, 0.24);
+  border: 1px solid rgba(138, 107, 61, 0.22);
   border-radius: 10px;
   padding: 0 12px;
-  background: #fff;
-  color: #2f2a24;
+  background: rgba(201, 162, 75, 0.12);
+  color: #6f542b;
   font: inherit;
   font-size: 12px;
   font-weight: 700;
@@ -238,25 +240,25 @@
 
 .heroPhotoRow {
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-columns: 54px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
-  border: 1px solid rgba(138, 107, 61, 0.14);
-  border-radius: 12px;
+  border: 1px solid rgba(138, 107, 61, 0.12);
+  border-radius: 10px;
   padding: 8px;
-  background: #fff;
+  background: #fffdf9;
 }
 
 .heroPhotoRowSelected {
   border-color: rgba(138, 107, 61, 0.44);
-  background: rgba(138, 107, 61, 0.05);
+  background: rgba(201, 162, 75, 0.08);
 }
 
 .heroPhotoThumb {
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 72px;
+  width: 54px;
+  height: 66px;
   overflow: hidden;
   border: 0;
   border-radius: 9px;
@@ -299,6 +301,34 @@
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
+}
+
+.heroPhotoState,
+.heroPhotoPrimaryBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.heroPhotoStateActive {
+  background: rgba(47, 155, 95, 0.12);
+  color: #247848;
+}
+
+.heroPhotoStateInactive {
+  background: rgba(122, 82, 40, 0.1);
+  color: #6d4929;
+}
+
+.heroPhotoPrimaryBadge {
+  background: rgba(201, 162, 75, 0.16);
+  color: #6f542b;
 }
 
 .heroPhotoActions .secondaryButton {
@@ -947,7 +977,7 @@
 }
 
 .primaryButton {
-  background: #8a6b3d;
+  background: #9a793f;
   color: #fff;
 }
 
@@ -963,8 +993,9 @@
 }
 
 .secondaryButton {
-  background: #fff;
-  border-color: rgba(138, 107, 61, 0.24);
+  background: #fffdf9;
+  border-color: rgba(138, 107, 61, 0.2);
+  color: #4b3d2a;
 }
 
 .dangerButton {
@@ -1065,19 +1096,19 @@
   padding: 12px;
 }
 
-/* BellaFlore Luxury Dark skin. Kept local to Smart Banner so the rest of
+/* BellaFlore light skin. Kept local to Smart Banner so the rest of
    the admin application is not redesigned. */
 .moduleRoot {
-  --banner-bg: #100f0d;
-  --banner-surface: #171512;
-  --banner-border: rgba(229, 194, 116, 0.2);
-  --banner-border-strong: rgba(229, 194, 116, 0.48);
-  --banner-gold: #e5c274;
-  --banner-gold-soft: #b89450;
-  --banner-text: #f4eee4;
-  --banner-muted: #aaa095;
+  --banner-bg: #fffdf9;
+  --banner-surface: #f8f4ed;
+  --banner-border: rgba(138, 107, 61, 0.16);
+  --banner-border-strong: rgba(181, 141, 55, 0.46);
+  --banner-gold: #8a6b3d;
+  --banner-gold-soft: #c9a24b;
+  --banner-text: #2f2a24;
+  --banner-muted: #75695c;
   color: var(--banner-text);
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .loadingHeader,
@@ -1124,7 +1155,7 @@
 .moduleRoot .secondaryButton,
 .moduleRoot .catalogPickerToggle {
   border-color: var(--banner-border);
-  background: rgba(255, 255, 255, 0.04);
+  background: #fffdf9;
   color: var(--banner-text);
 }
 
@@ -1134,7 +1165,7 @@
 
 .moduleRoot .modeButtonActive {
   border-color: var(--banner-border-strong);
-  background: linear-gradient(180deg, rgba(229, 194, 116, 0.15), rgba(184, 148, 80, 0.08));
+  background: rgba(201, 162, 75, 0.12);
   color: var(--banner-gold);
 }
 
@@ -1147,7 +1178,7 @@
 .moduleRoot .sourceOption,
 .moduleRoot .slideRow {
   border-color: var(--banner-border);
-  background: rgba(255, 255, 255, 0.025);
+  background: #fffdf9;
   color: var(--banner-text);
 }
 
@@ -1162,7 +1193,7 @@
   height: 16px;
   margin: 1px 0 0;
   appearance: none;
-  border: 1px solid rgba(229, 194, 116, 0.45);
+  border: 1px solid rgba(138, 107, 61, 0.28);
   background: var(--banner-bg);
 }
 
@@ -1217,7 +1248,7 @@
 
 .moduleRoot .destinationToggle {
   border-color: var(--banner-border);
-  background: rgba(0, 0, 0, 0.16);
+  background: rgba(138, 107, 61, 0.06);
 }
 
 .moduleRoot .destinationButton {
@@ -1259,7 +1290,7 @@
 .moduleRoot .heroPreview,
 .moduleRoot .heroFileInput {
   border-color: var(--banner-border);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--banner-surface);
 }
 
 .moduleRoot .heroPreviewEmpty,
@@ -1281,23 +1312,23 @@
 }
 
 .moduleRoot .primaryButton {
-  border-color: rgba(229, 194, 116, 0.6);
-  background: linear-gradient(180deg, #e5c274, #b89450);
-  color: #17120b;
+  border-color: rgba(138, 107, 61, 0.18);
+  background: #9a793f;
+  color: #fff;
 }
 
 .moduleRoot .dangerButton {
   border-color: rgba(201, 91, 91, 0.24);
   background: rgba(201, 91, 91, 0.08);
-  color: #e89a9a;
+  color: #8f3f3f;
 }
 
 .moduleRoot .success {
-  color: #78d19c;
+  color: #2f6b4f;
 }
 
 .moduleRoot .error {
-  color: #e89a9a;
+  color: #8f3f3f;
 }
 
 .moduleRoot .dialogBackdrop {

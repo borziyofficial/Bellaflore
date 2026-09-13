@@ -3,18 +3,39 @@
   isolation: isolate;
   display: grid;
   width: 100%;
-  min-height: min(90svh, 820px);
+  min-height: min(92svh, 860px);
   overflow: hidden;
-  padding: 136px 24px 86px;
-  border-radius: 0 0 34px 34px;
-  background: linear-gradient(180deg, #fffdf9 0%, var(--color-background, #f7f5f1) 100%);
+  padding: 128px 24px 84px;
+  border-radius: 0 0 28px 28px;
+  background:
+    linear-gradient(90deg, rgba(255, 253, 249, 0.96) 0%, rgba(255, 253, 249, 0.8) 46%, rgba(255, 253, 249, 0.28) 72%),
+    linear-gradient(180deg, #fffdf9 0%, var(--color-background, #f7f5f1) 100%);
   color: var(--color-text-primary, #1e1b18);
   text-align: left;
 }
 
-.hero::before,
+.hero::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255, 253, 249, 0.64), rgba(255, 253, 249, 0.2) 52%, rgba(255, 253, 249, 0.06)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.04) 52%, rgba(247, 245, 241, 0.26));
+  -webkit-backdrop-filter: blur(1.5px) saturate(1.04);
+  backdrop-filter: blur(1.5px) saturate(1.04);
+  content: "";
+}
+
 .hero::after {
-  content: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(112deg, transparent 0 53%, rgba(255, 255, 255, 0.34) 53.3%, transparent 58%),
+    linear-gradient(104deg, transparent 0 64%, rgba(255, 255, 255, 0.18) 64.2%, transparent 68%);
+  content: "";
 }
 
 .ambientGlow {
@@ -22,11 +43,13 @@
 }
 
 .shell {
+  position: relative;
+  z-index: 3;
   display: grid;
-  grid-template-columns: minmax(360px, 0.84fr) minmax(430px, 0.9fr);
+  grid-template-columns: minmax(350px, 0.72fr) minmax(520px, 1fr);
   align-items: center;
-  gap: 62px;
-  width: min(100%, 1220px);
+  gap: clamp(18px, 3vw, 44px);
+  width: min(100%, 1320px);
   margin: 0 auto;
 }
 
@@ -51,13 +74,17 @@
 
 .photo {
   position: relative;
-  width: 100%;
-  min-height: 560px;
-  aspect-ratio: 0.86;
-  border-radius: 12px;
+  z-index: 0;
+  justify-self: end;
+  width: min(100%, 780px);
+  min-height: 610px;
+  aspect-ratio: 0.92;
+  margin-right: clamp(-96px, -5vw, -24px);
+  border-radius: 30px 0 0 30px;
   overflow: hidden;
-  background: var(--color-surface-secondary, #f1ede6);
-  box-shadow: 0 26px 70px rgba(54, 45, 35, 0.16);
+  background: transparent;
+  box-shadow: none;
+  transform: translateZ(0);
 }
 
 .photo::after {
@@ -66,8 +93,8 @@
   z-index: 2;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(30, 27, 24, 0.02), rgba(30, 27, 24, 0.12)),
-    linear-gradient(90deg, rgba(255, 253, 249, 0.18), transparent 42%);
+    linear-gradient(90deg, rgba(255, 253, 249, 0.34), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(30, 27, 24, 0.1));
   content: "";
 }
 
@@ -85,33 +112,6 @@
 .photoImagePrevious {
   z-index: 2;
   animation: heroPhotoFadeOut 1100ms ease forwards;
-}
-
-.photoCue {
-  position: absolute;
-  right: 22px;
-  bottom: 20px;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 8px;
-  border-radius: 999px;
-  background: rgba(255, 253, 249, 0.62);
-  backdrop-filter: blur(12px);
-}
-
-.photoCue span {
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(30, 27, 24, 0.24);
-  transition: width 220ms ease, background 220ms ease;
-}
-
-.photoCueActive {
-  width: 18px !important;
-  background: var(--color-gold-hover, #b58d37) !important;
 }
 
 @keyframes heroPhotoFadeOut {
@@ -278,8 +278,8 @@
 @media (max-width: 960px) {
   .hero {
     min-height: auto;
-    padding: 116px 20px 58px;
-    border-radius: 0 0 28px 28px;
+    padding: 108px 20px 58px;
+    border-radius: 0 0 24px 24px;
   }
 
   .shell {
@@ -290,9 +290,11 @@
   .photo {
     order: -1;
     width: min(100%, 680px);
-    min-height: 430px;
-    aspect-ratio: 16 / 11;
+    min-height: 460px;
+    aspect-ratio: 16 / 12;
     max-width: none;
+    margin-right: auto;
+    border-radius: 24px;
     margin: 0 auto;
   }
 
@@ -374,13 +376,12 @@
   }
 
   .photo {
-    min-height: 320px;
-    aspect-ratio: 4 / 3;
-  }
-
-  .photoCue {
-    right: 14px;
-    bottom: 14px;
+    width: calc(100% + 32px);
+    min-height: 380px;
+    aspect-ratio: 1 / 1.05;
+    margin-right: -16px;
+    margin-left: -16px;
+    border-radius: 0 0 22px 22px;
   }
 
   .trustList li {
@@ -405,8 +406,11 @@
 @media (prefers-reduced-motion: reduce) {
   .primaryAction,
   .secondaryAction,
-  .photoImage,
-  .photoCue span {
+  .photoImage {
     transition: none;
+  }
+
+  .photoImagePrevious {
+    animation: none;
   }
 }

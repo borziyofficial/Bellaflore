@@ -36,6 +36,7 @@ type FavoritesPanelProps = {
   favoriteBouquets: FavoriteBouquet[];
   formatPrice: (priceRub: number) => string;
   onCloseFavoritesPanel: () => void;
+  onOpenCatalog: () => void;
   handleFavoriteRemoveClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
@@ -235,6 +236,7 @@ export function FavoritesPanel({
   favoriteBouquets,
   formatPrice,
   onCloseFavoritesPanel,
+  onOpenCatalog,
   handleFavoriteRemoveClick,
   handleFavoriteBuyClick,
 }: FavoritesPanelProps) {
@@ -299,8 +301,14 @@ export function FavoritesPanel({
         {favoriteBouquets.length === 0 ? (
           <div className={styles.empty} role="status">
             <BrandLogo variant="compact" className={styles.emptyMark} />
-            <p className={styles.emptyTitle}>Избранное пока пусто</p>
-            <p className={styles.emptyCopy}>Сохранённые букеты появятся здесь.</p>
+            <p className={styles.emptyTitle}>Избранное пусто</p>
+            <button
+              type="button"
+              className={styles.emptyAction}
+              onClick={onOpenCatalog}
+            >
+              Перейти в каталог
+            </button>
           </div>
         ) : (
           <div className={styles.grid}>
