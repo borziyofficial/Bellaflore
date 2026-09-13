@@ -8,8 +8,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AdminPanel } from "@/components/adminApp/shared/AdminModuleUi";
 import styles from "@/components/adminApp/modules/smartBanner/AdminSmartBannerModule.module.css";
 
+export type AdminHeroBannerPhoto = {
+  id: string;
+  imageUrl: string;
+  isEnabled: boolean;
+  isPrimary: boolean;
+  sortOrder: number;
+};
+
 export type AdminHeroBannerSettings = {
   imageUrl: string;
+  photos: AdminHeroBannerPhoto[];
   title: string;
   subtitle: string;
   buttonText: string;
@@ -20,6 +29,7 @@ export type AdminHeroBannerSettings = {
 
 const EMPTY_HERO_SETTINGS: AdminHeroBannerSettings = {
   imageUrl: "",
+  photos: [],
   title: "",
   subtitle: "",
   buttonText: "",
@@ -34,15 +44,97 @@ type HeroBannerResponse = {
   message?: string;
 };
 
+function createPhotoId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `hero-photo-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function createHeroPhoto(
+  imageUrl: string,
+  sortOrder: number,
+  isPrimary: boolean,
+): AdminHeroBannerPhoto {
+  return {
+    id: createPhotoId(),
+    imageUrl,
+    isEnabled: true,
+    isPrimary,
+    sortOrder,
+  };
+}
+
+function normalizeHeroPhotos(
+  photos: AdminHeroBannerPhoto[] | undefined,
+  legacyImageUrl = "",
+): AdminHeroBannerPhoto[] {
+  const normalized = Array.isArray(photos)
+    ? photos
+        .filter((photo) => photo.imageUrl.trim())
+        .sort((left, right) => left.sortOrder - right.sortOrder)
+        .map((photo, index) => ({
+          id: photo.id || `hero-photo-${index}`,
+          imageUrl: photo.imageUrl.trim(),
+          isEnabled: photo.isEnabled,
+          isPrimary: photo.isPrimary,
+          sortOrder: index,
+        }))
+    : [];
+
+  if (normalized.length === 0 && legacyImageUrl.trim()) {
+    return [
+      {
+        id: "legacy-primary",
+        imageUrl: legacyImageUrl.trim(),
+        isEnabled: true,
+        isPrimary: true,
+        sortOrder: 0,
+      },
+    ];
+  }
+
+  if (normalized.length === 0) {
+    return [];
+  }
+
+  const primaryIndex = normalized.findIndex((photo) => photo.isPrimary);
+  return normalized.map((photo, index) => ({
+    ...photo,
+    isPrimary: index === (primaryIndex >= 0 ? primaryIndex : 0),
+  }));
+}
+
 function normalizeHeroDraft(settings: AdminHeroBannerSettings): AdminHeroBannerSettings {
+  const photos = normalizeHeroPhotos(settings.photos, settings.imageUrl);
+  const primaryPhoto =
+    photos.find((photo) => photo.isPrimary) ??
+    photos.find((photo) => photo.isEnabled) ??
+    photos[0];
+
   return {
     ...settings,
-    imageUrl: settings.imageUrl.trim(),
+    imageUrl: primaryPhoto?.imageUrl ?? settings.imageUrl.trim(),
+    photos,
     title: settings.title.trim(),
     subtitle: settings.subtitle.trim(),
     buttonText: settings.buttonText.trim(),
     buttonLink: settings.buttonLink.trim(),
   };
+}
+
+function serializeHeroSettings(settings: AdminHeroBannerSettings): string {
+  const normalized = normalizeHeroDraft(settings);
+  return JSON.stringify({
+    imageUrl: normalized.imageUrl,
+    photos: normalized.photos,
+    title: normalized.title,
+    subtitle: normalized.subtitle,
+    buttonText: normalized.buttonText,
+    buttonLink: normalized.buttonLink,
+    isEnabled: normalized.isEnabled,
+  });
 }
 
 function formatUpdatedAt(updatedAt: string): string {
@@ -59,34 +151,36 @@ function formatUpdatedAt(updatedAt: string): string {
   });
 }
 
+function getImageFileName(imageUrl: string): string {
+  try {
+    return decodeURIComponent(
+      new URL(imageUrl, "https://bellaflore.ru").pathname.split("/").pop() || "Фото",
+    );
+  } catch {
+    return "Фото";
+  }
+}
+
 export function AdminHeroBannerPanel({
   initialSettings,
 }: {
   initialSettings?: AdminHeroBannerSettings | null;
 }) {
-  const [settings, setSettings] = useState<AdminHeroBannerSettings>(
-    initialSettings ?? EMPTY_HERO_SETTINGS,
-  );
-  const [draft, setDraft] = useState<AdminHeroBannerSettings>(
-    initialSettings ?? EMPTY_HERO_SETTINGS,
-  );
+  const initialHeroSettings = initialSettings
+    ? normalizeHeroDraft(initialSettings)
+    : EMPTY_HERO_SETTINGS;
+  const [settings, setSettings] = useState<AdminHeroBannerSettings>(initialHeroSettings);
+  const [draft, setDraft] = useState<AdminHeroBannerSettings>(initialHeroSettings);
   const [ready, setReady] = useState(Boolean(initialSettings));
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [notice, setNotice] = useState<{ tone: "success" | "error"; text: string } | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
-
-  const filePreviewUrl = useMemo(
-    () => (imageFile ? URL.createObjectURL(imageFile) : null),
-    [imageFile],
+  const [selectedPhotoId, setSelectedPhotoId] = useState(
+    initialHeroSettings.photos.find((photo) => photo.isPrimary)?.id ??
+      initialHeroSettings.photos[0]?.id ??
+      "",
   );
-  useEffect(() => {
-    return () => {
-      if (filePreviewUrl) {
-        URL.revokeObjectURL(filePreviewUrl);
-      }
-    };
-  }, [filePreviewUrl]);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (initialSettings) {
@@ -105,7 +199,7 @@ export function AdminHeroBannerPanel({
         if (!response.ok) {
           throw new Error(body.message || "Не удалось загрузить Hero.");
         }
-        return body.settings ?? EMPTY_HERO_SETTINGS;
+        return normalizeHeroDraft(body.settings ?? EMPTY_HERO_SETTINGS);
       })
       .then((loadedSettings) => {
         if (!active) {
@@ -113,6 +207,11 @@ export function AdminHeroBannerPanel({
         }
         setSettings(loadedSettings);
         setDraft(loadedSettings);
+        setSelectedPhotoId(
+          loadedSettings.photos.find((photo) => photo.isPrimary)?.id ??
+            loadedSettings.photos[0]?.id ??
+            "",
+        );
       })
       .catch((error) => {
         if (active) {
@@ -135,24 +234,29 @@ export function AdminHeroBannerPanel({
   }, [initialSettings]);
 
   const normalizedDraft = normalizeHeroDraft(draft);
-  const hasUnsavedChanges =
-    Boolean(imageFile) ||
-    normalizedDraft.imageUrl !== settings.imageUrl ||
-    normalizedDraft.title !== settings.title ||
-    normalizedDraft.subtitle !== settings.subtitle ||
-    normalizedDraft.buttonText !== settings.buttonText ||
-    normalizedDraft.buttonLink !== settings.buttonLink ||
-    normalizedDraft.isEnabled !== settings.isEnabled;
-  const previewUrl = filePreviewUrl ?? normalizedDraft.imageUrl;
+  const selectedPhoto = useMemo(
+    () =>
+      normalizedDraft.photos.find((photo) => photo.id === selectedPhotoId) ??
+      normalizedDraft.photos.find((photo) => photo.isPrimary) ??
+      normalizedDraft.photos[0],
+    [normalizedDraft.photos, selectedPhotoId],
+  );
+  const activePhotoCount = normalizedDraft.photos.filter((photo) => photo.isEnabled).length;
+  const hasUnsavedChanges = serializeHeroSettings(normalizedDraft) !== serializeHeroSettings(settings);
 
-  const saveHero = async () => {
-    setSaving(true);
+  const uploadHeroPhotos = async (files: FileList | null) => {
+    const selectedFiles = Array.from(files ?? []);
+    if (selectedFiles.length === 0) {
+      return;
+    }
+
+    setUploading(true);
     setNotice(null);
     try {
-      let nextImageUrl = normalizedDraft.imageUrl;
-      if (imageFile) {
+      const uploadedPhotos: AdminHeroBannerPhoto[] = [];
+      for (const file of selectedFiles) {
         const imageForm = new FormData();
-        imageForm.append("image", imageFile);
+        imageForm.append("image", file);
         const imageResponse = await fetch("/api/admin/hero-banner/image", {
           method: "POST",
           credentials: "include",
@@ -160,23 +264,120 @@ export function AdminHeroBannerPanel({
         });
         const imageBody = (await imageResponse.json()) as HeroBannerResponse;
         if (!imageResponse.ok || !imageBody.imageUrl) {
-          throw new Error(imageBody.message || "Не удалось загрузить изображение Hero.");
+          throw new Error(imageBody.message || `Не удалось загрузить ${file.name}.`);
         }
-        nextImageUrl = imageBody.imageUrl;
+
+        uploadedPhotos.push(
+          createHeroPhoto(
+            imageBody.imageUrl,
+            normalizedDraft.photos.length + uploadedPhotos.length,
+            normalizedDraft.photos.length === 0 && uploadedPhotos.length === 0,
+          ),
+        );
       }
 
+      setDraft((current) =>
+        normalizeHeroDraft({
+          ...current,
+          photos: [...normalizeHeroDraft(current).photos, ...uploadedPhotos],
+        }),
+      );
+      setSelectedPhotoId(uploadedPhotos[0]?.id ?? selectedPhotoId);
+      setNotice({
+        tone: "success",
+        text:
+          selectedFiles.length === 1
+            ? `${selectedFiles[0].name} загружен. Сохраните Hero, чтобы опубликовать изменение.`
+            : `Загружено фото: ${selectedFiles.length}. Сохраните Hero, чтобы опубликовать изменения.`,
+      });
+    } catch (error) {
+      setNotice({
+        tone: "error",
+        text: error instanceof Error ? error.message : "Не удалось загрузить фото Hero.",
+      });
+    } finally {
+      setUploading(false);
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
+    }
+  };
+
+  const updatePhoto = (photoId: string, patch: Partial<AdminHeroBannerPhoto>) => {
+    setDraft((current) =>
+      normalizeHeroDraft({
+        ...current,
+        photos: normalizeHeroDraft(current).photos.map((photo) =>
+          photo.id === photoId ? { ...photo, ...patch } : photo,
+        ),
+      }),
+    );
+  };
+
+  const removePhoto = (photoId: string) => {
+    setDraft((current) => {
+      const nextPhotos = normalizeHeroDraft(current).photos.filter((photo) => photo.id !== photoId);
+      const normalized = normalizeHeroDraft({ ...current, photos: nextPhotos, imageUrl: "" });
+      setSelectedPhotoId(
+        normalized.photos.find((photo) => photo.isPrimary)?.id ?? normalized.photos[0]?.id ?? "",
+      );
+      return normalized;
+    });
+  };
+
+  const movePhoto = (photoId: string, direction: -1 | 1) => {
+    setDraft((current) => {
+      const photos = normalizeHeroDraft(current).photos;
+      const index = photos.findIndex((photo) => photo.id === photoId);
+      const targetIndex = index + direction;
+      if (index < 0 || targetIndex < 0 || targetIndex >= photos.length) {
+        return current;
+      }
+
+      const nextPhotos = [...photos];
+      const [photo] = nextPhotos.splice(index, 1);
+      nextPhotos.splice(targetIndex, 0, photo);
+      return normalizeHeroDraft({
+        ...current,
+        photos: nextPhotos.map((nextPhoto, nextIndex) => ({
+          ...nextPhoto,
+          sortOrder: nextIndex,
+        })),
+      });
+    });
+  };
+
+  const markPrimary = (photoId: string) => {
+    setDraft((current) =>
+      normalizeHeroDraft({
+        ...current,
+        photos: normalizeHeroDraft(current).photos.map((photo) => ({
+          ...photo,
+          isPrimary: photo.id === photoId,
+        })),
+      }),
+    );
+    setSelectedPhotoId(photoId);
+  };
+
+  const saveHero = async () => {
+    setSaving(true);
+    setNotice(null);
+    try {
+      const nextDraft = normalizeHeroDraft(draft);
       const response = await fetch("/api/admin/hero-banner", {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           settings: {
-            imageUrl: nextImageUrl,
-            title: normalizedDraft.title,
-            subtitle: normalizedDraft.subtitle,
-            buttonText: normalizedDraft.buttonText,
-            buttonLink: normalizedDraft.buttonLink,
-            isEnabled: normalizedDraft.isEnabled,
+            imageUrl: nextDraft.imageUrl,
+            photos: nextDraft.photos,
+            title: nextDraft.title,
+            subtitle: nextDraft.subtitle,
+            buttonText: nextDraft.buttonText,
+            buttonLink: nextDraft.buttonLink,
+            isEnabled: nextDraft.isEnabled,
           },
         }),
       });
@@ -185,12 +386,14 @@ export function AdminHeroBannerPanel({
         throw new Error(body.message || "Не удалось сохранить Hero.");
       }
 
-      setSettings(body.settings);
-      setDraft(body.settings);
-      setImageFile(null);
-      if (imageInputRef.current) {
-        imageInputRef.current.value = "";
-      }
+      const savedSettings = normalizeHeroDraft(body.settings);
+      setSettings(savedSettings);
+      setDraft(savedSettings);
+      setSelectedPhotoId(
+        savedSettings.photos.find((photo) => photo.isPrimary)?.id ??
+          savedSettings.photos[0]?.id ??
+          "",
+      );
       setNotice({ tone: "success", text: "Hero сохранён и подключён к витрине." });
     } catch (error) {
       setNotice({
@@ -217,7 +420,7 @@ export function AdminHeroBannerPanel({
                   <strong>Публичный показ Hero</strong>
                   <span>
                     {draft.isEnabled
-                      ? "Hero берёт изображение и текст из этой настройки."
+                      ? `Hero использует ${activePhotoCount} активн. фото и этот текст.`
                       : "Hero использует резервное содержимое витрины."}
                   </span>
                 </div>
@@ -294,40 +497,121 @@ export function AdminHeroBannerPanel({
                   placeholder="/catalog"
                 />
               </label>
+
+              <div className={styles.heroPhotoManager}>
+                <div className={styles.heroPhotoToolbar}>
+                  <div>
+                    <strong>Фотографии Hero</strong>
+                    <span>
+                      {normalizedDraft.photos.length} всего · {activePhotoCount} активны
+                    </span>
+                  </div>
+                  <label className={styles.uploadButton}>
+                    {uploading ? "Загрузка…" : "Загрузить фото"}
+                    <input
+                      ref={imageInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      disabled={uploading}
+                      onChange={(event) => void uploadHeroPhotos(event.target.files)}
+                    />
+                  </label>
+                </div>
+
+                {normalizedDraft.photos.length === 0 ? (
+                  <p className={styles.heroPhotoEmpty}>Добавьте одно или несколько фото для Hero.</p>
+                ) : (
+                  <ul className={styles.heroPhotoList}>
+                    {normalizedDraft.photos.map((photo, index) => (
+                      <li
+                        key={photo.id}
+                        className={`${styles.heroPhotoRow} ${
+                          selectedPhoto?.id === photo.id ? styles.heroPhotoRowSelected : ""
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          className={styles.heroPhotoThumb}
+                          onClick={() => setSelectedPhotoId(photo.id)}
+                          aria-label={`Предпросмотр фото ${index + 1}`}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={photo.imageUrl} alt="" />
+                        </button>
+                        <div className={styles.heroPhotoInfo}>
+                          <strong>{photo.isPrimary ? "Основное фото" : `Фото ${index + 1}`}</strong>
+                          <span>{getImageFileName(photo.imageUrl)}</span>
+                        </div>
+                        <div className={styles.heroPhotoActions}>
+                          <label
+                            className={`${styles.switch} ${photo.isEnabled ? styles.switchOn : ""}`}
+                            aria-label={photo.isEnabled ? "Отключить фото" : "Включить фото"}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={photo.isEnabled}
+                              onChange={(event) =>
+                                updatePhoto(photo.id, { isEnabled: event.target.checked })
+                              }
+                            />
+                            <span />
+                          </label>
+                          <button
+                            type="button"
+                            className={styles.iconButton}
+                            disabled={index === 0}
+                            onClick={() => movePhoto(photo.id, -1)}
+                            aria-label="Переместить выше"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.iconButton}
+                            disabled={index === normalizedDraft.photos.length - 1}
+                            onClick={() => movePhoto(photo.id, 1)}
+                            aria-label="Переместить ниже"
+                          >
+                            ↓
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.secondaryButton}
+                            disabled={photo.isPrimary}
+                            onClick={() => markPrimary(photo.id)}
+                          >
+                            По умолчанию
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.secondaryButton}
+                            onClick={() => removePhoto(photo.id)}
+                          >
+                            Удалить
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
 
             <div className={styles.heroPreviewCard}>
               <div className={styles.heroPreview}>
-                {previewUrl ? (
+                {selectedPhoto ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={previewUrl} alt="Предпросмотр Hero" />
+                  <img src={selectedPhoto.imageUrl} alt="Предпросмотр Hero" />
                 ) : (
                   <span className={styles.heroPreviewEmpty}>Нет изображения</span>
                 )}
               </div>
 
-              <input
-                ref={imageInputRef}
-                className={styles.heroFileInput}
-                type="file"
-                accept="image/*"
-                onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
-              />
-              {imageFile ? (
+              {selectedPhoto ? (
                 <p className={styles.fileMeta}>
-                  <span>{imageFile.name}</span>
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={() => {
-                      setImageFile(null);
-                      if (imageInputRef.current) {
-                        imageInputRef.current.value = "";
-                      }
-                    }}
-                  >
-                    Убрать
-                  </button>
+                  <span>{getImageFileName(selectedPhoto.imageUrl)}</span>
+                  <span>{selectedPhoto.isEnabled ? "В ротации" : "Отключено"}</span>
                 </p>
               ) : null}
               <p className={styles.heroUpdatedAt}>
@@ -340,7 +624,7 @@ export function AdminHeroBannerPanel({
             <button
               type="button"
               className={styles.primaryButton}
-              disabled={saving || !hasUnsavedChanges}
+              disabled={saving || uploading || !hasUnsavedChanges}
               onClick={() => void saveHero()}
             >
               {saving ? "Сохранение…" : "Сохранить Hero"}
@@ -348,6 +632,7 @@ export function AdminHeroBannerPanel({
             {hasUnsavedChanges ? (
               <span className={styles.unsavedHint}>Есть несохранённые изменения</span>
             ) : null}
+            {uploading ? <span className={styles.unsavedHint}>Фото загружаются</span> : null}
           </div>
         </>
       )}

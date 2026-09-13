@@ -48,6 +48,7 @@ export async function PUT(request: Request) {
     if (typeof body.settings.buttonText === "string") patch.buttonText = body.settings.buttonText.trim();
     if (typeof body.settings.buttonLink === "string") patch.buttonLink = body.settings.buttonLink.trim();
     if (typeof body.settings.imageUrl === "string") patch.imageUrl = body.settings.imageUrl.trim();
+    if (Array.isArray(body.settings.photos)) patch.photos = body.settings.photos;
     if (typeof body.settings.isEnabled === "boolean") patch.isEnabled = body.settings.isEnabled;
 
     const settings = await updateHeroBannerSettings(patch);

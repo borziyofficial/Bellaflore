@@ -8,11 +8,20 @@ import { useEffect, useState } from "react";
 
 export type HeroBannerSettings = {
   imageUrl: string;
+  photos?: HeroBannerPhoto[];
   title: string;
   subtitle: string;
   buttonText: string;
   buttonLink: string;
   isEnabled: boolean;
+};
+
+export type HeroBannerPhoto = {
+  id: string;
+  imageUrl: string;
+  isEnabled: boolean;
+  isPrimary: boolean;
+  sortOrder: number;
 };
 
 export function useHeroBannerSettings(): HeroBannerSettings | null {

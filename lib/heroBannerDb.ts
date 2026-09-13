@@ -9,6 +9,7 @@ import { getDatabaseUrl } from "@/lib/catalogDb/config";
 
 export type HeroBannerSettings = {
   imageUrl: string;
+  photos: HeroBannerPhoto[];
   title: string;
   subtitle: string;
   buttonText: string;
@@ -17,8 +18,17 @@ export type HeroBannerSettings = {
   updatedAt: string;
 };
 
+export type HeroBannerPhoto = {
+  id: string;
+  imageUrl: string;
+  isEnabled: boolean;
+  isPrimary: boolean;
+  sortOrder: number;
+};
+
 const DEFAULT_SETTINGS: HeroBannerSettings = {
   imageUrl: "",
+  photos: [],
   title: "",
   subtitle: "",
   buttonText: "",
@@ -34,6 +44,7 @@ type HeroBannerRow = {
   button_text: string;
   button_link: string;
   is_enabled: boolean;
+  photos_json?: unknown;
   updated_at: string | Date;
 };
 
@@ -64,6 +75,7 @@ async function ensureSchema(): Promise<void> {
       CREATE TABLE IF NOT EXISTS hero_banner_settings (
         id TEXT PRIMARY KEY DEFAULT 'default',
         image_url TEXT NOT NULL DEFAULT '',
+        photos_json JSONB NOT NULL DEFAULT '[]'::jsonb,
         title TEXT NOT NULL DEFAULT '',
         subtitle TEXT NOT NULL DEFAULT '',
         button_text TEXT NOT NULL DEFAULT '',
@@ -71,28 +83,106 @@ async function ensureSchema(): Promise<void> {
         is_enabled BOOLEAN NOT NULL DEFAULT FALSE,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
-    `.then(() => undefined);
+    `
+      .then(() => sql`
+        ALTER TABLE hero_banner_settings
+        ADD COLUMN IF NOT EXISTS photos_json JSONB NOT NULL DEFAULT '[]'::jsonb
+      `)
+      .then(() => undefined);
   }
   await schemaReady;
 }
 
-function rowToSettings(row: HeroBannerRow): HeroBannerSettings {
+function createLegacyPhoto(imageUrl: string): HeroBannerPhoto {
   return {
+    id: "legacy-primary",
+    imageUrl,
+    isEnabled: true,
+    isPrimary: true,
+    sortOrder: 0,
+  };
+}
+
+function normalizeHeroPhotos(
+  photos: unknown,
+  legacyImageUrl = "",
+): HeroBannerPhoto[] {
+  const normalized = Array.isArray(photos)
+    ? photos
+        .map((photo, index): HeroBannerPhoto | null => {
+          if (!photo || typeof photo !== "object") {
+            return null;
+          }
+
+          const candidate = photo as Partial<HeroBannerPhoto>;
+          const imageUrl = typeof candidate.imageUrl === "string" ? candidate.imageUrl.trim() : "";
+          if (!imageUrl) {
+            return null;
+          }
+
+          return {
+            id:
+              typeof candidate.id === "string" && candidate.id.trim()
+                ? candidate.id.trim()
+                : `hero-photo-${index}`,
+            imageUrl,
+            isEnabled: typeof candidate.isEnabled === "boolean" ? candidate.isEnabled : true,
+            isPrimary: typeof candidate.isPrimary === "boolean" ? candidate.isPrimary : false,
+            sortOrder: Number.isFinite(candidate.sortOrder) ? Number(candidate.sortOrder) : index,
+          };
+        })
+        .filter((photo): photo is HeroBannerPhoto => Boolean(photo))
+        .sort((left, right) => left.sortOrder - right.sortOrder)
+        .map((photo, index) => ({ ...photo, sortOrder: index }))
+    : [];
+
+  if (normalized.length === 0 && legacyImageUrl.trim()) {
+    return [createLegacyPhoto(legacyImageUrl.trim())];
+  }
+
+  if (normalized.length === 0) {
+    return [];
+  }
+
+  const primaryIndex = normalized.findIndex((photo) => photo.isPrimary);
+  return normalized.map((photo, index) => ({
+    ...photo,
+    isPrimary: index === (primaryIndex >= 0 ? primaryIndex : 0),
+  }));
+}
+
+function normalizeSettings(settings: HeroBannerSettings): HeroBannerSettings {
+  const photos = normalizeHeroPhotos(settings.photos, settings.imageUrl);
+  const primaryPhoto =
+    photos.find((photo) => photo.isPrimary) ??
+    photos.find((photo) => photo.isEnabled) ??
+    photos[0];
+
+  return {
+    ...settings,
+    imageUrl: primaryPhoto?.imageUrl ?? settings.imageUrl.trim(),
+    photos,
+  };
+}
+
+function rowToSettings(row: HeroBannerRow): HeroBannerSettings {
+  return normalizeSettings({
     imageUrl: row.image_url,
+    photos: normalizeHeroPhotos(row.photos_json, row.image_url),
     title: row.title,
     subtitle: row.subtitle,
     buttonText: row.button_text,
     buttonLink: row.button_link,
     isEnabled: row.is_enabled,
     updatedAt: new Date(row.updated_at).toISOString(),
-  };
+  });
 }
 
 async function readFileSettings(): Promise<HeroBannerSettings> {
   try {
     const raw = await readFile(DATA_FILE, "utf8");
     const parsed = JSON.parse(raw) as Partial<HeroBannerSettings>;
-    return { ...DEFAULT_SETTINGS, ...parsed };
+    return normalizeSettings({ ...DEFAULT_SETTINGS, ...parsed });
   } catch {
     await mkdir(DATA_DIR, { recursive: true });
     await writeFile(DATA_FILE, JSON.stringify(DEFAULT_SETTINGS, null, 2), "utf8");
@@ -102,7 +192,7 @@ async function readFileSettings(): Promise<HeroBannerSettings> {
 
 async function writeFileSettings(settings: HeroBannerSettings): Promise<void> {
   await mkdir(DATA_DIR, { recursive: true });
-  await writeFile(DATA_FILE, JSON.stringify(settings, null, 2), "utf8");
+  await writeFile(DATA_FILE, JSON.stringify(normalizeSettings(settings), null, 2), "utf8");
 }
 
 export async function getHeroBannerSettings(): Promise<HeroBannerSettings> {
@@ -126,11 +216,11 @@ export async function updateHeroBannerSettings(
   patch: HeroBannerUpdateInput,
 ): Promise<HeroBannerSettings> {
   const current = await getHeroBannerSettings();
-  const next: HeroBannerSettings = {
+  const next = normalizeSettings({
     ...current,
     ...patch,
     updatedAt: new Date().toISOString(),
-  };
+  });
 
   const sql = getSqlClient();
   if (!sql) {
@@ -140,10 +230,11 @@ export async function updateHeroBannerSettings(
 
   await ensureSchema();
   const rows = await sql<HeroBannerRow[]>`
-    INSERT INTO hero_banner_settings (id, image_url, title, subtitle, button_text, button_link, is_enabled, updated_at)
-    VALUES ('default', ${next.imageUrl}, ${next.title}, ${next.subtitle}, ${next.buttonText}, ${next.buttonLink}, ${next.isEnabled}, ${next.updatedAt})
+    INSERT INTO hero_banner_settings (id, image_url, photos_json, title, subtitle, button_text, button_link, is_enabled, updated_at)
+    VALUES ('default', ${next.imageUrl}, ${sql.json(next.photos)}, ${next.title}, ${next.subtitle}, ${next.buttonText}, ${next.buttonLink}, ${next.isEnabled}, ${next.updatedAt})
     ON CONFLICT (id) DO UPDATE SET
       image_url = EXCLUDED.image_url,
+      photos_json = EXCLUDED.photos_json,
       title = EXCLUDED.title,
       subtitle = EXCLUDED.subtitle,
       button_text = EXCLUDED.button_text,

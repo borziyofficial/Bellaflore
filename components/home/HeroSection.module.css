@@ -3,13 +3,11 @@
   isolation: isolate;
   display: grid;
   width: 100%;
-  min-height: min(88svh, 780px);
+  min-height: min(90svh, 820px);
   overflow: hidden;
-  padding: clamp(112px, 12vw, 156px) 24px 72px;
-  border-radius: 0 0 44px 44px;
-  background:
-    radial-gradient(circle at 18% 18%, rgba(201, 162, 75, 0.1), transparent 32%),
-    var(--color-background, #f7f5f1);
+  padding: 136px 24px 86px;
+  border-radius: 0 0 34px 34px;
+  background: linear-gradient(180deg, #fffdf9 0%, var(--color-background, #f7f5f1) 100%);
   color: var(--color-text-primary, #1e1b18);
   text-align: left;
 }
@@ -20,24 +18,15 @@
 }
 
 .ambientGlow {
-  position: absolute;
-  z-index: -1;
-  right: -12%;
-  bottom: -28%;
-  width: min(72vw, 980px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: rgba(201, 162, 75, 0.14);
-  filter: blur(110px);
-  pointer-events: none;
+  display: none;
 }
 
 .shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  grid-template-columns: minmax(360px, 0.84fr) minmax(430px, 0.9fr);
   align-items: center;
-  gap: clamp(32px, 5vw, 64px);
-  width: min(100%, 1180px);
+  gap: 62px;
+  width: min(100%, 1220px);
   margin: 0 auto;
 }
 
@@ -63,15 +52,76 @@
 .photo {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
-  border-radius: 28px;
+  min-height: 560px;
+  aspect-ratio: 0.86;
+  border-radius: 12px;
   overflow: hidden;
   background: var(--color-surface-secondary, #f1ede6);
-  box-shadow: 0 24px 60px rgba(54, 45, 35, 0.14);
+  box-shadow: 0 26px 70px rgba(54, 45, 35, 0.16);
 }
 
-.photo img {
+.photo::after {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(30, 27, 24, 0.02), rgba(30, 27, 24, 0.12)),
+    linear-gradient(90deg, rgba(255, 253, 249, 0.18), transparent 42%);
+  content: "";
+}
+
+.photoImage {
   object-fit: cover;
+  object-position: 50% 48%;
+}
+
+.photoImageCurrent {
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 900ms ease;
+}
+
+.photoImagePrevious {
+  z-index: 2;
+  animation: heroPhotoFadeOut 1100ms ease forwards;
+}
+
+.photoCue {
+  position: absolute;
+  right: 22px;
+  bottom: 20px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px;
+  border-radius: 999px;
+  background: rgba(255, 253, 249, 0.62);
+  backdrop-filter: blur(12px);
+}
+
+.photoCue span {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(30, 27, 24, 0.24);
+  transition: width 220ms ease, background 220ms ease;
+}
+
+.photoCueActive {
+  width: 18px !important;
+  background: var(--color-gold-hover, #b58d37) !important;
+}
+
+@keyframes heroPhotoFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 .eyebrow {
@@ -82,7 +132,7 @@
   color: var(--color-gold-hover, #b58d37);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0;
   line-height: 1.3;
   text-transform: uppercase;
 }
@@ -98,9 +148,9 @@
   margin: 0;
   color: var(--color-text-primary, #1e1b18);
   font-family: var(--font-playfair), "Times New Roman", serif;
-  font-size: clamp(44px, 5.2vw, 80px);
+  font-size: 76px;
   font-weight: 600;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
   line-height: 1.02;
   text-wrap: balance;
 }
@@ -109,9 +159,9 @@
   max-width: 590px;
   margin: 30px 0 0;
   color: var(--color-text-secondary, #746f68);
-  font-size: clamp(17px, 1.5vw, 21px);
+  font-size: 20px;
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   line-height: 1.58;
 }
 
@@ -133,7 +183,7 @@
   font-family: var(--font-inter), Arial, sans-serif;
   font-size: 14px;
   font-weight: 750;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
@@ -220,7 +270,7 @@
   color: var(--color-text-secondary, #746f68);
   font-size: 11px;
   font-weight: 650;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   line-height: 1.4;
   text-transform: uppercase;
 }
@@ -228,8 +278,8 @@
 @media (max-width: 960px) {
   .hero {
     min-height: auto;
-    padding: 122px 20px 56px;
-    border-radius: 0 0 32px 32px;
+    padding: 116px 20px 58px;
+    border-radius: 0 0 28px 28px;
   }
 
   .shell {
@@ -239,8 +289,10 @@
 
   .photo {
     order: -1;
+    width: min(100%, 680px);
+    min-height: 430px;
     aspect-ratio: 16 / 11;
-    max-width: 520px;
+    max-width: none;
     margin: 0 auto;
   }
 
@@ -251,10 +303,12 @@
 
   .title {
     max-width: 760px;
+    font-size: 58px;
   }
 
   .subtitle {
     max-width: 620px;
+    font-size: 18px;
   }
 
   .trustList {
@@ -276,7 +330,7 @@
     gap: 9px;
     margin-bottom: 20px;
     font-size: 10px;
-    letter-spacing: 0.14em;
+    letter-spacing: 0;
   }
 
   .eyebrow > span {
@@ -285,9 +339,9 @@
 
   .title {
     max-width: 390px;
-    font-size: clamp(44px, 12.6vw, 60px);
-    letter-spacing: -0.045em;
-    line-height: 0.98;
+    font-size: 44px;
+    letter-spacing: 0;
+    line-height: 1.04;
   }
 
   .subtitle {
@@ -319,6 +373,16 @@
     padding-top: 20px;
   }
 
+  .photo {
+    min-height: 320px;
+    aspect-ratio: 4 / 3;
+  }
+
+  .photoCue {
+    right: 14px;
+    bottom: 14px;
+  }
+
   .trustList li {
     padding-right: 10px;
   }
@@ -333,14 +397,16 @@
 
   .trustList span {
     font-size: 8px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0;
   }
 
 }
 
 @media (prefers-reduced-motion: reduce) {
   .primaryAction,
-  .secondaryAction {
+  .secondaryAction,
+  .photoImage,
+  .photoCue span {
     transition: none;
   }
 }

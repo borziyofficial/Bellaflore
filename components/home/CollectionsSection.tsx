@@ -6,6 +6,7 @@
 
 import {
   filterHomeCatalogProducts,
+  matchesHomeCatalogCategory,
   type HomeCatalogSortMode,
 } from "@/components/catalog/filterHomeCatalogProducts";
 import {
@@ -15,6 +16,7 @@ import {
 } from "@/components/catalog/homeCatalogConfig";
 import { useStorefrontCustomCategories } from "@/components/catalog/useStorefrontCustomCategories";
 import { LuxuryCatalogProductCard } from "@/components/catalog/LuxuryCatalogProductCard";
+import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
 import styles from "@/components/home/CollectionsSection.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
@@ -177,6 +179,36 @@ export function CollectionsSection({
       sortMode,
     ],
   );
+  const collectionHighlights = useMemo(
+    () =>
+      categoryChips
+        .filter((chip) => chip.id !== "all")
+        .map((chip) => {
+          const categoryProducts = bouquets.filter((bouquet) =>
+            matchesHomeCatalogCategory(bouquet, chip.id, customCategoryTitleById),
+          );
+          const cover = categoryProducts[0];
+          return cover
+            ? {
+                id: chip.id,
+                label: chip.label,
+                count: categoryProducts.length,
+                image: cover,
+              }
+            : null;
+        })
+        .filter(
+          (
+            highlight,
+          ): highlight is {
+            id: string;
+            label: string;
+            count: number;
+            image: CatalogProduct;
+          } => Boolean(highlight),
+        ),
+    [bouquets, categoryChips, customCategoryTitleById],
+  );
 
   const handleSearchChange = (event: ReactChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -319,6 +351,41 @@ export function CollectionsSection({
           ) : null}
         </div>
       </div>
+
+      {!isSearchMode && collectionHighlights.length > 0 ? (
+        <div className={`${styles.collectionRail} bf-reveal bf-reveal-up`}>
+          {collectionHighlights.map((collection) => {
+            const isActive = activeCategoryId === collection.id;
+            return (
+              <button
+                key={collection.id}
+                type="button"
+                className={`${styles.collectionTile} ${
+                  isActive ? styles.collectionTileActive : ""
+                }`}
+                onClick={() => handleCategorySelect(collection.id)}
+                aria-pressed={isActive}
+              >
+                <span className={styles.collectionImage}>
+                  <ProductImageWithFallback
+                    src={collection.image.src}
+                    alt=""
+                    width={collection.image.width}
+                    height={collection.image.height}
+                    sizes="(max-width: 768px) 44vw, 210px"
+                    imageClassName={styles.collectionImg}
+                    fallbackClassName={styles.collectionFallback}
+                  />
+                </span>
+                <span className={styles.collectionCopy}>
+                  <strong>{collection.label}</strong>
+                  <span>{collection.count} вариантов</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
 
       {displayedProducts.length === 0 ? (
         <div

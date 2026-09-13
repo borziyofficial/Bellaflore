@@ -4,9 +4,12 @@
 // ==================================================
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { useHeroBannerSettings } from "@/components/home/useHeroBannerSettings";
+import {
+  useHeroBannerSettings,
+  type HeroBannerPhoto,
+} from "@/components/home/useHeroBannerSettings";
 import styles from "@/components/home/HeroSection.module.css";
 
 type HeroSectionProps = {
@@ -17,6 +20,8 @@ type HeroSectionProps = {
 // while admin-configured banner image loads. SVG data URI prevents caching
 // issues and empty flash. Smooth transition: fallback → admin image.
 const FALLBACK_PHOTO_URL = "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1 1%27%3E%3Crect fill=%27%23F5F3F0%27/%3E%3C/svg%3E";
+const HERO_ROTATION_MS = 6200;
+const HERO_TRANSITION_MS = 1100;
 
 function isCatalogHeroLink(buttonLink: string): boolean {
   const link = buttonLink.trim();
@@ -42,19 +47,64 @@ function isCatalogHeroLink(buttonLink: string): boolean {
   }
 }
 
+function normalizeHeroPhotos(
+  photos: HeroBannerPhoto[] | undefined,
+  imageUrl: string | undefined,
+): HeroBannerPhoto[] {
+  const normalized = Array.isArray(photos)
+    ? photos
+        .filter((photo) => photo.imageUrl.trim() && photo.isEnabled)
+        .sort((left, right) => left.sortOrder - right.sortOrder)
+        .map((photo, index) => ({ ...photo, sortOrder: index }))
+    : [];
+
+  if (normalized.length > 0) {
+    return normalized;
+  }
+
+  const legacyImageUrl = imageUrl?.trim();
+  return legacyImageUrl
+    ? [
+        {
+          id: "legacy-primary",
+          imageUrl: legacyImageUrl,
+          isEnabled: true,
+          isPrimary: true,
+          sortOrder: 0,
+        },
+      ]
+    : [];
+}
+
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const banner = useHeroBannerSettings();
-  // Tracks which requested URL failed to load, if any. Comparing against the
-  // current request (rather than a plain boolean) means a new banner image
-  // automatically gets a fresh attempt with no effect/reset needed.
-  const [failedPhotoUrl, setFailedPhotoUrl] = useState<string | null>(null);
-  const [displayedPhotoUrl, setDisplayedPhotoUrl] = useState(FALLBACK_PHOTO_URL);
+  const [failedPhotoUrls, setFailedPhotoUrls] = useState<string[]>([]);
+  const [currentPhotoState, setCurrentPhotoState] = useState({
+    signature: "",
+    index: 0,
+  });
+  const [previousPhotoUrl, setPreviousPhotoUrl] = useState<string | null>(null);
 
-  const requestedPhotoUrl = banner?.imageUrl?.trim() || "";
-  const targetPhotoUrl =
-    requestedPhotoUrl && requestedPhotoUrl !== failedPhotoUrl
-      ? requestedPhotoUrl
-      : FALLBACK_PHOTO_URL;
+  const activeHeroPhotos = useMemo(() => {
+    const failed = new Set(failedPhotoUrls);
+    return normalizeHeroPhotos(banner?.photos, banner?.imageUrl).filter(
+      (photo) => !failed.has(photo.imageUrl),
+    );
+  }, [banner?.imageUrl, banner?.photos, failedPhotoUrls]);
+  const activePhotoSignature = activeHeroPhotos
+    .map((photo) => `${photo.id}:${photo.imageUrl}:${photo.isPrimary}`)
+    .join("|");
+  const primaryPhotoIndex = Math.max(
+    0,
+    activeHeroPhotos.findIndex((photo) => photo.isPrimary),
+  );
+  const currentPhotoIndex =
+    currentPhotoState.signature === activePhotoSignature &&
+    currentPhotoState.index < activeHeroPhotos.length
+      ? currentPhotoState.index
+      : primaryPhotoIndex;
+  const displayedPhotoUrl =
+    activeHeroPhotos[currentPhotoIndex]?.imageUrl ?? FALLBACK_PHOTO_URL;
   const title = banner?.title?.trim() || "Цветы, которые остаются в памяти";
   const subtitle =
     banner?.subtitle?.trim() ||
@@ -64,36 +114,55 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const subtitleText = subtitle.replace(/\n+/g, " ");
 
   useEffect(() => {
-    if (targetPhotoUrl === displayedPhotoUrl) {
-      return;
-    }
-
-    if (targetPhotoUrl === FALLBACK_PHOTO_URL) {
-      if (!requestedPhotoUrl || displayedPhotoUrl === FALLBACK_PHOTO_URL) {
-        setDisplayedPhotoUrl(FALLBACK_PHOTO_URL);
-      }
+    if (activeHeroPhotos.length < 2) {
       return;
     }
 
     let active = true;
-    const preload = new window.Image();
-    preload.decoding = "async";
-    preload.onload = () => {
-      if (active) {
-        setDisplayedPhotoUrl(targetPhotoUrl);
+    const timer = window.setTimeout(() => {
+      const nextIndex = (currentPhotoIndex + 1) % activeHeroPhotos.length;
+      const nextPhotoUrl = activeHeroPhotos[nextIndex]?.imageUrl;
+      if (!nextPhotoUrl) {
+        return;
       }
-    };
-    preload.onerror = () => {
-      if (active) {
-        setFailedPhotoUrl(targetPhotoUrl);
-      }
-    };
-    preload.src = targetPhotoUrl;
+
+      const preload = new window.Image();
+      preload.decoding = "async";
+      preload.onload = () => {
+        if (!active) {
+          return;
+        }
+        setPreviousPhotoUrl(displayedPhotoUrl);
+        setCurrentPhotoState({ signature: activePhotoSignature, index: nextIndex });
+      };
+      preload.onerror = () => {
+        if (!active) {
+          return;
+        }
+        setFailedPhotoUrls((current) =>
+          current.includes(nextPhotoUrl) ? current : [...current, nextPhotoUrl],
+        );
+      };
+      preload.src = nextPhotoUrl;
+    }, HERO_ROTATION_MS);
 
     return () => {
       active = false;
+      window.clearTimeout(timer);
     };
-  }, [displayedPhotoUrl, requestedPhotoUrl, targetPhotoUrl]);
+  }, [activeHeroPhotos, activePhotoSignature, currentPhotoIndex, displayedPhotoUrl]);
+
+  useEffect(() => {
+    if (!previousPhotoUrl) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setPreviousPhotoUrl(null);
+    }, HERO_TRANSITION_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [previousPhotoUrl]);
 
   // Always render as native button element for catalog (ensures touch works on iOS)
   // Only render as link if explicitly configured to external URL
@@ -145,17 +214,47 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
         </div>
 
         <div className={styles.photo}>
+          {previousPhotoUrl ? (
+            <Image
+              key={`previous:${previousPhotoUrl}`}
+              className={`${styles.photoImage} ${styles.photoImagePrevious}`}
+              src={previousPhotoUrl}
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes="(max-width: 960px) 92vw, 48vw"
+              unoptimized={previousPhotoUrl.startsWith("data:")}
+            />
+          ) : null}
           <Image
+            key={`current:${displayedPhotoUrl}`}
+            className={`${styles.photoImage} ${styles.photoImageCurrent}`}
             src={displayedPhotoUrl}
             alt="Премиальный букет BellaFlore"
             fill
-            sizes="(max-width: 960px) 90vw, 480px"
+            sizes="(max-width: 960px) 92vw, 48vw"
             priority
+            unoptimized={displayedPhotoUrl.startsWith("data:")}
             onError={() => {
-              setFailedPhotoUrl(displayedPhotoUrl);
-              setDisplayedPhotoUrl(FALLBACK_PHOTO_URL);
+              if (displayedPhotoUrl !== FALLBACK_PHOTO_URL) {
+                setFailedPhotoUrls((current) =>
+                  current.includes(displayedPhotoUrl)
+                    ? current
+                    : [...current, displayedPhotoUrl],
+                );
+              }
             }}
           />
+          {activeHeroPhotos.length > 1 ? (
+            <div className={styles.photoCue} aria-hidden="true">
+              {activeHeroPhotos.map((photo, index) => (
+                <span
+                  key={photo.id}
+                  className={index === currentPhotoIndex ? styles.photoCueActive : undefined}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
     </main>

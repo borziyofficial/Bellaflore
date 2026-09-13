@@ -50,8 +50,7 @@ export async function POST(request: Request) {
 
   try {
     const stored = await storeHeroBannerImage(image);
-    const settings = await updateHeroBannerSettings({ imageUrl: stored.imageUrl });
-    return Response.json({ imageUrl: stored.imageUrl, storage: stored.storage, settings });
+    return Response.json({ imageUrl: stored.imageUrl, storage: stored.storage });
   } catch (error) {
     if (error instanceof Error && error.message === "IMAGE_STORAGE_NOT_CONFIGURED") {
       return Response.json({ message: "Хранилище изображений не настроено" }, { status: 503 });
