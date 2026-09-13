@@ -108,13 +108,13 @@ export async function fetchPublishedStorefrontProducts(): Promise<
   const response = await fetch("/api/catalog/products?published=1", {
     cache: "no-store",
   });
-  const body = (await response.json()) as {
+  const body = (await response.json().catch(() => ({}))) as {
     products?: import("@/data/catalogProducts").CatalogProduct[];
     message?: string;
   };
 
   if (!response.ok) {
-    return [];
+    throw new Error(body.message || "Не удалось загрузить каталог.");
   }
 
   return body.products ?? [];

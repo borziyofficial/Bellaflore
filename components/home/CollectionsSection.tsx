@@ -44,6 +44,9 @@ type CollectionsSectionProps = {
   ) => void;
   onProductOpen?: (productId: string) => void;
   catalogFocusNonce?: number;
+  catalogStatus?: "loading" | "ready" | "error";
+  catalogErrorMessage?: string;
+  onCatalogRetry?: () => void;
 };
 
 function normalizeBudgetInput(value: string): string {
@@ -69,6 +72,9 @@ export function CollectionsSection({
   handleBouquetOrderClick,
   onProductOpen,
   catalogFocusNonce = 0,
+  catalogStatus = "ready",
+  catalogErrorMessage = "",
+  onCatalogRetry,
 }: CollectionsSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState("all");
@@ -156,6 +162,8 @@ export function CollectionsSection({
   const activeCatalogMode = isSearchMode ? "search" : activeCategoryId;
   const isAllCategoryMode = activeCatalogMode === "all";
   const catalogViewKey = `${activeCatalogMode}:${normalizedSearchQuery}:${budgetFrom}:${budgetTo}:${sortMode}`;
+  const hasCatalogLoadError = catalogStatus === "error";
+  const isInitialCatalogLoading = catalogStatus === "loading" && bouquets.length === 0;
 
   const displayedProducts = useMemo(
     () =>
@@ -387,7 +395,24 @@ export function CollectionsSection({
         </div>
       ) : null}
 
-      {displayedProducts.length === 0 ? (
+      {isInitialCatalogLoading ? (
+        <div className={styles.emptyState} data-catalog-state="loading">
+          <p className={styles.emptyTitle}>Загружаем букеты</p>
+          <p className={styles.emptyMessage}>Коллекция появится через мгновение</p>
+        </div>
+      ) : hasCatalogLoadError && bouquets.length === 0 ? (
+        <div className={styles.emptyState} data-catalog-state="error">
+          <p className={styles.emptyTitle}>Каталог временно не загрузился</p>
+          <p className={styles.emptyMessage}>
+            {catalogErrorMessage || "Проверьте соединение и попробуйте снова."}
+          </p>
+          {onCatalogRetry ? (
+            <button type="button" className={styles.emptyReset} onClick={onCatalogRetry}>
+              Повторить
+            </button>
+          ) : null}
+        </div>
+      ) : displayedProducts.length === 0 ? (
         <div
           key={`empty:${catalogViewKey}`}
           className={styles.emptyState}

@@ -16,10 +16,7 @@ type HeroSectionProps = {
   onOrderBouquet: () => void;
 };
 
-// Warm neutral placeholder (light beige #F5F3F0) shown during initial load
-// while admin-configured banner image loads. SVG data URI prevents caching
-// issues and empty flash. Smooth transition: fallback → admin image.
-const FALLBACK_PHOTO_URL = "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1 1%27%3E%3Crect fill=%27%23F5F3F0%27/%3E%3C/svg%3E";
+const FALLBACK_PHOTO_URL = "/0001.jpg";
 const HERO_ROTATION_MS = 6200;
 const HERO_TRANSITION_MS = 1100;
 
@@ -73,7 +70,15 @@ function normalizeHeroPhotos(
           sortOrder: 0,
         },
       ]
-    : [];
+    : [
+        {
+          id: "default-hero",
+          imageUrl: FALLBACK_PHOTO_URL,
+          isEnabled: true,
+          isPrimary: true,
+          sortOrder: 0,
+        },
+      ];
 }
 
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
@@ -87,9 +92,20 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
 
   const activeHeroPhotos = useMemo(() => {
     const failed = new Set(failedPhotoUrls);
-    return normalizeHeroPhotos(banner?.photos, banner?.imageUrl).filter(
+    const availablePhotos = normalizeHeroPhotos(banner?.photos, banner?.imageUrl).filter(
       (photo) => !failed.has(photo.imageUrl),
     );
+    return availablePhotos.length > 0
+      ? availablePhotos
+      : [
+          {
+            id: "default-hero",
+            imageUrl: FALLBACK_PHOTO_URL,
+            isEnabled: true,
+            isPrimary: true,
+            sortOrder: 0,
+          },
+        ];
   }, [banner?.imageUrl, banner?.photos, failedPhotoUrls]);
   const activePhotoSignature = activeHeroPhotos
     .map((photo) => `${photo.id}:${photo.imageUrl}:${photo.isPrimary}`)
@@ -223,7 +239,6 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
               aria-hidden="true"
               fill
               sizes="(max-width: 960px) 92vw, 48vw"
-              unoptimized={previousPhotoUrl.startsWith("data:")}
             />
           ) : null}
           <Image
@@ -234,7 +249,6 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
             fill
             sizes="(max-width: 960px) 92vw, 48vw"
             priority
-            unoptimized={displayedPhotoUrl.startsWith("data:")}
             onError={() => {
               if (displayedPhotoUrl !== FALLBACK_PHOTO_URL) {
                 setFailedPhotoUrls((current) =>

@@ -473,7 +473,13 @@ function writeStoredOrders(orders: BellafloreOrder[]) {
 }
 
 export default function Home() {
-  const { catalog: bouquets, isReady: catalogReady } =
+  const {
+    catalog: bouquets,
+    isReady: catalogReady,
+    status: catalogStatus,
+    errorMessage: catalogErrorMessage,
+    reload: reloadCatalog,
+  } =
     usePublicStorefrontCatalog();
   // ==================================================
   // SECTION: STATE
@@ -2360,6 +2366,9 @@ export default function Home() {
         handleBouquetOrderClick={handleBouquetOrderClick}
         onProductOpen={openProductExperience}
         catalogFocusNonce={catalogFocusNonce}
+        catalogStatus={catalogStatus}
+        catalogErrorMessage={catalogErrorMessage}
+        onCatalogRetry={reloadCatalog}
       />
       <AboutSection />
       <ReviewsSection
