@@ -427,23 +427,18 @@ export function AdminDeliveryPlannerContent() {
         )}
       </section>
 
-      <RoutePlanningAssistant
-        orders={allOrders}
-        onOrderSelect={setSelectedOrderId}
-      />
-
-      <RouteOptimizationAssistant
-        orders={allOrders}
-        onOrderSelect={setSelectedOrderId}
-      />
-
-      <DistanceEtaAssistant
-        orders={allOrders}
-        geocodingOverrides={geocodingOverrides}
-        onOrderSelect={setSelectedOrderId}
-      />
-
-      <MapProviderStatus />
+      {plannerPlan.daySections.map((section) => (
+        <DeliveryPlannerDayBlock
+          key={section.group}
+          section={section}
+          allOrders={allOrders}
+          onOrderSelect={setSelectedOrderId}
+          onAssignRecommended={handleAssignRecommended}
+          assigningOrderId={assigningOrderId}
+          assignError={assignError}
+          assignNotice={assignNotice}
+        />
+      ))}
 
       <section className={styles.deliveryZoneMapSection}>
         <h2 className={styles.plannerSummaryHeading}>Delivery zone map</h2>
@@ -459,36 +454,42 @@ export function AdminDeliveryPlannerContent() {
         />
       </section>
 
-      <MapsFoundationAssistant
-        orders={allOrders}
-        geocodingOverrides={geocodingOverrides}
-        onGeocodingOverridesChange={(nextOverrides) => {
-          setGeocodingOverrides((currentOverrides) => ({
-            ...currentOverrides,
-            ...nextOverrides,
-          }));
-        }}
-        onOrderSelect={setSelectedOrderId}
-      />
-
-      <LazyGeographicMapPreview
-        orders={allOrders}
-        geocodingOverrides={geocodingOverrides}
-        onOrderSelect={setSelectedOrderId}
-      />
-
-      {plannerPlan.daySections.map((section) => (
-        <DeliveryPlannerDayBlock
-          key={section.group}
-          section={section}
-          allOrders={allOrders}
+      <details className={styles.diagnostics}>
+        <summary>Диагностика</summary>
+        <p className={styles.diagnosticsLead}>
+          Маршрутизация, провайдер карт, расчёты расстояний и тестовый предпросмотр.
+        </p>
+        <RoutePlanningAssistant
+          orders={allOrders}
           onOrderSelect={setSelectedOrderId}
-          onAssignRecommended={handleAssignRecommended}
-          assigningOrderId={assigningOrderId}
-          assignError={assignError}
-          assignNotice={assignNotice}
         />
-      ))}
+        <RouteOptimizationAssistant
+          orders={allOrders}
+          onOrderSelect={setSelectedOrderId}
+        />
+        <DistanceEtaAssistant
+          orders={allOrders}
+          geocodingOverrides={geocodingOverrides}
+          onOrderSelect={setSelectedOrderId}
+        />
+        <MapProviderStatus />
+        <MapsFoundationAssistant
+          orders={allOrders}
+          geocodingOverrides={geocodingOverrides}
+          onGeocodingOverridesChange={(nextOverrides) => {
+            setGeocodingOverrides((currentOverrides) => ({
+              ...currentOverrides,
+              ...nextOverrides,
+            }));
+          }}
+          onOrderSelect={setSelectedOrderId}
+        />
+        <LazyGeographicMapPreview
+          orders={allOrders}
+          geocodingOverrides={geocodingOverrides}
+          onOrderSelect={setSelectedOrderId}
+        />
+      </details>
     </section>
   );
 }

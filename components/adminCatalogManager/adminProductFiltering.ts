@@ -1,7 +1,12 @@
 import type { AdminProductStatusFilter } from "@/components/adminCatalogManager/adminCatalogTypes";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 
-export type AdminProductSort = "updated-desc" | "name-asc" | "price-asc" | "price-desc";
+export type AdminProductSort =
+  | "bf-asc"
+  | "updated-desc"
+  | "name-asc"
+  | "price-asc"
+  | "price-desc";
 
 type AdminProductFilterOptions = {
   search: string;
@@ -56,6 +61,17 @@ export function filterAdminProducts(
       return matchesSearch && matchesCategory && matchesStatus && matchesStock;
     })
     .sort((left, right) => {
+      if (options.sort === "bf-asc") {
+        const leftNumber = Number.parseInt(
+          left.metadata.catalogNumber?.match(/\d+/)?.[0] ?? "999999",
+          10,
+        );
+        const rightNumber = Number.parseInt(
+          right.metadata.catalogNumber?.match(/\d+/)?.[0] ?? "999999",
+          10,
+        );
+        return leftNumber - rightNumber || left.title.localeCompare(right.title, "ru");
+      }
       if (options.sort === "name-asc") {
         return left.title.localeCompare(right.title, "ru");
       }

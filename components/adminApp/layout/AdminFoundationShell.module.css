@@ -1,16 +1,16 @@
 .shell {
-  --admin-bg: #050505;
-  --admin-bg-soft: #0c0c0f;
-  --admin-surface: rgba(20, 20, 23, 0.92);
-  --admin-surface-elevated: rgba(30, 30, 34, 0.92);
-  --admin-ink: #f7f0e6;
-  --admin-muted: rgba(247, 240, 230, 0.62);
-  --admin-soft: rgba(247, 240, 230, 0.42);
-  --admin-gold: #d7b46a;
-  --admin-gold-strong: #f1d18b;
-  --admin-border: rgba(215, 180, 106, 0.16);
-  --admin-border-strong: rgba(215, 180, 106, 0.34);
-  --admin-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+  --admin-bg: #eee4d6;
+  --admin-bg-soft: #f6efe5;
+  --admin-surface: rgba(255, 253, 249, 0.96);
+  --admin-surface-elevated: #ffffff;
+  --admin-ink: #2f2a24;
+  --admin-muted: #75695c;
+  --admin-soft: #9a8c7b;
+  --admin-gold: #8a6b3d;
+  --admin-gold-strong: #6f4f21;
+  --admin-border: rgba(138, 107, 61, 0.18);
+  --admin-border-strong: rgba(138, 107, 61, 0.34);
+  --admin-shadow: 0 20px 60px rgba(71, 55, 34, 0.13);
 
   min-height: 100vh;
   min-height: 100dvh;
@@ -20,9 +20,8 @@
     max(8px, env(safe-area-inset-bottom))
     max(8px, env(safe-area-inset-left));
   background:
-    radial-gradient(circle at 20% 0%, rgba(215, 180, 106, 0.16), transparent 30%),
-    radial-gradient(circle at 90% 12%, rgba(255, 255, 255, 0.08), transparent 24%),
-    linear-gradient(180deg, #050505 0%, #0b0b0d 52%, #050505 100%);
+    radial-gradient(circle at 18% 0%, rgba(184, 149, 106, 0.2), transparent 34%),
+    linear-gradient(180deg, #f6efe5 0%, #eadfce 100%);
   color: var(--admin-ink);
   font-family:
     Inter,
@@ -42,15 +41,14 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--admin-border);
   border-radius: 28px;
   background:
-    radial-gradient(circle at 50% -10%, rgba(241, 209, 139, 0.08), transparent 32%),
-    linear-gradient(180deg, rgba(16, 16, 19, 0.94), rgba(7, 7, 8, 0.98)),
+    radial-gradient(circle at 50% -10%, rgba(184, 149, 106, 0.11), transparent 34%),
     var(--admin-bg-soft);
   box-shadow:
     var(--admin-shadow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .sidebar {
@@ -71,8 +69,8 @@
   justify-content: space-between;
   gap: 14px;
   padding: 14px 14px 11px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(9, 9, 11, 0.78);
+  border-bottom: 1px solid var(--admin-border);
+  background: rgba(255, 252, 247, 0.88);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
 }
@@ -84,7 +82,7 @@
   padding: 0;
   border: 1px solid rgba(215, 180, 106, 0.25);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--admin-surface);
   color: var(--admin-gold-strong);
   font: inherit;
   font-size: 17px;
@@ -106,8 +104,8 @@
   overflow: auto;
   padding: max(18px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
   border-right: 1px solid var(--admin-border-strong);
-  background: #0c0c0f;
-  box-shadow: 24px 0 70px rgba(0, 0, 0, 0.5);
+  background: #fffaf2;
+  box-shadow: 24px 0 70px rgba(71, 55, 34, 0.22);
 }
 
 .mobileMenuHeader {
@@ -119,7 +117,7 @@
 }
 
 .mobileMenuHeader h2 { margin: 3px 0 0; color: var(--admin-ink); font-size: 22px; }
-.mobileMenuHeader button { width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.12); border-radius: 11px; background: rgba(255,255,255,.05); color: var(--admin-ink); font-size: 22px; cursor: pointer; }
+.mobileMenuHeader button { width: 38px; height: 38px; border: 1px solid var(--admin-border); border-radius: 11px; background: #fff; color: var(--admin-ink); font-size: 22px; cursor: pointer; }
 .mobileMenuNav { display: grid; gap: 5px; }
 .mobileMenuNav a { display: grid; gap: 3px; padding: 11px 12px; border: 1px solid transparent; border-radius: 13px; color: var(--admin-ink); text-decoration: none; }
 .mobileMenuNav a span { color: var(--admin-muted); font-size: 11px; }
@@ -177,7 +175,7 @@
   padding: 0 14px;
   border: 1px solid rgba(215, 180, 106, 0.22);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--admin-surface);
   color: var(--admin-ink);
   font: inherit;
   font-size: 12px;
@@ -205,10 +203,8 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   padding: 9px 9px calc(9px + env(safe-area-inset-bottom));
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(180deg, rgba(22, 22, 25, 0.72), rgba(7, 7, 9, 0.9)),
-    rgba(8, 8, 10, 0.84);
+  border-top: 1px solid var(--admin-border);
+  background: rgba(255, 252, 247, 0.92);
   -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
 }
@@ -227,7 +223,7 @@
   border-radius: 16px;
   background: transparent;
   box-shadow: none;
-  color: rgba(247, 240, 230, 0.58);
+  color: var(--admin-muted);
   font-size: inherit;
   font-weight: inherit;
   text-decoration: none;
@@ -273,7 +269,7 @@
   align-items: center;
   gap: 10px;
   padding: 18px 16px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid var(--admin-border);
 }
 
 .brandMark {
@@ -283,7 +279,7 @@
   place-items: center;
   border: 1px solid rgba(215, 180, 106, 0.36);
   border-radius: 12px;
-  background: linear-gradient(145deg, rgba(215, 180, 106, 0.22), rgba(255, 255, 255, 0.06));
+  background: linear-gradient(145deg, #f3e7d4, #fff);
   color: var(--admin-gold-strong);
   font-size: 14px;
   font-weight: 850;
@@ -333,7 +329,7 @@
 
 .sidebarLink:hover {
   color: var(--admin-ink);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(138, 107, 61, 0.07);
 }
 
 .sidebarLinkActive {
@@ -390,8 +386,8 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    border-right: 1px solid rgba(255, 255, 255, 0.07);
-    background: rgba(8, 8, 10, 0.72);
+    border-right: 1px solid var(--admin-border);
+    background: rgba(255, 252, 247, 0.78);
   }
 
   .tabBar {

@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useMemo, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import type {
   AdminProductFormState,
-  AdminProductImageDraft,
   AdminProductStatusFilter,
 } from "@/components/adminCatalogManager/adminCatalogTypes";
 import {
@@ -188,7 +187,7 @@ export function AdminProductStudio({
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<AdminProductStatusFilter>("all");
   const [stockFilter, setStockFilter] = useState("all");
-  const [sortBy, setSortBy] = useState<AdminProductSort>("updated-desc");
+  const [sortBy, setSortBy] = useState<AdminProductSort>("bf-asc");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [notice, setNotice] = useState<StudioNotice | null>(null);
   const [saving, setSaving] = useState(false);
@@ -399,29 +398,30 @@ export function AdminProductStudio({
       try {
         const uploaded = await uploadImageFile(file);
         const now = new Date().toISOString();
-        const image: AdminProductImageDraft = {
-          id: createImageId(file),
-          originalUrl: uploaded.imageUrl,
-          processedUrl: uploaded.imageUrl,
-          thumbnailUrl: uploaded.imageUrl,
-          filename: file.name,
-          mimeType: file.type,
-          width: 1080,
-          height: 1350,
-          size: file.size,
-          sortOrder: form.images.length,
-          isPrimary: form.images.length === 0,
-          processingStatus: "original",
-          processingError: null,
-          createdAt: now,
-          updatedAt: now,
-        };
-
         setForm((current) =>
           formWithNormalizedImages({
             ...current,
             mainImageStorage: uploaded.storage === "blob" ? "blob" : "server",
-            images: [...current.images, image],
+            images: [
+              ...current.images,
+              {
+                id: createImageId(file),
+                originalUrl: uploaded.imageUrl,
+                processedUrl: uploaded.imageUrl,
+                thumbnailUrl: uploaded.imageUrl,
+                filename: file.name,
+                mimeType: file.type,
+                width: 1080,
+                height: 1350,
+                size: file.size,
+                sortOrder: current.images.length,
+                isPrimary: current.images.length === 0,
+                processingStatus: "original",
+                processingError: null,
+                createdAt: now,
+                updatedAt: now,
+              },
+            ],
           }),
         );
         setUploadStates((current) => current.filter((state) => state.fileKey !== fileKey));
@@ -551,8 +551,8 @@ export function AdminProductStudio({
         {notice ? <p className={styles[notice.tone]}>{notice.text}</p> : null}
 
         <div className={styles.editorGrid}>
-          <section className={styles.panel}>
-            <h3 className={styles.panelTitle}>Основное</h3>
+          <details className={styles.panel} open>
+            <summary className={styles.panelTitle}>Основное</summary>
             <label className={styles.field}>
               <span>Название *</span>
               <input
@@ -598,23 +598,10 @@ export function AdminProductStudio({
                 </button>
               </div>
             </label>
-            <label className={styles.field}>
-              <span>Краткое описание</span>
-              <textarea
-                value={form.shortDescription}
-                onChange={(event) => updateForm({ shortDescription: event.target.value })}
-                rows={3}
-              />
-            </label>
-            <label className={styles.field}>
-              <span>Состав букета</span>
-              <textarea
-                value={form.composition}
-                onChange={(event) => updateForm({ composition: event.target.value })}
-                rows={3}
-              />
-            </label>
+          </details>
 
+          <details className={styles.panel} open>
+            <summary className={styles.panelTitle}>Цены и размеры</summary>
             <div className={styles.priceGrid}>
               {SIZE_IDS.map((sizeId) => (
                 <label className={styles.field} key={sizeId}>
@@ -640,13 +627,13 @@ export function AdminProductStudio({
                 onChange={(event) => updateForm({ oldPriceRub: event.target.value })}
               />
             </label>
-          </section>
+          </details>
 
-          <section className={styles.panel}>
-            <div className={styles.panelHeading}>
-              <h3 className={styles.panelTitle}>Изображения *</h3>
+          <details className={styles.panel} open>
+            <summary className={styles.panelHeading}>
+              <span className={styles.panelTitle}>Изображения *</span>
               <span>{form.images.length} из {MAX_IMAGES}</span>
-            </div>
+            </summary>
             <div
               className={`${styles.dropzone} ${dragging ? styles.dropzoneActive : ""}`}
               onDragOver={(event: DragEvent<HTMLDivElement>) => {
@@ -774,10 +761,30 @@ export function AdminProductStudio({
                 event.target.value = "";
               }}
             />
-          </section>
+          </details>
 
           <details className={styles.panel}>
-            <summary className={styles.panelTitle}>Расширенные поля</summary>
+            <summary className={styles.panelTitle}>Описание</summary>
+            <label className={styles.field}>
+              <span>Краткое описание</span>
+              <textarea
+                value={form.shortDescription}
+                onChange={(event) => updateForm({ shortDescription: event.target.value })}
+                rows={3}
+              />
+            </label>
+            <label className={styles.field}>
+              <span>Состав букета</span>
+              <textarea
+                value={form.composition}
+                onChange={(event) => updateForm({ composition: event.target.value })}
+                rows={3}
+              />
+            </label>
+          </details>
+
+          <details className={styles.panel}>
+            <summary className={styles.panelTitle}>SEO и дополнительные поля</summary>
             <div className={styles.priceGrid}>
               <label className={styles.field}>
                 <span>Количество цветов</span>
@@ -821,10 +828,7 @@ export function AdminProductStudio({
                 </label>
               ))}
             </div>
-          </details>
-
-          <details className={styles.panel}>
-            <summary className={styles.panelTitle}>SEO</summary>
+            <h3 className={styles.subsectionTitle}>SEO</h3>
             <label className={styles.field}>
               <span>SEO-заголовок</span>
               <input value={form.seoTitle} onChange={(event) => updateForm({ seoTitle: event.target.value })} />
@@ -919,11 +923,11 @@ export function AdminProductStudio({
           >
             Фильтры
             {[categoryFilter, statusFilter, stockFilter].filter((value) => value !== "all").length +
-              (sortBy !== "updated-desc" ? 1 : 0) >
+              (sortBy !== "bf-asc" ? 1 : 0) >
             0 ? (
               <span className={styles.filterCount}>
                 {[categoryFilter, statusFilter, stockFilter].filter((value) => value !== "all").length +
-                  (sortBy !== "updated-desc" ? 1 : 0)}
+                  (sortBy !== "bf-asc" ? 1 : 0)}
               </span>
             ) : null}
           </button>
@@ -976,6 +980,7 @@ export function AdminProductStudio({
           <label>
             <span>Сортировка</span>
             <select value={sortBy} onChange={(event) => setSortBy(event.target.value as AdminProductSort)}>
+              <option value="bf-asc">По BF-коду</option>
               <option value="updated-desc">Сначала обновлённые</option>
               <option value="name-asc">По названию</option>
               <option value="price-asc">Цена ↑</option>

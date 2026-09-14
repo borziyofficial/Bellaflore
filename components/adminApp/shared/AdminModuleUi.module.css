@@ -120,8 +120,8 @@
 }
 
 .actionButtonSecondary {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--admin-border);
+  background: #fffaf2;
   color: var(--admin-ink);
 }
 
@@ -143,9 +143,9 @@
   justify-content: space-between;
   gap: 10px;
   padding: 11px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--admin-border);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #fffaf2;
   color: var(--admin-ink);
   font-size: 13px;
 }
@@ -201,7 +201,7 @@
   place-items: center;
   min-height: 120px;
   padding: 20px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border: 1px dashed var(--admin-border-strong);
   border-radius: 16px;
   color: var(--admin-muted);
   font-size: 13px;
@@ -228,9 +228,9 @@
   margin: 0;
   min-height: 32px;
   padding: 6px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--admin-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: #fffaf2;
   color: var(--admin-muted);
   font: inherit;
   font-size: 12px;

@@ -106,10 +106,10 @@ export function AdminCategoriesModule() {
     setBusyId("new");
     setNotice(null);
     try {
-      await requestJson("/api/admin/categories", { method: "POST", body: JSON.stringify({ title }) });
+      const body = await requestJson<{ category: Category }>("/api/admin/categories", { method: "POST", body: JSON.stringify({ title }) });
+      setCategories((current) => [...current, { ...body.category, usageCount: body.category.usageCount ?? 0 }]);
       setTitle("");
       setNotice({ tone: "success", text: "Категория создана." });
-      await load();
     } catch (error) {
       setNotice({ tone: "error", text: error instanceof Error ? error.message : "Ошибка создания." });
     } finally { setBusyId(null); }
@@ -119,26 +119,36 @@ export function AdminCategoriesModule() {
     setBusyId(id);
     setNotice(null);
     try {
-      await requestJson(`/api/admin/categories/${encodeURIComponent(id)}`, {
+      const body = await requestJson<{ category: Category }>(`/api/admin/categories/${encodeURIComponent(id)}`, {
         method: "PUT",
         body: JSON.stringify(patch),
       });
+      setCategories((current) => current.map((category) => (
+        category.id === id ? { ...category, ...body.category } : category
+      )));
       setEditingId(null);
+      setEditingTitle("");
       setNotice({ tone: "success", text: "Категория обновлена." });
-      await load();
     } catch (error) {
       setNotice({ tone: "error", text: error instanceof Error ? error.message : "Ошибка обновления." });
     } finally { setBusyId(null); }
   }
 
   async function removeCategory(category: Category) {
-    if (category.usageCount > 0 || !window.confirm(`Удалить категорию «${category.title}»?`)) return;
+    if (category.usageCount > 0) {
+      setNotice({
+        tone: "error",
+        text: `Категория используется в ${category.usageCount} товар(ах). Перенесите товары через управление категориями в каталоге.`,
+      });
+      return;
+    }
+    if (!window.confirm(`Удалить категорию «${category.title}»?`)) return;
     setBusyId(category.id);
     setNotice(null);
     try {
       await requestJson(`/api/admin/categories/${encodeURIComponent(category.id)}`, { method: "DELETE" });
+      setCategories((current) => current.filter((item) => item.id !== category.id));
       setNotice({ tone: "success", text: "Категория удалена." });
-      await load();
     } catch (error) {
       setNotice({ tone: "error", text: error instanceof Error ? error.message : "Ошибка удаления." });
     } finally { setBusyId(null); }
@@ -166,9 +176,9 @@ export function AdminCategoriesModule() {
           <div className={styles.actions}>
             <span className={category.isActive ? styles.activeBadge : styles.inactiveBadge}>{category.isActive ? "Включена" : "Выключена"}</span>
             {category.isCustom ? <>
-              {editingId === category.id ? <button type="button" onClick={() => void updateCategory(category.id, { title: editingTitle })} disabled={!editingTitle.trim() || busyId === category.id}>Сохранить</button> : <button type="button" onClick={() => { setEditingId(category.id); setEditingTitle(category.title); }}>Изменить</button>}
+              {editingId === category.id ? <><button type="button" onClick={() => void updateCategory(category.id, { title: editingTitle })} disabled={!editingTitle.trim() || busyId === category.id}>Сохранить</button><button type="button" onClick={() => { setEditingId(null); setEditingTitle(""); }} disabled={busyId === category.id}>Отмена</button></> : <button type="button" onClick={() => { setEditingId(category.id); setEditingTitle(category.title); setNotice(null); }}>Изменить</button>}
               <button type="button" onClick={() => void updateCategory(category.id, { isActive: !category.isActive })} disabled={busyId === category.id}>{category.isActive ? "Выключить" : "Включить"}</button>
-              <button className={styles.dangerButton} type="button" onClick={() => void removeCategory(category)} disabled={busyId === category.id || category.usageCount > 0} title={category.usageCount > 0 ? "Категория используется товарами" : "Удалить категорию"}>Удалить</button>
+              <button className={styles.dangerButton} type="button" onClick={() => void removeCategory(category)} disabled={busyId === category.id} title={category.usageCount > 0 ? "Покажет причину блокировки" : "Удалить категорию"}>Удалить</button>
             </> : <span className={styles.muted}>Защищена каталогом</span>}
           </div>
         </article>)}

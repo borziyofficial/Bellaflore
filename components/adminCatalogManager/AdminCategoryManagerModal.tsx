@@ -4,7 +4,7 @@
 // ==================================================
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminCategoryApiError } from "@/components/adminCatalogManager/adminCustomCategories";
 import type { AdminCategoryRecord } from "@/components/adminCatalogManager/useAdminCategories";
 import styles from "@/components/adminCatalogManager/AdminProductStudio.module.css";
@@ -35,6 +35,29 @@ export function AdminCategoryManagerModal({
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deleteInUseCount, setDeleteInUseCount] = useState<number | null>(null);
   const [reassignTo, setReassignTo] = useState("");
+  const isBusy = creating || savingId !== null;
+
+  const resetTransientState = useCallback(() => {
+    setNewTitle("");
+    setEditingId(null);
+    setEditingTitle("");
+    setDeleteTargetId(null);
+    setDeleteInUseCount(null);
+    setReassignTo("");
+    setNotice(null);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isBusy) {
+        resetTransientState();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isBusy, onClose, open, resetTransientState]);
 
   if (!open) {
     return null;
@@ -134,8 +157,16 @@ export function AdminCategoryManagerModal({
   };
 
   return (
-    <div className={styles.dialogBackdrop}>
-      <div className={styles.dialog} role="dialog" aria-modal="true">
+    <div
+      className={styles.dialogBackdrop}
+      onMouseDown={() => {
+        if (!isBusy) {
+          resetTransientState();
+          onClose();
+        }
+      }}
+    >
+      <div className={styles.dialog} role="dialog" aria-modal="true" onMouseDown={(event) => event.stopPropagation()}>
         <h3>Категории</h3>
         {notice ? <p className={styles[notice.tone]}>{notice.text}</p> : null}
 
@@ -276,7 +307,15 @@ export function AdminCategoryManagerModal({
         </div>
 
         <div className={styles.dialogActions}>
-          <button type="button" className={styles.secondaryButton} onClick={onClose}>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            disabled={isBusy}
+            onClick={() => {
+              resetTransientState();
+              onClose();
+            }}
+          >
             Закрыть
           </button>
         </div>

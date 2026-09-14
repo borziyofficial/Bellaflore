@@ -348,6 +348,19 @@
   font-weight: 900;
 }
 
+summary.panelTitle,
+summary.panelHeading {
+  cursor: pointer;
+  list-style-position: outside;
+}
+
+.subsectionTitle {
+  margin: 4px 0 0;
+  color: #6f4f21;
+  font-size: 14px;
+  font-weight: 900;
+}
+
 .panelHeading {
   display: flex;
   align-items: center;

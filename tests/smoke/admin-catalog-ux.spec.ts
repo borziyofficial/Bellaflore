@@ -46,7 +46,7 @@ const defaults = {
   categoryId: "all",
   status: "all" as const,
   stock: "all",
-  sort: "updated-desc" as const,
+  sort: "bf-asc" as const,
 };
 
 for (const code of ["BF-001", "BF-009", "BF-087"]) {
@@ -94,4 +94,12 @@ test("price sorting works in both directions", () => {
   expect(
     filterAdminProducts(products, { ...defaults, sort: "price-desc" }).map((item) => item.id),
   ).toEqual(["BF-087", "BF-001", "BF-009"]);
+});
+
+test("BF sorting uses numeric catalog order without renumbering", () => {
+  expect(
+    filterAdminProducts([products[2], products[0], products[1]], defaults).map(
+      (item) => item.id,
+    ),
+  ).toEqual(["BF-001", "BF-009", "BF-087"]);
 });

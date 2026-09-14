@@ -13,9 +13,9 @@
   gap: 6px;
   width: 100%;
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--admin-border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #fffdf9;
   color: var(--admin-ink);
   font: inherit;
   font-size: 12px;
@@ -105,7 +105,7 @@
   min-height: 36px;
   border: 1px solid rgba(241, 209, 139, 0.32);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
+  background: #fffaf2;
   color: var(--admin-ink);
   font: inherit;
   font-size: 12px;
@@ -153,20 +153,20 @@
 }
 
 .acceptButton {
-  border: 1px solid rgba(103, 211, 144, 0.48);
-  background: rgba(72, 176, 111, 0.18);
-  color: #c8f5d8;
+  border: 1px solid rgba(47, 107, 79, 0.4);
+  background: #edf7f1;
+  color: #2f6b4f;
 }
 
 .rejectButton {
   border: 1px solid rgba(255, 112, 112, 0.42);
   background: rgba(220, 76, 76, 0.15);
-  color: #ffc5c5;
+  color: #8e2020;
 }
 
 .secondaryButton {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--admin-border);
+  background: #fffaf2;
   color: var(--admin-ink);
 }
 
@@ -196,9 +196,9 @@
   min-height: 92px;
   resize: vertical;
   padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--admin-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
+  background: #fffaf2;
   color: var(--admin-ink);
   font: inherit;
 }
@@ -212,7 +212,7 @@
 .facts div,
 .totals div {
   padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid var(--admin-border);
 }
 
 .facts dt,
@@ -234,9 +234,9 @@
 
 .itemRow {
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--admin-border);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #fffdf9;
 }
 
 .itemRow div {

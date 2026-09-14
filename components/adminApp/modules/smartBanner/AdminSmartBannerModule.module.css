@@ -1338,7 +1338,7 @@
 
 .moduleRoot .dialog {
   border: 1px solid var(--banner-border);
-  background: linear-gradient(160deg, #1d1a16, #100f0d);
+  background: #fffaf2;
   color: var(--banner-text);
 }
 
