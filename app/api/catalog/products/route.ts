@@ -16,10 +16,12 @@ import {
 } from "@/lib/catalogDb/mappers";
 import { resolvePublishedCatalogProduct } from "@/lib/catalogDb/resolvePublishedCatalogProduct";
 import { buildCategoryTitleMap } from "@/lib/adminCategoriesDb";
+import { logCatalogServerError } from "@/lib/catalogDb/logging";
 
 export const runtime = "nodejs";
 
 function catalogUnavailableResponse(error: unknown): Response {
+  logCatalogServerError("fetch_public_catalog", error);
   if (error instanceof CatalogDatabaseNotConfiguredError) {
     return Response.json(
       {

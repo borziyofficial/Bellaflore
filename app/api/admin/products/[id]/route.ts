@@ -15,6 +15,7 @@ import {
   isAdminRequestAuthorized,
   unauthorizedAdminResponse,
 } from "@/lib/adminApiAuth";
+import { logCatalogServerError } from "@/lib/catalogDb/logging";
 
 export const runtime = "nodejs";
 // Reflects live writes and is re-fetched right after mutations to refresh
@@ -26,7 +27,12 @@ type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
-function catalogUnavailableResponse(error: unknown): Response {
+function catalogUnavailableResponse(
+  error: unknown,
+  operation: string,
+  productId?: string,
+): Response {
+  logCatalogServerError(operation, error, { productId });
   if (error instanceof CatalogDatabaseNotConfiguredError) {
     return Response.json(
       {
@@ -46,9 +52,11 @@ export async function GET(request: Request, context: RouteContext) {
     return unauthorizedAdminResponse();
   }
 
+  let productId: string | undefined;
   try {
     const { id } = await context.params;
-    const product = await getCatalogProductById(decodeURIComponent(id));
+    productId = decodeURIComponent(id);
+    const product = await getCatalogProductById(productId);
     if (!product) {
       return Response.json({ message: "Товар не найден." }, { status: 404 });
     }
@@ -61,7 +69,7 @@ export async function GET(request: Request, context: RouteContext) {
       { headers: { "Cache-Control": "no-store, must-revalidate" } },
     );
   } catch (error) {
-    return catalogUnavailableResponse(error);
+    return catalogUnavailableResponse(error, "fetch_admin_catalog_product", productId);
   }
 }
 
@@ -70,16 +78,18 @@ export async function PUT(request: Request, context: RouteContext) {
     return unauthorizedAdminResponse();
   }
 
+  let productId: string | undefined;
   try {
     const { id } = await context.params;
+    productId = decodeURIComponent(id);
     const body = (await request.json()) as { form?: AdminProductFormState };
     if (!body.form) {
       return Response.json({ message: "Некорректные данные товара." }, { status: 400 });
     }
 
-    const existing = await getCatalogProductById(decodeURIComponent(id));
+    const existing = await getCatalogProductById(productId);
     const stored = adminFormToStoredProduct(
-      { ...body.form, id: decodeURIComponent(id) },
+      { ...body.form, id: productId },
       existing,
     );
     const saved =
@@ -92,7 +102,7 @@ export async function PUT(request: Request, context: RouteContext) {
       mode: getCatalogDatabaseMode(),
     });
   } catch (error) {
-    return catalogUnavailableResponse(error);
+    return catalogUnavailableResponse(error, "update_admin_catalog_product", productId);
   }
 }
 
@@ -101,9 +111,11 @@ export async function DELETE(request: Request, context: RouteContext) {
     return unauthorizedAdminResponse();
   }
 
+  let productId: string | undefined;
   try {
     const { id } = await context.params;
-    const deleted = await deleteCatalogProduct(decodeURIComponent(id));
+    productId = decodeURIComponent(id);
+    const deleted = await deleteCatalogProduct(productId);
     if (!deleted) {
       return Response.json({ message: "Товар не найден." }, { status: 404 });
     }
@@ -113,6 +125,6 @@ export async function DELETE(request: Request, context: RouteContext) {
       mode: getCatalogDatabaseMode(),
     });
   } catch (error) {
-    return catalogUnavailableResponse(error);
+    return catalogUnavailableResponse(error, "delete_admin_catalog_product", productId);
   }
 }

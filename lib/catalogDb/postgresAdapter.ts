@@ -2,6 +2,12 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import postgres from "postgres";
 import { getDatabaseUrl } from "@/lib/catalogDb/config";
+import {
+  getCatalogProductJsonbValues,
+  normalizeCatalogProductJsonb,
+  type CatalogProductJsonbRow,
+} from "@/lib/catalogDb/jsonbNormalization";
+import { logCatalogServerError } from "@/lib/catalogDb/logging";
 import type { StoredCatalogProduct } from "@/lib/catalogDb/types";
 
 let sqlClient: ReturnType<typeof postgres> | null = null;
@@ -37,7 +43,7 @@ async function ensureSchema(): Promise<void> {
   await schemaReady;
 }
 
-type CatalogRow = {
+type CatalogRow = CatalogProductJsonbRow & {
   id: string;
   slug: string;
   title: string;
@@ -46,27 +52,19 @@ type CatalogRow = {
   short_description: string;
   full_description: string;
   composition: string;
-  tags: string[];
-  sizes: StoredCatalogProduct["sizes"];
   old_price_rub: number | null;
   flower_count: number | null;
   height_cm: number | null;
   width_cm: number | null;
-  color_palette: string[];
   occasion: string;
   image_url: string;
-  gallery_images: string[];
-  images: StoredCatalogProduct["images"];
   seo_title: string;
   seo_description: string;
   seo_h1: string;
   seo_slug: string;
   seo_image_alt: string;
-  seo_keywords: string[];
-  seo_faq: StoredCatalogProduct["seoFaq"];
   open_graph_title: string;
   open_graph_description: string;
-  schema_product_json_ld: Record<string, unknown>;
   is_featured: boolean;
   is_new: boolean;
   is_bestseller: boolean;
@@ -77,6 +75,7 @@ type CatalogRow = {
 };
 
 function rowToProduct(row: CatalogRow): StoredCatalogProduct {
+  const jsonb = normalizeCatalogProductJsonb(row, row.id);
   return {
     id: row.id,
     slug: row.slug,
@@ -86,27 +85,27 @@ function rowToProduct(row: CatalogRow): StoredCatalogProduct {
     shortDescription: row.short_description,
     fullDescription: row.full_description,
     composition: row.composition,
-    tags: row.tags ?? [],
-    sizes: row.sizes ?? {},
+    tags: jsonb.tags,
+    sizes: jsonb.sizes,
     oldPriceRub: row.old_price_rub ?? null,
     flowerCount: row.flower_count ?? null,
     heightCm: row.height_cm ?? null,
     widthCm: row.width_cm ?? null,
-    colorPalette: row.color_palette ?? [],
+    colorPalette: jsonb.colorPalette,
     occasion: row.occasion ?? "",
     imageUrl: row.image_url,
-    galleryImages: row.gallery_images ?? [],
-    images: row.images ?? [],
+    galleryImages: jsonb.galleryImages,
+    images: jsonb.images,
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,
     seoH1: row.seo_h1,
     seoSlug: row.seo_slug,
     seoImageAlt: row.seo_image_alt,
-    seoKeywords: row.seo_keywords ?? [],
-    seoFaq: row.seo_faq ?? [],
+    seoKeywords: jsonb.seoKeywords,
+    seoFaq: jsonb.seoFaq,
     openGraphTitle: row.open_graph_title,
     openGraphDescription: row.open_graph_description,
-    schemaProductJsonLd: row.schema_product_json_ld ?? {},
+    schemaProductJsonLd: jsonb.schemaProductJsonLd,
     isFeatured: row.is_featured,
     isNew: row.is_new,
     isBestseller: row.is_bestseller,
@@ -307,8 +306,10 @@ export async function postgresUpsertCatalogProduct(
     throw new Error("Database not configured");
   }
 
-  await ensureSchema();
-  const rows = await sql<CatalogRow[]>`
+  try {
+    await ensureSchema();
+    const jsonb = getCatalogProductJsonbValues(product);
+    const rows = await sql<CatalogRow[]>`
     INSERT INTO catalog_products (
       id, slug, title, category, status, short_description, full_description,
       composition, tags, sizes, old_price_rub, flower_count, height_cm, width_cm,
@@ -319,13 +320,13 @@ export async function postgresUpsertCatalogProduct(
     ) VALUES (
       ${product.id}, ${product.slug}, ${product.title}, ${product.category},
       ${product.status}, ${product.shortDescription}, ${product.fullDescription},
-      ${product.composition}, ${JSON.stringify(product.tags)}, ${JSON.stringify(product.sizes)},
+      ${product.composition}, ${sql.json(jsonb.tags)}, ${sql.json(jsonb.sizes)},
       ${product.oldPriceRub}, ${product.flowerCount}, ${product.heightCm}, ${product.widthCm},
-      ${JSON.stringify(product.colorPalette)}, ${product.occasion}, ${product.imageUrl},
-      ${JSON.stringify(product.galleryImages)}, ${JSON.stringify(product.images)},
+      ${sql.json(jsonb.colorPalette)}, ${product.occasion}, ${product.imageUrl},
+      ${sql.json(jsonb.galleryImages)}, ${sql.json(jsonb.images)},
       ${product.seoTitle}, ${product.seoDescription}, ${product.seoH1}, ${product.seoSlug},
-      ${product.seoImageAlt}, ${JSON.stringify(product.seoKeywords)}, ${JSON.stringify(product.seoFaq)},
-      ${product.openGraphTitle}, ${product.openGraphDescription}, ${JSON.stringify(product.schemaProductJsonLd)},
+      ${product.seoImageAlt}, ${sql.json(jsonb.seoKeywords)}, ${sql.json(jsonb.seoFaq)},
+      ${product.openGraphTitle}, ${product.openGraphDescription}, ${sql.json(jsonb.schemaProductJsonLd as postgres.JSONValue)},
       ${product.isFeatured}, ${product.isNew}, ${product.isBestseller}, ${product.isPromotion},
       NOW(), NOW()
     )
@@ -364,11 +365,15 @@ export async function postgresUpsertCatalogProduct(
       is_promotion = EXCLUDED.is_promotion,
       updated_at = NOW()
     RETURNING *
-  `;
-  if (!rows[0]) throw new Error("Failed to upsert product");
-  const resolved = await postgresGetCatalogProductById(rows[0].id);
-  if (!resolved) throw new Error("Failed to resolve saved product");
-  return resolved;
+    `;
+    if (!rows[0]) throw new Error("Failed to upsert product");
+    const resolved = await postgresGetCatalogProductById(rows[0].id);
+    if (!resolved) throw new Error("Failed to resolve saved product");
+    return resolved;
+  } catch (error) {
+    logCatalogServerError("upsert_catalog_product", error, { productId: product.id });
+    throw error;
+  }
 }
 
 export async function postgresSetCatalogProductStatus(

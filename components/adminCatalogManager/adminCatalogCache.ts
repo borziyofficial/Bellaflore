@@ -10,18 +10,14 @@
 // ==================================================
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import { fetchAdminCatalogProducts } from "@/components/adminCatalogManager/catalogApiClient";
+import {
+  fetchAdminCatalogCacheState,
+  type AdminCatalogCacheState,
+} from "@/components/adminCatalogManager/adminCatalogCacheState";
 
 const STALE_AFTER_MS = 30_000;
 
-type CacheState = {
-  products: CatalogProductRecord[];
-  imageStorageWarning: string | null;
-  loadError: string | null;
-  hasFetchedOnce: boolean;
-  lastFetchedAt: number;
-};
-
-const state: CacheState = {
+let state: AdminCatalogCacheState = {
   products: [],
   imageStorageWarning: null,
   loadError: null,
@@ -56,20 +52,8 @@ export function hasCatalogFetchedOnce(): boolean {
 }
 
 async function performFetch(): Promise<void> {
-  try {
-    const response = await fetchAdminCatalogProducts();
-    state.products = response.products;
-    state.imageStorageWarning = response.imageStorageWarning ?? null;
-    state.loadError = null;
-  } catch (error) {
-    state.loadError =
-      error instanceof Error ? error.message : "База данных каталога не настроена.";
-    state.products = [];
-  } finally {
-    state.hasFetchedOnce = true;
-    state.lastFetchedAt = Date.now();
-    notifyChange();
-  }
+  state = await fetchAdminCatalogCacheState(state, fetchAdminCatalogProducts);
+  notifyChange();
 }
 
 /**

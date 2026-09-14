@@ -16,6 +16,7 @@ import {
   unauthorizedAdminResponse,
 } from "@/lib/adminApiAuth";
 import { getImageStorageWarning } from "@/lib/catalogStorage/config";
+import { logCatalogServerError } from "@/lib/catalogDb/logging";
 
 export const runtime = "nodejs";
 // This route reflects live writes made through publish/unpublish/save/delete
@@ -24,7 +25,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function catalogUnavailableResponse(error: unknown): Response {
+function catalogUnavailableResponse(error: unknown, operation: string): Response {
+  logCatalogServerError(operation, error);
   if (error instanceof CatalogDatabaseNotConfiguredError) {
     return Response.json(
       {
@@ -60,7 +62,7 @@ export async function GET(request: Request) {
       { headers: { "Cache-Control": "no-store, must-revalidate" } },
     );
   } catch (error) {
-    return catalogUnavailableResponse(error);
+    return catalogUnavailableResponse(error, "fetch_admin_catalog");
   }
 }
 
@@ -86,6 +88,6 @@ export async function POST(request: Request) {
       mode: getCatalogDatabaseMode(),
     });
   } catch (error) {
-    return catalogUnavailableResponse(error);
+    return catalogUnavailableResponse(error, "create_admin_catalog_product");
   }
 }
