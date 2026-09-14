@@ -22,6 +22,10 @@ import { resolveAdminCategoryTitle } from "@/components/adminCatalogManager/admi
 import { useAdminCategories } from "@/components/adminCatalogManager/useAdminCategories";
 import { AdminCategoryManagerModal } from "@/components/adminCatalogManager/AdminCategoryManagerModal";
 import { AdminQuickAddCategoryModal } from "@/components/adminCatalogManager/AdminQuickAddCategoryModal";
+import {
+  filterAdminProducts,
+  type AdminProductSort,
+} from "@/components/adminCatalogManager/adminProductFiltering";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import styles from "@/components/adminCatalogManager/AdminProductStudio.module.css";
 
@@ -184,7 +188,8 @@ export function AdminProductStudio({
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<AdminProductStatusFilter>("all");
   const [stockFilter, setStockFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("updated-desc");
+  const [sortBy, setSortBy] = useState<AdminProductSort>("updated-desc");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [notice, setNotice] = useState<StudioNotice | null>(null);
   const [saving, setSaving] = useState(false);
   const [savingStatusId, setSavingStatusId] = useState<string | null>(null);
@@ -204,43 +209,13 @@ export function AdminProductStudio({
   } = useAdminCategories();
 
   const filteredProducts = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return [...products]
-      .filter((product) => {
-        const matchesSearch =
-          !query ||
-          product.title.toLowerCase().includes(query) ||
-          product.slug.toLowerCase().includes(query) ||
-          product.tags.some((tag) => tag.toLowerCase().includes(query));
-        const matchesCategory =
-          categoryFilter === "all" || product.categoryIds.includes(categoryFilter);
-        const matchesStatus =
-          statusFilter === "all" ||
-          (statusFilter === "published" &&
-            product.isPublished &&
-            product.status !== "ARCHIVED") ||
-          (statusFilter === "draft" &&
-            !product.isPublished &&
-            product.status !== "ARCHIVED") ||
-          (statusFilter === "archived" && product.status === "ARCHIVED");
-        const matchesStock = stockFilter === "all" || product.availability === stockFilter;
-        return matchesSearch && matchesCategory && matchesStatus && matchesStock;
-      })
-      .sort((left, right) => {
-        if (sortBy === "name-asc") {
-          return left.title.localeCompare(right.title, "ru");
-        }
-        if (sortBy === "price-asc") {
-          return left.basePriceRub - right.basePriceRub;
-        }
-        if (sortBy === "price-desc") {
-          return right.basePriceRub - left.basePriceRub;
-        }
-        return (
-          new Date(right.metadata.updatedAt).getTime() -
-          new Date(left.metadata.updatedAt).getTime()
-        );
-      });
+    return filterAdminProducts(products, {
+      search,
+      categoryId: categoryFilter,
+      status: statusFilter,
+      stock: stockFilter,
+      sort: sortBy,
+    });
   }, [categoryFilter, products, search, sortBy, statusFilter, stockFilter]);
 
   const updateForm = (patch: Partial<AdminProductFormState>) => {
@@ -553,6 +528,9 @@ export function AdminProductStudio({
 
   if (mode !== "list") {
     const categoryTitle = resolveAdminCategoryTitle(form.categoryId);
+    const catalogNumber = form.id
+      ? getProductById(form.id)?.metadata.catalogNumber ?? null
+      : null;
     return (
       <div className={styles.root}>
         <header className={styles.header}>
@@ -562,7 +540,10 @@ export function AdminProductStudio({
           <div>
             <p className={styles.eyebrow}>{mode === "create" ? "Новый товар" : "Редактирование"}</p>
             <h2 className={styles.title}>Студия товара</h2>
-            <p className={styles.lead}>{categoryTitle} · сохранение через серверный каталог</p>
+            <div className={styles.editorMeta}>
+              {catalogNumber ? <strong className={styles.catalogCode}>{catalogNumber}</strong> : null}
+              <p className={styles.lead}>{categoryTitle} · сохранение через серверный каталог</p>
+            </div>
           </div>
         </header>
 
@@ -662,7 +643,10 @@ export function AdminProductStudio({
           </section>
 
           <section className={styles.panel}>
-            <h3 className={styles.panelTitle}>Изображения *</h3>
+            <div className={styles.panelHeading}>
+              <h3 className={styles.panelTitle}>Изображения *</h3>
+              <span>{form.images.length} из {MAX_IMAGES}</span>
+            </div>
             <div
               className={`${styles.dropzone} ${dragging ? styles.dropzoneActive : ""}`}
               onDragOver={(event: DragEvent<HTMLDivElement>) => {
@@ -676,13 +660,18 @@ export function AdminProductStudio({
                 void appendFiles(Array.from(event.dataTransfer.files));
               }}
             >
-              <p>Перетащите фото сюда или выберите из устройства</p>
+              <span className={styles.uploadMark} aria-hidden="true">+</span>
+              <div className={styles.dropzoneCopy}>
+                <strong>Добавьте фотографии товара</strong>
+                <p>Можно выбрать несколько файлов или перетащить их сюда</p>
+                <small>JPG, PNG, WEBP или HEIC · до 5 МБ · максимум 10 фото</small>
+              </div>
               <button
                 type="button"
                 className={styles.primaryButton}
                 onClick={() => fileInputRef.current?.click()}
               >
-                Выбрать фото
+                Выбрать фотографии
               </button>
               <input
                 ref={fileInputRef}
@@ -729,22 +718,35 @@ export function AdminProductStudio({
                       className={styles.image}
                       unoptimized
                     />
-                    {image.isPrimary ? <span className={styles.primaryBadge}>Главное</span> : null}
+                    {image.isPrimary ? <span className={styles.primaryBadge}>Главное фото</span> : null}
                   </div>
                   <p className={styles.imageName}>{image.filename}</p>
                   <div className={styles.imageActions}>
-                    <button type="button" onClick={() => setPrimaryImage(image.id)}>
-                      Главное
+                    <button
+                      type="button"
+                      className={image.isPrimary ? styles.primaryImageAction : ""}
+                      onClick={() => setPrimaryImage(image.id)}
+                      disabled={image.isPrimary}
+                    >
+                      {image.isPrimary ? "Главное фото" : "Сделать главным"}
                     </button>
-                    <button type="button" onClick={() => moveImage(image.id, -1)} disabled={index === 0}>
-                      Вверх
+                    <button
+                      type="button"
+                      onClick={() => moveImage(image.id, -1)}
+                      disabled={index === 0}
+                      aria-label={`Переместить ${image.filename} выше`}
+                      title="Переместить выше"
+                    >
+                      ↑
                     </button>
                     <button
                       type="button"
                       onClick={() => moveImage(image.id, 1)}
                       disabled={index === form.images.length - 1}
+                      aria-label={`Переместить ${image.filename} ниже`}
+                      title="Переместить ниже"
                     >
-                      Вниз
+                      ↓
                     </button>
                     <button
                       type="button"
@@ -899,51 +901,88 @@ export function AdminProductStudio({
       {imageStorageWarning ? <p className={styles.warning}>{imageStorageWarning}</p> : null}
       {notice ? <p className={styles[notice.tone]}>{notice.text}</p> : null}
 
-      <section className={styles.toolbar} aria-label="Фильтры товаров">
-        <input
-          type="search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Поиск по названию"
-        />
-        <select
-          value={categoryFilter}
-          onChange={(event) => {
-            const nextValue = event.target.value;
-            if (nextValue === QUICK_ADD_CATEGORY_VALUE) {
-              setQuickAddCategoryOpen(true);
-              return;
-            }
-            setCategoryFilter(nextValue);
-          }}
+      <section className={styles.catalogControls} aria-label="Поиск и фильтры товаров">
+        <div className={styles.searchRow}>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Название или BF-код"
+            aria-label="Поиск по названию или BF-коду"
+          />
+          <button
+            type="button"
+            className={styles.filterToggle}
+            aria-expanded={filtersOpen}
+            aria-controls="admin-catalog-filters"
+            onClick={() => setFiltersOpen((current) => !current)}
+          >
+            Фильтры
+            {[categoryFilter, statusFilter, stockFilter].filter((value) => value !== "all").length +
+              (sortBy !== "updated-desc" ? 1 : 0) >
+            0 ? (
+              <span className={styles.filterCount}>
+                {[categoryFilter, statusFilter, stockFilter].filter((value) => value !== "all").length +
+                  (sortBy !== "updated-desc" ? 1 : 0)}
+              </span>
+            ) : null}
+          </button>
+        </div>
+        <div
+          id="admin-catalog-filters"
+          className={`${styles.filterPanel} ${filtersOpen ? styles.filterPanelOpen : ""}`}
         >
-          <option value="all">Все категории</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.title}
-            </option>
-          ))}
-          <option value={QUICK_ADD_CATEGORY_VALUE}>+ Добавить новую категорию</option>
-        </select>
-        <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as AdminProductStatusFilter)}>
-          <option value="all">Все публикации</option>
-          <option value="published">Опубликованы</option>
-          <option value="draft">Черновики</option>
-          <option value="archived">Архив</option>
-        </select>
-        <select value={stockFilter} onChange={(event) => setStockFilter(event.target.value)}>
-          <option value="all">Любой склад</option>
-          <option value="in_stock">В наличии</option>
-          <option value="out_of_stock">Нет в наличии</option>
-          <option value="made_to_order">Под заказ</option>
-          <option value="coming_soon">Скоро</option>
-        </select>
-        <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-          <option value="updated-desc">Сначала обновлённые</option>
-          <option value="name-asc">По названию</option>
-          <option value="price-asc">Цена ↑</option>
-          <option value="price-desc">Цена ↓</option>
-        </select>
+          <label>
+            <span>Категория</span>
+            <select
+              value={categoryFilter}
+              onChange={(event) => {
+                const nextValue = event.target.value;
+                if (nextValue === QUICK_ADD_CATEGORY_VALUE) {
+                  setQuickAddCategoryOpen(true);
+                  return;
+                }
+                setCategoryFilter(nextValue);
+              }}
+            >
+              <option value="all">Все категории</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.title}
+                </option>
+              ))}
+              <option value={QUICK_ADD_CATEGORY_VALUE}>+ Добавить новую категорию</option>
+            </select>
+          </label>
+          <label>
+            <span>Публикация</span>
+            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as AdminProductStatusFilter)}>
+              <option value="all">Все публикации</option>
+              <option value="published">Опубликованы</option>
+              <option value="draft">Черновики</option>
+              <option value="archived">Архив</option>
+            </select>
+          </label>
+          <label>
+            <span>Наличие</span>
+            <select value={stockFilter} onChange={(event) => setStockFilter(event.target.value)}>
+              <option value="all">Любой склад</option>
+              <option value="in_stock">В наличии</option>
+              <option value="out_of_stock">Нет в наличии</option>
+              <option value="made_to_order">Под заказ</option>
+              <option value="coming_soon">Скоро</option>
+            </select>
+          </label>
+          <label>
+            <span>Сортировка</span>
+            <select value={sortBy} onChange={(event) => setSortBy(event.target.value as AdminProductSort)}>
+              <option value="updated-desc">Сначала обновлённые</option>
+              <option value="name-asc">По названию</option>
+              <option value="price-asc">Цена ↑</option>
+              <option value="price-desc">Цена ↓</option>
+            </select>
+          </label>
+        </div>
       </section>
 
       {!productsReady ? (
@@ -972,6 +1011,9 @@ export function AdminProductStudio({
                 )}
               </div>
               <div className={styles.productBody}>
+                <strong className={styles.cardCatalogCode}>
+                  {product.metadata.catalogNumber || "Без BF-кода"}
+                </strong>
                 <div className={styles.cardTitleRow}>
                   <h3>{product.title}</h3>
                   <label className={`${styles.switch} ${product.isPublished ? styles.switchOn : ""}`}>

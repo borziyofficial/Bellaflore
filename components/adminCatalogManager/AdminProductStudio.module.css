@@ -1,6 +1,12 @@
 .root {
   display: grid;
   gap: 18px;
+  border: 1px solid rgba(138, 107, 61, 0.12);
+  border-radius: 8px;
+  padding: clamp(14px, 2vw, 22px);
+  background:
+    radial-gradient(circle at top right, rgba(184, 149, 106, 0.13), transparent 36%),
+    #f6efe5;
   color: #2f2a24;
 }
 
@@ -91,14 +97,39 @@
   opacity: 0.55;
 }
 
-.toolbar {
+.catalogControls {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) repeat(4, minmax(140px, 180px));
   gap: 10px;
 }
 
-.toolbar input,
-.toolbar select,
+.searchRow {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr);
+}
+
+.filterToggle {
+  display: none;
+}
+
+.filterPanel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.filterPanel label {
+  display: grid;
+  gap: 5px;
+}
+
+.filterPanel label > span {
+  color: #75695c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.searchRow input,
+.filterPanel select,
 .field input,
 .field select,
 .field textarea {
@@ -119,17 +150,19 @@
 
 .productGrid {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
 .productCard {
   display: grid;
-  grid-template-columns: 112px minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 12px;
   border: 1px solid rgba(138, 107, 61, 0.18);
   border-radius: 8px;
   padding: 12px;
-  background: #fff;
+  background: linear-gradient(145deg, #fff 0%, #fffaf2 100%);
+  box-shadow: 0 7px 20px rgba(71, 55, 34, 0.06);
 }
 
 .skeletonCard {
@@ -178,6 +211,31 @@
   min-width: 0;
 }
 
+.cardCatalogCode,
+.catalogCode {
+  width: fit-content;
+  border: 1px solid rgba(138, 107, 61, 0.28);
+  border-radius: 5px;
+  padding: 4px 7px;
+  background: #f3e7d4;
+  color: #6f4f21;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.editorMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.editorMeta .lead {
+  margin: 0;
+}
+
 .productBody h3,
 .productBody p {
   margin: 0;
@@ -212,13 +270,12 @@
 
 .cardActions {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
 .cardActionsRow {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  display: contents;
 }
 
 .mobileCardActions {
@@ -291,6 +348,19 @@
   font-weight: 900;
 }
 
+.panelHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panelHeading > span {
+  color: #75695c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .field {
   display: grid;
   gap: 7px;
@@ -319,12 +389,42 @@
 .dropzone {
   display: grid;
   justify-items: center;
-  gap: 10px;
-  border: 1px dashed rgba(138, 107, 61, 0.38);
+  gap: 14px;
+  min-height: 230px;
+  align-content: center;
+  border: 2px dashed rgba(138, 107, 61, 0.38);
   border-radius: 8px;
-  padding: 20px;
-  background: #fffaf2;
+  padding: 28px 20px;
+  background: linear-gradient(145deg, #fffdf9 0%, #f8ecda 100%);
   text-align: center;
+}
+
+.uploadMark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(138, 107, 61, 0.3);
+  border-radius: 50%;
+  background: #fff;
+  color: #8a6b3d;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.dropzoneCopy {
+  display: grid;
+  gap: 5px;
+}
+
+.dropzoneCopy strong {
+  font-size: 16px;
+}
+
+.dropzoneCopy small {
+  color: #75695c;
+  font-size: 12px;
 }
 
 .dropzone p {
@@ -365,6 +465,10 @@
 .imageCard {
   display: grid;
   gap: 8px;
+  border: 1px solid rgba(138, 107, 61, 0.16);
+  border-radius: 8px;
+  padding: 7px;
+  background: #fffdf9;
 }
 
 .imageFrame {
@@ -396,6 +500,12 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
+}
+
+.imageActions .primaryImageAction {
+  border-color: rgba(47, 107, 79, 0.28);
+  background: #edf7f1;
+  color: #2f6b4f;
 }
 
 .imageActions button {
@@ -497,8 +607,11 @@
     display: grid;
   }
 
-  .toolbar,
   .editorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .productGrid {
     grid-template-columns: 1fr;
   }
 }
@@ -506,6 +619,10 @@
 @media (max-width: 560px) {
   .root {
     gap: 14px;
+    padding: 12px;
+    background:
+      radial-gradient(circle at top right, rgba(184, 149, 106, 0.12), transparent 30%),
+      #f6efe5;
   }
 
   .title {
@@ -521,39 +638,91 @@
     font-size: 12px;
   }
 
-  .productGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .searchRow {
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
   }
 
+  .filterToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    border: 1px solid rgba(138, 107, 61, 0.28);
+    border-radius: 8px;
+    padding: 0 12px;
+    background: #fffaf2;
+    color: #2f2a24;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .filterCount {
+    display: grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #8a6b3d;
+    color: #fff;
+    font-size: 11px;
+  }
+
+  .filterPanel {
+    display: none;
+    grid-template-columns: 1fr;
+    border: 1px solid rgba(138, 107, 61, 0.16);
+    border-radius: 8px;
+    padding: 12px;
+    background: #fffaf2;
+  }
+
+  .filterPanelOpen {
+    display: grid;
+  }
+
+  .productGrid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
   .productCard {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 94px minmax(0, 1fr);
     align-content: start;
-    gap: 4px;
-    padding: 5px;
+    gap: 10px;
+    padding: 8px;
   }
 
   .productImage {
-    height: clamp(84px, 26vw, 100px);
+    height: 100%;
+    min-height: 132px;
     aspect-ratio: auto;
   }
 
   .productBody {
-    gap: 3px;
+    gap: 5px;
   }
 
   .productBody h3 {
     display: -webkit-box;
     overflow: hidden;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.2;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
 
-  .productCategory,
   .extendedCardMeta {
     display: none;
+  }
+
+  .productCategory {
+    overflow: hidden;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .cardTitleRow {
@@ -561,7 +730,7 @@
   }
 
   .productPrice {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 800;
     line-height: 1.2;
   }
@@ -606,7 +775,7 @@
     width: 100%;
     max-width: none;
     height: 30px;
-    min-height: 30px;
+    min-height: 36px;
     margin: 0;
     border: 1px solid rgba(138, 107, 61, 0.28);
     border-radius: 8px;
@@ -614,7 +783,7 @@
     background: #fffaf2;
     color: #2f2a24;
     font: inherit;
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 800;
     cursor: pointer;
   }
@@ -676,6 +845,20 @@
   .priceGrid,
   .checkGrid {
     grid-template-columns: 1fr;
+  }
+
+  .dropzone {
+    min-height: 210px;
+    padding: 24px 14px;
+  }
+
+  .imageGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .imageActions button {
+    min-height: 38px;
+    font-size: 11px;
   }
 
   .stickyActions {
