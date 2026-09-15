@@ -114,6 +114,20 @@
   text-transform: uppercase;
 }
 
+.catalogNumber {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 7px;
+  border: 1px solid rgba(201, 162, 75, 0.32);
+  border-radius: 999px;
+  background: rgba(201, 162, 75, 0.1);
+  color: var(--gold-dark, #9d7627);
+  font: 700 9px/1 var(--font-body, Inter, sans-serif);
+  letter-spacing: 0.02em;
+}
+
 .titleButton {
   width: 100%;
   padding: 0;

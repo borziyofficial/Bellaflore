@@ -126,6 +126,9 @@ export function ProductExperiencePage({
             {product.category ? (
               <span className={styles.category}>{product.category}</span>
             ) : null}
+            {product.catalogNumber ? (
+              <span className={styles.catalogNumber}>Артикул: {product.catalogNumber}</span>
+            ) : null}
             <h1 className={styles.title}>{product.title}</h1>
             <p
               id="product-description"

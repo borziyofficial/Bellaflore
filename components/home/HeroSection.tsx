@@ -239,6 +239,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
               aria-hidden="true"
               fill
               sizes="(max-width: 960px) 92vw, 48vw"
+              quality={92}
             />
           ) : null}
           <Image
@@ -248,6 +249,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
             alt="Премиальный букет BellaFlore"
             fill
             sizes="(max-width: 960px) 92vw, 48vw"
+            quality={92}
             priority
             onError={() => {
               if (displayedPhotoUrl !== FALLBACK_PHOTO_URL) {

@@ -77,6 +77,7 @@ export type CatalogProductBase = {
   priceRub: number;
   width: number;
   height: number;
+  catalogNumber?: string;
   category?: string;
   stemCount?: number;
   galleryImages?: ProductGalleryImage[];

@@ -195,6 +195,12 @@ export function LuxuryCatalogProductCard({
         <div className={styles.contentBlock}>
           <p className={styles.category}>{categoryLabel}</p>
 
+          {product.catalogNumber ? (
+            <span className={styles.catalogNumber} aria-label={`Артикул ${product.catalogNumber}`}>
+              {product.catalogNumber}
+            </span>
+          ) : null}
+
           <button
             type="button"
             className={styles.titleButton}
