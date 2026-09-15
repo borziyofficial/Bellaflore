@@ -82,8 +82,11 @@ function normalizeHeroPhotos(
 }
 
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
-  const banner = useHeroBannerSettings();
+  const { settings: banner, isResolved: isBannerResolved } =
+    useHeroBannerSettings();
   const [failedPhotoUrls, setFailedPhotoUrls] = useState<string[]>([]);
+  const [readyPhotoUrls, setReadyPhotoUrls] = useState<string[]>([]);
+  const [renderedPhotoUrl, setRenderedPhotoUrl] = useState<string | null>(null);
   const [currentPhotoState, setCurrentPhotoState] = useState({
     signature: "",
     index: 0,
@@ -91,6 +94,10 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const [previousPhotoUrl, setPreviousPhotoUrl] = useState<string | null>(null);
 
   const activeHeroPhotos = useMemo(() => {
+    if (!isBannerResolved) {
+      return [];
+    }
+
     const failed = new Set(failedPhotoUrls);
     const availablePhotos = normalizeHeroPhotos(banner?.photos, banner?.imageUrl).filter(
       (photo) => !failed.has(photo.imageUrl),
@@ -106,7 +113,8 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
             sortOrder: 0,
           },
         ];
-  }, [banner?.imageUrl, banner?.photos, failedPhotoUrls]);
+  }, [banner?.imageUrl, banner?.photos, failedPhotoUrls, isBannerResolved]);
+  const readyPhotos = useMemo(() => new Set(readyPhotoUrls), [readyPhotoUrls]);
   const activePhotoSignature = activeHeroPhotos
     .map((photo) => `${photo.id}:${photo.imageUrl}:${photo.isPrimary}`)
     .join("|");
@@ -119,8 +127,13 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     currentPhotoState.index < activeHeroPhotos.length
       ? currentPhotoState.index
       : primaryPhotoIndex;
-  const displayedPhotoUrl =
-    activeHeroPhotos[currentPhotoIndex]?.imageUrl ?? FALLBACK_PHOTO_URL;
+  const displayedPhotoUrl = activeHeroPhotos[currentPhotoIndex]?.imageUrl ?? null;
+  const isDisplayedPhotoReady = Boolean(
+    displayedPhotoUrl && readyPhotos.has(displayedPhotoUrl),
+  );
+  const isDisplayedPhotoRendered = Boolean(
+    displayedPhotoUrl && renderedPhotoUrl === displayedPhotoUrl,
+  );
   const title = banner?.title?.trim() || "Цветы, которые остаются в памяти";
   const subtitle =
     banner?.subtitle?.trim() ||
@@ -130,7 +143,47 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const subtitleText = subtitle.replace(/\n+/g, " ");
 
   useEffect(() => {
-    if (activeHeroPhotos.length < 2) {
+    if (!displayedPhotoUrl || readyPhotos.has(displayedPhotoUrl)) {
+      return;
+    }
+
+    let active = true;
+    const preload = new window.Image();
+    preload.decoding = "async";
+    preload.onload = () => {
+      if (!active) {
+        return;
+      }
+      setReadyPhotoUrls((current) =>
+        current.includes(displayedPhotoUrl)
+          ? current
+          : [...current, displayedPhotoUrl],
+      );
+    };
+    preload.onerror = () => {
+      if (!active) {
+        return;
+      }
+      setFailedPhotoUrls((current) =>
+        current.includes(displayedPhotoUrl)
+          ? current
+          : [...current, displayedPhotoUrl],
+      );
+    };
+    preload.src = displayedPhotoUrl;
+
+    return () => {
+      active = false;
+    };
+  }, [displayedPhotoUrl, readyPhotos]);
+
+  useEffect(() => {
+    if (
+      !displayedPhotoUrl ||
+      !isDisplayedPhotoReady ||
+      !isDisplayedPhotoRendered ||
+      activeHeroPhotos.length < 2
+    ) {
       return;
     }
 
@@ -142,14 +195,26 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
         return;
       }
 
+      const showNextPhoto = () => {
+        setPreviousPhotoUrl(displayedPhotoUrl);
+        setCurrentPhotoState({ signature: activePhotoSignature, index: nextIndex });
+      };
+
+      if (readyPhotos.has(nextPhotoUrl)) {
+        showNextPhoto();
+        return;
+      }
+
       const preload = new window.Image();
       preload.decoding = "async";
       preload.onload = () => {
         if (!active) {
           return;
         }
-        setPreviousPhotoUrl(displayedPhotoUrl);
-        setCurrentPhotoState({ signature: activePhotoSignature, index: nextIndex });
+        setReadyPhotoUrls((current) =>
+          current.includes(nextPhotoUrl) ? current : [...current, nextPhotoUrl],
+        );
+        showNextPhoto();
       };
       preload.onerror = () => {
         if (!active) {
@@ -166,10 +231,18 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
       active = false;
       window.clearTimeout(timer);
     };
-  }, [activeHeroPhotos, activePhotoSignature, currentPhotoIndex, displayedPhotoUrl]);
+  }, [
+    activeHeroPhotos,
+    activePhotoSignature,
+    currentPhotoIndex,
+    displayedPhotoUrl,
+    isDisplayedPhotoReady,
+    isDisplayedPhotoRendered,
+    readyPhotos,
+  ]);
 
   useEffect(() => {
-    if (!previousPhotoUrl) {
+    if (!previousPhotoUrl || !isDisplayedPhotoRendered) {
       return;
     }
 
@@ -178,7 +251,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     }, HERO_TRANSITION_MS);
 
     return () => window.clearTimeout(timer);
-  }, [previousPhotoUrl]);
+  }, [isDisplayedPhotoRendered, previousPhotoUrl]);
 
   // Always render as native button element for catalog (ensures touch works on iOS)
   // Only render as link if explicitly configured to external URL
@@ -233,34 +306,42 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
           {previousPhotoUrl ? (
             <Image
               key={`previous:${previousPhotoUrl}`}
-              className={`${styles.photoImage} ${styles.photoImagePrevious}`}
+              className={`${styles.photoImage} ${styles.photoImagePrevious} ${
+                isDisplayedPhotoRendered ? styles.photoImagePreviousExiting : ""
+              }`}
               src={previousPhotoUrl}
               alt=""
               aria-hidden="true"
               fill
-              sizes="(max-width: 960px) 92vw, 48vw"
+              sizes="(max-width: 960px) 100vw, 68vw"
               quality={92}
             />
           ) : null}
-          <Image
-            key={`current:${displayedPhotoUrl}`}
-            className={`${styles.photoImage} ${styles.photoImageCurrent}`}
-            src={displayedPhotoUrl}
-            alt="Премиальный букет BellaFlore"
-            fill
-            sizes="(max-width: 960px) 92vw, 48vw"
-            quality={92}
-            priority
-            onError={() => {
-              if (displayedPhotoUrl !== FALLBACK_PHOTO_URL) {
+          {displayedPhotoUrl && isDisplayedPhotoReady ? (
+            <Image
+              key={`current:${displayedPhotoUrl}`}
+              className={`${styles.photoImage} ${styles.photoImageCurrent} ${
+                isDisplayedPhotoRendered ? styles.photoImageCurrentReady : ""
+              }`}
+              src={displayedPhotoUrl}
+              alt="Премиальный букет BellaFlore"
+              fill
+              sizes="(max-width: 960px) 100vw, 68vw"
+              quality={92}
+              fetchPriority="high"
+              onLoad={() => setRenderedPhotoUrl(displayedPhotoUrl)}
+              onError={() => {
+                setReadyPhotoUrls((current) =>
+                  current.filter((photoUrl) => photoUrl !== displayedPhotoUrl),
+                );
                 setFailedPhotoUrls((current) =>
                   current.includes(displayedPhotoUrl)
                     ? current
                     : [...current, displayedPhotoUrl],
                 );
-              }
-            }}
-          />
+              }}
+            />
+          ) : null}
         </div>
       </div>
     </main>

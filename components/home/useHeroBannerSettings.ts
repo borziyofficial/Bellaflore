@@ -24,24 +24,42 @@ export type HeroBannerPhoto = {
   sortOrder: number;
 };
 
-export function useHeroBannerSettings(): HeroBannerSettings | null {
-  const [settings, setSettings] = useState<HeroBannerSettings | null>(null);
+export type HeroBannerSettingsState = {
+  settings: HeroBannerSettings | null;
+  isResolved: boolean;
+};
+
+export function useHeroBannerSettings(): HeroBannerSettingsState {
+  const [state, setState] = useState<HeroBannerSettingsState>({
+    settings: null,
+    isResolved: false,
+  });
 
   useEffect(() => {
     let active = true;
 
     fetch("/api/hero-banner", { cache: "no-store" })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Hero banner request failed");
+        }
+        return response.json();
+      })
       .then((body: { settings?: HeroBannerSettings | null }) => {
         if (!active) {
           return;
         }
-        if (body.settings && body.settings.isEnabled) {
-          setSettings(body.settings);
-        }
+        setState({
+          settings: body.settings?.isEnabled ? body.settings : null,
+          isResolved: true,
+        });
       })
       .catch(() => {
-        // Storefront falls back to the static hero content.
+        if (active) {
+          // Resolve before showing the static fallback, so it never flashes
+          // while real storefront settings are still loading.
+          setState({ settings: null, isResolved: true });
+        }
       });
 
     return () => {
@@ -49,5 +67,5 @@ export function useHeroBannerSettings(): HeroBannerSettings | null {
     };
   }, []);
 
-  return settings;
+  return state;
 }
