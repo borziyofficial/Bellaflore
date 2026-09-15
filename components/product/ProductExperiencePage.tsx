@@ -27,6 +27,7 @@ import type {
   ProductSizeId,
 } from "@/components/product/productExperienceTypes";
 import type { RealDeliveryZoneResult } from "@/components/deliveryZones/realDeliveryZoneTypes";
+import { useBodyScrollLock } from "@/lib/ui/useBodyScrollLock";
 
 type ProductExperiencePageProps = {
   product: CatalogProductBase;
@@ -68,6 +69,8 @@ export function ProductExperiencePage({
   onProductSelect,
   onImageError,
 }: ProductExperiencePageProps) {
+  useBodyScrollLock(true);
+
   const experienceData = useMemo(
     () => getProductExperienceData(product),
     [product],
