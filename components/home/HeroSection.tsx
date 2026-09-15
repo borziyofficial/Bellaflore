@@ -18,7 +18,7 @@ type HeroSectionProps = {
 
 const FALLBACK_PHOTO_URL = "/0001.jpg";
 const HERO_ROTATION_MS = 6200;
-const HERO_TRANSITION_MS = 1100;
+const HERO_TRANSITION_MS = 950;
 
 function isCatalogHeroLink(buttonLink: string): boolean {
   const link = buttonLink.trim();
@@ -128,6 +128,10 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
       ? currentPhotoState.index
       : primaryPhotoIndex;
   const displayedPhotoUrl = activeHeroPhotos[currentPhotoIndex]?.imageUrl ?? null;
+  const upcomingPhotoUrl =
+    activeHeroPhotos.length > 1
+      ? activeHeroPhotos[(currentPhotoIndex + 1) % activeHeroPhotos.length]?.imageUrl ?? null
+      : null;
   const isDisplayedPhotoReady = Boolean(
     displayedPhotoUrl && readyPhotos.has(displayedPhotoUrl),
   );
@@ -303,12 +307,38 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
         </div>
 
         <div className={styles.photo}>
+          {upcomingPhotoUrl && upcomingPhotoUrl !== displayedPhotoUrl ? (
+            <Image
+              key={`preload:${upcomingPhotoUrl}`}
+              className={styles.photoImage}
+              src={upcomingPhotoUrl}
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes="(max-width: 960px) 100vw, 68vw"
+              quality={92}
+              loading="eager"
+              style={{ opacity: 0, pointerEvents: "none", zIndex: 0 }}
+              onLoad={() =>
+                setReadyPhotoUrls((current) =>
+                  current.includes(upcomingPhotoUrl)
+                    ? current
+                    : [...current, upcomingPhotoUrl],
+                )
+              }
+              onError={() =>
+                setFailedPhotoUrls((current) =>
+                  current.includes(upcomingPhotoUrl)
+                    ? current
+                    : [...current, upcomingPhotoUrl],
+                )
+              }
+            />
+          ) : null}
           {previousPhotoUrl ? (
             <Image
               key={`previous:${previousPhotoUrl}`}
-              className={`${styles.photoImage} ${styles.photoImagePrevious} ${
-                isDisplayedPhotoRendered ? styles.photoImagePreviousExiting : ""
-              }`}
+              className={`${styles.photoImage} ${styles.photoImagePrevious}`}
               src={previousPhotoUrl}
               alt=""
               aria-hidden="true"
