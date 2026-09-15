@@ -119,7 +119,8 @@
 .photoImageCurrent {
   z-index: 2;
   opacity: 0;
-  transition: opacity 900ms ease;
+  transition: opacity 760ms ease;
+  will-change: opacity;
 }
 
 .photoImageCurrentReady {
@@ -129,20 +130,6 @@
 .photoImagePrevious {
   z-index: 1;
   opacity: 1;
-}
-
-.photoImagePreviousExiting {
-  animation: heroPhotoFadeOut 1100ms ease forwards;
-}
-
-@keyframes heroPhotoFadeOut {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
 }
 
 .eyebrow {
@@ -487,9 +474,5 @@
   .secondaryAction,
   .photoImage {
     transition: none;
-  }
-
-  .photoImagePreviousExiting {
-    animation: none;
   }
 }

@@ -17,8 +17,8 @@ type HeroSectionProps = {
 };
 
 const FALLBACK_PHOTO_URL = "/0001.jpg";
-const HERO_ROTATION_MS = 6200;
-const HERO_TRANSITION_MS = 950;
+const HERO_ROTATION_MS = 3000;
+const HERO_TRANSITION_MS = 800;
 
 function isCatalogHeroLink(buttonLink: string): boolean {
   const link = buttonLink.trim();
@@ -186,6 +186,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
       !displayedPhotoUrl ||
       !isDisplayedPhotoReady ||
       !isDisplayedPhotoRendered ||
+      previousPhotoUrl ||
       activeHeroPhotos.length < 2
     ) {
       return;
@@ -242,6 +243,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     displayedPhotoUrl,
     isDisplayedPhotoReady,
     isDisplayedPhotoRendered,
+    previousPhotoUrl,
     readyPhotos,
   ]);
 
