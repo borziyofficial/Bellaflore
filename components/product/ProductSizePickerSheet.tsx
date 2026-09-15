@@ -3,6 +3,7 @@
 import styles from "@/components/product/ProductSizePickerSheet.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { ProductSizeVariant } from "@/components/product/productExperienceTypes";
+import { useBodyScrollLock } from "@/lib/ui/useBodyScrollLock";
 import { useEffect, useMemo, useRef, type TouchEvent } from "react";
 
 type ProductSizePickerSheetProps = {
@@ -28,6 +29,8 @@ export function ProductSizePickerSheet({
   onSelect,
   onClose,
 }: ProductSizePickerSheetProps) {
+  useBodyScrollLock(open);
+
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({ startX: 0, startY: 0, deltaY: 0, dragging: false });
   const visibleVariants = useMemo(
@@ -46,9 +49,6 @@ export function ProductSizePickerSheet({
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
@@ -58,7 +58,6 @@ export function ProductSizePickerSheet({
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open, onClose]);
