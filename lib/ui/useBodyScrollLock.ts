@@ -3,58 +3,43 @@
 import { useEffect } from "react";
 
 type ScrollLockSnapshot = {
-  scrollY: number;
   htmlOverflow: string;
+  htmlOverscrollBehavior: string;
   bodyOverflow: string;
-  bodyPosition: string;
-  bodyTop: string;
-  bodyLeft: string;
-  bodyRight: string;
-  bodyWidth: string;
+  bodyOverscrollBehavior: string;
+  bodyTouchAction: string;
 };
 
 let activeScrollLocks = 0;
 let scrollLockSnapshot: ScrollLockSnapshot | null = null;
-let pendingScrollRestoreFrame: number | null = null;
-
-function cancelPendingScrollRestore() {
-  if (pendingScrollRestoreFrame === null || typeof window === "undefined") {
-    return;
-  }
-
-  window.cancelAnimationFrame(pendingScrollRestoreFrame);
-  pendingScrollRestoreFrame = null;
-}
 
 function acquireBodyScrollLock() {
   if (typeof window === "undefined") {
     return () => undefined;
   }
 
-  cancelPendingScrollRestore();
-
   if (activeScrollLocks === 0) {
     const { style: htmlStyle } = document.documentElement;
     const { style: bodyStyle } = document.body;
 
     scrollLockSnapshot = {
-      scrollY: window.scrollY,
       htmlOverflow: htmlStyle.overflow,
+      htmlOverscrollBehavior: htmlStyle.overscrollBehavior,
       bodyOverflow: bodyStyle.overflow,
-      bodyPosition: bodyStyle.position,
-      bodyTop: bodyStyle.top,
-      bodyLeft: bodyStyle.left,
-      bodyRight: bodyStyle.right,
-      bodyWidth: bodyStyle.width,
+      bodyOverscrollBehavior: bodyStyle.overscrollBehavior,
+      bodyTouchAction: bodyStyle.touchAction,
     };
 
+    // Keep the document in normal flow. iOS Safari can become unstable when a
+    // modal unmount races with history changes while body is position:fixed
+    // and translated with a negative top value. Overflow locking avoids that
+    // layout/history race and also prevents nested panels from fighting over
+    // scroll restoration.
     htmlStyle.overflow = "hidden";
+    htmlStyle.overscrollBehavior = "none";
     bodyStyle.overflow = "hidden";
-    bodyStyle.position = "fixed";
-    bodyStyle.top = `-${scrollLockSnapshot.scrollY}px`;
-    bodyStyle.left = "0";
-    bodyStyle.right = "0";
-    bodyStyle.width = "100%";
+    bodyStyle.overscrollBehavior = "none";
+    bodyStyle.touchAction = "none";
   }
 
   activeScrollLocks += 1;
@@ -79,19 +64,10 @@ function acquireBodyScrollLock() {
     const { style: bodyStyle } = document.body;
 
     htmlStyle.overflow = snapshot.htmlOverflow;
+    htmlStyle.overscrollBehavior = snapshot.htmlOverscrollBehavior;
     bodyStyle.overflow = snapshot.bodyOverflow;
-    bodyStyle.position = snapshot.bodyPosition;
-    bodyStyle.top = snapshot.bodyTop;
-    bodyStyle.left = snapshot.bodyLeft;
-    bodyStyle.right = snapshot.bodyRight;
-    bodyStyle.width = snapshot.bodyWidth;
-
-    pendingScrollRestoreFrame = window.requestAnimationFrame(() => {
-      pendingScrollRestoreFrame = null;
-      if (activeScrollLocks === 0) {
-        window.scrollTo(0, snapshot.scrollY);
-      }
-    });
+    bodyStyle.overscrollBehavior = snapshot.bodyOverscrollBehavior;
+    bodyStyle.touchAction = snapshot.bodyTouchAction;
   };
 }
 
