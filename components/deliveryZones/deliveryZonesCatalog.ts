@@ -55,16 +55,8 @@ export type DeliveryZoneMetaOverride = {
   isActive: boolean;
 };
 
-/** Default per-zone map fill opacity — matches the previous global constant
- * so nothing visually changes until an admin edits a zone's opacity. */
 export const DEFAULT_DELIVERY_ZONE_FILL_OPACITY = 0.22;
 
-/**
- * Fixed shape of the 7 zones: which zoneId is the base zone, its sort order,
- * and its outer distance band from MKAD (0/7/16/26/41/56/71 km). This part
- * is NOT admin-editable (see task spec) — only each zone's metadata
- * (title/label/color/opacity/price/time/active) and the base polygon are.
- */
 type ZoneShapeDefinition = {
   zoneId: DeliveryZoneId;
   isBaseZone: boolean;
@@ -73,17 +65,18 @@ type ZoneShapeDefinition = {
   cityId: DeliveryZoneCityId;
 };
 
+// Authoritative Moscow coverage. Every outer polygon is derived from the
+// real/editable MKAD polygon, not from a circle around the city centre.
 const ZONE_SHAPE_DEFINITIONS: ZoneShapeDefinition[] = [
   { zoneId: "base", isBaseZone: true, maxDistanceFromBaseKm: 0, sortOrder: 1, cityId: "moscow" },
   { zoneId: "7km", isBaseZone: false, maxDistanceFromBaseKm: 7, sortOrder: 2, cityId: "moscow" },
   { zoneId: "14km", isBaseZone: false, maxDistanceFromBaseKm: 16, sortOrder: 3, cityId: "moscow" },
   { zoneId: "21km", isBaseZone: false, maxDistanceFromBaseKm: 26, sortOrder: 4, cityId: "moscow" },
   { zoneId: "28km", isBaseZone: false, maxDistanceFromBaseKm: 41, sortOrder: 5, cityId: "moscow" },
-  { zoneId: "38km", isBaseZone: false, maxDistanceFromBaseKm: 56, sortOrder: 6, cityId: "moscow" },
-  { zoneId: "48km", isBaseZone: false, maxDistanceFromBaseKm: 71, sortOrder: 7, cityId: "moscow" },
+  { zoneId: "38km", isBaseZone: false, maxDistanceFromBaseKm: 60, sortOrder: 6, cityId: "moscow" },
+  { zoneId: "48km", isBaseZone: false, maxDistanceFromBaseKm: 100, sortOrder: 7, cityId: "moscow" },
 ];
 
-/** Built-in default metadata — used until an admin overrides a zone, and as the seed written to the DB on first use. */
 export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMetaOverride> = {
   base: {
     title: "Зона 1",
@@ -96,7 +89,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
   },
   "7km": {
     title: "Зона 2",
-    label: "До 7 км от МКАД",
+    label: "0–7 км от МКАД",
     color: "#F5C518",
     fillOpacity: DEFAULT_DELIVERY_ZONE_FILL_OPACITY,
     priceRub: 1290,
@@ -132,7 +125,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
   },
   "38km": {
     title: "Зона 6",
-    label: "41–56 км от МКАД",
+    label: "41–60 км от МКАД",
     color: "#3B82F6",
     fillOpacity: DEFAULT_DELIVERY_ZONE_FILL_OPACITY,
     priceRub: 4590,
@@ -141,7 +134,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
   },
   "48km": {
     title: "Зона 7",
-    label: "56–71 км от МКАД",
+    label: "60–100 км от МКАД",
     color: "#374151",
     fillOpacity: DEFAULT_DELIVERY_ZONE_FILL_OPACITY,
     priceRub: 5990,
@@ -177,12 +170,6 @@ function buildZonePolygon(
   return expandPolygonOutward(basePolygon, maxDistanceFromBaseKm, centroid);
 }
 
-/**
- * Rebuilds all 7 catalog entries from a base (Zone 1) polygon and per-zone
- * metadata overrides. Zones 2–7 are always derived from `basePolygon` via
- * the same robust buffer/offset used everywhere else (mkadPolygonExpansion)
- * — there is no separate/parallel way to store or compute their shape.
- */
 export function rebuildDeliveryZoneCatalogEntries(
   basePolygon: GeoCoordinate[],
   metaByZoneId: Partial<Record<DeliveryZoneId, DeliveryZoneMetaOverride>> = {},
@@ -221,24 +208,9 @@ function buildDefaultDeliveryZoneCatalog(): DeliveryZoneCatalogEntry[] {
   );
 }
 
-/**
- * Source of truth for Bellaflore delivery zones (Moscow). This is a stable
- * array reference whose *contents* get replaced in place by
- * applyDeliveryZoneOverrides() — every reader below (and every consumer
- * across checkout/pricing/map/admin) reads it at call time, so an
- * admin-saved change is visible everywhere immediately, with no separate
- * cache to fall out of sync.
- */
 export const DELIVERY_ZONES_CATALOG: DeliveryZoneCatalogEntry[] =
   buildDefaultDeliveryZoneCatalog();
 
-/**
- * Replaces the catalog's contents in place (same array reference). Used by
- * the delivery-zones DB hydration layer (server: lib/deliveryZonesDb.ts;
- * client: components/deliveryZones/deliveryZonesClientHydration.ts) after
- * reading admin-saved zones. A no-op on an empty/invalid list, so a bad
- * fetch can never blank out the catalog.
- */
 export function applyDeliveryZoneOverrides(
   entries: DeliveryZoneCatalogEntry[],
 ): void {
@@ -249,12 +221,11 @@ export function applyDeliveryZoneOverrides(
   DELIVERY_ZONES_CATALOG.push(...entries);
 }
 
-/** Testing/rollback helper — restores the built-in default catalog. */
 export function resetDeliveryZonesCatalogToDefault(): void {
   applyDeliveryZoneOverrides(buildDefaultDeliveryZoneCatalog());
 }
 
-export const DELIVERY_ZONE_MAX_DISTANCE_KM = 71;
+export const DELIVERY_ZONE_MAX_DISTANCE_KM = 100;
 
 export function getActiveDeliveryZones(
   cityId: DeliveryZoneCityId = "moscow",

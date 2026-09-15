@@ -8,6 +8,7 @@
 // Назначение (RU):
 // Загружает официальный JavaScript API Яндекс.Карт с ключами Maps и GeoSuggest.
 // ==================================================
+import { ensureDeliveryZonesHydratedOnClient } from "@/components/deliveryZones/deliveryZonesClientHydration";
 import {
   getYandexGeoSuggestApiKey,
   getYandexMapsApiKey,
@@ -17,11 +18,6 @@ import type { YandexMapsApi } from "@/components/maps/yandexMapsApi.types";
 const YANDEX_MAPS_SCRIPT_ID = "bellaflore-yandex-maps-sdk";
 const YANDEX_MAPS_API_READY_TIMEOUT_MS = 10_000;
 const YANDEX_MAPS_API_READY_POLL_MS = 50;
-// Guards the whole load — including the <script> network request itself,
-// before onload/onerror even fires. Without this, a stuck/blocked script
-// request (no clean network error, e.g. a silently dropped connection)
-// left the address suggestion + geocoding pipeline waiting forever, which
-// is what caused checkout to hang indefinitely on "Проверяем адрес…".
 const YANDEX_MAPS_SDK_LOAD_TIMEOUT_MS = 8_000;
 
 function withLoadTimeout<T>(promise: Promise<T>): Promise<T> {
@@ -260,7 +256,11 @@ export function loadYandexMapsSdk(
   return withLoadTimeout(pendingPromise);
 }
 
-export function loadConfiguredYandexMapsSdk(): Promise<YandexMapsApi> {
+export async function loadConfiguredYandexMapsSdk(): Promise<YandexMapsApi> {
+  // Delivery-zone geometry is server-configurable. Resolve the current DB
+  // zones before the map reaches its first ready render so the Yandex
+  // polygons cannot be frozen from the old built-in catalog.
+  await ensureDeliveryZonesHydratedOnClient();
   return loadYandexMapsSdk({
     apiKey: getYandexMapsApiKey(),
     suggestApiKey: getYandexGeoSuggestApiKey(),
