@@ -19,7 +19,32 @@ type CatalogApiProductResponse = {
 };
 
 async function parseJson<T>(response: Response): Promise<T> {
-  return (await response.json()) as T;
+  const text = await response.text();
+  if (!text.trim()) {
+    return {} as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return {} as T;
+  }
+}
+
+function fallbackRequestError(response: Response): string {
+  if (response.status === 401 || response.status === 403) {
+    return "Сессия администратора истекла. Войдите снова.";
+  }
+  if (response.status === 413) {
+    return "Запрос слишком большой. Уменьшите размер данных и повторите.";
+  }
+  if (response.status === 409) {
+    return "Не удалось сохранить: конфликт данных товара.";
+  }
+  if (response.status >= 500) {
+    return "Сервер не смог сохранить товар. Повторите попытку; если ошибка останется, проверьте базу данных.";
+  }
+  return `Ошибка API каталога (${response.status}).`;
 }
 
 async function catalogRequest<T>(
@@ -37,7 +62,7 @@ async function catalogRequest<T>(
 
   const body = await parseJson<T & { message?: string }>(response);
   if (!response.ok) {
-    throw new Error(body.message || "Ошибка API каталога.");
+    throw new Error(body.message || fallbackRequestError(response));
   }
 
   return body;
