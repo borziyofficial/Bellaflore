@@ -7,7 +7,6 @@ type ScrollLockSnapshot = {
   htmlOverscrollBehavior: string;
   bodyOverflow: string;
   bodyOverscrollBehavior: string;
-  bodyTouchAction: string;
 };
 
 let activeScrollLocks = 0;
@@ -27,19 +26,16 @@ function acquireBodyScrollLock() {
       htmlOverscrollBehavior: htmlStyle.overscrollBehavior,
       bodyOverflow: bodyStyle.overflow,
       bodyOverscrollBehavior: bodyStyle.overscrollBehavior,
-      bodyTouchAction: bodyStyle.touchAction,
     };
 
     // Keep the document in normal flow. iOS Safari can become unstable when a
     // modal unmount races with history changes while body is position:fixed
-    // and translated with a negative top value. Overflow locking avoids that
-    // layout/history race and also prevents nested panels from fighting over
-    // scroll restoration.
+    // and translated using a negative top value. Overflow locking avoids that
+    // layout/history race without disabling touch scrolling inside the modal.
     htmlStyle.overflow = "hidden";
     htmlStyle.overscrollBehavior = "none";
     bodyStyle.overflow = "hidden";
     bodyStyle.overscrollBehavior = "none";
-    bodyStyle.touchAction = "none";
   }
 
   activeScrollLocks += 1;
@@ -67,7 +63,6 @@ function acquireBodyScrollLock() {
     htmlStyle.overscrollBehavior = snapshot.htmlOverscrollBehavior;
     bodyStyle.overflow = snapshot.bodyOverflow;
     bodyStyle.overscrollBehavior = snapshot.bodyOverscrollBehavior;
-    bodyStyle.touchAction = snapshot.bodyTouchAction;
   };
 }
 
