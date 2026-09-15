@@ -306,7 +306,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
           </ul>
         </div>
 
-        <div className={styles.photo}>
+        <div className={styles.photo} style={{ background: "#f4efe7" }}>
           {upcomingPhotoUrl && upcomingPhotoUrl !== displayedPhotoUrl ? (
             <Image
               key={`preload:${upcomingPhotoUrl}`}
@@ -336,7 +336,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
             />
           ) : null}
 
-          {displayedPhotoUrl && isDisplayedPhotoReady ? (
+          {displayedPhotoUrl ? (
             <Image
               key={`base:${displayedPhotoUrl}`}
               className={styles.photoImage}
@@ -345,9 +345,17 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
               fill
               sizes="(max-width: 960px) 100vw, 68vw"
               quality={92}
+              priority
               fetchPriority="high"
               style={{ opacity: 1, zIndex: 1 }}
-              onLoad={() => setRenderedPhotoUrl(displayedPhotoUrl)}
+              onLoad={() => {
+                setRenderedPhotoUrl(displayedPhotoUrl);
+                setReadyPhotoUrls((current) =>
+                  current.includes(displayedPhotoUrl)
+                    ? current
+                    : [...current, displayedPhotoUrl],
+                );
+              }}
               onError={() => {
                 setReadyPhotoUrls((current) =>
                   current.filter((photoUrl) => photoUrl !== displayedPhotoUrl),
