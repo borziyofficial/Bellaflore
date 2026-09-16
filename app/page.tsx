@@ -1069,8 +1069,11 @@ export default function Home() {
     closeBottomNavPanel("myOrder", true);
   };
 
-  const didHandleRecentTouch = (eventTimeStamp: number) =>
-    eventTimeStamp - lastTouchActionRef.current < 450;
+  // Safari may use a different time origin for touch and synthetic click events.
+  // Compare against one wall-clock source so a tap never double-submits (or gets
+  // swallowed) when iOS dispatches the follow-up click.
+  const didHandleRecentTouch = (_eventTimeStamp: number) =>
+    lastTouchActionRef.current > 0 && Date.now() - lastTouchActionRef.current < 450;
 
   const toggleContactHub = () => {
     toggleBottomNavPanel("contact");
@@ -1094,7 +1097,7 @@ export default function Home() {
   ) => {
     event.preventDefault();
     event.stopPropagation();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
     toggleContactHub();
   };
 
@@ -1477,7 +1480,7 @@ export default function Home() {
     priceRub: number,
   ) => {
     event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
     addBouquetToCart(bouquetId, sizeId, priceRub);
   };
 
@@ -1505,7 +1508,7 @@ export default function Home() {
     sizeId: ProductSizeId,
   ) => {
     event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
     removeBouquetFromCart(bouquetId, sizeId);
     setBottomNavAction("Букет удалён из корзины");
   };
@@ -1530,7 +1533,7 @@ export default function Home() {
     sizeId: ProductSizeId,
   ) => {
     event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
     decreaseCartItemQuantity(bouquetId, sizeId);
   };
 
@@ -1554,7 +1557,7 @@ export default function Home() {
     sizeId: ProductSizeId,
   ) => {
     event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
     increaseCartItemQuantity(bouquetId, sizeId);
   };
 
@@ -1611,7 +1614,7 @@ export default function Home() {
   ) => {
     event.preventDefault();
     event.stopPropagation();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
     toggleBottomNavPanel("favorites");
   };
 
@@ -1642,7 +1645,7 @@ export default function Home() {
   ) => {
     event.preventDefault();
     event.stopPropagation();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
     closeAllBottomNavPanelsImmediate();
     openCatalogView();
   };
@@ -1664,7 +1667,7 @@ export default function Home() {
   ) => {
     event.preventDefault();
     event.stopPropagation();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
     goHomeFromBottomNav();
   };
 
@@ -1847,7 +1850,7 @@ export default function Home() {
   ) => {
     event.preventDefault();
     event.stopPropagation();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
     toggleBottomNavPanel("myOrder");
   };
 
@@ -2257,7 +2260,7 @@ export default function Home() {
     selectedPaymentMethod: CheckoutPaymentMethodUi,
   ) => {
     event.preventDefault();
-    lastTouchActionRef.current = event.timeStamp;
+    lastTouchActionRef.current = Date.now();
 
     void confirmCheckoutOrder(selectedPaymentMethod);
   };
