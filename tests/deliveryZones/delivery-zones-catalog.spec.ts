@@ -41,8 +41,8 @@ const EXPECTED_MAX_DISTANCE_KM: Record<string, number> = {
   "14km": 16,
   "21km": 26,
   "28km": 41,
-  "38km": 56,
-  "48km": 71,
+  "38km": 60,
+  "48km": 100,
 };
 
 function ringAreaAbs(ring: GeoCoordinate[]): number {

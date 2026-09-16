@@ -61,7 +61,7 @@ export const DEFAULT_DELIVERY_ZONE_FILL_OPACITY = 0.22;
 
 /**
  * Fixed shape of the 7 zones: which zoneId is the base zone, its sort order,
- * and its outer distance band from MKAD (0/7/16/26/41/56/71 km). This part
+ * and its outer distance band from MKAD (0/7/16/26/41/60/100 km). This part
  * is NOT admin-editable (see task spec) — only each zone's metadata
  * (title/label/color/opacity/price/time/active) and the base polygon are.
  */
@@ -79,8 +79,11 @@ const ZONE_SHAPE_DEFINITIONS: ZoneShapeDefinition[] = [
   { zoneId: "14km", isBaseZone: false, maxDistanceFromBaseKm: 16, sortOrder: 3, cityId: "moscow" },
   { zoneId: "21km", isBaseZone: false, maxDistanceFromBaseKm: 26, sortOrder: 4, cityId: "moscow" },
   { zoneId: "28km", isBaseZone: false, maxDistanceFromBaseKm: 41, sortOrder: 5, cityId: "moscow" },
-  { zoneId: "38km", isBaseZone: false, maxDistanceFromBaseKm: 56, sortOrder: 6, cityId: "moscow" },
-  { zoneId: "48km", isBaseZone: false, maxDistanceFromBaseKm: 71, sortOrder: 7, cityId: "moscow" },
+  // `38km` and `48km` are retained as stable database/API identifiers from
+  // the earlier catalog; the customer-facing bands are the canonical
+  // 41–60 km and 60–100 km ranges.
+  { zoneId: "38km", isBaseZone: false, maxDistanceFromBaseKm: 60, sortOrder: 6, cityId: "moscow" },
+  { zoneId: "48km", isBaseZone: false, maxDistanceFromBaseKm: 100, sortOrder: 7, cityId: "moscow" },
 ];
 
 /** Built-in default metadata — used until an admin overrides a zone, and as the seed written to the DB on first use. */
@@ -132,7 +135,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
   },
   "38km": {
     title: "Зона 6",
-    label: "41–56 км от МКАД",
+    label: "41–60 км от МКАД",
     color: "#3B82F6",
     fillOpacity: DEFAULT_DELIVERY_ZONE_FILL_OPACITY,
     priceRub: 4590,
@@ -141,7 +144,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
   },
   "48km": {
     title: "Зона 7",
-    label: "56–71 км от МКАД",
+    label: "60–100 км от МКАД",
     color: "#374151",
     fillOpacity: DEFAULT_DELIVERY_ZONE_FILL_OPACITY,
     priceRub: 5990,
@@ -254,7 +257,7 @@ export function resetDeliveryZonesCatalogToDefault(): void {
   applyDeliveryZoneOverrides(buildDefaultDeliveryZoneCatalog());
 }
 
-export const DELIVERY_ZONE_MAX_DISTANCE_KM = 71;
+export const DELIVERY_ZONE_MAX_DISTANCE_KM = 100;
 
 export function getActiveDeliveryZones(
   cityId: DeliveryZoneCityId = "moscow",

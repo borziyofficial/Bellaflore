@@ -23,6 +23,7 @@ import type { DeliveryZoneId } from "@/components/deliveryZones/deliveryZoneType
 import type { DeliveryZoneMapMarker } from "@/components/deliveryZones/deliveryZoneMapTypes";
 import type { RealDeliveryZoneStatus } from "@/components/deliveryZones/realDeliveryZoneTypes";
 import styles from "@/components/deliveryZones/DeliveryZoneMapModal.module.css";
+import { useBodyScrollLock } from "@/lib/ui/useBodyScrollLock";
 import { useEffect } from "react";
 
 type DeliveryZoneMapModalProps = {
@@ -54,21 +55,9 @@ export function DeliveryZoneMapModal({
   onConfirm,
   onCancel,
 }: DeliveryZoneMapModalProps) {
-  // Body scroll lock. The original inline value is captured and restored by
-  // the cleanup, which also runs on unmount — so the page can never be left
-  // stuck with overflow:hidden the way the old Favorites overlay did.
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isOpen]);
+  // Keep the expanded map lock reference-counted with checkout and nested
+  // sheets so closing it on iPhone/Safari never restores the page too early.
+  useBodyScrollLock(isOpen);
 
   // Escape cancels — it must behave exactly like the close button, i.e.
   // discard the in-modal selection rather than silently committing it.
