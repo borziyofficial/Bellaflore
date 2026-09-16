@@ -22,6 +22,7 @@ import styles from "@/components/product/ProductExperiencePage.module.css";
 import { ProductSizePickerSheet } from "@/components/product/ProductSizePickerSheet";
 import { ProductStickyBuyBar } from "@/components/product/ProductStickyBuyBar";
 import { ProductTrustStrip } from "@/components/product/ProductTrustStrip";
+import { useBodyScrollLock } from "@/lib/ui/useBodyScrollLock";
 import type {
   CatalogProductBase,
   ProductSizeId,
@@ -68,6 +69,8 @@ export function ProductExperiencePage({
   onProductSelect,
   onImageError,
 }: ProductExperiencePageProps) {
+  useBodyScrollLock(true);
+
   const experienceData = useMemo(
     () => getProductExperienceData(product),
     [product],

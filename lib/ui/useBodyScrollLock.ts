@@ -2,36 +2,105 @@
 
 import { useEffect } from "react";
 
-export function useBodyScrollLock(active: boolean) {
-  useEffect(() => {
-    if (!active || typeof window === "undefined") {
+type ScrollLockSnapshot = {
+  scrollY: number;
+  htmlOverflow: string;
+  bodyOverflow: string;
+  bodyPosition: string;
+  bodyTop: string;
+  bodyLeft: string;
+  bodyRight: string;
+  bodyWidth: string;
+};
+
+let activeScrollLocks = 0;
+let scrollLockSnapshot: ScrollLockSnapshot | null = null;
+let pendingScrollRestoreFrame: number | null = null;
+
+function cancelPendingScrollRestore() {
+  if (pendingScrollRestoreFrame === null || typeof window === "undefined") {
+    return;
+  }
+
+  window.cancelAnimationFrame(pendingScrollRestoreFrame);
+  pendingScrollRestoreFrame = null;
+}
+
+function acquireBodyScrollLock() {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  cancelPendingScrollRestore();
+
+  if (activeScrollLocks === 0) {
+    const { style: htmlStyle } = document.documentElement;
+    const { style: bodyStyle } = document.body;
+
+    scrollLockSnapshot = {
+      scrollY: window.scrollY,
+      htmlOverflow: htmlStyle.overflow,
+      bodyOverflow: bodyStyle.overflow,
+      bodyPosition: bodyStyle.position,
+      bodyTop: bodyStyle.top,
+      bodyLeft: bodyStyle.left,
+      bodyRight: bodyStyle.right,
+      bodyWidth: bodyStyle.width,
+    };
+
+    htmlStyle.overflow = "hidden";
+    bodyStyle.overflow = "hidden";
+    bodyStyle.position = "fixed";
+    bodyStyle.top = `-${scrollLockSnapshot.scrollY}px`;
+    bodyStyle.left = "0";
+    bodyStyle.right = "0";
+    bodyStyle.width = "100%";
+  }
+
+  activeScrollLocks += 1;
+  let released = false;
+
+  return () => {
+    if (released || typeof window === "undefined") {
       return;
     }
 
-    const scrollY = window.scrollY;
-    const { body } = document;
-    const previousOverflow = body.style.overflow;
-    const previousPosition = body.style.position;
-    const previousTop = body.style.top;
-    const previousLeft = body.style.left;
-    const previousRight = body.style.right;
-    const previousWidth = body.style.width;
+    released = true;
+    activeScrollLocks = Math.max(0, activeScrollLocks - 1);
 
-    body.style.overflow = "hidden";
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-    body.style.width = "100%";
+    if (activeScrollLocks > 0 || !scrollLockSnapshot) {
+      return;
+    }
 
-    return () => {
-      body.style.overflow = previousOverflow;
-      body.style.position = previousPosition;
-      body.style.top = previousTop;
-      body.style.left = previousLeft;
-      body.style.right = previousRight;
-      body.style.width = previousWidth;
-      window.scrollTo(0, scrollY);
-    };
+    const snapshot = scrollLockSnapshot;
+    scrollLockSnapshot = null;
+
+    const { style: htmlStyle } = document.documentElement;
+    const { style: bodyStyle } = document.body;
+
+    htmlStyle.overflow = snapshot.htmlOverflow;
+    bodyStyle.overflow = snapshot.bodyOverflow;
+    bodyStyle.position = snapshot.bodyPosition;
+    bodyStyle.top = snapshot.bodyTop;
+    bodyStyle.left = snapshot.bodyLeft;
+    bodyStyle.right = snapshot.bodyRight;
+    bodyStyle.width = snapshot.bodyWidth;
+
+    pendingScrollRestoreFrame = window.requestAnimationFrame(() => {
+      pendingScrollRestoreFrame = null;
+      if (activeScrollLocks === 0) {
+        window.scrollTo(0, snapshot.scrollY);
+      }
+    });
+  };
+}
+
+export function useBodyScrollLock(active: boolean) {
+  useEffect(() => {
+    if (!active) {
+      return;
+    }
+
+    return acquireBodyScrollLock();
   }, [active]);
 }
