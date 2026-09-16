@@ -10,11 +10,15 @@ import {
   orderStatusLabels,
   paymentMethodLabel,
   paymentStatusLabels,
+  updateAdminOrderPaymentStatus,
   updateAdminOrderStatus,
 } from "@/lib/orders/adminClient";
+import type { OrderPaymentStatus } from "@/lib/orders/types";
 import { AdminModuleHeader, AdminPanel } from "@/components/adminApp/shared/AdminModuleUi";
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
 import styles from "@/components/adminApp/modules/orders/AdminOrdersModule.module.css";
+
+const PAYMENT_STATUSES: OrderPaymentStatus[] = ["PENDING", "PAID", "REFUNDED"];
 
 export function AdminOrderDetailsModule({ orderId }: { orderId: string }) {
   const [order, setOrder] = useState<AdminOrder | null>(null);
@@ -54,6 +58,25 @@ export function AdminOrderDetailsModule({ orderId }: { orderId: string }) {
       setMessage(status === "CONFIRMED" ? "Заказ принят и подтверждён." : "Заказ отменён.");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Не удалось обновить статус.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function changePaymentStatus(paymentStatus: OrderPaymentStatus) {
+    if (!order || paymentStatus === order.paymentStatus) return;
+    const previous = order.paymentStatus;
+    setSaving(true);
+    setMessage("");
+    setErrorMessage("");
+    setOrder({ ...order, paymentStatus });
+    try {
+      const updatedPaymentStatus = await updateAdminOrderPaymentStatus(order.id, paymentStatus);
+      setOrder((current) => current ? { ...current, paymentStatus: updatedPaymentStatus } : current);
+      setMessage(`Статус оплаты: ${paymentStatusLabels[updatedPaymentStatus]}.`);
+    } catch (error) {
+      setOrder((current) => current ? { ...current, paymentStatus: previous } : current);
+      setErrorMessage(error instanceof Error ? error.message : "Не удалось обновить статус оплаты.");
     } finally {
       setSaving(false);
     }
@@ -110,6 +133,20 @@ export function AdminOrderDetailsModule({ orderId }: { orderId: string }) {
                 Отклонить заказ
               </button>
             </div>
+
+            <label className={styles.statusControl}>
+              Статус оплаты
+              <select
+                value={order.paymentStatus}
+                disabled={saving}
+                onChange={(event) => void changePaymentStatus(event.target.value as OrderPaymentStatus)}
+                aria-label="Изменить статус оплаты"
+              >
+                {PAYMENT_STATUSES.map((status) => (
+                  <option key={status} value={status}>{paymentStatusLabels[status]}</option>
+                ))}
+              </select>
+            </label>
 
             {showCancellation ? (
               <form
