@@ -49,9 +49,6 @@ function buildLegendItems(
 }
 
 function buildZoneLayers(selectedZoneId: DeliveryZoneId | null): DeliveryZoneMapLayer[] {
-  // Include the base zone too, so the MKAD outline itself is drawn as a
-  // polygon layer (it used to be skipped, leaving Zone 1 invisible on the
-  // map even though it is a real, priced zone).
   const activeZones = DELIVERY_ZONES_CATALOG.filter(
     (zone) => zone.isActive,
   ).sort((left, right) => left.sortOrder - right.sortOrder);
@@ -97,11 +94,20 @@ export function buildDeliveryZoneMapModel(
   const marker = params.marker ?? null;
   const center = marker ?? MOSCOW_MAP_CENTER;
 
+  // `DELIVERY_ZONES_CATALOG` is hydrated asynchronously from the same DB the
+  // Admin editor writes to. Keep layers/legend as live getters so a model
+  // created before hydration does not freeze the old built-in geometry in
+  // React useMemo. When Yandex finishes loading, these getters read the
+  // current MKAD polygon, current derived rings, current prices and labels.
   return {
     center,
     defaultZoom: marker ? 11 : 10,
-    layers: buildZoneLayers(params.selectedZoneId),
-    legend: buildLegendItems(params.selectedZoneId, zoneAvailability),
+    get layers() {
+      return buildZoneLayers(params.selectedZoneId);
+    },
+    get legend() {
+      return buildLegendItems(params.selectedZoneId, zoneAvailability);
+    },
     marker,
     selectedZoneId: params.selectedZoneId,
     zoneStatus,
@@ -129,8 +135,8 @@ export function formatDeliveryZoneMapDistanceLabel(
   isBaseZone: boolean,
 ): string {
   if (isBaseZone) {
-    return "Inside MKAD";
+    return "Внутри МКАД";
   }
 
-  return `Up to ${maxDistanceFromBaseKm} km from MKAD`;
+  return `До ${maxDistanceFromBaseKm} км от МКАД`;
 }
