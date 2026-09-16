@@ -50,9 +50,9 @@ export const orderStatusLabels: Record<OrderStatus, string> = {
 };
 
 export const paymentStatusLabels: Record<OrderPaymentStatus, string> = {
-  PENDING: "Ожидает оплаты",
+  PENDING: "Не оплачен",
   PAID: "Оплачен",
-  REFUNDED: "Возвращён",
+  REFUNDED: "Возврат",
 };
 
 export function paymentMethodLabel(value: string): string {
@@ -131,6 +131,35 @@ export async function updateAdminOrderStatus(
     credentials: "same-origin",
   });
   return readAdminOrderResponse(response, "Не удалось обновить статус заказа.");
+}
+
+export async function updateAdminOrderPaymentStatus(
+  identifier: string,
+  paymentStatus: OrderPaymentStatus,
+): Promise<OrderPaymentStatus> {
+  const response = await fetch(
+    `/api/admin/orders/${encodeURIComponent(identifier)}/payment`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentStatus }),
+      cache: "no-store",
+      credentials: "same-origin",
+    },
+  );
+  const body = (await response.json().catch(() => null)) as
+    | {
+        paymentStatus?: OrderPaymentStatus;
+        error?: { message?: string };
+        message?: string;
+      }
+    | null;
+  if (!response.ok || !body?.paymentStatus) {
+    throw new Error(
+      body?.error?.message ?? body?.message ?? "Не удалось обновить статус оплаты.",
+    );
+  }
+  return body.paymentStatus;
 }
 
 export type DashboardOrderMetrics = {
