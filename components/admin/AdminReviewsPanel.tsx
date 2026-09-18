@@ -146,6 +146,7 @@ export function AdminReviewsPanel() {
                 <div className={ui.listItemMuted}>
                   {"★".repeat(review.rating)}
                   {"☆".repeat(5 - review.rating)} · {STATUS_LABELS[review.status]}
+                  {review.productId ? ` · Букет ${review.productId}` : " · Общий отзыв"}
                 </div>
                 <div>{review.text}</div>
               </div>
