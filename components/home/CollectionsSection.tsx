@@ -396,9 +396,21 @@ export function CollectionsSection({
       ) : null}
 
       {isInitialCatalogLoading ? (
-        <div className={styles.emptyState} data-catalog-state="loading">
-          <p className={styles.emptyTitle}>Загружаем букеты</p>
-          <p className={styles.emptyMessage}>Коллекция появится через мгновение</p>
+        <div
+          className={`${styles.grid} ${styles.loadingGrid}`}
+          data-catalog-state="loading"
+          role="status"
+          aria-label="Загружаем букеты"
+        >
+          {Array.from({ length: 6 }, (_, index) => (
+            <div className={styles.loadingCard} key={index} aria-hidden="true">
+              <div className={styles.loadingImage} />
+              <div className={styles.loadingLineShort} />
+              <div className={styles.loadingLine} />
+              <div className={styles.loadingLineMedium} />
+              <div className={styles.loadingButton} />
+            </div>
+          ))}
         </div>
       ) : hasCatalogLoadError && bouquets.length === 0 ? (
         <div className={styles.emptyState} data-catalog-state="error">
