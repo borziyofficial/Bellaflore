@@ -553,6 +553,42 @@ export default function Home() {
     };
   }, []);
   const [reviews, setReviews] = useState<BellafloreReview[]>(initialReviews);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPublishedReviews = async () => {
+      try {
+        const response = await fetch("/api/reviews", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as {
+          reviews?: BellafloreReview[];
+        };
+
+        if (!cancelled && Array.isArray(payload.reviews)) {
+          setReviews([
+            ...payload.reviews,
+            ...initialReviews.filter(
+              (demoReview) =>
+                !payload.reviews?.some((review) => review.id === demoReview.id),
+            ),
+          ]);
+        }
+      } catch {
+        // Demo reviews remain visible if the production review store is unavailable.
+      }
+    };
+
+    void loadPublishedReviews();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [reviewForm, setReviewForm] = useState<ReviewForm>({
     name: "",
     rating: 5,
@@ -2011,7 +2047,7 @@ export default function Home() {
     setReviewFormMessage("");
   };
 
-  const handleReviewSubmit = (event: ReactFormEvent<HTMLFormElement>) => {
+  const handleReviewSubmit = async (event: ReactFormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const name = reviewForm.name.trim();
@@ -2022,26 +2058,55 @@ export default function Home() {
       return;
     }
 
-    const createdAt = new Date();
-    const nextReview: BellafloreReview = {
-      id: `review-local-${createdAt.getTime()}`,
-      name,
-      rating: reviewForm.rating,
-      text,
-      createdAtDisplay: createdAt.toLocaleDateString("ru-RU", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }),
-    };
+    setReviewFormMessage("Отправляем отзыв…");
 
-    setReviews((currentReviews) => [nextReview, ...currentReviews]);
-    setReviewForm({
-      name: "",
-      rating: 5,
-      text: "",
-    });
-    setReviewFormMessage("Спасибо, отзыв добавлен");
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          rating: reviewForm.rating,
+          text,
+        }),
+      });
+      const payload = (await response.json()) as {
+        review?: BellafloreReview;
+        published?: boolean;
+        message?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.message || "Не удалось отправить отзыв.");
+      }
+
+      if (payload.published && payload.review) {
+        setReviews((currentReviews) => [
+          payload.review as BellafloreReview,
+          ...currentReviews.filter((review) => review.id !== payload.review?.id),
+        ]);
+      }
+
+      setReviewForm({
+        name: "",
+        rating: 5,
+        text: "",
+      });
+      setReviewFormMessage(
+        payload.message ||
+          (payload.published
+            ? "Спасибо! Отзыв опубликован."
+            : "Спасибо! Отзыв отправлен на модерацию."),
+      );
+    } catch (error) {
+      setReviewFormMessage(
+        error instanceof Error
+          ? error.message
+          : "Не удалось отправить отзыв. Попробуйте ещё раз.",
+      );
+    }
   };
 
   const selectDeliveryDatePreset = (preset: DeliveryDatePreset) => {
