@@ -308,7 +308,7 @@
      kept explicit here as a defense-in-depth guard against any sub-pixel
      rounding difference, so a whole grid row can never end up with cards of
      visibly different heights. */
-  align-items: stretch;
+  align-items: start;
 }
 
 .gridAll,

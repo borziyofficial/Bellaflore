@@ -1,11 +1,13 @@
 .card {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: max-content max-content;
+  align-content: start;
   align-self: start;
-  height: max-content;
+  height: fit-content;
+  min-height: 0;
   min-width: 0;
-  gap: 8px;
+  gap: 6px;
   padding: 8px;
   border-radius: 8px;
   border: 1px solid var(--color-border, rgba(54, 45, 35, 0.14));
@@ -87,7 +89,9 @@
 .info {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 4px;
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 3px;
   min-width: 0;
   min-height: 0;
 }
@@ -95,7 +99,9 @@
 .contentBlock {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 3px;
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 2px;
   min-height: 0;
 }
 
@@ -132,16 +138,16 @@
   display: inline-flex;
   align-items: center;
   gap: 1px;
-  min-height: 28px;
-  margin: 0 0 1px;
+  min-height: 24px;
+  margin: 0;
 }
 
 .ratingStar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 27px;
-  height: 28px;
+  width: 25px;
+  height: 24px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -177,7 +183,6 @@
   display: -webkit-box;
   overflow: hidden;
   margin: 0;
-  min-height: calc(1.25em * 2);
   font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 1.08rem;
   font-weight: 600;
@@ -191,7 +196,6 @@
   display: -webkit-box;
   overflow: hidden;
   margin: 0;
-  min-height: calc(1.3em * 2);
   color: var(--color-text-secondary, #746f68);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 11px;
@@ -231,7 +235,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  margin-top: 0;
+  margin-top: 3px;
   padding-top: 0;
 }
 
@@ -271,9 +275,11 @@
 
 .sizeSelectorBlock {
   display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 2px;
   min-width: 0;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 .sizeSelectorLabel {
@@ -353,7 +359,7 @@
 @media (max-width: 768px) {
   .card {
     padding: 7px;
-    gap: 6px;
+    gap: 5px;
   }
 
   .favorite {
@@ -364,13 +370,13 @@
   }
 
   .ratingTeaser {
-    min-height: 27px;
+    min-height: 24px;
   }
 
   .ratingStar {
-    width: 25px;
-    height: 27px;
-    font-size: 18px;
+    width: 24px;
+    height: 24px;
+    font-size: 17px;
   }
 
   .title {
