@@ -10,8 +10,23 @@
 import type { MetadataRoute } from "next";
 
 import { absoluteUrl, seoLandingPages } from "./seo";
+import { listPublishedCatalogProducts } from "@/lib/catalogDb";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  let productEntries: MetadataRoute.Sitemap = [];
+
+  try {
+    const products = await listPublishedCatalogProducts();
+    productEntries = products.map((product) => ({
+      url: absoluteUrl(`/catalog/${product.seoSlug || product.slug}`),
+      lastModified: new Date(product.updatedAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }));
+  } catch {
+    // Keep the static sitemap available during builds without a configured DB.
+  }
+
   return [
     {
       url: absoluteUrl("/"),
@@ -19,6 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    ...productEntries,
     ...seoLandingPages.map((page) => ({
       url: absoluteUrl(`/${page.slug}`),
       lastModified: new Date(),

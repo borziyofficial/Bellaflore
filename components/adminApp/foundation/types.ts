@@ -15,6 +15,7 @@ export type AdminSidebarId =
   | "bouquets"
   | "categories"
   | "orders"
+  | "reviews"
   | "customers"
   | "delivery"
   | "delivery-zones"

@@ -69,6 +69,13 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
     description: "Поток заказов",
   },
   {
+    id: "reviews",
+    label: "Отзывы",
+    href: "/admin/reviews",
+    description: "Модерация отзывов",
+    sidebarOnly: true,
+  },
+  {
     id: "customers",
     label: "Клиенты",
     href: "/admin/customers",
@@ -170,6 +177,9 @@ export function resolveAdminSidebarId(pathname: string): AdminSidebarId {
   if (pathname.startsWith("/admin/orders")) {
     return "orders";
   }
+  if (pathname.startsWith("/admin/reviews")) {
+    return "reviews";
+  }
   if (pathname.startsWith("/admin/customers") || pathname.startsWith("/admin/crm")) {
     return "customers";
   }
@@ -215,6 +225,7 @@ const ADMIN_PAGE_TITLES: Record<string, string> = {
   "/admin/bouquets": "Букеты",
   "/admin/add": "Добавить товар",
   "/admin/orders": "Заказы",
+  "/admin/reviews": "Отзывы",
   "/admin/profile": "Профиль",
   "/admin/smart-banner": "Умный баннер",
   "/admin/delivery-zones": "Зоны доставки",
