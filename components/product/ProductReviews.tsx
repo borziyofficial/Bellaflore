@@ -14,11 +14,13 @@ type PublicReview = {
 type ProductReviewsProps = {
   productId: string;
   productTitle: string;
+  requestedRating?: number | null;
 };
 
 export function ProductReviews({
   productId,
   productTitle,
+  requestedRating = null,
 }: ProductReviewsProps) {
   const [reviews, setReviews] = useState<PublicReview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +30,7 @@ export function ProductReviews({
   const [text, setText] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showAllReviews, setShowAllReviews] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +64,37 @@ export function ProductReviews({
       cancelled = true;
     };
   }, [productId]);
+
+  useEffect(() => {
+    try {
+      const storedRating = Number(
+        window.sessionStorage.getItem(
+          `bellaflore:review-rating:${productId}`,
+        ),
+      );
+      if (Number.isInteger(storedRating) && storedRating >= 1 && storedRating <= 5) {
+        setRating(storedRating);
+        setFormOpen(true);
+        window.sessionStorage.removeItem(
+          `bellaflore:review-rating:${productId}`,
+        );
+      }
+    } catch {
+      // Ignore private-mode/sessionStorage limitations.
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    if (
+      requestedRating !== null &&
+      Number.isInteger(requestedRating) &&
+      requestedRating >= 1 &&
+      requestedRating <= 5
+    ) {
+      setRating(requestedRating);
+      setFormOpen(true);
+    }
+  }, [requestedRating]);
 
   const averageRating = useMemo(() => {
     if (reviews.length === 0) {
@@ -239,24 +273,41 @@ export function ProductReviews({
             Будьте первым, кто оставит отзыв об этом букете.
           </p>
         ) : (
-          reviews.slice(0, 6).map((review) => (
-            <article className={styles.reviewCard} key={review.id}>
-              <div className={styles.reviewTop}>
-                <div>
-                  <strong>{review.name}</strong>
-                  <span>{review.createdAtDisplay}</span>
-                </div>
-                <span
-                  className={styles.reviewStars}
-                  aria-label={`Оценка ${review.rating} из 5`}
-                >
-                  {"★".repeat(review.rating)}
-                  {"☆".repeat(5 - review.rating)}
-                </span>
-              </div>
-              <p>{review.text}</p>
-            </article>
-          ))
+          <>
+            {(showAllReviews ? reviews.slice(0, 6) : reviews.slice(0, 1)).map(
+              (review) => (
+                <article className={styles.reviewCard} key={review.id}>
+                  <div className={styles.reviewTop}>
+                    <div>
+                      <strong>{review.name}</strong>
+                      <span>{review.createdAtDisplay}</span>
+                    </div>
+                    <span
+                      className={styles.reviewStars}
+                      aria-label={`Оценка ${review.rating} из 5`}
+                    >
+                      {"★".repeat(review.rating)}
+                      {"☆".repeat(5 - review.rating)}
+                    </span>
+                  </div>
+                  <p>{review.text}</p>
+                </article>
+              ),
+            )}
+
+            {reviews.length > 1 ? (
+              <button
+                type="button"
+                className={styles.reviewsToggle}
+                onClick={() => setShowAllReviews((current) => !current)}
+                aria-expanded={showAllReviews}
+              >
+                {showAllReviews
+                  ? "Скрыть отзывы"
+                  : `Показать все отзывы (${reviews.length})`}
+              </button>
+            ) : null}
+          </>
         )}
       </div>
     </section>

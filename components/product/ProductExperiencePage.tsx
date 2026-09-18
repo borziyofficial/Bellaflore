@@ -87,12 +87,14 @@ export function ProductExperiencePage({
   );
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [reviewRatingRequest, setReviewRatingRequest] = useState<number | null>(null);
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
   const selectedSizeLabel = selectedVariant.sizeId;
   const priceLabel = formatPrice(selectedVariant.priceRub);
   const descriptionIsLong =
     experienceData.description.length > COLLAPSIBLE_DESCRIPTION_LENGTH;
+  const reviewProductId = product.catalogNumber ?? product.id;
 
   const handleBuy = () => {
     onBuy(product.id, selectedSizeId, selectedVariant.priceRub);
@@ -105,10 +107,13 @@ export function ProductExperiencePage({
     setSelectedSizeId(sizeId);
   }, []);
   const closeSizeSheet = useCallback(() => setSizeSheetOpen(false), []);
-  const scrollToReviews = useCallback(() => {
-    document.getElementById("product-reviews")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
+  const handleReviewRatingSelect = useCallback((rating: number) => {
+    setReviewRatingRequest(rating);
+    window.requestAnimationFrame(() => {
+      document.getElementById("product-reviews")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     });
   }, []);
 
@@ -139,14 +144,29 @@ export function ProductExperiencePage({
             {product.catalogNumber ? (
               <span className={styles.catalogNumber}>Артикул: {product.catalogNumber}</span>
             ) : null}
-            <button
-              type="button"
+            <div
               className={styles.reviewShortcut}
-              onClick={scrollToReviews}
-              aria-label={`Перейти к отзывам о ${product.title}`}
+              role="radiogroup"
+              aria-label={`Оценить ${product.title}`}
             >
-              <span aria-hidden="true">★★★★★</span>
-            </button>
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <button
+                  key={rating}
+                  type="button"
+                  role="radio"
+                  aria-checked={reviewRatingRequest === rating}
+                  aria-label={`${rating} из 5`}
+                  className={`${styles.reviewShortcutStar} ${
+                    rating <= (reviewRatingRequest ?? 0)
+                      ? styles.reviewShortcutStarActive
+                      : ""
+                  }`}
+                  onClick={() => handleReviewRatingSelect(rating)}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
             <h1 className={styles.title}>{product.title}</h1>
             <p
               id="product-description"
@@ -214,8 +234,9 @@ export function ProductExperiencePage({
           </div>
 
           <ProductReviews
-            productId={product.catalogNumber ?? product.id}
+            productId={reviewProductId}
             productTitle={product.title}
+            requestedRating={reviewRatingRequest}
           />
 
           <ProductRecommendations

@@ -85,18 +85,16 @@
 }
 
 .info {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 4px;
   min-width: 0;
   min-height: 0;
 }
 
 .contentBlock {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 3px;
   min-height: 0;
 }
@@ -130,27 +128,39 @@
 }
 
 .ratingTeaser {
-  align-self: flex-start;
+  justify-self: start;
   display: inline-flex;
   align-items: center;
-  min-height: 22px;
-  margin: 1px 0 2px;
+  gap: 1px;
+  min-height: 28px;
+  margin: 0 0 1px;
+}
+
+.ratingStar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 28px;
+  margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--color-gold, #c9a24b);
+  color: rgba(181, 141, 55, 0.22);
   font-family: var(--font-body, Inter, sans-serif);
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 19px;
   line-height: 1;
-  letter-spacing: 0.08em;
   cursor: pointer;
   touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
 }
 
-.ratingTeaser:active {
-  transform: scale(0.97);
+.ratingStarActive {
+  color: var(--color-gold, #c9a24b);
+}
+
+.ratingStar:active {
+  transform: scale(0.9);
 }
 
 .titleButton {
@@ -221,7 +231,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  margin-top: 2px;
+  margin-top: 0;
   padding-top: 0;
 }
 
@@ -354,8 +364,13 @@
   }
 
   .ratingTeaser {
-    min-height: 24px;
-    font-size: 16px;
+    min-height: 27px;
+  }
+
+  .ratingStar {
+    width: 25px;
+    height: 27px;
+    font-size: 18px;
   }
 
   .title {

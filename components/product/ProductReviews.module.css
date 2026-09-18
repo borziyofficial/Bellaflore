@@ -177,6 +177,22 @@
   font: 500 14px/1.5 var(--font-body, Inter, sans-serif);
 }
 
+.reviewsToggle {
+  min-height: 42px;
+  width: 100%;
+  padding: 0 14px;
+  border: 1px solid rgba(201, 162, 75, 0.24);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--gold-dark, #9d7627);
+  font: 700 13px/1 var(--font-body, Inter, sans-serif);
+  cursor: pointer;
+}
+
+.reviewsToggle:active {
+  transform: scale(0.99);
+}
+
 @media (min-width: 640px) {
   .header {
     grid-template-columns: 1fr auto;

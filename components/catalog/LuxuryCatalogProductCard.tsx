@@ -56,6 +56,7 @@ export function LuxuryCatalogProductCard({
     experienceData.defaultSizeId,
   );
   const [trackedProductId, setTrackedProductId] = useState(product.id);
+  const [selectedReviewRating, setSelectedReviewRating] = useState(0);
   const actionGestureRef = useRef({
     startX: 0,
     startY: 0,
@@ -65,6 +66,7 @@ export function LuxuryCatalogProductCard({
   if (product.id !== trackedProductId) {
     setTrackedProductId(product.id);
     setSelectedSizeId(experienceData.defaultSizeId);
+    setSelectedReviewRating(0);
   }
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
@@ -142,6 +144,32 @@ export function LuxuryCatalogProductCard({
     setSelectedSizeId(sizeId);
   };
 
+  const handleReviewRatingSelect = (
+    event: MouseEvent<HTMLButtonElement>,
+    rating: number,
+  ) => {
+    if (shouldSuppressActionClick(event)) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const reviewProductId = product.catalogNumber ?? product.id;
+    setSelectedReviewRating(rating);
+
+    try {
+      window.sessionStorage.setItem(
+        `bellaflore:review-rating:${reviewProductId}`,
+        String(rating),
+      );
+    } catch {
+      // The review form still opens even if browser storage is unavailable.
+    }
+
+    onProductOpen?.(product.id);
+  };
+
   return (
     <article className={styles.card}>
       <div className={styles.mediaWrap}>
@@ -201,17 +229,30 @@ export function LuxuryCatalogProductCard({
             </span>
           ) : null}
 
-          <button
-            type="button"
+          <div
             className={styles.ratingTeaser}
-            onClick={openProduct}
-            onTouchStart={handleActionTouchStart}
-            onTouchMove={handleActionTouchMove}
-            onTouchEnd={handleActionTouchEnd}
-            aria-label={`Открыть отзывы о ${product.title}`}
+            role="radiogroup"
+            aria-label={`Оценить ${product.title}`}
           >
-            <span aria-hidden="true">★★★★★</span>
-          </button>
+            {[1, 2, 3, 4, 5].map((rating) => (
+              <button
+                key={rating}
+                type="button"
+                role="radio"
+                aria-checked={selectedReviewRating === rating}
+                aria-label={`${rating} из 5`}
+                className={`${styles.ratingStar} ${
+                  rating <= selectedReviewRating ? styles.ratingStarActive : ""
+                }`}
+                onClick={(event) => handleReviewRatingSelect(event, rating)}
+                onTouchStart={handleActionTouchStart}
+                onTouchMove={handleActionTouchMove}
+                onTouchEnd={handleActionTouchEnd}
+              >
+                ★
+              </button>
+            ))}
+          </div>
 
           <button
             type="button"

@@ -98,23 +98,35 @@
   justify-self: start;
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
+  gap: 2px;
+  min-height: 34px;
+  margin: 0;
+}
+
+.reviewShortcutStar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 34px;
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--color-gold, #c9a24b);
+  color: rgba(181, 141, 55, 0.22);
   font-family: var(--font-body, Inter, sans-serif);
-  font-size: 19px;
-  font-weight: 700;
+  font-size: 24px;
   line-height: 1;
-  letter-spacing: 0.1em;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-.reviewShortcut:active {
-  transform: scale(0.97);
+.reviewShortcutStarActive {
+  color: var(--color-gold, #c9a24b);
+}
+
+.reviewShortcutStar:active {
+  transform: scale(0.9);
 }
 
 .title {
