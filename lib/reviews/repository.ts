@@ -130,17 +130,28 @@ export async function createReview(input: {
   return mapReview(rows[0]);
 }
 
-export async function listApprovedReviews(limit = 100): Promise<ReviewRecord[]> {
+export async function listApprovedReviews(
+  productId: string | null = null,
+  limit = 100,
+): Promise<ReviewRecord[]> {
   await ensureReviewsSchema();
   const sql = getReviewsSqlClient();
   const safeLimit = Math.min(Math.max(limit, 1), 200);
-  const rows = await sql<ReviewRow[]>`
-    SELECT *
-    FROM storefront_reviews
-    WHERE status = 'approved'
-    ORDER BY created_at DESC
-    LIMIT ${safeLimit}
-  `;
+  const rows = productId
+    ? await sql<ReviewRow[]>`
+        SELECT *
+        FROM storefront_reviews
+        WHERE status = 'approved' AND product_id = ${productId}
+        ORDER BY created_at DESC
+        LIMIT ${safeLimit}
+      `
+    : await sql<ReviewRow[]>`
+        SELECT *
+        FROM storefront_reviews
+        WHERE status = 'approved'
+        ORDER BY created_at DESC
+        LIMIT ${safeLimit}
+      `;
   return rows.map(mapReview);
 }
 
