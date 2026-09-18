@@ -284,57 +284,57 @@ export function LuxuryCatalogProductCard({
           </button>
 
           <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
-        </div>
 
-        {visibleVariants.length > 0 ? (
-          <div className={styles.sizeSelectorBlock}>
-            <span className={styles.sizeSelectorLabel}>Размер</span>
-            <div
-              className={styles.sizeSelectorRow}
-              role="radiogroup"
-              aria-label={`Размер букета ${product.title}`}
-            >
-              {visibleVariants.map((variant) => {
-                const isActive = variant.sizeId === selectedSizeId;
-                return (
-                  <button
-                    key={variant.sizeId}
-                    type="button"
-                    role="radio"
-                    aria-checked={isActive}
-                    aria-label={`Размер ${variant.sizeId}, ${formatPrice(variant.priceRub)}`}
-                    className={`${styles.sizeOption} ${
-                      isActive ? styles.sizeOptionActive : ""
-                    }`}
-                    onClick={(event) => {
-                      if (!shouldSuppressActionClick(event)) {
-                        handleSizeSelect(variant.sizeId);
-                      }
-                    }}
-                    onTouchStart={handleActionTouchStart}
-                    onTouchMove={handleActionTouchMove}
-                    onTouchEnd={handleActionTouchEnd}
-                  >
-                    {variant.sizeId}
-                  </button>
-                );
-              })}
+          {visibleVariants.length > 0 ? (
+            <div className={styles.sizeSelectorBlock}>
+              <span className={styles.sizeSelectorLabel}>Размер</span>
+              <div
+                className={styles.sizeSelectorRow}
+                role="radiogroup"
+                aria-label={`Размер букета ${product.title}`}
+              >
+                {visibleVariants.map((variant) => {
+                  const isActive = variant.sizeId === selectedSizeId;
+                  return (
+                    <button
+                      key={variant.sizeId}
+                      type="button"
+                      role="radio"
+                      aria-checked={isActive}
+                      aria-label={`Размер ${variant.sizeId}, ${formatPrice(variant.priceRub)}`}
+                      className={`${styles.sizeOption} ${
+                        isActive ? styles.sizeOptionActive : ""
+                      }`}
+                      onClick={(event) => {
+                        if (!shouldSuppressActionClick(event)) {
+                          handleSizeSelect(variant.sizeId);
+                        }
+                      }}
+                      onTouchStart={handleActionTouchStart}
+                      onTouchMove={handleActionTouchMove}
+                      onTouchEnd={handleActionTouchEnd}
+                    >
+                      {variant.sizeId}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ) : null}
+          ) : null}
 
-        <div className={styles.actionRow}>
-          <button
-            type="button"
-            className={styles.buyButton}
-            onClick={handleBuyClick}
-            onTouchStart={handleActionTouchStart}
-            onTouchMove={handleActionTouchMove}
-            onTouchEnd={handleActionTouchEnd}
-            aria-label={`Купить ${product.title}`}
-          >
-            Купить
-          </button>
+          <div className={styles.actionRow}>
+            <button
+              type="button"
+              className={styles.buyButton}
+              onClick={handleBuyClick}
+              onTouchStart={handleActionTouchStart}
+              onTouchMove={handleActionTouchMove}
+              onTouchEnd={handleActionTouchEnd}
+              aria-label={`Купить ${product.title}`}
+            >
+              Купить
+            </button>
+          </div>
         </div>
       </div>
     </article>

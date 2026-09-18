@@ -314,6 +314,8 @@
 .gridAll,
 .gridCategory {
   grid-auto-flow: row;
+  grid-auto-rows: max-content;
+  align-items: start;
 }
 
 .gridAll {

@@ -1173,20 +1173,12 @@ export default function Home() {
     toggleFavoriteBouquet(bouquetId);
   };
 
-  const handleFavoriteRemoveClick = (
-    event: ReactMouseEvent<HTMLButtonElement>,
-    bouquetId: string,
-  ) => {
-    event.preventDefault();
-
-    if (
-      lastTouchActionRef.current > 0 &&
-      didHandleRecentTouch(event.timeStamp)
-    ) {
-      return;
-    }
-
-    removeFavoriteBouquet(bouquetId);
+  const handleFavoriteRemove = (bouquetId: string) => {
+    // Defer the DOM removal until the current iOS touch/click dispatch finishes.
+    // Removing the active tapped card synchronously can destabilize Safari/WebView.
+    window.requestAnimationFrame(() => {
+      removeFavoriteBouquet(bouquetId);
+    });
   };
 
   const favoriteBouquets = bouquets.filter((bouquet) =>
@@ -2470,7 +2462,7 @@ export default function Home() {
               closeAllBottomNavPanelsImmediate();
               openCatalogView();
             }}
-            handleFavoriteRemoveClick={handleFavoriteRemoveClick}
+            onRemoveFavorite={handleFavoriteRemove}
             handleFavoriteBuyClick={handleFavoriteBuyClick}
           />
         </BottomNavPanelFrame>

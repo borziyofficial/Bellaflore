@@ -37,10 +37,7 @@ type FavoritesPanelProps = {
   formatPrice: (priceRub: number) => string;
   onCloseFavoritesPanel: () => void;
   onOpenCatalog: () => void;
-  handleFavoriteRemoveClick: (
-    event: ReactMouseEvent<HTMLButtonElement>,
-    bouquetId: string,
-  ) => void;
+  onRemoveFavorite: (bouquetId: string) => void;
   handleFavoriteBuyClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
@@ -52,10 +49,7 @@ type FavoritesPanelProps = {
 type FavoriteCardProps = {
   bouquet: FavoriteBouquet;
   formatPrice: (priceRub: number) => string;
-  handleFavoriteRemoveClick: (
-    event: ReactMouseEvent<HTMLButtonElement>,
-    bouquetId: string,
-  ) => void;
+  onRemoveFavorite: (bouquetId: string) => void;
   handleFavoriteBuyClick: (
     event: ReactMouseEvent<HTMLButtonElement>,
     bouquetId: string,
@@ -69,7 +63,7 @@ const ACTION_GESTURE_THRESHOLD_PX = 10;
 function FavoriteCard({
   bouquet,
   formatPrice,
-  handleFavoriteRemoveClick,
+  onRemoveFavorite,
   handleFavoriteBuyClick,
 }: FavoriteCardProps) {
   const experienceData = useMemo(() => getProductExperienceData(bouquet), [bouquet]);
@@ -199,13 +193,22 @@ function FavoriteCard({
             type="button"
             className={styles.removeButton}
             onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
               if (!shouldSuppressActionClick(event)) {
-                handleFavoriteRemoveClick(event, bouquet.id);
+                onRemoveFavorite(bouquet.id);
               }
             }}
             onTouchStart={handleActionTouchStart}
             onTouchMove={handleActionTouchMove}
-            onTouchEnd={handleActionTouchEnd}
+            onTouchEnd={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              actionGestureRef.current.suppressClickUntil = Date.now() + 800;
+              if (!actionGestureRef.current.moved) {
+                onRemoveFavorite(bouquet.id);
+              }
+            }}
             aria-label={`Убрать ${bouquet.title} из избранного`}
           >
             <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -214,8 +217,9 @@ function FavoriteCard({
           </button>
         </div>
       </div>
+      {sizeSheetOpen ? (
       <ProductSizePickerSheet
-        open={sizeSheetOpen}
+        open
         title="Размер"
         productName={bouquet.title}
         variants={experienceData.sizeVariants}
@@ -225,6 +229,7 @@ function FavoriteCard({
         onSelect={setSelectedSizeId}
         onClose={() => setSizeSheetOpen(false)}
       />
+      ) : null}
     </article>
   );
 }
@@ -237,7 +242,7 @@ export function FavoritesPanel({
   formatPrice,
   onCloseFavoritesPanel,
   onOpenCatalog,
-  handleFavoriteRemoveClick,
+  onRemoveFavorite,
   handleFavoriteBuyClick,
 }: FavoritesPanelProps) {
   useBodyScrollLock(true);
@@ -317,7 +322,7 @@ export function FavoritesPanel({
                 key={`favorite-${bouquet.id}`}
                 bouquet={bouquet}
                 formatPrice={formatPrice}
-                handleFavoriteRemoveClick={handleFavoriteRemoveClick}
+                onRemoveFavorite={onRemoveFavorite}
                 handleFavoriteBuyClick={handleFavoriteBuyClick}
               />
             ))}
