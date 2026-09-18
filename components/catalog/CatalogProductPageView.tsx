@@ -5,6 +5,7 @@
 import Link from "next/link";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import { ProtectedProductImage } from "@/components/images/ProtectedProductImage";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import styles from "@/components/catalog/CatalogProductPage.module.css";
@@ -92,6 +93,11 @@ export function CatalogProductPageView({
               {product.deliveryHint ?? "Доставка сегодня по Москве и области"}
             </p>
           </div>
+
+          <ProductReviews
+            productId={catalogNumber ?? product.id}
+            productTitle={record.title}
+          />
         </div>
       </article>
     </main>
