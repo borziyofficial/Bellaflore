@@ -13,6 +13,7 @@ import { ProductInformation } from "@/components/product/ProductInformation";
 import { ProductBuyPanel } from "@/components/product/ProductBuyPanel";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductRecommendations } from "@/components/product/ProductRecommendations";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import {
   getProductExperienceData,
   getProductSizeVariant,
@@ -197,6 +198,11 @@ export function ProductExperiencePage({
               checkoutNow={checkoutNow}
             />
           </div>
+
+          <ProductReviews
+            productId={product.catalogNumber ?? product.id}
+            productTitle={product.title}
+          />
 
           <ProductRecommendations
             products={similarProducts}
