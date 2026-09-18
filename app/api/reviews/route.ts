@@ -42,9 +42,11 @@ function errorResponse(error: unknown): Response {
   );
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const reviews = await listApprovedReviews();
+    const { searchParams } = new URL(request.url);
+    const productId = searchParams.get("productId")?.trim() || null;
+    const reviews = await listApprovedReviews(productId);
     return Response.json({ reviews: reviews.map(publicReview) });
   } catch (error) {
     return errorResponse(error);
