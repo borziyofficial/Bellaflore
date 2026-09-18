@@ -105,6 +105,12 @@ export function ProductExperiencePage({
     setSelectedSizeId(sizeId);
   }, []);
   const closeSizeSheet = useCallback(() => setSizeSheetOpen(false), []);
+  const scrollToReviews = useCallback(() => {
+    document.getElementById("product-reviews")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, []);
 
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={product.title}>
@@ -133,6 +139,14 @@ export function ProductExperiencePage({
             {product.catalogNumber ? (
               <span className={styles.catalogNumber}>Артикул: {product.catalogNumber}</span>
             ) : null}
+            <button
+              type="button"
+              className={styles.reviewShortcut}
+              onClick={scrollToReviews}
+              aria-label={`Перейти к отзывам о ${product.title}`}
+            >
+              <span aria-hidden="true">★★★★★</span>
+            </button>
             <h1 className={styles.title}>{product.title}</h1>
             <p
               id="product-description"

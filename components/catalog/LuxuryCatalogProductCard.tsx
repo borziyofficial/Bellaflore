@@ -203,6 +203,18 @@ export function LuxuryCatalogProductCard({
 
           <button
             type="button"
+            className={styles.ratingTeaser}
+            onClick={openProduct}
+            onTouchStart={handleActionTouchStart}
+            onTouchMove={handleActionTouchMove}
+            onTouchEnd={handleActionTouchEnd}
+            aria-label={`Открыть отзывы о ${product.title}`}
+          >
+            <span aria-hidden="true">★★★★★</span>
+          </button>
+
+          <button
+            type="button"
             className={styles.titleButton}
             onClick={openProduct}
             onTouchStart={handleActionTouchStart}

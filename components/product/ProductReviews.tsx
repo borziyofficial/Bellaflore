@@ -135,7 +135,11 @@ export function ProductReviews({
   };
 
   return (
-    <section className={styles.section} aria-labelledby="product-reviews-title">
+    <section
+      id="product-reviews"
+      className={styles.section}
+      aria-labelledby="product-reviews-title"
+    >
       <div className={styles.header}>
         <div>
           <p className={styles.kicker}>Отзывы</p>
