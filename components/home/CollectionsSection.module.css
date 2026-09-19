@@ -546,3 +546,134 @@
     transform: none;
   }
 }
+
+
+/* ==================================================
+   HOME PREMIUM SHOWCASE
+   ================================================== */
+.homeShowcase {
+  padding-top: 72px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(201, 162, 75, 0.08), transparent 28%),
+    var(--bg-primary, #f7f5f1);
+}
+
+.homeEyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: var(--color-gold-hover, #b58d37);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.homeCategoryBlock {
+  display: grid;
+  gap: 12px;
+  margin: 6px 0 26px;
+}
+
+.homeCategoryHeading {
+  display: grid;
+  gap: 4px;
+}
+
+.homeCategoryHeading span {
+  color: var(--color-gold-hover, #b58d37);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.homeCategoryHeading strong {
+  color: var(--text-light, #1e1b18);
+  font-family: var(--font-brand, "Playfair Display", serif);
+  font-size: 1.45rem;
+  font-weight: 600;
+}
+
+.fullCatalogButtonWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.fullCatalogButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 50px;
+  margin: 0;
+  padding: 0 24px;
+  border: 1px solid rgba(201, 162, 75, 0.34);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fffefb 0%, #fff7e9 100%);
+  color: #8f6b25;
+  box-shadow: 0 12px 28px rgba(54, 45, 35, 0.08);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.fullCatalogButton span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .homeShowcase {
+    padding-top: 50px;
+  }
+
+  .homeShowcase .header {
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
+  .homeShowcase .header h2 {
+    max-width: 330px;
+    font-size: 2rem;
+    line-height: 1.08;
+  }
+
+  .homeShowcase .subtitle {
+    margin: 12px 0 0;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .homeShowcase .collectionRail {
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .homeShowcase .collectionTile {
+    flex-basis: min(72vw, 286px);
+    border-radius: 14px;
+    padding: 8px;
+  }
+
+  .homeShowcase .collectionImage {
+    aspect-ratio: 4 / 5;
+    border-radius: 11px;
+  }
+
+  .homeShowcase .collectionCopy {
+    padding: 8px 6px 7px;
+  }
+
+  .homeShowcase .collectionCopy strong {
+    font-size: 1.08rem;
+  }
+
+  .fullCatalogButton {
+    width: 100%;
+    min-height: 54px;
+  }
+}
