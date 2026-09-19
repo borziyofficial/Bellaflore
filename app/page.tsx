@@ -64,6 +64,7 @@ import {
   type CheckoutPaymentMethodUi,
 } from "@/components/checkout/submitCheckoutOrder";
 import { AboutSection } from "@/components/home/AboutSection";
+import { AiFlorist } from "@/components/home/AiFlorist";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
 import { HeroSection } from "@/components/home/HeroSection";
@@ -2426,6 +2427,8 @@ export default function Home() {
         catalogStatus={catalogStatus}
         catalogErrorMessage={catalogErrorMessage}
         onCatalogRetry={reloadCatalog}
+        fullCatalog={publicAppView === "catalog"}
+        onOpenFullCatalog={openCatalogView}
       />
       <AboutSection />
       <ReviewsSection
@@ -2440,6 +2443,12 @@ export default function Home() {
         handleReviewFieldChange={handleReviewFieldChange}
       />
       <ContactSection />
+
+      <AiFlorist
+        bouquets={bouquets}
+        formatPrice={formatPrice}
+        onProductOpen={openProductExperience}
+      />
 
       {/* ==================================================
           SECTION: Favorites Panel
