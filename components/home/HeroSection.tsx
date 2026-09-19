@@ -4,7 +4,7 @@
 // ==================================================
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   useHeroBannerSettings,
@@ -24,8 +24,8 @@ type HeroOverlayState = {
 };
 
 const FALLBACK_PHOTO_URL = "/0001.jpg";
-const HERO_CYCLE_MS = 3000;
-const HERO_TRANSITION_MS = 800;
+const HERO_CYCLE_MS = 3800;
+const HERO_TRANSITION_MS = 850;
 const HERO_HOLD_MS = HERO_CYCLE_MS - HERO_TRANSITION_MS;
 
 function isCatalogHeroLink(buttonLink: string): boolean {
@@ -100,6 +100,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     index: 0,
   });
   const [overlay, setOverlay] = useState<HeroOverlayState | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const activeHeroPhotos = useMemo(() => {
     if (!isBannerResolved) {
@@ -161,6 +162,40 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const subtitleText = subtitle.replace(/\n+/g, " ");
 
   useEffect(() => {
+    if (!isBannerResolved || activeHeroPhotos.length < 2) {
+      return;
+    }
+
+    let active = true;
+    const loaders = activeHeroPhotos.map((photo) => {
+      if (readyPhotos.has(photo.imageUrl)) {
+        return null;
+      }
+      const preload = new window.Image();
+      preload.decoding = "async";
+      preload.onload = () => {
+        if (!active) return;
+        setReadyPhotoUrls((current) =>
+          current.includes(photo.imageUrl) ? current : [...current, photo.imageUrl],
+        );
+      };
+      preload.onerror = () => {
+        if (!active) return;
+        setFailedPhotoUrls((current) =>
+          current.includes(photo.imageUrl) ? current : [...current, photo.imageUrl],
+        );
+      };
+      preload.src = photo.imageUrl;
+      return preload;
+    });
+
+    return () => {
+      active = false;
+      void loaders;
+    };
+  }, [activeHeroPhotos, isBannerResolved, readyPhotos]);
+
+  useEffect(() => {
     if (!displayedPhotoUrl || readyPhotos.has(displayedPhotoUrl)) {
       return;
     }
@@ -209,12 +244,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     }
 
     const timer = window.setTimeout(() => {
-      setOverlay({
-        index: upcomingPhotoIndex,
-        imageUrl: upcomingPhotoUrl,
-        visible: false,
-        committed: false,
-      });
+      transitionToPhoto(upcomingPhotoIndex);
     }, HERO_HOLD_MS);
 
     return () => window.clearTimeout(timer);
@@ -227,6 +257,8 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     readyPhotos,
     upcomingPhotoIndex,
     upcomingPhotoUrl,
+    currentPhotoIndex,
+    activePhotoSignature,
   ]);
 
   useEffect(() => {
@@ -258,6 +290,65 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
 
     return () => window.cancelAnimationFrame(frame);
   }, [overlay, renderedPhotoUrl]);
+
+  const transitionToPhoto = (nextIndex: number) => {
+    if (
+      activeHeroPhotos.length < 2 ||
+      overlay ||
+      nextIndex === currentPhotoIndex ||
+      nextIndex < 0 ||
+      nextIndex >= activeHeroPhotos.length
+    ) {
+      return;
+    }
+
+    const nextPhoto = activeHeroPhotos[nextIndex];
+    if (!nextPhoto || !readyPhotos.has(nextPhoto.imageUrl)) {
+      return;
+    }
+
+    setOverlay({
+      index: nextIndex,
+      imageUrl: nextPhoto.imageUrl,
+      visible: false,
+      committed: false,
+    });
+  };
+
+  const showNextPhoto = () => {
+    transitionToPhoto((currentPhotoIndex + 1) % activeHeroPhotos.length);
+  };
+
+  const showPreviousPhoto = () => {
+    transitionToPhoto(
+      (currentPhotoIndex - 1 + activeHeroPhotos.length) % activeHeroPhotos.length,
+    );
+  };
+
+  const handlePhotoTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handlePhotoTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const start = touchStartRef.current;
+    const touch = event.changedTouches[0];
+    touchStartRef.current = null;
+    if (!start || !touch) return;
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+    if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) {
+      return;
+    }
+
+    if (deltaX < 0) {
+      showNextPhoto();
+    } else {
+      showPreviousPhoto();
+    }
+  };
 
   const isExternalLink = !isCatalogHeroLink(buttonLink);
   const primaryAction = isExternalLink ? (
@@ -306,7 +397,11 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
           </ul>
         </div>
 
-        <div className={styles.photo}>
+        <div
+          className={styles.photo}
+          onTouchStart={handlePhotoTouchStart}
+          onTouchEnd={handlePhotoTouchEnd}
+        >
           {upcomingPhotoUrl && upcomingPhotoUrl !== displayedPhotoUrl ? (
             <Image
               key={`preload:${upcomingPhotoUrl}`}
@@ -406,6 +501,29 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
                 setOverlay(null);
               }}
             />
+          ) : null}
+
+          {activeHeroPhotos.length > 1 ? (
+            <div className={styles.photoControls} aria-label="Фотографии BellaFlore">
+              <span className={styles.photoCounter}>
+                {String(currentPhotoIndex + 1).padStart(2, "0")}
+                <span>/</span>
+                {String(activeHeroPhotos.length).padStart(2, "0")}
+              </span>
+              <div className={styles.photoDots}>
+                {activeHeroPhotos.map((photo, index) => (
+                  <button
+                    key={photo.id}
+                    type="button"
+                    className={`${styles.photoDot} ${index === currentPhotoIndex ? styles.photoDotActive : ""}`}
+                    onClick={() => transitionToPhoto(index)}
+                    aria-label={`Показать фото ${index + 1}`}
+                    aria-current={index === currentPhotoIndex ? "true" : undefined}
+                  />
+                ))}
+              </div>
+              <span className={styles.swipeHint}>Свайп</span>
+            </div>
           ) : null}
         </div>
       </div>
