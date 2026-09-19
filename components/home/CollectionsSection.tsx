@@ -23,6 +23,7 @@ import type { CatalogProduct } from "@/data/catalogProducts";
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ChangeEvent as ReactChangeEvent,
   type MouseEvent as ReactMouseEvent,
@@ -82,6 +83,9 @@ export function CollectionsSection({
   const [budgetTo, setBudgetTo] = useState("");
   const [sortMode, setSortMode] = useState<HomeCatalogSortMode>("default");
   const customCategories = useStorefrontCustomCategories();
+  const catalogRailRef = useRef<HTMLDivElement | null>(null);
+  const catalogInteractionRef = useRef(false);
+  const catalogInteractionTimerRef = useRef<number | null>(null);
 
   const customCategoryTitleById = useMemo(
     () => Object.fromEntries(customCategories.map((category) => [category.id, category.title])),
@@ -187,6 +191,73 @@ export function CollectionsSection({
       sortMode,
     ],
   );
+  useEffect(() => {
+    const rail = catalogRailRef.current;
+    if (!rail) {
+      return;
+    }
+
+    rail.scrollTo({ left: 0, behavior: "auto" });
+
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!isMobile || reduceMotion || displayedProducts.length <= 2) {
+      return;
+    }
+
+    const advance = () => {
+      if (catalogInteractionRef.current) {
+        return;
+      }
+
+      const firstCard = rail.firstElementChild as HTMLElement | null;
+      if (!firstCard) {
+        return;
+      }
+
+      const computed = window.getComputedStyle(rail);
+      const gap = Number.parseFloat(computed.columnGap || computed.gap || "0") || 0;
+      const step = firstCard.getBoundingClientRect().width + gap;
+      const maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth);
+      const nextLeft = rail.scrollLeft + step;
+
+      rail.scrollTo({
+        left: nextLeft >= maxScroll - 2 ? 0 : nextLeft,
+        behavior: "smooth",
+      });
+    };
+
+    const intervalId = window.setInterval(advance, 3600);
+    return () => window.clearInterval(intervalId);
+  }, [catalogViewKey, displayedProducts.length]);
+
+  useEffect(
+    () => () => {
+      if (catalogInteractionTimerRef.current !== null) {
+        window.clearTimeout(catalogInteractionTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  const pauseCatalogAutoplay = () => {
+    catalogInteractionRef.current = true;
+    if (catalogInteractionTimerRef.current !== null) {
+      window.clearTimeout(catalogInteractionTimerRef.current);
+      catalogInteractionTimerRef.current = null;
+    }
+  };
+
+  const resumeCatalogAutoplay = () => {
+    if (catalogInteractionTimerRef.current !== null) {
+      window.clearTimeout(catalogInteractionTimerRef.current);
+    }
+    catalogInteractionTimerRef.current = window.setTimeout(() => {
+      catalogInteractionRef.current = false;
+      catalogInteractionTimerRef.current = null;
+    }, 1800);
+  };
+
   const collectionHighlights = useMemo(
     () =>
       categoryChips
@@ -439,10 +510,14 @@ export function CollectionsSection({
       ) : (
         <div
           key={`grid:${catalogViewKey}`}
+          ref={catalogRailRef}
           className={`${styles.grid} ${
             isAllCategoryMode ? styles.gridAll : styles.gridCategory
           }`}
           data-catalog-mode={activeCatalogMode}
+          onTouchStart={pauseCatalogAutoplay}
+          onTouchEnd={resumeCatalogAutoplay}
+          onTouchCancel={resumeCatalogAutoplay}
         >
           {displayedProducts.map((bouquet) => (
             <LuxuryCatalogProductCard
