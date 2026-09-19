@@ -453,8 +453,35 @@
   .grid,
   .gridAll,
   .gridCategory {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 0 10px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+
+  .grid::-webkit-scrollbar,
+  .gridAll::-webkit-scrollbar,
+  .gridCategory::-webkit-scrollbar {
+    display: none;
+  }
+
+  .grid > *,
+  .gridAll > *,
+  .gridCategory > * {
+    flex: 0 0 calc((100% - 10px) / 2);
+    width: calc((100% - 10px) / 2);
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 
   .section {
