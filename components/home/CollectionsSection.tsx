@@ -47,6 +47,8 @@ type CollectionsSectionProps = {
   catalogStatus?: "loading" | "ready" | "error";
   catalogErrorMessage?: string;
   onCatalogRetry?: () => void;
+  fullCatalog?: boolean;
+  onOpenFullCatalog?: () => void;
 };
 
 function normalizeBudgetInput(value: string): string {
@@ -75,6 +77,8 @@ export function CollectionsSection({
   catalogStatus = "ready",
   catalogErrorMessage = "",
   onCatalogRetry,
+  fullCatalog = false,
+  onOpenFullCatalog,
 }: CollectionsSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState("all");
@@ -187,6 +191,8 @@ export function CollectionsSection({
       sortMode,
     ],
   );
+  const visibleProducts = fullCatalog ? displayedProducts : displayedProducts.slice(0, 8);
+
   const collectionHighlights = useMemo(
     () =>
       categoryChips
@@ -257,11 +263,18 @@ export function CollectionsSection({
   };
 
   return (
-    <section id="catalog" className={styles.section}>
+    <section id="catalog" className={`${styles.section} ${!fullCatalog ? styles.homeShowcase : ""}`}>
       <header className={`${styles.header} bf-reveal bf-reveal-up`}>
-        <h2>{homeCatalogTitle}</h2>
+        {!fullCatalog ? <span className={styles.homeEyebrow}>Коллекции BellaFlore</span> : null}
+        <h2>{fullCatalog ? homeCatalogTitle : "Композиции, которые выбирают глазами"}</h2>
+        {!fullCatalog ? (
+          <p className={styles.subtitle}>
+            Крупные фотографии, минимум лишнего. Выберите настроение — детали откроются только по вашему желанию.
+          </p>
+        ) : null}
       </header>
 
+      {fullCatalog ? (
       <div className={`${styles.toolbar} bf-reveal bf-reveal-up`}>
         <label className={styles.searchField}>
           <span className={styles.searchIcon} aria-hidden="true">
@@ -359,8 +372,9 @@ export function CollectionsSection({
           ) : null}
         </div>
       </div>
+      ) : null}
 
-      {!isSearchMode && collectionHighlights.length > 0 ? (
+      {!fullCatalog && collectionHighlights.length > 0 ? (
         <div className={`${styles.collectionRail} bf-reveal bf-reveal-up`}>
           {collectionHighlights.map((collection) => {
             const isActive = activeCategoryId === collection.id;
@@ -392,6 +406,32 @@ export function CollectionsSection({
               </button>
             );
           })}
+        </div>
+      ) : null}
+
+      {!fullCatalog ? (
+        <div className={`${styles.homeCategoryBlock} bf-reveal bf-reveal-up`}>
+          <div className={styles.homeCategoryHeading}>
+            <span>Категории</span>
+            <strong>Найдите своё настроение</strong>
+          </div>
+          <div className={styles.categoryRow} role="tablist" aria-label="Категории букетов">
+            {categoryChips.map((chip) => {
+              const isActive = activeCategoryId === chip.id;
+              return (
+                <button
+                  key={chip.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  className={`${styles.categoryChip} ${isActive ? styles.categoryChipActive : ""}`}
+                  onClick={() => handleCategorySelect(chip.id)}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       ) : null}
 
@@ -444,7 +484,7 @@ export function CollectionsSection({
           }`}
           data-catalog-mode={activeCatalogMode}
         >
-          {displayedProducts.map((bouquet) => (
+          {visibleProducts.map((bouquet) => (
             <LuxuryCatalogProductCard
               key={`${catalogViewKey}:${bouquet.id}`}
               product={bouquet}
@@ -457,6 +497,15 @@ export function CollectionsSection({
           ))}
         </div>
       )}
+
+      {!fullCatalog && displayedProducts.length > 0 ? (
+        <div className={styles.fullCatalogButtonWrap}>
+          <button type="button" className={styles.fullCatalogButton} onClick={onOpenFullCatalog}>
+            Смотреть весь каталог
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }
