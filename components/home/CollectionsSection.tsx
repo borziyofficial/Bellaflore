@@ -23,6 +23,7 @@ import type { CatalogProduct } from "@/data/catalogProducts";
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ChangeEvent as ReactChangeEvent,
   type MouseEvent as ReactMouseEvent,
@@ -62,6 +63,136 @@ function parseBudgetInput(value: string): number | null {
 
   const parsed = Number(normalized);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+const PREMIUM_CAROUSEL_GROUP_SIZE = 4;
+const PREMIUM_CAROUSEL_HOLD_MS = 4000;
+const PREMIUM_CAROUSEL_FADE_MS = 750;
+
+type PremiumCatalogCarouselProps = {
+  groups: CatalogProduct[][];
+  isAllCategoryMode: boolean;
+  activeCatalogMode: string;
+  catalogViewKey: string;
+  favoriteBouquetIds: string[];
+  formatPrice: (priceRub: number) => string;
+  handleFavoriteClick: (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    bouquetId: string,
+  ) => void;
+  handleBouquetOrderClick: (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    bouquetId: string,
+    sizeId: ProductSizeId,
+    priceRub: number,
+  ) => void;
+  onProductOpen?: (productId: string) => void;
+};
+
+function PremiumCatalogCarousel({
+  groups,
+  isAllCategoryMode,
+  activeCatalogMode,
+  catalogViewKey,
+  favoriteBouquetIds,
+  formatPrice,
+  handleFavoriteClick,
+  handleBouquetOrderClick,
+  onProductOpen,
+}: PremiumCatalogCarouselProps) {
+  const [visibleLayer, setVisibleLayer] = useState<0 | 1>(0);
+  const [layerGroupIndices, setLayerGroupIndices] = useState<[number, number]>([
+    0,
+    groups.length > 1 ? 1 : 0,
+  ]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const transitionTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current !== null) {
+        window.clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (groups.length <= 1 || isTransitioning) {
+      return;
+    }
+
+    const rotationTimeoutId = window.setTimeout(() => {
+      const outgoingLayer = visibleLayer;
+      const incomingLayer: 0 | 1 = outgoingLayer === 0 ? 1 : 0;
+      const incomingGroupIndex =
+        layerGroupIndices[incomingLayer] % groups.length;
+
+      setIsTransitioning(true);
+      setVisibleLayer(incomingLayer);
+
+      transitionTimeoutRef.current = window.setTimeout(() => {
+        const followingGroupIndex =
+          (incomingGroupIndex + 1) % groups.length;
+
+        setLayerGroupIndices((previous) => {
+          const next: [number, number] = [previous[0], previous[1]];
+          next[outgoingLayer] = followingGroupIndex;
+          return next;
+        });
+        setIsTransitioning(false);
+        transitionTimeoutRef.current = null;
+      }, PREMIUM_CAROUSEL_FADE_MS);
+    }, PREMIUM_CAROUSEL_HOLD_MS);
+
+    return () => window.clearTimeout(rotationTimeoutId);
+  }, [groups.length, isTransitioning, layerGroupIndices, visibleLayer]);
+
+  const baseGridClassName = `${styles.grid} ${
+    isAllCategoryMode ? styles.gridAll : styles.gridCategory
+  }`;
+
+  return (
+    <div
+      className={styles.carouselContainer}
+      data-catalog-mode={activeCatalogMode}
+      data-carousel-transitioning={isTransitioning ? "true" : "false"}
+    >
+      {([0, 1] as const).map((layer) => {
+        const groupIndex = layerGroupIndices[layer] % groups.length;
+        const products = groups[groupIndex] ?? [];
+        const isVisible = layer === visibleLayer;
+
+        return (
+          <div
+            key={`premium-carousel-layer-${layer}`}
+            className={`${baseGridClassName} ${styles.carouselLayer} ${
+              isVisible
+                ? styles.carouselLayerVisible
+                : styles.carouselLayerHidden
+            } ${
+              isTransitioning ? "" : styles.carouselLayerSettled
+            }`}
+            data-group-index={groupIndex}
+            data-layer={isVisible ? "visible" : "preloaded"}
+            aria-hidden={!isVisible}
+            inert={!isVisible}
+          >
+            {products.map((bouquet) => (
+              <LuxuryCatalogProductCard
+                key={`${catalogViewKey}:layer-${layer}:${bouquet.id}`}
+                product={bouquet}
+                formatPrice={formatPrice}
+                isFavorite={favoriteBouquetIds.includes(bouquet.id)}
+                onFavoriteClick={handleFavoriteClick}
+                onBuyClick={handleBouquetOrderClick}
+                onProductOpen={onProductOpen}
+              />
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export function CollectionsSection({
@@ -187,6 +318,45 @@ export function CollectionsSection({
       sortMode,
     ],
   );
+
+  const productGroups = useMemo(() => {
+    if (displayedProducts.length === 0) {
+      return [];
+    }
+
+    if (displayedProducts.length <= PREMIUM_CAROUSEL_GROUP_SIZE) {
+      return [displayedProducts];
+    }
+
+    const groups: CatalogProduct[][] = [];
+
+    for (
+      let start = 0;
+      start < displayedProducts.length;
+      start += PREMIUM_CAROUSEL_GROUP_SIZE
+    ) {
+      const group = displayedProducts.slice(
+        start,
+        start + PREMIUM_CAROUSEL_GROUP_SIZE,
+      );
+
+      if (group.length < PREMIUM_CAROUSEL_GROUP_SIZE) {
+        for (const candidate of displayedProducts) {
+          if (group.length >= PREMIUM_CAROUSEL_GROUP_SIZE) {
+            break;
+          }
+
+          if (!group.some((product) => product.id === candidate.id)) {
+            group.push(candidate);
+          }
+        }
+      }
+
+      groups.push(group);
+    }
+
+    return groups;
+  }, [displayedProducts]);
   const collectionHighlights = useMemo(
     () =>
       categoryChips
@@ -436,6 +606,19 @@ export function CollectionsSection({
             Показать все
           </button>
         </div>
+      ) : productGroups.length > 1 ? (
+        <PremiumCatalogCarousel
+          key={`premium-carousel:${catalogViewKey}:${productGroups.length}`}
+          groups={productGroups}
+          isAllCategoryMode={isAllCategoryMode}
+          activeCatalogMode={activeCatalogMode}
+          catalogViewKey={catalogViewKey}
+          favoriteBouquetIds={favoriteBouquetIds}
+          formatPrice={formatPrice}
+          handleFavoriteClick={handleFavoriteClick}
+          handleBouquetOrderClick={handleBouquetOrderClick}
+          onProductOpen={onProductOpen}
+        />
       ) : (
         <div
           key={`grid:${catalogViewKey}`}
