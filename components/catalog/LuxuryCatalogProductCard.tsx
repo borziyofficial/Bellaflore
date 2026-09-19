@@ -57,6 +57,7 @@ export function LuxuryCatalogProductCard({
   );
   const [trackedProductId, setTrackedProductId] = useState(product.id);
   const [selectedReviewRating, setSelectedReviewRating] = useState(0);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
   const actionGestureRef = useRef({
     startX: 0,
     startY: 0,
@@ -67,6 +68,7 @@ export function LuxuryCatalogProductCard({
     setTrackedProductId(product.id);
     setSelectedSizeId(experienceData.defaultSizeId);
     setSelectedReviewRating(0);
+    setDetailsExpanded(false);
   }
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
@@ -171,7 +173,7 @@ export function LuxuryCatalogProductCard({
   };
 
   return (
-    <article className={styles.card}>
+    <article className={`${styles.card} ${detailsExpanded ? styles.cardExpanded : ""}`}>
       <div className={styles.mediaWrap}>
         <button
           type="button"
@@ -274,13 +276,20 @@ export function LuxuryCatalogProductCard({
           <button
             type="button"
             className={styles.detailsButton}
-            onClick={openProduct}
+            onClick={(event) => {
+              if (!shouldSuppressActionClick(event)) {
+                event.preventDefault();
+                event.stopPropagation();
+                setDetailsExpanded((current) => !current);
+              }
+            }}
             onTouchStart={handleActionTouchStart}
             onTouchMove={handleActionTouchMove}
             onTouchEnd={handleActionTouchEnd}
-            aria-label={`Подробнее о ${product.title}`}
+            aria-label={`${detailsExpanded ? "Свернуть" : "Подробнее о"} ${product.title}`}
+            aria-expanded={detailsExpanded}
           >
-            Подробнее
+            {detailsExpanded ? "Свернуть ↑" : "Подробнее ↓"}
           </button>
 
           <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
