@@ -1,0 +1,287 @@
+.root {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(118px + env(safe-area-inset-bottom));
+  z-index: 2147483008;
+  pointer-events: none;
+}
+
+.launcher {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(201, 162, 75, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #b58d37;
+  box-shadow:
+    0 14px 36px rgba(54, 45, 35, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.launcher span {
+  display: block;
+  font-size: 27px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.panel {
+  position: absolute;
+  right: 0;
+  bottom: 72px;
+  display: grid;
+  width: min(390px, calc(100vw - 24px));
+  max-height: min(70dvh, 620px);
+  overflow: hidden;
+  border: 1px solid rgba(201, 162, 75, 0.24);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 80% 0%, rgba(201, 162, 75, 0.11), transparent 30%),
+    rgba(255, 253, 249, 0.98);
+  box-shadow: 0 26px 70px rgba(54, 45, 35, 0.2);
+  pointer-events: auto;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 15px 13px;
+  border-bottom: 1px solid rgba(201, 162, 75, 0.14);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.smallMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border: 1px solid rgba(201, 162, 75, 0.24);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #b58d37;
+  font-size: 20px;
+}
+
+.identity div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.identity strong {
+  overflow: hidden;
+  color: #2f2a24;
+  font-family: var(--font-brand, "Playfair Display", serif);
+  font-size: 15px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identity div > span {
+  color: #7a6f63;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 10px;
+}
+
+.closeButton {
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(54, 45, 35, 0.06);
+  color: #564b41;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.chatBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 220px;
+  overflow-y: auto;
+  padding: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.assistantBubble,
+.userBubble {
+  max-width: 88%;
+  padding: 11px 13px;
+  border-radius: 17px;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.assistantBubble {
+  align-self: flex-start;
+  border-bottom-left-radius: 6px;
+  background: #f3ecdf;
+  color: #40372f;
+}
+
+.userBubble {
+  align-self: flex-end;
+  border-bottom-right-radius: 6px;
+  background: linear-gradient(180deg, #d6b052 0%, #c89b36 100%);
+  color: #ffffff;
+}
+
+.quickReplies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.quickReplies button,
+.restartButton {
+  margin: 0;
+  border: 1px solid rgba(201, 162, 75, 0.26);
+  background: #fffefb;
+  color: #8d6a26;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.quickReplies button {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+}
+
+.recommendations {
+  display: grid;
+  gap: 8px;
+}
+
+.productCard {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 72px;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid rgba(54, 45, 35, 0.09);
+  border-radius: 14px;
+  background: #ffffff;
+  color: inherit;
+  text-align: left;
+  box-shadow: 0 8px 18px rgba(54, 45, 35, 0.05);
+  cursor: pointer;
+}
+
+.productImage {
+  display: block;
+  width: 62px;
+  height: 62px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f2ede5;
+}
+
+.productImg,
+.productFallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.productCopy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.productCopy strong {
+  overflow: hidden;
+  color: #302a24;
+  font-family: var(--font-brand, "Playfair Display", serif);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.productCopy span {
+  color: #b58d37;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.productArrow {
+  padding-right: 8px;
+  color: #b58d37;
+  font-size: 18px;
+}
+
+.restartButton {
+  align-self: center;
+  min-height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+}
+
+.disclaimer {
+  margin: 0;
+  padding: 0 16px 14px;
+  color: #94877a;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+@media (max-width: 640px) {
+  .root {
+    right: 14px;
+    bottom: calc(124px + env(safe-area-inset-bottom));
+  }
+
+  .launcher {
+    width: 56px;
+    height: 56px;
+  }
+
+  .panel {
+    right: -2px;
+    width: calc(100vw - 28px);
+    max-height: 66dvh;
+    border-radius: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launcher,
+  .panel {
+    transition: none;
+  }
+}
