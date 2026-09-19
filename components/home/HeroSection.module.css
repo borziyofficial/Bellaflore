@@ -118,6 +118,61 @@
   filter: saturate(1.04) contrast(1.03);
 }
 
+.photoControls {
+  position: absolute;
+  right: 22px;
+  bottom: 20px;
+  left: 22px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  pointer-events: none;
+}
+
+.photoCounter,
+.swipeHint {
+  color: rgba(255, 255, 255, 0.94);
+  font-family: var(--font-inter), Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 10px rgba(26, 19, 15, 0.42);
+  text-transform: uppercase;
+}
+
+.photoCounter span {
+  margin: 0 4px;
+  opacity: 0.55;
+}
+
+.photoDots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.photoDot {
+  width: 22px;
+  height: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.46);
+  box-shadow: 0 1px 6px rgba(26, 19, 15, 0.18);
+  cursor: pointer;
+  transition: width 180ms ease, background 180ms ease, opacity 180ms ease;
+}
+
+.photoDotActive {
+  width: 34px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
 .photoImageCurrent {
   z-index: 2;
   opacity: 0;
@@ -316,9 +371,10 @@
     bottom: auto;
     left: -20px;
     width: calc(100% + 40px);
-    height: 60%;
-    min-height: 460px;
+    height: 64%;
+    min-height: 500px;
     border-radius: 0 0 26px 26px;
+    touch-action: pan-y;
   }
 
   .photo::before {
@@ -337,8 +393,8 @@
   .content {
     align-items: center;
     justify-content: flex-end;
-    min-height: 660px;
-    padding-top: 330px;
+    min-height: 700px;
+    padding-top: 380px;
     text-align: center;
   }
 
@@ -410,14 +466,12 @@
   }
 
   .trustList {
-    width: 100%;
-    margin-top: 38px;
-    padding-top: 20px;
+    display: none;
   }
 
   .content {
-    min-height: 650px;
-    padding-top: 320px;
+    min-height: 690px;
+    padding-top: 390px;
   }
 
   .photo {
@@ -425,9 +479,28 @@
     right: auto;
     left: -16px;
     width: calc(100% + 32px);
-    height: 58%;
-    min-height: 430px;
+    height: 63%;
+    min-height: 500px;
     border-radius: 0 0 22px 22px;
+  }
+
+  .photoControls {
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+  }
+
+  .photoCounter,
+  .swipeHint {
+    font-size: 9px;
+  }
+
+  .photoDot {
+    width: 18px;
+  }
+
+  .photoDotActive {
+    width: 30px;
   }
 
   .trustList li {
@@ -451,11 +524,11 @@
 
 @media (max-width: 420px) {
   .content {
-    padding-top: 300px;
+    padding-top: 382px;
   }
 
   .photo {
-    min-height: 410px;
+    min-height: 490px;
   }
 
   .title {
@@ -474,7 +547,8 @@
 @media (prefers-reduced-motion: reduce) {
   .primaryAction,
   .secondaryAction,
-  .photoImage {
+  .photoImage,
+  .photoDot {
     transition: none;
   }
 }
