@@ -15,6 +15,11 @@
   box-shadow: 0 14px 34px rgba(54, 45, 35, 0.08);
 }
 
+/* Reset the legacy global button margin inside catalog cards. */
+.card button {
+  margin-top: 0;
+}
+
 .mediaWrap {
   position: relative;
   flex: 0 0 auto;
@@ -371,6 +376,10 @@
 
   .contentBlock {
     gap: 1px;
+  }
+
+  .actionRow {
+    margin-top: 12px;
   }
 
   .favorite {
