@@ -32,7 +32,8 @@
 
 .imageWrap {
   position: relative;
-  aspect-ratio: 4 / 5;
+  /* 15% shorter than the previous 4:5 product image frame. */
+  aspect-ratio: 16 / 17;
   overflow: hidden;
   border-radius: 6px;
   background: var(--color-surface-secondary, #f1ede6);
