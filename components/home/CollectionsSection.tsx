@@ -106,6 +106,8 @@ function PremiumCatalogCarousel({
     groups.length > 1 ? 1 : 0,
   ]);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isInViewport, setIsInViewport] = useState(true);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
   const transitionTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -117,7 +119,27 @@ function PremiumCatalogCarousel({
   }, []);
 
   useEffect(() => {
-    if (groups.length <= 1 || isTransitioning) {
+    const node = carouselRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInViewport(Boolean(entry?.isIntersecting));
+      },
+      {
+        rootMargin: "80px 0px",
+        threshold: 0.1,
+      },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (groups.length <= 1 || isTransitioning || !isInViewport) {
       return;
     }
 
@@ -145,7 +167,13 @@ function PremiumCatalogCarousel({
     }, PREMIUM_CAROUSEL_HOLD_MS);
 
     return () => window.clearTimeout(rotationTimeoutId);
-  }, [groups.length, isTransitioning, layerGroupIndices, visibleLayer]);
+  }, [
+    groups.length,
+    isInViewport,
+    isTransitioning,
+    layerGroupIndices,
+    visibleLayer,
+  ]);
 
   const baseGridClassName = `${styles.grid} ${
     isAllCategoryMode ? styles.gridAll : styles.gridCategory
@@ -153,6 +181,7 @@ function PremiumCatalogCarousel({
 
   return (
     <div
+      ref={carouselRef}
       className={styles.carouselContainer}
       data-catalog-mode={activeCatalogMode}
       data-carousel-transitioning={isTransitioning ? "true" : "false"}
