@@ -947,6 +947,23 @@ export function CheckoutSection({
                 </p>
               ) : null}
 
+              <label className={checkoutSectionStyles.checkoutOption}>
+                <input
+                  type="checkbox"
+                  checked={checkoutForm.legalAccepted}
+                  onChange={(event) =>
+                    handleCheckoutFieldChange("legalAccepted", event.target.checked)
+                  }
+                  required
+                />
+                <span>
+                  <strong>Согласие с условиями заказа</strong>
+                  <small>
+                    Оформляя заказ, вы принимаете <a href="/offer" target="_blank" rel="noopener noreferrer">условия заказа</a> и <a href="/privacy" target="_blank" rel="noopener noreferrer">политику конфиденциальности</a>.
+                  </small>
+                </span>
+              </label>
+
               <div className={checkoutSectionStyles.checkoutSubmitRow}>
                 {cartItemCount > 0 && (
                   <button
