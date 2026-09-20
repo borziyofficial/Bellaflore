@@ -65,7 +65,7 @@ export function isCheckoutFormReady(
   hasCartItems: boolean,
   now = new Date(),
 ) {
-  if (!hasCartItems) {
+  if (!hasCartItems || !checkoutForm.legalAccepted) {
     return false;
   }
 
