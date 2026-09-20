@@ -115,10 +115,16 @@ function selectCandidates(
 
 function buildFallbackText(message: string): string {
   const lower = message.toLowerCase();
+  const firstMeeting =
+    /перв(ое|ого|ая)?\s+(знакомств|встреч|свидан)|первое знакомство|первая встреча/.test(lower);
+
+  if (firstMeeting) {
+    return "Для первого знакомства лучше лёгкий и ненавязчивый букет: нежные оттенки, аккуратная форма и без слишком торжественной подачи. Если бюджет не принципиален, я начну с красивых вариантов среднего размера.";
+  }
   if (!/жен|девуш|мам|муж|коллег|началь|себе/.test(lower)) {
     return "Кому выбираем цветы? Это поможет понять характер букета — романтичный, сдержанный, нежный или более эффектный.";
   }
-  if (!/день рож|свидан|юбиле|свад|годовщ|спасибо|без повода|просто так/.test(lower)) {
+  if (!/день рож|свидан|юбиле|свад|годовщ|спасибо|без повода|просто так|знакомств|встреч/.test(lower)) {
     return "А какой повод? От этого я точнее подберу форму букета и цветовую гамму.";
   }
   return "Назовите примерный бюджет и, если знаете, любимые цвета человека. После этого предложу несколько подходящих композиций.";
@@ -577,7 +583,7 @@ export function AiFlorist({
 
       <button
         type="button"
-        className={styles.launcher}
+        className={`${styles.launcher} ${open ? styles.launcherOpen : ""}`}
         onPointerDown={handleLauncherPointerDown}
         onPointerMove={handleLauncherPointerMove}
         onPointerUp={finishLauncherDrag}
