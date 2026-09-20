@@ -190,10 +190,16 @@ function fallbackReply(
       `По вашему запросу я бы начал с ${names.join(" и ")}. Если хотите, уточните цветовую гамму — нежную, яркую, белую или пастельную — и я сузю выбор ещё точнее.`;
   }
 
+  if (reply.trim() === lastAssistant.trim()) {
+    reply =
+      "Не буду повторяться. По тому, что вы уже рассказали, лучше двигаться к лёгкому и аккуратному букету без чрезмерной торжественности. Покажу несколько подходящих вариантов, а бюджет можно уточнить потом.";
+  }
+
   const shouldRecommend =
     firstMeeting ||
     (hasRecipient && hasOccasion && hasBudget) ||
-    (affirmativeOnly && /бюджет|до 10 тысяч|ориентир по бюджету/i.test(lastAssistant));
+    (affirmativeOnly && /бюджет|до 10 тысяч|ориентир по бюджету/i.test(lastAssistant)) ||
+    reply.includes("Не буду повторяться");
 
   return {
     reply,

@@ -32,7 +32,7 @@ const QUICK_PROMPTS = [
   "Какие цветы дольше стоят?",
 ];
 
-const CHAT_STORAGE_KEY = "bellaflore:ai-florist-chat-v1";
+const CHAT_STORAGE_KEY = "bellaflore:ai-florist-chat-v2";
 const CHAT_STORAGE_LIMIT = 20;
 
 const INITIAL_MESSAGE: ChatMessage = {
@@ -204,7 +204,9 @@ export function AiFlorist({
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [assistantMode, setAssistantMode] = useState<"ai" | "fallback" | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const chatBodyRef = useRef<HTMLDivElement | null>(null);
   const messageSequenceRef = useRef(1);
   const dragRef = useRef<{
     pointerId: number;
@@ -281,7 +283,13 @@ export function AiFlorist({
   useEffect(() => {
     if (!open) return;
     const frame = window.requestAnimationFrame(() => {
-      endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      const chatBody = chatBodyRef.current;
+      if (chatBody) {
+        chatBody.scrollTo({
+          top: chatBody.scrollHeight,
+          behavior: "smooth",
+        });
+      }
     });
     return () => window.cancelAnimationFrame(frame);
   }, [messages, open, sending]);
@@ -324,6 +332,9 @@ export function AiFlorist({
         }),
       });
       const body = (await response.json()) as ApiReply;
+      if (body.mode === "ai" || body.mode === "fallback") {
+        setAssistantMode(body.mode);
+      }
 
       const assistantMessage: ChatMessage = {
         id: nextMessageId("assistant"),
@@ -339,6 +350,7 @@ export function AiFlorist({
 
       setMessages((current) => [...current, assistantMessage]);
     } catch {
+      setAssistantMode("fallback");
       setMessages((current) => [
         ...current,
         {
@@ -463,7 +475,7 @@ export function AiFlorist({
             </button>
           </div>
 
-          <div className={styles.chatBody}>
+          <div className={styles.chatBody} ref={chatBodyRef}>
             {messages.map((message, index) => {
               const recommended = (message.recommendedProductIds ?? [])
                 .map((id) => productById.get(id))
@@ -576,7 +588,11 @@ export function AiFlorist({
             <button type="button" onClick={reset}>
               Новый подбор
             </button>
-            <span>AI использует только реальные товары BellaFlore.</span>
+            <span>
+              {assistantMode === "fallback"
+                ? "Консультант работает в резервном режиме."
+                : "AI использует только реальные товары BellaFlore."}
+            </span>
           </div>
         </section>
       ) : null}
