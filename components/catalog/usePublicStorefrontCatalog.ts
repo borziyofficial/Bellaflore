@@ -68,10 +68,23 @@ function writeCachedStorefrontCatalog(products: CatalogProduct[]) {
 
 type PublicStorefrontCatalogStatus = "loading" | "ready" | "error";
 
-export function usePublicStorefrontCatalog() {
-  const [catalog, setCatalog] = useState<CatalogProduct[]>(INITIAL_STOREFRONT_CATALOG);
-  const [isReady, setIsReady] = useState(false);
-  const [status, setStatus] = useState<PublicStorefrontCatalogStatus>("loading");
+type UsePublicStorefrontCatalogProps = {
+  initialProducts?: CatalogProduct[];
+};
+
+export function usePublicStorefrontCatalog(
+  props?: UsePublicStorefrontCatalogProps,
+) {
+  const initialProducts = props?.initialProducts;
+  const [catalog, setCatalog] = useState<CatalogProduct[]>(
+    initialProducts && initialProducts.length > 0
+      ? initialProducts
+      : INITIAL_STOREFRONT_CATALOG,
+  );
+  const [isReady, setIsReady] = useState(!!initialProducts?.length);
+  const [status, setStatus] = useState<PublicStorefrontCatalogStatus>(
+    initialProducts?.length ? "ready" : "loading",
+  );
   const [errorMessage, setErrorMessage] = useState("");
 
   const reload = useCallback(async () => {
@@ -96,6 +109,12 @@ export function usePublicStorefrontCatalog() {
 
   useEffect(() => {
     let active = true;
+
+    // If we already have initialProducts from SSR, we're ready; skip initial API call
+    if (initialProducts?.length) {
+      writeCachedStorefrontCatalog(initialProducts);
+      return;
+    }
 
     const cachedCatalog = readCachedStorefrontCatalog();
     if (cachedCatalog && cachedCatalog.length > 0) {
@@ -135,7 +154,7 @@ export function usePublicStorefrontCatalog() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialProducts]);
 
   return { catalog, isReady, status, errorMessage, reload };
 }
