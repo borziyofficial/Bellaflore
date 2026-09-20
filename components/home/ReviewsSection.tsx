@@ -84,12 +84,16 @@ Purpose (EN): Average rating and total count cards
           <div className={styles.score}>
             <span>Средняя оценка</span>
             <strong>{averageReviewRatingLabel}</strong>
-            <p
-              className={styles.summaryStars}
-              aria-label={`Средняя оценка ${averageReviewRatingLabel} из 5`}
-            >
-              {renderRatingStars(Math.round(averageReviewRating))}
-            </p>
+            {reviewsCount > 0 ? (
+              <p
+                className={styles.summaryStars}
+                aria-label={`Средняя оценка ${averageReviewRatingLabel} из 5`}
+              >
+                {renderRatingStars(Math.round(averageReviewRating))}
+              </p>
+            ) : (
+              <p className={styles.demoNote}>Пока без публичной оценки</p>
+            )}
           </div>
           <div className={styles.count}>
             <span>Всего отзывов</span>
