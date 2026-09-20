@@ -500,7 +500,7 @@ export default function Home() {
     anonymousDelivery: false,
     doNotCallRecipient: false,
     photoBeforeDelivery: false,
-    address: ""
+    address: "",
     deliveryDate: "",
     deliveryTime: "",
     cardMessage: "",
@@ -2252,7 +2252,7 @@ export default function Home() {
         anonymousDelivery: false,
         doNotCallRecipient: false,
         photoBeforeDelivery: false,
-        address: ""
+        address: "",
         deliveryDate: "",
         deliveryTime: "",
         cardMessage: "",
