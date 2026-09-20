@@ -494,7 +494,13 @@ export default function Home() {
   const [checkoutForm, setCheckoutForm] = useState<CheckoutForm>({
     name: "",
     phone: "",
-    address: "",
+    recipientIsCustomer: true,
+    recipientName: "",
+    recipientPhone: "",
+    anonymousDelivery: false,
+    doNotCallRecipient: false,
+    photoBeforeDelivery: false,
+    address: ""
     deliveryDate: "",
     deliveryTime: "",
     cardMessage: "",
@@ -2240,7 +2246,13 @@ export default function Home() {
       setCheckoutForm({
         name: "",
         phone: "",
-        address: "",
+        recipientIsCustomer: true,
+        recipientName: "",
+        recipientPhone: "",
+        anonymousDelivery: false,
+        doNotCallRecipient: false,
+        photoBeforeDelivery: false,
+        address: ""
         deliveryDate: "",
         deliveryTime: "",
         cardMessage: "",
