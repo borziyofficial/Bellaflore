@@ -99,9 +99,12 @@ export function usePublicStorefrontCatalog() {
 
     const cachedCatalog = readCachedStorefrontCatalog();
     if (cachedCatalog && cachedCatalog.length > 0) {
-      setCatalog(cachedCatalog);
-      setStatus("ready");
-      setIsReady(true);
+      void Promise.resolve().then(() => {
+        if (!active) return;
+        setCatalog(cachedCatalog);
+        setStatus("ready");
+        setIsReady(true);
+      });
     }
 
     void (async () => {
