@@ -22,6 +22,11 @@ type ApiReply = {
   reply?: string;
   recommendedProductIds?: string[];
   mode?: "ai" | "fallback";
+  fallbackReason?:
+    | "missing_credentials"
+    | "upstream_error"
+    | "invalid_ai_response"
+    | "network_or_timeout";
   message?: string;
 };
 
@@ -32,7 +37,7 @@ const QUICK_PROMPTS = [
   "Какие цветы дольше стоят?",
 ];
 
-const CHAT_STORAGE_KEY = "bellaflore:ai-florist-chat-v2";
+const CHAT_STORAGE_KEY = "bellaflore:ai-florist-chat-v3";
 const CHAT_STORAGE_LIMIT = 20;
 
 const INITIAL_MESSAGE: ChatMessage = {
@@ -54,6 +59,24 @@ function searchableText(product: CatalogProduct): string {
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
+}
+
+function isExcludedByConversation(product: CatalogProduct, userText: string): boolean {
+  const haystack = searchableText(product);
+  const exclusions: Array<{ request: RegExp; product: RegExp }> = [
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}роз/i, product: /роз/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}пион/i, product: /пион/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}гортенз/i, product: /гортенз/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}лили/i, product: /лили/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}хризантем/i, product: /хризантем/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}георгин/i, product: /георгин/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}маттиол/i, product: /маттиол/i },
+  ];
+
+  return exclusions.some(
+    ({ request, product: productPattern }) =>
+      request.test(userText) && productPattern.test(haystack),
+  );
 }
 
 function extractBudget(text: string): number | null {
@@ -89,6 +112,7 @@ function selectCandidates(
   ).slice(-18);
 
   return bouquets
+    .filter((product) => !isExcludedByConversation(product, userText))
     .map((product, index) => {
       const haystack = searchableText(product);
       let score = 0;
@@ -228,6 +252,15 @@ export function AiFlorist({
   const productById = useMemo(
     () => new Map(bouquets.map((product) => [product.id, product])),
     [bouquets],
+  );
+  const conversationUserText = useMemo(
+    () =>
+      messages
+        .filter((message) => message.role === "user")
+        .map((message) => message.content)
+        .join(" ")
+        .toLowerCase(),
+    [messages],
   );
 
   useEffect(() => {
@@ -479,7 +512,11 @@ export function AiFlorist({
             {messages.map((message, index) => {
               const recommended = (message.recommendedProductIds ?? [])
                 .map((id) => productById.get(id))
-                .filter((product): product is CatalogProduct => Boolean(product));
+                .filter(
+                  (product): product is CatalogProduct =>
+                    Boolean(product) &&
+                    !isExcludedByConversation(product, conversationUserText),
+                );
 
               return (
                 <div
