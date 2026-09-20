@@ -455,9 +455,13 @@ function writeStoredOrders(orders: BellafloreOrder[]) {
 
 type HomePageClientProps = {
   initialProducts?: CatalogProduct[];
+  initialStatus?: "ready" | "error";
 };
 
-export default function HomePageClient({ initialProducts }: HomePageClientProps) {
+export default function HomePageClient({
+  initialProducts,
+  initialStatus,
+}: HomePageClientProps) {
   const {
     catalog: bouquets,
     isReady: catalogReady,
@@ -466,6 +470,7 @@ export default function HomePageClient({ initialProducts }: HomePageClientProps)
     reload: reloadCatalog,
   } = usePublicStorefrontCatalog({
     initialProducts,
+    initialStatus,
   });
   // ==================================================
   // SECTION: STATE
