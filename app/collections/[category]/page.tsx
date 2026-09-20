@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProtectedProductImage } from "@/components/images/ProtectedProductImage";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
-import { absoluteUrl } from "@/app/seo";
 import { listPublishedCatalogProducts } from "@/lib/catalogDb";
 import { getSeoCollection, seoCollections } from "@/lib/catalogSeoCollections";
 import styles from "@/app/collections/[category]/page.module.css";
