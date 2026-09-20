@@ -573,7 +573,7 @@ export function CheckoutSection({
               <div className={checkoutSectionStyles.checkoutGlassFlow}>
                 <CheckoutGlassStep
                   id="recipient"
-                  title="Получатель"
+                  title="Заказчик и получатель"
                   summary={recipientSummary}
                   isOpen={openStep === "recipient"}
                   onToggle={toggleCheckoutStep}
@@ -589,7 +589,7 @@ export function CheckoutSection({
                       onBlur={() => markFieldTouched("name")}
                       placeholder="Имя"
                       autoComplete="name"
-                      aria-label="Имя"
+                      aria-label="Ваше имя"
                       aria-invalid={Boolean(fieldErrors.name)}
                       required
                     />
@@ -606,12 +606,66 @@ export function CheckoutSection({
                       onBlur={() => markFieldTouched("phone")}
                       placeholder="+7"
                       autoComplete="tel"
-                      aria-label="Телефон"
+                      aria-label="Ваш телефон"
                       aria-invalid={Boolean(fieldErrors.phone)}
                       required
                     />
                     {renderFieldError("phone")}
                   </label>
+
+                  <label className={checkoutSectionStyles.checkoutOption}>
+                    <input
+                      type="checkbox"
+                      checked={!checkoutForm.recipientIsCustomer}
+                      onChange={(event) =>
+                        handleCheckoutFieldChange(
+                          "recipientIsCustomer",
+                          !event.target.checked,
+                        )
+                      }
+                    />
+                    <span>
+                      <strong>Получатель — другой человек</strong>
+                      <small>Укажите отдельные имя и телефон для доставки подарка.</small>
+                    </span>
+                  </label>
+
+                  {!checkoutForm.recipientIsCustomer ? (
+                    <div className={checkoutSectionStyles.checkoutRecipientGrid}>
+                      <label className={checkoutSectionStyles.checkoutField}>
+                        <span>Имя получателя</span>
+                        <input
+                          type="text"
+                          value={checkoutForm.recipientName}
+                          onChange={(event) =>
+                            handleCheckoutFieldChange("recipientName", event.target.value)
+                          }
+                          onBlur={() => markFieldTouched("recipientName")}
+                          placeholder="Имя получателя"
+                          autoComplete="off"
+                          aria-invalid={Boolean(fieldErrors.recipientName)}
+                          required
+                        />
+                        {renderFieldError("recipientName")}
+                      </label>
+                      <label className={checkoutSectionStyles.checkoutField}>
+                        <span>Телефон получателя</span>
+                        <input
+                          type="tel"
+                          value={checkoutForm.recipientPhone}
+                          onChange={(event) =>
+                            handleCheckoutFieldChange("recipientPhone", event.target.value)
+                          }
+                          onBlur={() => markFieldTouched("recipientPhone")}
+                          placeholder="+7"
+                          autoComplete="off"
+                          aria-invalid={Boolean(fieldErrors.recipientPhone)}
+                          required
+                        />
+                        {renderFieldError("recipientPhone")}
+                      </label>
+                    </div>
+                  ) : null}
                   {primaryCartItem && checkoutSizeLabel && checkoutSizePrice ? (
                     <button
                       type="button"
@@ -774,13 +828,68 @@ export function CheckoutSection({
                     {selectedPaymentLabel}
                   </span>
                   <label className={checkoutSectionStyles.checkoutField}>
+                    <span>Текст открытки</span>
+                    <textarea
+                      value={checkoutForm.cardMessage}
+                      onChange={(event) =>
+                        handleCheckoutFieldChange("cardMessage", event.target.value)
+                      }
+                      placeholder="Например: «С любовью. Хорошего дня!»"
+                      aria-label="Текст открытки"
+                      rows={2}
+                    />
+                  </label>
+
+                  <div className={checkoutSectionStyles.checkoutGiftOptions}>
+                    <label className={checkoutSectionStyles.checkoutOption}>
+                      <input
+                        type="checkbox"
+                        checked={checkoutForm.anonymousDelivery}
+                        onChange={(event) =>
+                          handleCheckoutFieldChange("anonymousDelivery", event.target.checked)
+                        }
+                      />
+                      <span>
+                        <strong>Анонимная доставка</strong>
+                        <small>Не сообщать получателю имя заказчика.</small>
+                      </span>
+                    </label>
+                    <label className={checkoutSectionStyles.checkoutOption}>
+                      <input
+                        type="checkbox"
+                        checked={checkoutForm.doNotCallRecipient}
+                        onChange={(event) =>
+                          handleCheckoutFieldChange("doNotCallRecipient", event.target.checked)
+                        }
+                      />
+                      <span>
+                        <strong>Не звонить получателю</strong>
+                        <small>Свяжемся только если без этого нельзя выполнить доставку.</small>
+                      </span>
+                    </label>
+                    <label className={checkoutSectionStyles.checkoutOption}>
+                      <input
+                        type="checkbox"
+                        checked={checkoutForm.photoBeforeDelivery}
+                        onChange={(event) =>
+                          handleCheckoutFieldChange("photoBeforeDelivery", event.target.checked)
+                        }
+                      />
+                      <span>
+                        <strong>Фото букета перед отправкой</strong>
+                        <small>Добавим запрос флористу прямо в заказ.</small>
+                      </span>
+                    </label>
+                  </div>
+
+                  <label className={checkoutSectionStyles.checkoutField}>
                     <span>Комментарий</span>
                     <textarea
                       value={checkoutForm.comment}
                       onChange={(event) =>
                         handleCheckoutFieldChange("comment", event.target.value)
                       }
-                      placeholder="Необязательно"
+                      placeholder="Подъезд, этаж, пожелания к доставке…"
                       aria-label="Комментарий к заказу"
                       rows={3}
                     />
