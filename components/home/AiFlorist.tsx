@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import styles from "@/components/home/AiFlorist.module.css";
@@ -11,27 +11,33 @@ type AiFloristProps = {
   onProductOpen?: (productId: string) => void;
 };
 
-type OccasionId = "romantic" | "mother" | "birthday" | "business";
-type BudgetId = "under-5000" | "5000-10000" | "10000-20000" | "20000-plus";
+type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  recommendedProductIds?: string[];
+};
 
-const occasions: Array<{ id: OccasionId; label: string; terms: string[] }> = [
-  { id: "romantic", label: "Для неё", terms: ["девушка", "любимая", "жене", "romantic", "нежный"] },
-  { id: "mother", label: "Маме", terms: ["мама", "маме", "mother", "нежный"] },
-  { id: "birthday", label: "День рождения", terms: ["день рождения", "birthday", "подарок"] },
-  { id: "business", label: "Деловой подарок", terms: ["премиум", "luxury", "авторский", "композиция"] },
+type ApiReply = {
+  reply?: string;
+  recommendedProductIds?: string[];
+  mode?: "ai" | "fallback";
+  message?: string;
+};
+
+const QUICK_PROMPTS = [
+  "Букет для жены",
+  "Маме на день рождения",
+  "Нужен совет до 10 000 ₽",
+  "Какие цветы дольше стоят?",
 ];
 
-const budgets: Array<{
-  id: BudgetId;
-  label: string;
-  min: number;
-  max: number;
-}> = [
-  { id: "under-5000", label: "До 5 000 ₽", min: 0, max: 5000 },
-  { id: "5000-10000", label: "5–10 тыс. ₽", min: 5000, max: 10000 },
-  { id: "10000-20000", label: "10–20 тыс. ₽", min: 10000, max: 20000 },
-  { id: "20000-plus", label: "От 20 000 ₽", min: 20000, max: Number.POSITIVE_INFINITY },
-];
+const INITIAL_MESSAGE: ChatMessage = {
+  id: "welcome",
+  role: "assistant",
+  content:
+    "Здравствуйте. Я AI-флорист BellaFlore. Расскажите, для кого выбираете цветы или какой нужен совет — я помогу как флорист, а не просто покажу фильтр каталога.",
+};
 
 function searchableText(product: CatalogProduct): string {
   return [
@@ -47,37 +53,167 @@ function searchableText(product: CatalogProduct): string {
     .toLowerCase();
 }
 
-export function AiFlorist({ bouquets, formatPrice, onProductOpen }: AiFloristProps) {
-  const [open, setOpen] = useState(false);
-  const [occasionId, setOccasionId] = useState<OccasionId | null>(null);
-  const [budgetId, setBudgetId] = useState<BudgetId | null>(null);
+function extractBudget(text: string): number | null {
+  const normalized = text.toLowerCase().replace(/\s+/g, " ");
+  const thousandMatch = normalized.match(/(\d{1,3}(?:[.,]\d+)?)\s*(?:тыс|тысяч)/);
+  if (thousandMatch) {
+    return Math.round(Number(thousandMatch[1].replace(",", ".")) * 1000);
+  }
 
-  const recommendations = useMemo(() => {
-    if (!occasionId || !budgetId) {
-      return [];
-    }
+  const rubleMatch = normalized.match(/(?:до|бюджет|примерно|около)?\s*(\d{4,6})\s*(?:₽|руб)?/);
+  return rubleMatch ? Number(rubleMatch[1]) : null;
+}
 
-    const occasion = occasions.find((item) => item.id === occasionId);
-    const budget = budgets.find((item) => item.id === budgetId);
-    if (!occasion || !budget) {
-      return [];
-    }
+function selectCandidates(
+  bouquets: CatalogProduct[],
+  messages: ChatMessage[],
+): CatalogProduct[] {
+  const userText = messages
+    .filter((message) => message.role === "user")
+    .map((message) => message.content)
+    .join(" ")
+    .toLowerCase();
+  const budget = extractBudget(userText);
 
-    const inBudget = bouquets.filter(
-      (product) => product.priceRub >= budget.min && product.priceRub < budget.max,
-    );
-    const pool = inBudget.length > 0 ? inBudget : bouquets;
-    const matched = pool.filter((product) => {
+  const tokens = Array.from(
+    new Set(
+      userText
+        .replace(/[^a-zа-яё0-9\s-]/gi, " ")
+        .split(/\s+/)
+        .map((token) => token.trim())
+        .filter((token) => token.length >= 4 && !/^\d+$/.test(token)),
+    ),
+  ).slice(-18);
+
+  return bouquets
+    .map((product, index) => {
       const haystack = searchableText(product);
-      return occasion.terms.some((term) => haystack.includes(term));
+      let score = 0;
+
+      for (const token of tokens) {
+        if (haystack.includes(token)) score += 5;
+      }
+
+      if (product.isPopular) score += 4;
+      if (product.isNew) score += 2;
+      if (product.badge) score += 1;
+
+      if (budget) {
+        if (product.priceRub <= budget) score += 7;
+        else score -= Math.min(8, Math.ceil((product.priceRub - budget) / 3000));
+      }
+
+      return { product, score, index };
+    })
+    .sort((left, right) => right.score - left.score || left.index - right.index)
+    .slice(0, 18)
+    .map((entry) => entry.product);
+}
+
+function buildFallbackText(message: string): string {
+  const lower = message.toLowerCase();
+  if (!/жен|девуш|мам|муж|коллег|началь|себе/.test(lower)) {
+    return "Кому выбираем цветы? Это поможет понять характер букета — романтичный, сдержанный, нежный или более эффектный.";
+  }
+  if (!/день рож|свидан|юбиле|свад|годовщ|спасибо|без повода|просто так/.test(lower)) {
+    return "А какой повод? От этого я точнее подберу форму букета и цветовую гамму.";
+  }
+  return "Назовите примерный бюджет и, если знаете, любимые цвета человека. После этого предложу несколько подходящих композиций.";
+}
+
+export function AiFlorist({
+  bouquets,
+  formatPrice,
+  onProductOpen,
+}: AiFloristProps) {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const endRef = useRef<HTMLDivElement | null>(null);
+
+  const productById = useMemo(
+    () => new Map(bouquets.map((product) => [product.id, product])),
+    [bouquets],
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    const frame = window.requestAnimationFrame(() => {
+      endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
-    const source = matched.length >= 3 ? matched : pool;
-    return source.slice(0, 3);
-  }, [bouquets, budgetId, occasionId]);
+    return () => window.cancelAnimationFrame(frame);
+  }, [messages, open, sending]);
+
+  const sendMessage = async (rawText: string) => {
+    const text = rawText.trim();
+    if (!text || sending) return;
+
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: text,
+    };
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
+    setInput("");
+    setSending(true);
+
+    const candidates = selectCandidates(bouquets, nextMessages);
+
+    try {
+      const response = await fetch("/api/ai-florist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: nextMessages.map(({ role, content }) => ({ role, content })),
+          candidates: candidates.map((product) => ({
+            id: product.id,
+            title: product.title,
+            priceRub: product.priceRub,
+            category: product.category,
+            flowerType: product.flowerType,
+            description: product.description,
+            tags: product.tags,
+            sizes: product.sizes?.map((size) => ({
+              label: size.label,
+              price: size.price,
+            })),
+          })),
+        }),
+      });
+      const body = (await response.json()) as ApiReply;
+
+      const assistantMessage: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: "assistant",
+        content:
+          response.ok && body.reply
+            ? body.reply
+            : buildFallbackText(text),
+        recommendedProductIds: Array.isArray(body.recommendedProductIds)
+          ? body.recommendedProductIds
+          : [],
+      };
+
+      setMessages((current) => [...current, assistantMessage]);
+    } catch {
+      setMessages((current) => [
+        ...current,
+        {
+          id: `assistant-${Date.now()}`,
+          role: "assistant",
+          content: buildFallbackText(text),
+        },
+      ]);
+    } finally {
+      setSending(false);
+    }
+  };
 
   const reset = () => {
-    setOccasionId(null);
-    setBudgetId(null);
+    setMessages([INITIAL_MESSAGE]);
+    setInput("");
   };
 
   return (
@@ -86,10 +222,12 @@ export function AiFlorist({ bouquets, formatPrice, onProductOpen }: AiFloristPro
         <section className={styles.panel} aria-label="AI-флорист BellaFlore">
           <div className={styles.panelHeader}>
             <div className={styles.identity}>
-              <span className={styles.smallMark} aria-hidden="true">✦</span>
+              <span className={styles.smallMark} aria-hidden="true">
+                ✦
+              </span>
               <div>
                 <strong>AI-флорист BellaFlore</strong>
-                <span>Подберу из реального каталога</span>
+                <span>Советы флориста · реальные товары</span>
               </div>
             </div>
             <button
@@ -103,93 +241,120 @@ export function AiFlorist({ bouquets, formatPrice, onProductOpen }: AiFloristPro
           </div>
 
           <div className={styles.chatBody}>
-            <div className={styles.assistantBubble}>
-              {!occasionId
-                ? "Добрый вечер. Для кого выбираем цветы?"
-                : !budgetId
-                  ? "Понял. Какой бюджет комфортен?"
-                  : "Нашёл варианты, которые подходят лучше всего. Можно открыть любой букет."}
-            </div>
+            {messages.map((message, index) => {
+              const recommended = (message.recommendedProductIds ?? [])
+                .map((id) => productById.get(id))
+                .filter((product): product is CatalogProduct => Boolean(product));
 
-            {!occasionId ? (
-              <div className={styles.quickReplies}>
-                {occasions.map((occasion) => (
-                  <button
-                    key={occasion.id}
-                    type="button"
-                    onClick={() => setOccasionId(occasion.id)}
+              return (
+                <div
+                  className={
+                    message.role === "user"
+                      ? styles.userMessageGroup
+                      : styles.assistantMessageGroup
+                  }
+                  key={message.id}
+                >
+                  <div
+                    className={
+                      message.role === "user"
+                        ? styles.userBubble
+                        : styles.assistantBubble
+                    }
                   >
-                    {occasion.label}
-                  </button>
-                ))}
+                    {message.content}
+                  </div>
+
+                  {recommended.length > 0 ? (
+                    <div className={styles.recommendations}>
+                      {recommended.map((product) => (
+                        <button
+                          key={product.id}
+                          type="button"
+                          className={styles.productCard}
+                          onClick={() => {
+                            onProductOpen?.(product.id);
+                            setOpen(false);
+                          }}
+                        >
+                          <span className={styles.productImage}>
+                            <ProductImageWithFallback
+                              src={product.src}
+                              alt={product.alt}
+                              width={product.width}
+                              height={product.height}
+                              sizes="70px"
+                              imageClassName={styles.productImg}
+                              fallbackClassName={styles.productFallback}
+                            />
+                          </span>
+                          <span className={styles.productCopy}>
+                            <strong>{product.title}</strong>
+                            <span>{formatPrice(product.priceRub)}</span>
+                            <small>Открыть композицию</small>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {index === 0 && messages.length === 1 ? (
+                    <div className={styles.quickReplies}>
+                      {QUICK_PROMPTS.map((prompt) => (
+                        <button
+                          key={prompt}
+                          type="button"
+                          onClick={() => void sendMessage(prompt)}
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+
+            {sending ? (
+              <div className={styles.thinking}>
+                <span />
+                <span />
+                <span />
               </div>
             ) : null}
 
-            {occasionId && !budgetId ? (
-              <>
-                <div className={styles.userBubble}>
-                  {occasions.find((item) => item.id === occasionId)?.label}
-                </div>
-                <div className={styles.quickReplies}>
-                  {budgets.map((budget) => (
-                    <button
-                      key={budget.id}
-                      type="button"
-                      onClick={() => setBudgetId(budget.id)}
-                    >
-                      {budget.label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            ) : null}
-
-            {occasionId && budgetId ? (
-              <>
-                <div className={styles.userBubble}>
-                  {occasions.find((item) => item.id === occasionId)?.label} ·{" "}
-                  {budgets.find((item) => item.id === budgetId)?.label}
-                </div>
-                <div className={styles.recommendations}>
-                  {recommendations.map((product) => (
-                    <button
-                      key={product.id}
-                      type="button"
-                      className={styles.productCard}
-                      onClick={() => {
-                        onProductOpen?.(product.id);
-                        setOpen(false);
-                      }}
-                    >
-                      <span className={styles.productImage}>
-                        <ProductImageWithFallback
-                          src={product.src}
-                          alt={product.alt}
-                          width={product.width}
-                          height={product.height}
-                          sizes="82px"
-                          imageClassName={styles.productImg}
-                          fallbackClassName={styles.productFallback}
-                        />
-                      </span>
-                      <span className={styles.productCopy}>
-                        <strong>{product.title}</strong>
-                        <span>{formatPrice(product.priceRub)}</span>
-                      </span>
-                      <span className={styles.productArrow} aria-hidden="true">→</span>
-                    </button>
-                  ))}
-                </div>
-                <button type="button" className={styles.restartButton} onClick={reset}>
-                  Подобрать заново
-                </button>
-              </>
-            ) : null}
+            <div ref={endRef} />
           </div>
 
-          <p className={styles.disclaimer}>
-            Сейчас это умный подбор по каталогу BellaFlore. Свободный AI-диалог подключим следующим этапом.
-          </p>
+          <form
+            className={styles.composer}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void sendMessage(input);
+            }}
+          >
+            <input
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder="Напишите: для кого, повод, бюджет…"
+              aria-label="Сообщение AI-флористу"
+              autoComplete="off"
+            />
+            <button
+              type="submit"
+              disabled={sending || !input.trim()}
+              aria-label="Отправить"
+            >
+              Отправить
+            </button>
+          </form>
+
+          <div className={styles.panelFooter}>
+            <button type="button" onClick={reset}>
+              Новый подбор
+            </button>
+            <span>AI использует только реальные товары BellaFlore.</span>
+          </div>
         </section>
       ) : null}
 
@@ -197,7 +362,9 @@ export function AiFlorist({ bouquets, formatPrice, onProductOpen }: AiFloristPro
         type="button"
         className={styles.launcher}
         onClick={() => setOpen((current) => !current)}
-        aria-label={open ? "Закрыть AI-флориста" : "Открыть AI-флориста BellaFlore"}
+        aria-label={
+          open ? "Закрыть AI-флориста" : "Открыть AI-флориста BellaFlore"
+        }
         aria-expanded={open}
       >
         <span aria-hidden="true">✦</span>
