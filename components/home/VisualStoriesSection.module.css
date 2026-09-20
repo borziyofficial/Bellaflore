@@ -1,13 +1,17 @@
 .section {
-  width: min(100% - 32px, 1480px);
-  margin: 58px auto 18px;
+  width: 100%;
+  margin: 58px 0 18px;
+  overflow: hidden;
 }
 
 .intro {
   display: grid;
   gap: 7px;
+  width: min(100%, 1480px);
   max-width: 760px;
-  margin: 0 0 24px;
+  margin: 0 auto 24px;
+  padding: 0 clamp(20px, 5vw, 64px);
+  box-sizing: border-box;
 }
 
 .intro > span {
@@ -40,19 +44,21 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  width: 100%;
+  gap: 6px;
 }
 
 .story {
   position: relative;
   isolation: isolate;
   display: block;
+  width: 100%;
   min-width: 0;
   margin: 0;
   padding: 0;
   overflow: hidden;
   border: 0;
-  border-radius: 2px;
+  border-radius: 0;
   background: #e9e4dc;
   box-shadow: none;
   color: #ffffff;
@@ -62,15 +68,15 @@
 
 .heroStory {
   grid-column: 1 / -1;
-  min-height: min(82svh, 920px);
+  min-height: min(84svh, 940px);
 }
 
 .tallStory {
-  min-height: min(72svh, 760px);
+  min-height: min(74svh, 790px);
 }
 
 .wideStory {
-  min-height: min(58svh, 620px);
+  min-height: min(60svh, 650px);
 }
 
 .imageWrap,
@@ -88,7 +94,7 @@
 
 .image {
   object-position: 50% 48%;
-  transform: scale(1.001);
+  transform: scale(1.002);
   transition: transform 8s ease;
   will-change: transform;
 }
@@ -103,16 +109,16 @@
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(180deg, transparent 48%, rgba(22, 17, 13, 0.42) 100%),
-    linear-gradient(90deg, rgba(22, 17, 13, 0.12), transparent 45%);
+    linear-gradient(180deg, transparent 50%, rgba(22, 17, 13, 0.48) 100%),
+    linear-gradient(90deg, rgba(22, 17, 13, 0.10), transparent 48%);
   pointer-events: none;
 }
 
 .caption {
   position: absolute;
-  right: 28px;
-  bottom: 26px;
-  left: 28px;
+  right: clamp(20px, 4vw, 54px);
+  bottom: clamp(22px, 4vw, 48px);
+  left: clamp(20px, 4vw, 54px);
   z-index: 2;
   display: grid;
   gap: 6px;
@@ -141,57 +147,57 @@
 .captionLink {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   width: fit-content;
-  margin-top: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.62);
-  color: rgba(255, 255, 255, 0.95);
+  min-height: 34px;
+  margin-top: 8px;
+  padding: 0 14px;
+  border: 1px solid rgba(223, 174, 67, 0.78);
+  border-radius: 999px;
+  background: rgba(213, 159, 46, 0.14);
+  color: #e1ad43;
   font-family: var(--font-inter), Arial, sans-serif;
   font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  line-height: 1.8;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 8px rgba(28, 20, 13, 0.32);
   text-transform: uppercase;
 }
 
-.captionLink b {
-  font-size: 13px;
-  font-weight: 400;
+.catalogRow {
+  display: flex;
+  justify-content: center;
+  padding: 26px 20px 0;
 }
 
 .catalogLink {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  margin: 24px 0 0;
-  padding: 0 2px;
-  border: 0;
-  border-bottom: 1px solid rgba(181, 141, 55, 0.5);
-  border-radius: 0;
-  background: transparent;
-  color: #8f6b25;
+  justify-content: center;
+  min-height: 46px;
+  margin: 0;
+  padding: 0 20px;
+  border: 1px solid rgba(201, 162, 75, 0.36);
+  border-radius: 999px;
+  background: #fffaf1;
+  color: #a97c20;
   font-family: var(--font-inter), Arial, sans-serif;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
 }
 
-.catalogLink span {
-  font-size: 16px;
-}
-
 @media (max-width: 780px) {
   .section {
-    width: calc(100% - 20px);
     margin-top: 38px;
   }
 
   .intro {
+    width: 100%;
     margin-bottom: 18px;
-    padding: 0 4px;
+    padding: 0 18px;
   }
 
   .intro h2 {
@@ -207,7 +213,7 @@
 
   .grid {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 5px;
   }
 
   .heroStory,
@@ -219,31 +225,33 @@
   }
 
   .heroStory {
-    min-height: min(76svh, 720px);
+    min-height: min(78svh, 760px);
     aspect-ratio: auto;
   }
 
   .caption {
     right: 18px;
-    bottom: 18px;
+    bottom: 20px;
     left: 18px;
     gap: 4px;
   }
 
   .caption strong {
-    max-width: 320px;
+    max-width: 330px;
     font-size: 38px;
     line-height: 0.98;
   }
 
   .captionLink {
-    margin-top: 5px;
+    min-height: 32px;
+    margin-top: 7px;
+    padding: 0 13px;
+    color: #e9b449;
     font-size: 9px;
   }
 
-  .catalogLink {
-    margin-top: 18px;
-    margin-left: 4px;
+  .catalogRow {
+    padding-top: 20px;
   }
 }
 
