@@ -55,7 +55,7 @@ export function ContactSection() {
           <p>Москва и Московская область</p>
         </div>
 
-        <div id="delivery" className={styles.deliveryColumn}>
+        <div className={styles.deliveryColumn}>
           <p className={styles.columnLabel}>Доставка</p>
           <strong>Бережно и точно ко времени</strong>
           <p>
