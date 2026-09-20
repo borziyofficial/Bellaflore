@@ -98,7 +98,7 @@ type CheckoutSectionProps = {
   formatPrice: (priceRub: number) => string;
   handleCheckoutFieldChange: (
     field: keyof CheckoutForm,
-    value: string,
+    value: CheckoutForm[keyof CheckoutForm],
   ) => void;
   selectDeliveryDatePreset: (mode: DeliveryDatePreset) => void;
   handleCustomDeliveryDateChange: (value: string) => void;
