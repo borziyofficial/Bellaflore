@@ -23,15 +23,13 @@ export function ContactSection() {
             Авторская флористика для признаний, благодарности и самых важных
             моментов.
           </p>
-          <div className={styles.socials} aria-label="Социальные сети BellaFlore">
-            <a href="https://wa.me/70000000000" target="_blank" rel="noopener noreferrer">
-              WA <span>WhatsApp</span>
-            </a>
-            <a href="https://t.me/" target="_blank" rel="noopener noreferrer">
+          <div className={styles.socials} aria-label="Связь с BellaFlore">
+            <a
+              href="https://t.me/BellaFlore_bot"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               TG <span>Telegram</span>
-            </a>
-            <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer">
-              IG <span>Instagram</span>
             </a>
           </div>
         </div>
@@ -48,9 +46,19 @@ export function ContactSection() {
 
         <div className={styles.contactColumn}>
           <h2>Связаться с нами</h2>
-          <a className={styles.phone} href="tel:+70000000000">
-            +7 (000) 000-00-00
+          <a className={styles.phone} href="tel:+79912700720">
+            +7 (991) 270-07-20
           </a>
+          <p>
+            Telegram:{" "}
+            <a
+              href="https://t.me/BellaFlore_bot"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              @BellaFlore_bot
+            </a>
+          </p>
           <p>Ежедневно · 09:00–22:00</p>
           <p>Москва и Московская область</p>
         </div>
