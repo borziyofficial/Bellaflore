@@ -92,10 +92,10 @@ function fallbackReply(
   messages: FloristMessage[],
   candidates: FloristCandidate[],
 ): FloristReply {
-  const lastUser =
-    [...messages].reverse().find((message) => message.role === "user")?.content ??
-    "";
-  const text = lastUser.toLowerCase();
+  const userMessages = messages
+    .filter((message) => message.role === "user")
+    .map((message) => message.content);
+  const text = userMessages.join(" ").toLowerCase();
   const hasBudget =
     /\d/.test(text) || text.includes("бюджет") || text.includes("тыс");
   const hasRecipient =
@@ -207,17 +207,24 @@ export async function POST(request: Request) {
 
 Правила:
 1. Не выдумывай цены, наличие, сроки доставки или товары.
-2. Если данных мало, задай только ОДИН самый полезный уточняющий вопрос.
-3. Если уже достаточно данных, дай конкретный совет и выбери до 3 реальных товаров.
-4. Не дави на покупку.
-5. Пиши по-русски, если клиент не перешёл на другой язык.
-6. Ответ должен быть ТОЛЬКО валидным JSON без markdown:
+2. Внимательно используй ВСЮ историю разговора. Никогда не переспрашивай то, что клиент уже сообщил.
+3. Если данных мало, задай только ОДИН самый полезный уточняющий вопрос.
+4. Если уже достаточно данных, дай конкретный совет и выбери до 3 реальных товаров.
+5. Если клиент спрашивает общий вопрос по флористике или уходу, ответь по существу даже без подбора товара.
+6. Если речь о доставке, не обещай точное время или цену без checkout; скажи, что BellaFlore уточнит их по адресу.
+7. Если клиент просит букет без конкретного цветка, не рекомендуй товары, где этот цветок явно указан в названии/описании.
+8. Объясняй рекомендацию человечески: 1–2 коротких причины, почему композиция подходит случаю.
+9. Не дави на покупку и не используй агрессивные продажи.
+10. Пиши по-русски, если клиент не перешёл на другой язык.
+11. Ответ должен быть ТОЛЬКО валидным JSON без markdown:
 {"reply":"текст ответа","recommendedProductIds":["id-1","id-2"]}
 
 CATALOG:
 ${catalogText || "Нет доступных кандидатов — дай совет и задай уточняющий вопрос, не придумывай товар."}`;
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 14_000);
     const configuredModel = process.env.OPENAI_FLORIST_MODEL?.trim();
     const endpoint = useGateway
       ? "https://ai-gateway.vercel.sh/v1/responses"
@@ -243,7 +250,9 @@ ${catalogText || "Нет доступных кандидатов — дай со
         })),
         max_output_tokens: 600,
       }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
 
     if (!response.ok) {
       return Response.json(fallbackReply(messages, candidates));
