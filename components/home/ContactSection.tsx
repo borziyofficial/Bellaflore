@@ -41,6 +41,8 @@ export function ContactSection() {
           <a href="#about">О BellaFlore</a>
           <a href="#reviews">Отзывы клиентов</a>
           <a href="#delivery">Доставка и оплата</a>
+          <a href="/offer">Условия заказа</a>
+          <a href="/privacy">Конфиденциальность</a>
         </nav>
 
         <div className={styles.contactColumn}>
