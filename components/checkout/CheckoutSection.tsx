@@ -532,10 +532,10 @@ export function CheckoutSection({
     checkoutForm.deliveryDate,
   );
   const recipientSummary = buildRecipientAccordionSummary({
-    isOtherRecipient: false,
+    isOtherRecipient: !checkoutForm.recipientIsCustomer,
     customerName: checkoutForm.name,
-    recipientName: "",
-    anonymousDelivery: false,
+    recipientName: checkoutForm.recipientName,
+    anonymousDelivery: checkoutForm.anonymousDelivery,
   });
   const deliverySummary = buildDeliveryAccordionSummary({
     deliveryDateLabel,
@@ -579,7 +579,7 @@ export function CheckoutSection({
                   onToggle={toggleCheckoutStep}
                 >
                   <label className={checkoutSectionStyles.checkoutField}>
-                    <span>Имя</span>
+                    <span>Ваше имя</span>
                     <input
                       type="text"
                       value={checkoutForm.name}
@@ -596,7 +596,7 @@ export function CheckoutSection({
                     {renderFieldError("name")}
                   </label>
                   <label className={checkoutSectionStyles.checkoutField}>
-                    <span>Телефон</span>
+                    <span>Ваш телефон</span>
                     <input
                       type="tel"
                       value={checkoutForm.phone}
