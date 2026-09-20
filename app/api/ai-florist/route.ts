@@ -166,8 +166,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
-  if (!apiKey) {
+  const openAiApiKey = process.env.OPENAI_API_KEY?.trim();
+  const gatewayApiKey =
+    process.env.AI_GATEWAY_API_KEY?.trim() ||
+    process.env.VERCEL_OIDC_TOKEN?.trim();
+  const useGateway = Boolean(gatewayApiKey);
+
+  if (!openAiApiKey && !gatewayApiKey) {
     return Response.json(fallbackReply(messages, candidates));
   }
 
@@ -213,17 +218,26 @@ CATALOG:
 ${catalogText || "Нет доступных кандидатов — дай совет и задай уточняющий вопрос, не придумывай товар."}`;
 
   try {
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const configuredModel = process.env.OPENAI_FLORIST_MODEL?.trim();
+    const endpoint = useGateway
+      ? "https://ai-gateway.vercel.sh/v1/responses"
+      : "https://api.openai.com/v1/responses";
+    const token = useGateway ? gatewayApiKey : openAiApiKey;
+    const model = useGateway
+      ? configuredModel || "openai/gpt-5.6-sol"
+      : configuredModel?.replace(/^openai\//, "") || "gpt-5.6";
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model:
-          process.env.OPENAI_FLORIST_MODEL?.trim() || "gpt-5.6-luna",
+        model,
         instructions,
         input: messages.map((message) => ({
+          type: "message",
           role: message.role,
           content: message.content,
         })),
