@@ -32,6 +32,9 @@ const QUICK_PROMPTS = [
   "Какие цветы дольше стоят?",
 ];
 
+const CHAT_STORAGE_KEY = "bellaflore:ai-florist-chat-v1";
+const CHAT_STORAGE_LIMIT = 20;
+
 const INITIAL_MESSAGE: ChatMessage = {
   id: "welcome",
   role: "assistant",
@@ -124,6 +127,7 @@ function buildFallbackText(message: string): string {
 function clampLauncherPosition(x: number, y: number) {
   const size = window.innerWidth <= 640 ? 56 : 58;
   const margin = 10;
+  const reservedBottom = window.innerWidth <= 640 ? 92 : 18;
   return {
     x: Math.min(
       Math.max(margin, x),
@@ -131,9 +135,58 @@ function clampLauncherPosition(x: number, y: number) {
     ),
     y: Math.min(
       Math.max(margin, y),
-      Math.max(margin, window.innerHeight - size - margin),
+      Math.max(margin, window.innerHeight - size - reservedBottom),
     ),
   };
+}
+
+function snapLauncherToEdge(position: { x: number; y: number }) {
+  const size = window.innerWidth <= 640 ? 56 : 58;
+  const margin = 10;
+  const leftDistance = position.x;
+  const rightDistance = window.innerWidth - (position.x + size);
+  const snappedX =
+    leftDistance <= rightDistance
+      ? margin
+      : Math.max(margin, window.innerWidth - size - margin);
+
+  return clampLauncherPosition(snappedX, position.y);
+}
+
+function readStoredChat(): ChatMessage[] | null {
+  try {
+    const raw = window.sessionStorage.getItem(CHAT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+
+    const messages = parsed
+      .filter(
+        (message): message is ChatMessage =>
+          Boolean(
+            message &&
+              typeof message.id === "string" &&
+              (message.role === "user" || message.role === "assistant") &&
+              typeof message.content === "string",
+          ),
+      )
+      .slice(-CHAT_STORAGE_LIMIT);
+
+    return messages.length > 0 ? messages : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeChat(messages: ChatMessage[]) {
+  try {
+    window.sessionStorage.setItem(
+      CHAT_STORAGE_KEY,
+      JSON.stringify(messages.slice(-CHAT_STORAGE_LIMIT)),
+    );
+  } catch {
+    // The conversation still works in memory if sessionStorage is unavailable.
+  }
 }
 
 export function AiFlorist({
@@ -168,6 +221,18 @@ export function AiFlorist({
     () => new Map(bouquets.map((product) => [product.id, product])),
     [bouquets],
   );
+
+  useEffect(() => {
+    const stored = readStoredChat();
+    if (stored) {
+      setMessages(stored);
+      messageSequenceRef.current = stored.length + 1;
+    }
+  }, []);
+
+  useEffect(() => {
+    storeChat(messages);
+  }, [messages]);
 
   useEffect(() => {
     let cancelled = false;
@@ -275,6 +340,11 @@ export function AiFlorist({
   const reset = () => {
     setMessages([INITIAL_MESSAGE]);
     setInput("");
+    try {
+      window.sessionStorage.removeItem(CHAT_STORAGE_KEY);
+    } catch {
+      // Ignore storage limitations.
+    }
   };
 
   const saveLauncherPosition = (position: { x: number; y: number }) => {
@@ -332,8 +402,10 @@ export function AiFlorist({
     if (drag.moved) {
       suppressClickRef.current = true;
       setLauncherPosition((current) => {
-        if (current) saveLauncherPosition(current);
-        return current;
+        if (!current) return current;
+        const snapped = snapLauncherToEdge(current);
+        saveLauncherPosition(snapped);
+        return snapped;
       });
       window.setTimeout(() => {
         suppressClickRef.current = false;
