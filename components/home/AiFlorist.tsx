@@ -121,6 +121,21 @@ function buildFallbackText(message: string): string {
   return "Назовите примерный бюджет и, если знаете, любимые цвета человека. После этого предложу несколько подходящих композиций.";
 }
 
+function clampLauncherPosition(x: number, y: number) {
+  const size = window.innerWidth <= 640 ? 56 : 58;
+  const margin = 10;
+  return {
+    x: Math.min(
+      Math.max(margin, x),
+      Math.max(margin, window.innerWidth - size - margin),
+    ),
+    y: Math.min(
+      Math.max(margin, y),
+      Math.max(margin, window.innerHeight - size - margin),
+    ),
+  };
+}
+
 export function AiFlorist({
   bouquets,
   formatPrice,
@@ -142,15 +157,6 @@ export function AiFlorist({
   } | null>(null);
   const suppressClickRef = useRef(false);
   const [launcherPosition, setLauncherPosition] = useState<{ x: number; y: number } | null>(null);
-
-  const clampLauncherPosition = (x: number, y: number) => {
-    const size = window.innerWidth <= 640 ? 56 : 58;
-    const margin = 10;
-    return {
-      x: Math.min(Math.max(margin, x), Math.max(margin, window.innerWidth - size - margin)),
-      y: Math.min(Math.max(margin, y), Math.max(margin, window.innerHeight - size - margin)),
-    };
-  };
 
   const nextMessageId = (prefix: "user" | "assistant") => {
     const sequence = messageSequenceRef.current;
