@@ -18,6 +18,7 @@ import {
   AdminHeroBannerPanel,
   type AdminHeroBannerSettings,
 } from "@/components/adminApp/modules/smartBanner/AdminHeroBannerPanel";
+import { AdminVisualStoriesPanel } from "@/components/adminApp/modules/smartBanner/AdminVisualStoriesPanel";
 import {
   ensureCatalogLoaded,
   getCachedProducts,
@@ -716,6 +717,8 @@ export function AdminSmartBannerModule({
       <div className={styles.layout}>
         <div className={styles.mainColumn}>
           <AdminHeroBannerPanel initialSettings={initialHeroSettings} />
+
+          <AdminVisualStoriesPanel />
 
           <AdminPanel title="Статус баннера">
             <div className={styles.statusControl}>
