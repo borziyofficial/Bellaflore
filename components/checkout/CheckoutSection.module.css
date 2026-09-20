@@ -911,3 +911,11 @@
   font-size: 11px;
   line-height: 1.4;
 }
+
+.checkoutOption small a {
+  color: #9d7627;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgba(157, 118, 39, 0.35);
+  text-underline-offset: 2px;
+}
