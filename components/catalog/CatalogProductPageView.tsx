@@ -32,6 +32,20 @@ export function CatalogProductPageView({
   const heading =
     pageTitle.startsWith("Букет") ? pageTitle : `Букет «${record.title}»`;
   const orderHref = `/?product=${encodeURIComponent(product.id)}#catalog`;
+  const galleryImages = [
+    {
+      id: "primary",
+      src: product.src,
+      alt: product.alt,
+      width: product.width,
+      height: product.height,
+    },
+    ...(product.galleryImages ?? []).filter((image) => image.src !== product.src),
+  ].slice(0, 4);
+  const sizeOptions =
+    product.sizes && product.sizes.length > 0
+      ? product.sizes
+      : [{ label: "S", price: product.priceRub }];
 
   return (
     <main className={styles.page}>
@@ -45,16 +59,24 @@ export function CatalogProductPageView({
       </header>
 
       <article className={styles.layout}>
-        <div className={styles.media}>
-          <ProtectedProductImage
-            src={product.src}
-            alt={product.alt}
-            width={product.width}
-            height={product.height}
-            className={styles.image}
-            priority
-            unoptimized={shouldUseUnoptimizedImage(product.src)}
-          />
+        <div className={styles.gallery} aria-label={`Фотографии ${product.title}`}>
+          {galleryImages.map((image, index) => (
+            <div
+              className={index === 0 ? styles.mediaPrimary : styles.mediaSecondary}
+              key={image.id}
+            >
+              <ProtectedProductImage
+                src={image.src}
+                alt={image.alt}
+                width={image.width}
+                height={image.height}
+                className={styles.image}
+                priority={index === 0}
+                sizes={index === 0 ? "(max-width: 899px) 100vw, 460px" : "(max-width: 899px) 50vw, 220px"}
+                unoptimized={shouldUseUnoptimizedImage(image.src)}
+              />
+            </div>
+          ))}
         </div>
 
         <div className={styles.details}>
@@ -69,7 +91,19 @@ export function CatalogProductPageView({
           <h1 className={styles.title}>{heading}</h1>
           <p className={styles.lead}>{product.description}</p>
 
-          <p className={styles.price}>{formatPrice(product.priceRub)}</p>
+          <p className={styles.price}>от {formatPrice(sizeOptions[0]?.price ?? product.priceRub)}</p>
+
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Размер и стоимость</h2>
+            <ul className={styles.sizes}>
+              {sizeOptions.map((size) => (
+                <li className={styles.sizeItem} key={size.label}>
+                  <span>{size.label}</span>
+                  <strong>{formatPrice(size.price)}</strong>
+                </li>
+              ))}
+            </ul>
+          </section>
 
           {product.composition ? (
             <section className={styles.section}>
@@ -85,12 +119,21 @@ export function CatalogProductPageView({
             </section>
           ) : null}
 
+          <div className={styles.trustGrid} aria-label="Сервис BellaFlore">
+            <span>Фото букета по запросу</span>
+            <span>Открытка к заказу</span>
+            <span>Расчёт доставки по адресу</span>
+          </div>
+
           <div className={styles.actions}>
             <Link href={orderHref} className={styles.primaryButton}>
-              Заказать букет
+              Выбрать размер и заказать
+            </Link>
+            <Link href="/offer" className={styles.secondaryLink}>
+              Условия заказа и доставки
             </Link>
             <p className={styles.deliveryHint}>
-              {product.deliveryHint ?? "Доставка сегодня по Москве и области"}
+              {product.deliveryHint ?? "Доставка по Москве и Московской области"}
             </p>
           </div>
 
