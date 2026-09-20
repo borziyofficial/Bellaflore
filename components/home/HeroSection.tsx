@@ -162,40 +162,6 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const subtitleText = subtitle.replace(/\n+/g, " ");
 
   useEffect(() => {
-    if (!isBannerResolved || activeHeroPhotos.length < 2) {
-      return;
-    }
-
-    let active = true;
-    const loaders = activeHeroPhotos.map((photo) => {
-      if (readyPhotos.has(photo.imageUrl)) {
-        return null;
-      }
-      const preload = new window.Image();
-      preload.decoding = "async";
-      preload.onload = () => {
-        if (!active) return;
-        setReadyPhotoUrls((current) =>
-          current.includes(photo.imageUrl) ? current : [...current, photo.imageUrl],
-        );
-      };
-      preload.onerror = () => {
-        if (!active) return;
-        setFailedPhotoUrls((current) =>
-          current.includes(photo.imageUrl) ? current : [...current, photo.imageUrl],
-        );
-      };
-      preload.src = photo.imageUrl;
-      return preload;
-    });
-
-    return () => {
-      active = false;
-      void loaders;
-    };
-  }, [activeHeroPhotos, isBannerResolved, readyPhotos]);
-
-  useEffect(() => {
     if (!displayedPhotoUrl || readyPhotos.has(displayedPhotoUrl)) {
       return;
     }
@@ -414,7 +380,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
               aria-hidden="true"
               fill
               sizes="(max-width: 960px) 100vw, 68vw"
-              quality={92}
+              quality={88}
               loading="eager"
               style={{ opacity: 0, pointerEvents: "none", zIndex: 0 }}
               onLoad={() =>
@@ -442,7 +408,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
               alt="Премиальный букет BellaFlore"
               fill
               sizes="(max-width: 960px) 100vw, 68vw"
-              quality={92}
+              quality={88}
               fetchPriority="high"
               style={{ opacity: 1, zIndex: 1 }}
               onLoad={() => setRenderedPhotoUrl(displayedPhotoUrl)}
@@ -468,7 +434,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
               aria-hidden="true"
               fill
               sizes="(max-width: 960px) 100vw, 68vw"
-              quality={92}
+              quality={88}
               loading="eager"
               style={{
                 opacity: overlay.visible ? 1 : 0,
