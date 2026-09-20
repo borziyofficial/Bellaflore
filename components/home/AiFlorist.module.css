@@ -37,6 +37,12 @@
   cursor: grabbing;
 }
 
+.launcherOpen {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.86);
+}
+
 .launcher span {
   display: block;
   font-size: 27px;
@@ -51,7 +57,9 @@
   display: flex;
   flex-direction: column;
   width: min(410px, calc(100vw - 24px));
+  max-width: calc(100vw - 20px);
   max-height: min(68dvh, 680px);
+  box-sizing: border-box;
   overflow: hidden;
   border: 1px solid rgba(201, 162, 75, 0.24);
   border-radius: 24px;
@@ -69,6 +77,8 @@
 
 .panelHeader {
   display: flex;
+  min-width: 0;
+  box-sizing: border-box;
   flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
@@ -137,6 +147,9 @@
 
 .chatBody {
   display: flex;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   flex: 1 1 auto;
   flex-direction: column;
   gap: 12px;
@@ -167,6 +180,9 @@
 .assistantBubble,
 .userBubble {
   max-width: 88%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
   padding: 11px 13px;
   border-radius: 17px;
   font-family: var(--font-body, Inter, sans-serif);
@@ -306,6 +322,10 @@
 
 .composer {
   display: grid;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
   flex: 0 0 auto;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
@@ -351,6 +371,9 @@
 
 .panelFooter {
   display: flex;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
@@ -401,12 +424,48 @@
   }
 
   .panel {
-    right: 14px;
-    bottom: calc(118px + env(safe-area-inset-bottom));
-    left: 14px;
+    right: max(10px, env(safe-area-inset-right));
+    bottom: calc(112px + env(safe-area-inset-bottom));
+    left: max(10px, env(safe-area-inset-left));
     width: auto;
-    max-height: min(64dvh, 590px);
+    max-width: none;
+    max-height: min(66dvh, 590px);
     border-radius: 22px;
+  }
+
+  .panelHeader {
+    padding: 13px 12px 11px;
+  }
+
+  .identity strong {
+    font-size: 14px;
+  }
+
+  .composer {
+    grid-template-columns: minmax(0, 1fr) 88px;
+    gap: 7px;
+    padding: 9px 10px;
+  }
+
+  .composer input {
+    width: 100%;
+    min-width: 0;
+    padding: 0 10px;
+  }
+
+  .composer button {
+    width: 88px;
+    padding: 0 8px;
+  }
+
+  .panelFooter {
+    gap: 8px;
+    padding-inline: 11px;
+  }
+
+  .panelFooter span {
+    min-width: 0;
+    max-width: 52%;
   }
 
   .chatBody {
