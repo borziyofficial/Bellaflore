@@ -6,7 +6,6 @@
 
 import {
   filterHomeCatalogProducts,
-  matchesHomeCatalogCategory,
   type HomeCatalogSortMode,
 } from "@/components/catalog/filterHomeCatalogProducts";
 import {
@@ -16,7 +15,6 @@ import {
 } from "@/components/catalog/homeCatalogConfig";
 import { useStorefrontCustomCategories } from "@/components/catalog/useStorefrontCustomCategories";
 import { LuxuryCatalogProductCard } from "@/components/catalog/LuxuryCatalogProductCard";
-import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
 import styles from "@/components/home/CollectionsSection.module.css";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
@@ -191,39 +189,6 @@ export function CollectionsSection({
       sortMode,
     ],
   );
-  const visibleProducts = fullCatalog ? displayedProducts : displayedProducts.slice(0, 8);
-
-  const collectionHighlights = useMemo(
-    () =>
-      categoryChips
-        .filter((chip) => chip.id !== "all")
-        .map((chip) => {
-          const categoryProducts = bouquets.filter((bouquet) =>
-            matchesHomeCatalogCategory(bouquet, chip.id, customCategoryTitleById),
-          );
-          const cover = categoryProducts[0];
-          return cover
-            ? {
-                id: chip.id,
-                label: chip.label,
-                count: categoryProducts.length,
-                image: cover,
-              }
-            : null;
-        })
-        .filter(
-          (
-            highlight,
-          ): highlight is {
-            id: string;
-            label: string;
-            count: number;
-            image: CatalogProduct;
-          } => Boolean(highlight),
-        ),
-    [bouquets, categoryChips, customCategoryTitleById],
-  );
-
   const handleSearchChange = (event: ReactChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
@@ -265,11 +230,11 @@ export function CollectionsSection({
   return (
     <section id="catalog" className={`${styles.section} ${!fullCatalog ? styles.homeShowcase : ""}`}>
       <header className={`${styles.header} bf-reveal bf-reveal-up`}>
-        {!fullCatalog ? <span className={styles.homeEyebrow}>Коллекции BellaFlore</span> : null}
-        <h2>{fullCatalog ? homeCatalogTitle : "Композиции, которые выбирают глазами"}</h2>
+        {!fullCatalog ? <span className={styles.homeEyebrow}>Категории</span> : null}
+        <h2>{fullCatalog ? homeCatalogTitle : "Выберите направление"}</h2>
         {!fullCatalog ? (
           <p className={styles.subtitle}>
-            Крупные фотографии, минимум лишнего. Выберите настроение — детали откроются только по вашему желанию.
+            Полный каталог откроется только когда вы захотите перейти к выбору.
           </p>
         ) : null}
       </header>
@@ -374,41 +339,6 @@ export function CollectionsSection({
       </div>
       ) : null}
 
-      {!fullCatalog && collectionHighlights.length > 0 ? (
-        <div className={`${styles.collectionRail} bf-reveal bf-reveal-up`}>
-          {collectionHighlights.map((collection) => {
-            const isActive = activeCategoryId === collection.id;
-            return (
-              <button
-                key={collection.id}
-                type="button"
-                className={`${styles.collectionTile} ${
-                  isActive ? styles.collectionTileActive : ""
-                }`}
-                onClick={() => handleCategorySelect(collection.id)}
-                aria-pressed={isActive}
-              >
-                <span className={styles.collectionImage}>
-                  <ProductImageWithFallback
-                    src={collection.image.src}
-                    alt=""
-                    width={collection.image.width}
-                    height={collection.image.height}
-                    sizes="(max-width: 768px) 44vw, 210px"
-                    imageClassName={styles.collectionImg}
-                    fallbackClassName={styles.collectionFallback}
-                  />
-                </span>
-                <span className={styles.collectionCopy}>
-                  <strong>{collection.label}</strong>
-                  <span>{collection.count} вариантов</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
-
       {!fullCatalog ? (
         <div className={`${styles.homeCategoryBlock} bf-reveal bf-reveal-up`}>
           <div className={styles.homeCategoryHeading}>
@@ -435,7 +365,7 @@ export function CollectionsSection({
         </div>
       ) : null}
 
-      {isInitialCatalogLoading ? (
+      {fullCatalog && isInitialCatalogLoading ? (
         <div
           className={`${styles.grid} ${styles.loadingGrid}`}
           data-catalog-state="loading"
@@ -452,7 +382,7 @@ export function CollectionsSection({
             </div>
           ))}
         </div>
-      ) : hasCatalogLoadError && bouquets.length === 0 ? (
+      ) : fullCatalog && hasCatalogLoadError && bouquets.length === 0 ? (
         <div className={styles.emptyState} data-catalog-state="error">
           <p className={styles.emptyTitle}>Каталог временно не загрузился</p>
           <p className={styles.emptyMessage}>
@@ -464,7 +394,7 @@ export function CollectionsSection({
             </button>
           ) : null}
         </div>
-      ) : displayedProducts.length === 0 ? (
+      ) : fullCatalog && displayedProducts.length === 0 ? (
         <div
           key={`empty:${catalogViewKey}`}
           className={styles.emptyState}
@@ -476,7 +406,7 @@ export function CollectionsSection({
             Показать все
           </button>
         </div>
-      ) : (
+      ) : fullCatalog ? (
         <div
           key={`grid:${catalogViewKey}`}
           className={`${styles.grid} ${
@@ -484,7 +414,7 @@ export function CollectionsSection({
           }`}
           data-catalog-mode={activeCatalogMode}
         >
-          {visibleProducts.map((bouquet) => (
+          {displayedProducts.map((bouquet) => (
             <LuxuryCatalogProductCard
               key={`${catalogViewKey}:${bouquet.id}`}
               product={bouquet}
@@ -498,7 +428,7 @@ export function CollectionsSection({
         </div>
       )}
 
-      {!fullCatalog && displayedProducts.length > 0 ? (
+      {!fullCatalog && bouquets.length > 0 ? (
         <div className={styles.fullCatalogButtonWrap}>
           <button type="button" className={styles.fullCatalogButton} onClick={onOpenFullCatalog}>
             Смотреть весь каталог
