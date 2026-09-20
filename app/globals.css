@@ -9,36 +9,36 @@
      PREMIUM COLOR PALETTE
      ======================== */
 
-  /* Base palette */
-  --color-ivory: #faf8f5;
-  --color-ivory-alt: #fdfbf7;
-  --color-cream: #fef9f4;
-  --color-champagne: #eba94f;
-  --color-warm-stone: #d4c4b9;
-  --color-soft-blush: #f7d6e0;
-  --color-muted-blush: #f286a4;
-  --color-muted-beige: #e8d9cc;
-  --color-bronze-subtle: #c9b8a5;
-  --color-gold-accent: #eba94f;
-  --color-gold-subtle: #d4a574;
+  /* Base palette - Muted luxury tones */
+  --color-ivory: #f7f3ed;
+  --color-ivory-alt: #faf7f2;
+  --color-cream: #f2ece4;
+  --color-champagne: #c4aa7a;
+  --color-warm-stone: #d8cec3;
+  --color-soft-blush: #e5d0cb;
+  --color-muted-blush: #d9bbb8;
+  --color-muted-beige: #ede4db;
+  --color-bronze-subtle: #9b7c50;
+  --color-gold-accent: #c4aa7a;
+  --color-gold-subtle: #a88a5a;
 
-  /* Text hierarchy */
-  --color-text-primary: #2f2522;
-  --color-text-secondary: #4a3d38;
-  --color-text-tertiary: #746862;
-  --color-text-muted: #978b86;
-  --color-text-disabled: #beb4af;
+  /* Text hierarchy - Charcoal tones */
+  --color-text-primary: #2a2521;
+  --color-text-secondary: #3d3530;
+  --color-text-tertiary: #6b5f59;
+  --color-text-muted: #8b7f7a;
+  --color-text-disabled: #a89c96;
 
-  /* Surfaces */
-  --color-surface-primary: #ffffff;
-  --color-surface-secondary: #fef9f4;
-  --color-surface-tertiary: #faf8f5;
-  --color-surface-soft: #fff7f8;
+  /* Surfaces - Premium soft whites & creams */
+  --color-surface-primary: #fdfbf9;
+  --color-surface-secondary: #f7f3ed;
+  --color-surface-tertiary: #f2ece4;
+  --color-surface-soft: #f5f1ed;
 
-  /* Borders & Dividers */
-  --color-border-primary: rgba(242, 134, 164, 0.22);
-  --color-border-subtle: rgba(242, 134, 164, 0.14);
-  --color-border-warm: rgba(235, 169, 79, 0.22);
+  /* Borders & Dividers - Warm subtle tones */
+  --color-border-primary: rgba(196, 170, 122, 0.18);
+  --color-border-subtle: rgba(196, 170, 122, 0.1);
+  --color-border-warm: rgba(152, 124, 80, 0.15);
 
   /* Legacy mappings (for compatibility) */
   --bf-bg: var(--color-ivory);
@@ -63,10 +63,10 @@
   /* ========================
      SHADOWS & ELEVATIONS
      ======================== */
-  --shadow-soft: 0 8px 24px rgba(242, 134, 164, 0.05);
-  --shadow-medium: 0 16px 40px rgba(242, 134, 164, 0.07);
-  --shadow-strong: 0 24px 56px rgba(61, 49, 38, 0.08);
-  --shadow-deep: 0 32px 72px rgba(61, 49, 38, 0.12);
+  --shadow-soft: 0 8px 24px rgba(42, 37, 33, 0.04);
+  --shadow-medium: 0 16px 40px rgba(42, 37, 33, 0.06);
+  --shadow-strong: 0 24px 56px rgba(42, 37, 33, 0.08);
+  --shadow-deep: 0 32px 72px rgba(42, 37, 33, 0.1);
 
   --bf-shadow: var(--shadow-medium);
   --bf-shadow-soft: var(--shadow-soft);
@@ -76,22 +76,22 @@
   /* ========================
      GLASS & TRANSLUCENT
      ======================== */
-  --glass-blur: blur(24px) saturate(1.04);
-  --glass-surface: rgba(255, 255, 255, 0.9);
-  --glass-surface-strong: rgba(255, 255, 255, 0.96);
+  --glass-blur: blur(24px) saturate(1.02);
+  --glass-surface: rgba(253, 251, 249, 0.88);
+  --glass-surface-strong: rgba(253, 251, 249, 0.94);
   --glass-border: var(--color-border-primary);
-  --glass-shadow: 0 14px 36px rgba(47, 37, 32, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.92);
-  --glass-shadow-deep: 0 18px 48px rgba(47, 37, 32, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.94);
+  --glass-shadow: 0 14px 36px rgba(42, 37, 33, 0.05), inset 0 1px 0 rgba(255, 253, 251, 0.9);
+  --glass-shadow-deep: 0 18px 48px rgba(42, 37, 33, 0.07), inset 0 1px 0 rgba(255, 253, 251, 0.92);
 
-  /* Legacy glass tokens */
-  --luxury-glass: rgba(255, 255, 255, 0.92);
-  --luxury-glass-strong: rgba(255, 255, 255, 0.96);
-  --luxury-glass-dark: rgba(255, 255, 255, 0.88);
-  --luxury-glass-dark-strong: rgba(255, 255, 255, 0.94);
+  /* Legacy glass tokens - Updated for muted palette */
+  --luxury-glass: rgba(253, 251, 249, 0.9);
+  --luxury-glass-strong: rgba(253, 251, 249, 0.96);
+  --luxury-glass-dark: rgba(253, 251, 249, 0.86);
+  --luxury-glass-dark-strong: rgba(253, 251, 249, 0.92);
   --luxury-glass-border: var(--color-border-primary);
   --luxury-glass-shadow: var(--shadow-soft);
-  --glass-gold-line: rgba(235, 169, 79, 0.28);
-  --glass-gold-glow: rgba(247, 214, 224, 0.28);
+  --glass-gold-line: rgba(196, 170, 122, 0.24);
+  --glass-gold-glow: rgba(229, 208, 203, 0.2);
 
   /* ========================
      TYPOGRAPHY SCALE
@@ -132,9 +132,9 @@
   --tracking-wide: 0.05em;
   --tracking-wider: 0.1em;
 
-  /* Font families */
-  --font-serif: var(--font-playfair, 'Playfair Display', serif);
-  --font-sans: var(--font-inter, 'Inter', sans-serif);
+  /* Font families - System stack without network dependency */
+  --font-serif: 'Georgia', 'Garamond', 'Times New Roman', serif;
+  --font-sans: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 
   /* ========================
      SPACING SCALE

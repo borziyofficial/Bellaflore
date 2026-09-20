@@ -142,7 +142,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className={inter.className}>
+      <body>
         {isSandbox ? (
           <div className="sandbox-environment-badge" role="status">
             SANDBOX — тестовая версия
