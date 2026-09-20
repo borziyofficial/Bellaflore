@@ -223,11 +223,20 @@ export function AiFlorist({
   );
 
   useEffect(() => {
-    const stored = readStoredChat();
-    if (stored) {
-      setMessages(stored);
-      messageSequenceRef.current = stored.length + 1;
-    }
+    let cancelled = false;
+
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      const stored = readStoredChat();
+      if (stored) {
+        setMessages(stored);
+        messageSequenceRef.current = stored.length + 1;
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
