@@ -426,7 +426,7 @@ export function CollectionsSection({
             />
           ))}
         </div>
-      )}
+      ) : null}
 
       {!fullCatalog && bouquets.length > 0 ? (
         <div className={styles.fullCatalogButtonWrap}>
