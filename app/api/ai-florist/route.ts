@@ -25,6 +25,49 @@ type FloristReply = {
   mode: "ai" | "fallback";
 };
 
+const AI_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const AI_RATE_LIMIT_MAX_REQUESTS = 24;
+const MAX_MESSAGE_LENGTH = 1200;
+
+const requestBuckets = new Map<string, { count: number; resetAt: number }>();
+
+function requestIdentity(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return forwarded || request.headers.get("x-real-ip")?.trim() || "anonymous";
+}
+
+function consumeRequestQuota(request: Request): Response | null {
+  const key = requestIdentity(request);
+  const now = Date.now();
+  const current = requestBuckets.get(key);
+
+  if (!current || current.resetAt <= now) {
+    requestBuckets.set(key, {
+      count: 1,
+      resetAt: now + AI_RATE_LIMIT_WINDOW_MS,
+    });
+    return null;
+  }
+
+  if (current.count >= AI_RATE_LIMIT_MAX_REQUESTS) {
+    const retryAfterSeconds = Math.max(
+      1,
+      Math.ceil((current.resetAt - now) / 1000),
+    );
+    return Response.json(
+      { message: "Слишком много сообщений. Попробуйте немного позже." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(retryAfterSeconds) },
+      },
+    );
+  }
+
+  current.count += 1;
+  requestBuckets.set(key, current);
+  return null;
+}
+
 function normalizeIds(value: unknown, candidates: FloristCandidate[]): string[] {
   if (!Array.isArray(value)) return [];
   const allowed = new Set(candidates.map((candidate) => candidate.id));
@@ -131,6 +174,9 @@ function fallbackReply(
 }
 
 export async function POST(request: Request) {
+  const limited = consumeRequestQuota(request);
+  if (limited) return limited;
+
   let body: FloristRequest;
 
   try {
@@ -153,6 +199,10 @@ export async function POST(request: Request) {
                 message.content.trim(),
             ),
         )
+        .map((message) => ({
+          ...message,
+          content: message.content.trim().slice(0, MAX_MESSAGE_LENGTH),
+        }))
         .slice(-12)
     : [];
   const candidates = Array.isArray(body.candidates)
