@@ -144,30 +144,61 @@ function fallbackReply(
   const hasRecipient =
     /жен|девуш|мам|муж|мужчин|коллег|началь|ребен|доч|сын|себе/.test(text);
   const hasOccasion =
-    /день рож|свидан|юбиле|свад|извин|спасибо|просто так|годовщ/.test(text);
+    /день рож|свидан|юбиле|свад|извин|спасибо|просто так|годовщ|знакомств|первая встреч|первое знакомств/.test(text);
+  const firstMeeting =
+    /перв(ое|ого|ая)?\s+(знакомств|встреч|свидан)|первое знакомство|первая встреча/.test(text);
+  const lastAssistant =
+    [...messages].reverse().find((message) => message.role === "assistant")?.content ?? "";
+  const latestUser =
+    [...messages].reverse().find((message) => message.role === "user")?.content.toLowerCase() ?? "";
+  const affirmativeOnly = /^(да|давай|да давай|хорошо|ок|окей|конечно|ага)[.!\s]*$/.test(latestUser);
+  const mediumBudgetCandidates = [...candidates]
+    .filter((candidate) => candidate.priceRub <= 10000)
+    .sort((left, right) => left.priceRub - right.priceRub)
+    .slice(0, 3);
+  const sensibleCandidates =
+    mediumBudgetCandidates.length > 0
+      ? mediumBudgetCandidates
+      : [...candidates].sort((left, right) => left.priceRub - right.priceRub).slice(0, 3);
 
   let reply =
     "Я помогу как флорист, а не просто как фильтр каталога. Расскажите немного о человеке и настроении букета — тогда подбор будет точнее.";
 
-  if (!hasRecipient) {
+  if (firstMeeting) {
+    reply =
+      "Для первого знакомства я бы выбрал лёгкий, аккуратный букет без слишком торжественного эффекта: нежные или пастельные оттенки, воздушная форма и умеренный размер. Так подарок выглядит внимательным, но не обязывающим. Могу показать подходящие варианты и уже потом сузить их по бюджету.";
+  } else if (!hasRecipient) {
     reply =
       "Для начала скажите, кому выбираем цветы: любимой, маме, коллеге или кому-то ещё? От этого зависит и характер композиции, и оттенки.";
   } else if (!hasOccasion) {
     reply =
       "Понял. А какой повод: день рождения, свидание, годовщина, благодарность или хочется подарить без повода?";
   } else if (!hasBudget) {
-    reply =
-      "Хорошо. Теперь назовите ориентир по бюджету. Можно просто написать, например: «до 10 тысяч» — я подберу варианты без лишнего.";
+    if (
+      affirmativeOnly &&
+      /бюджет|до 10 тысяч|ориентир по бюджету/i.test(lastAssistant)
+    ) {
+      reply =
+        "Давайте без лишних вопросов: возьму за ориентир спокойный средний бюджет и покажу наиболее подходящие варианты. Если захотите — потом просто назовёте предел, и я сразу пересоберу подбор.";
+    } else {
+      reply =
+        "Хорошо. Теперь назовите ориентир по бюджету. Можно просто написать, например: «до 10 тысяч» — я подберу варианты без лишнего.";
+    }
   } else if (candidates.length > 0) {
     const names = candidates.slice(0, 2).map((item) => item.title);
     reply =
       `По вашему запросу я бы начал с ${names.join(" и ")}. Если хотите, уточните цветовую гамму — нежную, яркую, белую или пастельную — и я сузю выбор ещё точнее.`;
   }
 
+  const shouldRecommend =
+    firstMeeting ||
+    (hasRecipient && hasOccasion && hasBudget) ||
+    (affirmativeOnly && /бюджет|до 10 тысяч|ориентир по бюджету/i.test(lastAssistant));
+
   return {
     reply,
-    recommendedProductIds: hasRecipient && hasOccasion && hasBudget
-      ? candidates.slice(0, 3).map((candidate) => candidate.id)
+    recommendedProductIds: shouldRecommend
+      ? sensibleCandidates.map((candidate) => candidate.id)
       : [],
     mode: "fallback",
   };
