@@ -69,6 +69,7 @@ import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
+import { VisualStoriesSection } from "@/components/home/VisualStoriesSection";
 import { Navbar } from "@/components/home/Navbar";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
@@ -2415,6 +2416,14 @@ export default function Home() {
           Назначение (RU): Hero на весь экран с брендовым изображением и основным призывом к действию.
           ================================================== */}
       <HeroSection onOrderBouquet={handleHeroOrderBouquet} />
+
+      {publicAppView === "home" ? (
+        <VisualStoriesSection
+          bouquets={bouquets}
+          onProductOpen={openProductExperience}
+          onOpenCatalog={openCatalogView}
+        />
+      ) : null}
 
       <CollectionsSection
         bouquets={bouquets}
