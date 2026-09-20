@@ -54,7 +54,15 @@ export function AdminReviewsPanel() {
   }, []);
 
   useEffect(() => {
-    void loadReviews();
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (!cancelled) {
+        void loadReviews();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [loadReviews]);
 
   const pendingCount = useMemo(
