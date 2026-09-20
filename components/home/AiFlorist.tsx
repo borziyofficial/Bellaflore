@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import styles from "@/components/home/AiFlorist.module.css";
@@ -132,6 +132,25 @@ export function AiFlorist({
   const [sending, setSending] = useState(false);
   const endRef = useRef<HTMLDivElement | null>(null);
   const messageSequenceRef = useRef(1);
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+    moved: boolean;
+  } | null>(null);
+  const suppressClickRef = useRef(false);
+  const [launcherPosition, setLauncherPosition] = useState<{ x: number; y: number } | null>(null);
+
+  const clampLauncherPosition = (x: number, y: number) => {
+    const size = window.innerWidth <= 640 ? 56 : 58;
+    const margin = 10;
+    return {
+      x: Math.min(Math.max(margin, x), Math.max(margin, window.innerWidth - size - margin)),
+      y: Math.min(Math.max(margin, y), Math.max(margin, window.innerHeight - size - margin)),
+    };
+  };
 
   const nextMessageId = (prefix: "user" | "assistant") => {
     const sequence = messageSequenceRef.current;
@@ -143,6 +162,35 @@ export function AiFlorist({
     () => new Map(bouquets.map((product) => [product.id, product])),
     [bouquets],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      try {
+        const raw = window.localStorage.getItem("bellaflore:ai-florist-position");
+        if (!raw) return;
+        const parsed = JSON.parse(raw) as { x?: unknown; y?: unknown };
+        if (typeof parsed.x === "number" && typeof parsed.y === "number") {
+          setLauncherPosition(clampLauncherPosition(parsed.x, parsed.y));
+        }
+      } catch {
+        // Keep the default bottom-right position if storage is unavailable.
+      }
+    });
+
+    const handleResize = () => {
+      setLauncherPosition((current) =>
+        current ? clampLauncherPosition(current.x, current.y) : current,
+      );
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -223,8 +271,83 @@ export function AiFlorist({
     setInput("");
   };
 
+  const saveLauncherPosition = (position: { x: number; y: number }) => {
+    try {
+      window.localStorage.setItem(
+        "bellaflore:ai-florist-position",
+        JSON.stringify(position),
+      );
+    } catch {
+      // Dragging still works when localStorage is unavailable.
+    }
+  };
+
+  const handleLauncherPointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const origin = launcherPosition ?? { x: rect.left, y: rect.top };
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: origin.x,
+      originY: origin.y,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleLauncherPointerMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - drag.startX;
+    const deltaY = event.clientY - drag.startY;
+    const moved = drag.moved || Math.hypot(deltaX, deltaY) > 6;
+    if (moved) {
+      event.preventDefault();
+    }
+
+    dragRef.current = { ...drag, moved };
+    setLauncherPosition(
+      clampLauncherPosition(drag.originX + deltaX, drag.originY + deltaY),
+    );
+  };
+
+  const finishLauncherDrag = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    if (drag.moved) {
+      suppressClickRef.current = true;
+      setLauncherPosition((current) => {
+        if (current) saveLauncherPosition(current);
+        return current;
+      });
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 0);
+    }
+
+    dragRef.current = null;
+  };
+
+  const rootStyle = launcherPosition
+    ? ({
+        left: `${launcherPosition.x}px`,
+        top: `${launcherPosition.y}px`,
+        right: "auto",
+        bottom: "auto",
+      } satisfies CSSProperties)
+    : undefined;
+
   return (
-    <div className={styles.root}>
+    <div className={styles.root} style={rootStyle}>
       {open ? (
         <section className={styles.panel} aria-label="AI-флорист BellaFlore">
           <div className={styles.panelHeader}>
@@ -368,7 +491,14 @@ export function AiFlorist({
       <button
         type="button"
         className={styles.launcher}
-        onClick={() => setOpen((current) => !current)}
+        onPointerDown={handleLauncherPointerDown}
+        onPointerMove={handleLauncherPointerMove}
+        onPointerUp={finishLauncherDrag}
+        onPointerCancel={finishLauncherDrag}
+        onClick={() => {
+          if (suppressClickRef.current) return;
+          setOpen((current) => !current);
+        }}
         aria-label={
           open ? "Закрыть AI-флориста" : "Открыть AI-флориста BellaFlore"
         }
