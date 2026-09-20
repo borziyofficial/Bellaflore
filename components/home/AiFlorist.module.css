@@ -45,9 +45,9 @@
 }
 
 .panel {
-  position: absolute;
-  right: 0;
-  bottom: 72px;
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(118px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   width: min(410px, calc(100vw - 24px));
@@ -401,8 +401,10 @@
   }
 
   .panel {
-    right: -2px;
-    width: calc(100vw - 28px);
+    right: 14px;
+    bottom: calc(118px + env(safe-area-inset-bottom));
+    left: 14px;
+    width: auto;
     max-height: min(64dvh, 590px);
     border-radius: 22px;
   }
