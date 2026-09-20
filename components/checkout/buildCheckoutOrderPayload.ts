@@ -148,6 +148,16 @@ export function buildCheckoutOrderPayload(
     })),
     customerName: checkoutForm.name.trim(),
     phone: checkoutForm.phone.trim(),
+    recipientName: checkoutForm.recipientIsCustomer
+      ? checkoutForm.name.trim()
+      : checkoutForm.recipientName.trim(),
+    recipientPhone: checkoutForm.recipientIsCustomer
+      ? checkoutForm.phone.trim()
+      : checkoutForm.recipientPhone.trim(),
+    anonymousDelivery: checkoutForm.anonymousDelivery,
+    doNotCallRecipient: checkoutForm.doNotCallRecipient,
+    photoBeforeDelivery: checkoutForm.photoBeforeDelivery,
+    cardMessage: checkoutForm.cardMessage.trim(),
     deliveryAddress: checkoutForm.address.trim(),
     deliveryDate: checkoutForm.deliveryDate.trim(),
     deliveryInterval: checkoutForm.deliveryTime.trim(),
