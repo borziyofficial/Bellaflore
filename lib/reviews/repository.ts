@@ -109,7 +109,7 @@ export async function createReview(input: {
 }): Promise<ReviewRecord> {
   await ensureReviewsSchema();
   const sql = getReviewsSqlClient();
-  const status: ReviewStatus = input.rating >= 4 ? "approved" : "pending";
+  const status: ReviewStatus = "pending";
   const id = randomUUID();
 
   const rows = await sql<ReviewRow[]>`
