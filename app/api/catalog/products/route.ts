@@ -45,9 +45,21 @@ export async function GET(request: Request) {
       // Use shared server-only helper for published storefront
       const catalogResult = await loadPublishedStorefrontCatalog();
 
-      if (catalogResult.status === "unconfigured" || catalogResult.status === "error") {
-        return catalogUnavailableResponse(
-          new Error(catalogResult.error || "Catalog unavailable"),
+      if (catalogResult.status === "unconfigured") {
+        return Response.json(
+          {
+            message: catalogResult.error || "Catalog database is not configured.",
+            configured: false,
+            mode: getCatalogDatabaseMode(),
+          },
+          { status: 503 },
+        );
+      }
+
+      if (catalogResult.status === "error") {
+        return Response.json(
+          { message: "Не удалось загрузить каталог." },
+          { status: 500 },
         );
       }
 
