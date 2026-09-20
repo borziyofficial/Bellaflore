@@ -276,7 +276,7 @@ export function ProductReviews({
           </button>
 
           <p className={styles.moderationNote}>
-            4–5★ публикуются автоматически. 1–3★ проходят модерацию.
+            Все отзывы проходят одинаковую проверку на спам и корректность независимо от оценки.
           </p>
         </form>
       ) : message ? (
