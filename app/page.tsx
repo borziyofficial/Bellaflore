@@ -241,29 +241,7 @@ const paymentMethodLabels: Record<PaymentMethod, string> = {
   cashOnDelivery: "Оплата при получении — по согласованию",
 };
 
-const initialReviews: BellafloreReview[] = [
-  {
-    id: "demo-review-1",
-    name: "Антон",
-    rating: 5,
-    text: "Заказал букет на годовщину — всё аккуратно, свежо и с отличной упаковкой.",
-    createdAtDisplay: "20 июня 2026",
-  },
-  {
-    id: "demo-review-2",
-    name: "Евгений",
-    rating: 5,
-    text: "Доставили вовремя, букет выглядел именно так, как обещали. Очень аккуратная работа.",
-    createdAtDisplay: "18 июня 2026",
-  },
-  {
-    id: "demo-review-3",
-    name: "Ольга",
-    rating: 5,
-    text: "Приятный сервис и красивые розы — оформление выглядело по-настоящему премиально.",
-    createdAtDisplay: "15 июня 2026",
-  },
-];
+const initialReviews: BellafloreReview[] = []
 
 function formatDateInputValue(date: Date) {
   const year = date.getFullYear();
