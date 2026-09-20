@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
 import type { CatalogProduct } from "@/data/catalogProducts";
+import type { VisualStory } from "@/lib/visualStoriesTypes";
 import styles from "@/components/home/VisualStoriesSection.module.css";
 
 type VisualStoriesSectionProps = {
@@ -10,7 +12,7 @@ type VisualStoriesSectionProps = {
   onOpenCatalog?: () => void;
 };
 
-const STORY_IDS = [
+const FALLBACK_IDS = [
   "royal-collection",
   "pink-elegance",
   "white-pearl",
@@ -18,11 +20,23 @@ const STORY_IDS = [
   "red-luxury",
 ] as const;
 
-function selectStories(bouquets: CatalogProduct[]): CatalogProduct[] {
+type StoryView = {
+  id: string;
+  imageUrl: string;
+  eyebrow: string;
+  title: string;
+  alt: string;
+  width: number;
+  height: number;
+  destinationType: VisualStory["destinationType"];
+  destinationValue: string;
+};
+
+function buildFallbackStories(bouquets: CatalogProduct[]): StoryView[] {
   const selected: CatalogProduct[] = [];
   const used = new Set<string>();
 
-  for (const id of STORY_IDS) {
+  for (const id of FALLBACK_IDS) {
     const product = bouquets.find((item) => item.id === id);
     if (product && !used.has(product.id)) {
       selected.push(product);
@@ -38,7 +52,31 @@ function selectStories(bouquets: CatalogProduct[]): CatalogProduct[] {
     }
   }
 
-  return selected.slice(0, 5);
+  return selected.slice(0, 5).map((product) => ({
+    id: product.id,
+    imageUrl: product.src,
+    eyebrow: product.category || "BellaFlore",
+    title: product.title,
+    alt: product.alt,
+    width: product.width,
+    height: product.height,
+    destinationType: "product",
+    destinationValue: product.id,
+  }));
+}
+
+function mapAdminStory(story: VisualStory): StoryView {
+  return {
+    id: story.id,
+    imageUrl: story.imageUrl,
+    eyebrow: story.eyebrow || "BellaFlore",
+    title: story.title || "Коллекция BellaFlore",
+    alt: story.title || "Коллекция BellaFlore",
+    width: 1800,
+    height: 2400,
+    destinationType: story.destinationType,
+    destinationValue: story.destinationValue,
+  };
 }
 
 export function VisualStoriesSection({
@@ -46,7 +84,45 @@ export function VisualStoriesSection({
   onProductOpen,
   onOpenCatalog,
 }: VisualStoriesSectionProps) {
-  const stories = selectStories(bouquets);
+  const fallbackStories = useMemo(() => buildFallbackStories(bouquets), [bouquets]);
+  const [managedStories, setManagedStories] = useState<VisualStory[] | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch("/api/visual-stories", {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return (await response.json()) as {
+          settings?: { stories?: VisualStory[] };
+        };
+      })
+      .then((body) => {
+        const stories = body?.settings?.stories;
+        if (Array.isArray(stories)) {
+          setManagedStories(
+            stories
+              .filter((story) => story.isEnabled && story.imageUrl)
+              .sort((left, right) => left.sortOrder - right.sortOrder)
+              .slice(0, 5),
+          );
+        }
+      })
+      .catch(() => {
+        // The static catalog-based fallback remains visible if admin settings
+        // are temporarily unavailable.
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  const stories =
+    managedStories && managedStories.length > 0
+      ? managedStories.map(mapAdminStory)
+      : fallbackStories;
 
   if (stories.length === 0) {
     return null;
@@ -60,32 +136,58 @@ export function VisualStoriesSection({
     styles.wideStory,
   ];
 
+  const openStory = (story: StoryView) => {
+    if (story.destinationType === "product" && story.destinationValue) {
+      onProductOpen?.(story.destinationValue);
+      return;
+    }
+
+    if (story.destinationType === "catalog") {
+      onOpenCatalog?.();
+      return;
+    }
+
+    if (story.destinationType === "category" && story.destinationValue) {
+      window.location.assign(
+        `/catalog?category=${encodeURIComponent(story.destinationValue)}#catalog`,
+      );
+      return;
+    }
+
+    if (story.destinationType === "url" && story.destinationValue) {
+      window.location.assign(story.destinationValue);
+      return;
+    }
+
+    onOpenCatalog?.();
+  };
+
   return (
     <section className={styles.section} aria-label="Коллекции BellaFlore">
       <div className={styles.intro}>
         <span>Коллекции BellaFlore</span>
         <h2>Цветы крупным планом</h2>
         <p>
-          Без лишних карточек и цен на первом взгляде — только композиция,
-          настроение и живой масштаб.
+          Большие фотографии без перегруженных карточек. Нажмите на композицию,
+          когда захотите посмотреть её подробнее.
         </p>
       </div>
 
       <div className={styles.grid}>
-        {stories.map((product, index) => (
+        {stories.map((story, index) => (
           <button
-            key={product.id}
+            key={story.id}
             type="button"
             className={`${styles.story} ${storyClassNames[index] ?? styles.wideStory}`}
-            onClick={() => onProductOpen?.(product.id)}
-            aria-label={`Открыть ${product.title}`}
+            onClick={() => openStory(story)}
+            aria-label={`Открыть ${story.title}`}
           >
             <span className={styles.imageWrap}>
               <ProductImageWithFallback
-                src={product.src}
-                alt={product.alt}
-                width={product.width}
-                height={product.height}
+                src={story.imageUrl}
+                alt={story.alt}
+                width={story.width}
+                height={story.height}
                 sizes={index === 0 ? "100vw" : "(max-width: 780px) 100vw, 50vw"}
                 imageClassName={styles.image}
                 fallbackClassName={styles.fallback}
@@ -95,21 +197,19 @@ export function VisualStoriesSection({
             <span className={styles.shade} aria-hidden="true" />
 
             <span className={styles.caption}>
-              <small>{product.category || "Коллекция"}</small>
-              <strong>{product.title}</strong>
-              <span className={styles.captionLink}>
-                Смотреть
-                <b aria-hidden="true">↗</b>
-              </span>
+              <small>{story.eyebrow}</small>
+              <strong>{story.title}</strong>
+              <span className={styles.captionLink}>Смотреть</span>
             </span>
           </button>
         ))}
       </div>
 
-      <button type="button" className={styles.catalogLink} onClick={onOpenCatalog}>
-        Смотреть весь каталог
-        <span aria-hidden="true">→</span>
-      </button>
+      <div className={styles.catalogRow}>
+        <button type="button" className={styles.catalogLink} onClick={onOpenCatalog}>
+          Смотреть весь каталог
+        </button>
+      </div>
     </section>
   );
 }
