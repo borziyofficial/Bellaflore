@@ -514,7 +514,7 @@ export function AiFlorist({
                 .map((id) => productById.get(id))
                 .filter(
                   (product): product is CatalogProduct =>
-                    Boolean(product) &&
+                    product !== undefined &&
                     !isExcludedByConversation(product, conversationUserText),
                 );
 
