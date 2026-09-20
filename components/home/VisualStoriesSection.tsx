@@ -166,10 +166,10 @@ export function VisualStoriesSection({
     <section className={styles.section} aria-label="Коллекции BellaFlore">
       <div className={styles.intro}>
         <span>Коллекции BellaFlore</span>
-        <h2>Цветы крупным планом</h2>
+        <h2>Коллекции, которые хочется рассматривать</h2>
         <p>
-          Большие фотографии без перегруженных карточек. Нажмите на композицию,
-          когда захотите посмотреть её подробнее.
+          Авторские композиции BellaFlore для признаний, праздников и красивых
+          моментов без повода.
         </p>
       </div>
 
