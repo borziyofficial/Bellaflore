@@ -67,6 +67,7 @@ import { AboutSection } from "@/components/home/AboutSection";
 import { AiFlorist } from "@/components/home/AiFlorist";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
+import { DeliverySection } from "@/components/home/DeliverySection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
 import { VisualStoriesSection } from "@/components/home/VisualStoriesSection";
@@ -2432,6 +2433,7 @@ export default function Home() {
         onOpenFullCatalog={openCatalogView}
       />
       <AboutSection />
+      <DeliverySection />
       <ReviewsSection
         averageReviewRating={averageReviewRating}
         averageReviewRatingLabel={averageReviewRatingLabel}
