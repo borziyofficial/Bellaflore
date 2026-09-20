@@ -4,6 +4,7 @@
   bottom: calc(118px + env(safe-area-inset-bottom));
   z-index: 2147483008;
   pointer-events: none;
+  touch-action: none;
 }
 
 .launcher {
@@ -26,6 +27,14 @@
   cursor: pointer;
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.launcher:active {
+  cursor: grabbing;
 }
 
 .launcher span {
@@ -381,7 +390,7 @@
 }
 
 @media (max-width: 640px) {
-  .root {
+  .root:not([style]) {
     right: 14px;
     bottom: calc(124px + env(safe-area-inset-bottom));
   }
