@@ -213,6 +213,10 @@ export function CollectionsSection({
     }
     url.hash = "catalog";
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+
+    if (!fullCatalog) {
+      window.requestAnimationFrame(() => onOpenFullCatalog?.());
+    }
   };
 
   const handleBudgetChange =
@@ -231,10 +235,10 @@ export function CollectionsSection({
     <section id="catalog" className={`${styles.section} ${!fullCatalog ? styles.homeShowcase : ""}`}>
       <header className={`${styles.header} bf-reveal bf-reveal-up`}>
         {!fullCatalog ? <span className={styles.homeEyebrow}>Категории</span> : null}
-        <h2>{fullCatalog ? homeCatalogTitle : "Выберите направление"}</h2>
+        <h2>{fullCatalog ? homeCatalogTitle : "Выберите настроение"}</h2>
         {!fullCatalog ? (
           <p className={styles.subtitle}>
-            Полный каталог откроется только когда вы захотите перейти к выбору.
+            Нажмите на категорию — откроется подборка подходящих композиций.
           </p>
         ) : null}
       </header>
@@ -341,10 +345,6 @@ export function CollectionsSection({
 
       {!fullCatalog ? (
         <div className={`${styles.homeCategoryBlock} bf-reveal bf-reveal-up`}>
-          <div className={styles.homeCategoryHeading}>
-            <span>Категории</span>
-            <strong>Найдите своё настроение</strong>
-          </div>
           <div className={styles.categoryRow} role="tablist" aria-label="Категории букетов">
             {categoryChips.map((chip) => {
               const isActive = activeCategoryId === chip.id;
