@@ -131,6 +131,13 @@ export function AiFlorist({
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const messageSequenceRef = useRef(1);
+
+  const nextMessageId = (prefix: "user" | "assistant") => {
+    const sequence = messageSequenceRef.current;
+    messageSequenceRef.current += 1;
+    return `${prefix}-${sequence}`;
+  };
 
   const productById = useMemo(
     () => new Map(bouquets.map((product) => [product.id, product])),
@@ -150,7 +157,7 @@ export function AiFlorist({
     if (!text || sending) return;
 
     const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
+      id: nextMessageId("user"),
       role: "user",
       content: text,
     };
@@ -185,7 +192,7 @@ export function AiFlorist({
       const body = (await response.json()) as ApiReply;
 
       const assistantMessage: ChatMessage = {
-        id: `assistant-${Date.now()}`,
+        id: nextMessageId("assistant"),
         role: "assistant",
         content:
           response.ok && body.reply
@@ -201,7 +208,7 @@ export function AiFlorist({
       setMessages((current) => [
         ...current,
         {
-          id: `assistant-${Date.now()}`,
+          id: nextMessageId("assistant"),
           role: "assistant",
           content: buildFallbackText(text),
         },
