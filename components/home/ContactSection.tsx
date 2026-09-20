@@ -66,10 +66,8 @@ export function ContactSection() {
       <div className={styles.bottomBar}>
         <p>© {new Date().getFullYear()} BellaFlore</p>
         <div className={styles.payments} aria-label="Способы оплаты">
-          <span>МИР</span>
-          <span>VISA</span>
-          <span>MC</span>
           <span>СБП</span>
+          <span>НАЛИЧНЫЕ</span>
         </div>
         <p>Цветы, которые запоминаются</p>
       </div>
