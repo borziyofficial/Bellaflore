@@ -91,3 +91,9 @@ export async function storePromoBannerImage(
 ): Promise<StoredImageResult> {
   return storeImageToFolder(file, "promo/banner", "promo-banner");
 }
+
+export async function storeVisualStoryImage(
+  file: File,
+): Promise<StoredImageResult> {
+  return storeImageToFolder(file, "home/visual-stories", "visual-stories");
+}
