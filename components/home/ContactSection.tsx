@@ -1,3 +1,4 @@
+import Link from "next/link";
 // ==================================================
 // SECTION: CONTACTS
 // РАЗДЕЛ: Контакты
@@ -41,8 +42,8 @@ export function ContactSection() {
           <a href="#about">О BellaFlore</a>
           <a href="#reviews">Отзывы клиентов</a>
           <a href="#delivery">Доставка и оплата</a>
-          <a href="/offer">Условия заказа</a>
-          <a href="/privacy">Конфиденциальность</a>
+          <Link href="/offer">Условия заказа</Link>
+          <Link href="/privacy">Конфиденциальность</Link>
         </nav>
 
         <div className={styles.contactColumn}>
