@@ -244,7 +244,12 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     }
 
     const timer = window.setTimeout(() => {
-      transitionToPhoto(upcomingPhotoIndex);
+      setOverlay({
+        index: upcomingPhotoIndex,
+        imageUrl: upcomingPhotoUrl,
+        visible: false,
+        committed: false,
+      });
     }, HERO_HOLD_MS);
 
     return () => window.clearTimeout(timer);
@@ -257,8 +262,6 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     readyPhotos,
     upcomingPhotoIndex,
     upcomingPhotoUrl,
-    currentPhotoIndex,
-    activePhotoSignature,
   ]);
 
   useEffect(() => {
