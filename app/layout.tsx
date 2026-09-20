@@ -115,7 +115,6 @@ const jsonLd = {
         addressLocality: "Москва",
         addressCountry: "RU",
       },
-      sameAs: [absoluteUrl("/")],
     },
   ],
 };
