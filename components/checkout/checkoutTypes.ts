@@ -15,6 +15,7 @@ export type CheckoutForm = {
   anonymousDelivery: boolean;
   doNotCallRecipient: boolean;
   photoBeforeDelivery: boolean;
+  legalAccepted: boolean;
   address: string;
   deliveryDate: string;
   deliveryTime: string;
