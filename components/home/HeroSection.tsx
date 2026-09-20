@@ -352,16 +352,16 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
 
           <ul className={styles.trustList} aria-label="Преимущества BellaFlore">
             <li>
-              <strong>90 минут</strong>
-              <span>экспресс-доставка</span>
-            </li>
-            <li>
-              <strong>Ежедневно</strong>
-              <span>свежие поставки</span>
+              <strong>По адресу</strong>
+              <span>точный расчёт доставки</span>
             </li>
             <li>
               <strong>Персонально</strong>
-              <span>открытка к заказу</span>
+              <span>открытка и пожелания</span>
+            </li>
+            <li>
+              <strong>Контроль</strong>
+              <span>фото букета по запросу</span>
             </li>
           </ul>
         </div>
