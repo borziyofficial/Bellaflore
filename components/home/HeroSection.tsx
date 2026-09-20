@@ -24,8 +24,8 @@ type HeroOverlayState = {
 };
 
 const FALLBACK_PHOTO_URL = "/0001.jpg";
-const HERO_CYCLE_MS = 3800;
-const HERO_TRANSITION_MS = 850;
+const HERO_CYCLE_MS = 3200;
+const HERO_TRANSITION_MS = 760;
 const HERO_HOLD_MS = HERO_CYCLE_MS - HERO_TRANSITION_MS;
 
 function isCatalogHeroLink(buttonLink: string): boolean {
@@ -410,6 +410,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
               sizes="(max-width: 960px) 100vw, 68vw"
               quality={88}
               fetchPriority="high"
+              loading="eager"
               style={{ opacity: 1, zIndex: 1 }}
               onLoad={() => setRenderedPhotoUrl(displayedPhotoUrl)}
               onError={() => {

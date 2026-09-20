@@ -708,7 +708,7 @@ export function AdminSmartBannerModule({
   return (
     <div className={`${ui.stack} ${styles.moduleRoot}`}>
       <AdminModuleHeader
-        title="Умный баннер"
+        title="Фото на главной"
         subtitle="Промо-слайды между Hero и каталогом на главной странице"
       />
 

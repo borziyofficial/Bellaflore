@@ -60,9 +60,9 @@ export function AdminVisualStoriesPanel() {
         if (!active) return;
         setSettings(nextSettings);
         setStories(
-          [...nextSettings.stories]
+            [...nextSettings.stories]
             .sort((left, right) => left.sortOrder - right.sortOrder)
-            .slice(0, 5),
+            .slice(0, 6),
         );
       })
       .catch((error) => {
@@ -197,12 +197,13 @@ export function AdminVisualStoriesPanel() {
   };
 
   return (
-    <AdminPanel title="Большие фото на главной">
+    <AdminPanel title="Фото на главной">
       <div className={styles.headerCopy}>
-        <strong>Витрина из 5 фотографий</strong>
+        <strong>Витрина из 5–6 фотографий</strong>
         <span>
-          Здесь можно заменить Маттиолу и остальные большие фото на свои 4K
-          изображения, поменять подписи, порядок и переход по нажатию.
+          Заменяйте большие фото на свои 4K изображения, меняйте подписи,
+          порядок, видимость и переход по нажатию. Шестую позицию можно включить
+          при необходимости.
         </span>
       </div>
 
@@ -354,7 +355,7 @@ export function AdminVisualStoriesPanel() {
           disabled={loading || saving || uploadingId !== null || !hasChanges}
           onClick={() => void save()}
         >
-          {saving ? "Сохранение…" : "Сохранить витрину"}
+          {saving ? "Сохранение…" : "Сохранить фото"}
         </button>
       </div>
     </AdminPanel>

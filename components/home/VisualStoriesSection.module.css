@@ -79,6 +79,11 @@
   min-height: min(60svh, 650px);
 }
 
+.finalStory {
+  grid-column: 1 / -1;
+  min-height: min(68svh, 720px);
+}
+
 .imageWrap,
 .imageWrap > * {
   position: absolute;
@@ -219,6 +224,12 @@
   .heroStory,
   .tallStory,
   .wideStory {
+    grid-column: auto;
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
+
+  .finalStory {
     grid-column: auto;
     min-height: 0;
     aspect-ratio: 4 / 5;

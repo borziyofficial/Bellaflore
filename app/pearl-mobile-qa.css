@@ -113,6 +113,12 @@ Purpose (EN): Mobile-first iPhone fixes — Contact Hub, safe-area insets, hero/
 /* --- Hero subtitle + navbar logo (subtle contrast, no layout change) --- */
 
 @media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
   .hero .hero-subtitle {
     color: #4a4540;
     font-weight: 600;

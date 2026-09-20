@@ -24,7 +24,6 @@ import "./admin-theme-guard.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { inter, playfairDisplay } from "@/lib/fonts";
 import {
-  absoluteUrl,
   homepageDescription,
   homepageKeywords,
   homepageTitle,

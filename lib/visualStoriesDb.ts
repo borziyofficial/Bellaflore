@@ -59,6 +59,16 @@ const DEFAULT_STORIES: VisualStory[] = [
     isEnabled: true,
     sortOrder: 4,
   },
+  {
+    id: "story-signature-collection",
+    imageUrl: "/images/hero-bouquet.jpg",
+    eyebrow: "BellaFlore",
+    title: "Signature Collection",
+    destinationType: "catalog",
+    destinationValue: "",
+    isEnabled: false,
+    sortOrder: 5,
+  },
 ];
 
 const DEFAULT_SETTINGS: VisualStoriesSettings = {
@@ -149,10 +159,25 @@ function normalizeStories(value: unknown): VisualStory[] {
     })
     .filter((story): story is VisualStory => Boolean(story))
     .sort((left, right) => left.sortOrder - right.sortOrder)
-    .slice(0, 5)
+    .slice(0, 6)
     .map((story, index) => ({ ...story, sortOrder: index }));
 
-  return stories.length > 0 ? stories : DEFAULT_STORIES;
+  if (stories.length === 0) {
+    return DEFAULT_STORIES.map((story) => ({ ...story }));
+  }
+
+  if (stories.length === 5) {
+    return [
+      ...stories,
+      {
+        ...DEFAULT_STORIES[5],
+        sortOrder: 5,
+        isEnabled: false,
+      },
+    ];
+  }
+
+  return stories;
 }
 
 function normalizeSettings(value: Partial<VisualStoriesSettings>): VisualStoriesSettings {

@@ -219,4 +219,9 @@
   .fields {
     grid-template-columns: 1fr;
   }
+
+  .fields input,
+  .fields select {
+    font-size: 16px;
+  }
 }

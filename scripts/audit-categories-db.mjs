@@ -1,5 +1,3 @@
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { listPublishedCatalogProducts } from "../lib/catalogDb/index.ts";
 
 

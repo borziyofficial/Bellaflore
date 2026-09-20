@@ -107,7 +107,7 @@ export function VisualStoriesSection({
             stories
               .filter((story) => story.isEnabled && story.imageUrl)
               .sort((left, right) => left.sortOrder - right.sortOrder)
-              .slice(0, 5),
+              .slice(0, 6),
           );
         }
       })
@@ -134,6 +134,7 @@ export function VisualStoriesSection({
     styles.tallStory,
     styles.wideStory,
     styles.wideStory,
+    styles.finalStory,
   ];
 
   const openStory = (story: StoryView) => {
@@ -149,7 +150,7 @@ export function VisualStoriesSection({
 
     if (story.destinationType === "category" && story.destinationValue) {
       window.location.assign(
-        `/catalog?category=${encodeURIComponent(story.destinationValue)}#catalog`,
+        `/?category=${encodeURIComponent(story.destinationValue)}#catalog`,
       );
       return;
     }

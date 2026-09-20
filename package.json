@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@vercel/blob": "^2.5.0",
+    "@vercel/oidc": "^3.8.0",
     "next": "16.2.11",
     "polygon-offset": "^0.3.2",
     "postgres": "^3.4.9",
