@@ -27,6 +27,12 @@ const CHECKOUT_PAYLOAD: CheckoutOrderPayload = {
   ],
   customerName: "Анна",
   phone: "+7 999 111-22-33",
+  recipientName: "Мария",
+  recipientPhone: "+7 999 222-33-44",
+  anonymousDelivery: true,
+  doNotCallRecipient: true,
+  photoBeforeDelivery: true,
+  cardMessage: "С любовью",
   deliveryAddress: "Москва, Красная площадь, 1",
   deliveryDate: "2026-08-03",
   deliveryInterval: "12:00–15:00",
@@ -83,8 +89,9 @@ test("sends the selected payment method and idempotency key to same-origin order
   });
   expect(JSON.parse(String(calls[0]?.init?.body))).toMatchObject({
     paymentMethod: "cardTransfer",
-    recipientName: "Анна",
-    recipientPhone: "+7 999 111-22-33",
+    recipientName: "Мария",
+    recipientPhone: "+7 999 222-33-44",
+    customerComment: expect.stringContaining("Анонимная доставка"),
     items: [{ productId: "rose-101", size: "M", quantity: 2 }],
   });
   expect(result.order).toEqual(SERVER_ORDER);
