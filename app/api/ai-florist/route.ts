@@ -19,10 +19,17 @@ type FloristRequest = {
   candidates?: FloristCandidate[];
 };
 
+type FloristFallbackReason =
+  | "missing_credentials"
+  | "upstream_error"
+  | "invalid_ai_response"
+  | "network_or_timeout";
+
 type FloristReply = {
   reply: string;
   recommendedProductIds: string[];
   mode: "ai" | "fallback";
+  fallbackReason?: FloristFallbackReason;
 };
 
 const AI_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -68,9 +75,57 @@ function consumeRequestQuota(request: Request): Response | null {
   return null;
 }
 
-function normalizeIds(value: unknown, candidates: FloristCandidate[]): string[] {
+function candidateSearchText(candidate: FloristCandidate): string {
+  return [
+    candidate.title,
+    candidate.category,
+    candidate.flowerType,
+    candidate.description,
+    ...(candidate.tags ?? []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function isExcludedCandidate(
+  candidate: FloristCandidate,
+  userText: string,
+): boolean {
+  const haystack = candidateSearchText(candidate);
+  const exclusions: Array<{ request: RegExp; product: RegExp }> = [
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}роз/i, product: /роз/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}пион/i, product: /пион/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}гортенз/i, product: /гортенз/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}лили/i, product: /лили/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}хризантем/i, product: /хризантем/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}георгин/i, product: /георгин/i },
+    { request: /(?:без|не хочу|не надо|исключи)\s+[^.]{0,18}маттиол/i, product: /маттиол/i },
+  ];
+
+  return exclusions.some(
+    ({ request, product }) => request.test(userText) && product.test(haystack),
+  );
+}
+
+function eligibleCandidates(
+  candidates: FloristCandidate[],
+  userText: string,
+): FloristCandidate[] {
+  return candidates.filter(
+    (candidate) => !isExcludedCandidate(candidate, userText),
+  );
+}
+
+function normalizeIds(
+  value: unknown,
+  candidates: FloristCandidate[],
+  userText: string,
+): string[] {
   if (!Array.isArray(value)) return [];
-  const allowed = new Set(candidates.map((candidate) => candidate.id));
+  const allowed = new Set(
+    eligibleCandidates(candidates, userText).map((candidate) => candidate.id),
+  );
   return value
     .filter((id): id is string => typeof id === "string" && allowed.has(id))
     .slice(0, 3);
@@ -103,7 +158,8 @@ function extractOutputText(body: unknown): string {
 function parseJsonReply(
   text: string,
   candidates: FloristCandidate[],
-): Omit<FloristReply, "mode"> | null {
+  userText: string,
+): Omit<FloristReply, "mode" | "fallbackReason"> | null {
   const normalized = text
     .trim()
     .replace(/^\`\`\`(?:json)?/i, "")
@@ -124,6 +180,7 @@ function parseJsonReply(
       recommendedProductIds: normalizeIds(
         parsed.recommendedProductIds,
         candidates,
+        userText,
       ),
     };
   } catch {
@@ -134,6 +191,7 @@ function parseJsonReply(
 function fallbackReply(
   messages: FloristMessage[],
   candidates: FloristCandidate[],
+  fallbackReason: FloristFallbackReason,
 ): FloristReply {
   const userMessages = messages
     .filter((message) => message.role === "user")
@@ -152,14 +210,17 @@ function fallbackReply(
   const latestUser =
     [...messages].reverse().find((message) => message.role === "user")?.content.toLowerCase() ?? "";
   const affirmativeOnly = /^(да|давай|да давай|хорошо|ок|окей|конечно|ага)[.!\s]*$/.test(latestUser);
-  const mediumBudgetCandidates = [...candidates]
+  const filteredCandidates = eligibleCandidates(candidates, text);
+  const mediumBudgetCandidates = [...filteredCandidates]
     .filter((candidate) => candidate.priceRub <= 10000)
     .sort((left, right) => left.priceRub - right.priceRub)
     .slice(0, 3);
   const sensibleCandidates =
     mediumBudgetCandidates.length > 0
       ? mediumBudgetCandidates
-      : [...candidates].sort((left, right) => left.priceRub - right.priceRub).slice(0, 3);
+      : [...filteredCandidates]
+          .sort((left, right) => left.priceRub - right.priceRub)
+          .slice(0, 3);
 
   let reply =
     "Я помогу как флорист, а не просто как фильтр каталога. Расскажите немного о человеке и настроении букета — тогда подбор будет точнее.";
@@ -184,8 +245,8 @@ function fallbackReply(
       reply =
         "Хорошо. Теперь назовите ориентир по бюджету. Можно просто написать, например: «до 10 тысяч» — я подберу варианты без лишнего.";
     }
-  } else if (candidates.length > 0) {
-    const names = candidates.slice(0, 2).map((item) => item.title);
+  } else if (filteredCandidates.length > 0) {
+    const names = filteredCandidates.slice(0, 2).map((item) => item.title);
     reply =
       `По вашему запросу я бы начал с ${names.join(" и ")}. Если хотите, уточните цветовую гамму — нежную, яркую, белую или пастельную — и я сузю выбор ещё точнее.`;
   }
@@ -207,6 +268,7 @@ function fallbackReply(
       ? sensibleCandidates.map((candidate) => candidate.id)
       : [],
     mode: "fallback",
+    fallbackReason,
   };
 }
 
@@ -260,7 +322,9 @@ export async function POST(request: Request) {
   const useGateway = Boolean(gatewayApiKey);
 
   if (!openAiApiKey && !gatewayApiKey) {
-    return Response.json(fallbackReply(messages, candidates));
+    return Response.json(
+      fallbackReply(messages, candidates, "missing_credentials"),
+    );
   }
 
   const catalogText = candidates
@@ -342,17 +406,27 @@ ${catalogText || "Нет доступных кандидатов — дай со
     clearTimeout(timeout);
 
     if (!response.ok) {
-      return Response.json(fallbackReply(messages, candidates));
+      return Response.json(
+        fallbackReply(messages, candidates, "upstream_error"),
+      );
     }
 
     const responseBody = (await response.json()) as unknown;
+    const userText = messages
+      .filter((message) => message.role === "user")
+      .map((message) => message.content)
+      .join(" ")
+      .toLowerCase();
     const parsed = parseJsonReply(
       extractOutputText(responseBody),
       candidates,
+      userText,
     );
 
     if (!parsed) {
-      return Response.json(fallbackReply(messages, candidates));
+      return Response.json(
+        fallbackReply(messages, candidates, "invalid_ai_response"),
+      );
     }
 
     return Response.json({
@@ -360,6 +434,8 @@ ${catalogText || "Нет доступных кандидатов — дай со
       mode: "ai",
     } satisfies FloristReply);
   } catch {
-    return Response.json(fallbackReply(messages, candidates));
+    return Response.json(
+      fallbackReply(messages, candidates, "network_or_timeout"),
+    );
   }
 }
