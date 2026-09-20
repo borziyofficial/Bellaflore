@@ -32,6 +32,7 @@ function preventProtectedImageDrag(event: DragEvent<HTMLImageElement>): void {
 
 export function ProtectedProductImage({
   className,
+  alt,
   onContextMenu,
   onDragStart,
   onDragOver,
@@ -41,6 +42,7 @@ export function ProtectedProductImage({
   return (
     <Image
       {...props}
+      alt={alt}
       className={joinClassNames(styles.protectedImage, className)}
       data-protected-product-image="true"
       draggable={false}
