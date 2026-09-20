@@ -1178,7 +1178,7 @@ export default function Home() {
         reviewsCount
       : 0;
   const averageReviewRatingLabel =
-    reviewsCount > 0 ? averageReviewRating.toFixed(1) : "0.0";
+    reviewsCount > 0 ? averageReviewRating.toFixed(1) : "—";
 
   const cartBouquets = cartItems.flatMap((cartItem) => {
     const bouquet = bouquets.find((item) => item.id === cartItem.bouquetId);
