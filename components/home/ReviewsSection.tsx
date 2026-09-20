@@ -69,8 +69,7 @@ Purpose (EN): Section header and demo disclaimer
         <span className={styles.kicker}>Отзывы</span>
         <h2 id="reviews-title">Слова, которые остаются с нами</h2>
         <p className={styles.demoNote}>
-          Реальные отзывы публикуются после правил модерации. Демо-примеры
-          отмечены отдельно и используются только для предпросмотра.
+          Здесь публикуются отзывы клиентов BellaFlore после проверки на спам и корректность.
         </p>
       </div>
 
@@ -199,11 +198,6 @@ Purpose (EN): Empty state or review card grid
                 <div className={styles.cardHeader}>
                   <div>
                     <span>{review.createdAtDisplay}</span>
-                    {review.id.startsWith("demo-") && (
-                      <span className={styles.demoBadge}>
-                        Локальный пример
-                      </span>
-                    )}
                     <h3>{review.name}</h3>
                   </div>
                   <strong
