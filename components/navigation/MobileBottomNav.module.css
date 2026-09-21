@@ -180,7 +180,7 @@
   .contactFab svg {
     width: 22px;
     height: 22px;
-    stroke: white;
+    stroke: currentColor;
   }
 
   .orderBadge,
