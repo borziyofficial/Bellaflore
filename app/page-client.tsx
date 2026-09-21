@@ -67,9 +67,13 @@ import { AboutSection } from "@/components/home/AboutSection";
 import { AiFlorist } from "@/components/home/AiFlorist";
 import { CollectionsSection } from "@/components/home/CollectionsSection";
 import { ContactSection } from "@/components/home/ContactSection";
+import { CtaBandSection } from "@/components/home/CtaBandSection";
 import { DeliverySection } from "@/components/home/DeliverySection";
+import { FeaturedSection } from "@/components/home/FeaturedSection";
 import { HeroSection } from "@/components/home/HeroSection";
+import { SeasonalSection } from "@/components/home/SeasonalSection";
 import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
+import { useHomepageBlocks } from "@/components/home/useHomepageBlocks";
 import { VisualStoriesSection } from "@/components/home/VisualStoriesSection";
 import { Navbar } from "@/components/home/Navbar";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
@@ -472,6 +476,7 @@ export default function HomePageClient({
     initialProducts,
     initialStatus,
   });
+  const { blocks: homepageBlocks } = useHomepageBlocks();
   // ==================================================
   // SECTION: STATE
   // РАЗДЕЛ: Состояние
@@ -2430,6 +2435,10 @@ export default function HomePageClient({
         />
       ) : null}
 
+      {publicAppView === "home" ? (
+        <FeaturedSection block={homepageBlocks?.featured} />
+      ) : null}
+
       <CollectionsSection
         bouquets={bouquets}
         favoriteBouquetIds={favoriteBouquetIds}
@@ -2445,6 +2454,9 @@ export default function HomePageClient({
         onOpenFullCatalog={openCatalogView}
       />
       <AboutSection />
+      {publicAppView === "home" ? (
+        <SeasonalSection block={homepageBlocks?.seasonal} />
+      ) : null}
       <DeliverySection />
       <ReviewsSection
         averageReviewRating={averageReviewRating}
@@ -2457,6 +2469,9 @@ export default function HomePageClient({
         handleReviewSubmit={handleReviewSubmit}
         handleReviewFieldChange={handleReviewFieldChange}
       />
+      {publicAppView === "home" ? (
+        <CtaBandSection block={homepageBlocks?.ctaBand} onOrderBouquet={handleHeroOrderBouquet} />
+      ) : null}
       <ContactSection />
 
       <AiFlorist
