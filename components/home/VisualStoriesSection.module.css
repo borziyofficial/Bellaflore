@@ -1,6 +1,7 @@
 .section {
   width: 100%;
-  margin: 58px 0 18px;
+  margin: 0 0 18px;
+  padding-top: 72px;
   overflow: hidden;
 }
 
@@ -196,7 +197,8 @@
 
 @media (max-width: 780px) {
   .section {
-    margin-top: 38px;
+    margin-top: 0;
+    padding-top: 56px;
   }
 
   .intro {
