@@ -70,7 +70,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   );
 
   return (
-    <main id="home" className={`hero ${styles.hero}`}>
+    <main id="home" className={styles.hero}>
       <div className={styles.scene}>
         <div className={`bf-reveal bf-reveal-up ${styles.textBlock}`}>
           <h1 className={styles.headline}>
@@ -105,12 +105,11 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
             fill="none"
             aria-hidden="true"
           >
-            <circle
-              cx="210"
-              cy="150"
-              r="168"
+            <path
+              d="M145,11.5 A190,190 0 1,1 87.8,335.5"
               stroke="url(#heroArcGradient)"
               strokeWidth="1.5"
+              strokeLinecap="round"
             />
             <defs>
               <linearGradient
@@ -135,7 +134,7 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
               src="/images/hero-floral-composition.png"
               alt="Авторская флористическая композиция BellaFlore"
               fill
-              sizes="(max-width: 960px) 92vw, 46vw"
+              sizes="(max-width: 960px) 320px, 560px"
               quality={88}
               fetchPriority="high"
               priority

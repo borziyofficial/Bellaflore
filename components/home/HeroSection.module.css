@@ -112,15 +112,15 @@
 .artWrap {
   position: relative;
   width: 100%;
-  margin-top: -34px;
-  padding-left: 26%;
+  margin-top: 2px;
+  padding-left: 16%;
 }
 
 .arc {
   position: absolute;
   top: -6%;
-  left: 6%;
-  width: 92%;
+  left: 0;
+  width: 100%;
   height: auto;
   aspect-ratio: 1 / 1;
   pointer-events: none;
@@ -130,8 +130,8 @@
 .photo {
   position: relative;
   z-index: 2;
-  width: 100%;
-  aspect-ratio: 1 / 0.82;
+  width: 108%;
+  aspect-ratio: 1 / 0.86;
   overflow: visible;
 }
 
