@@ -141,11 +141,24 @@
     flex: none;
   }
 
-  .card:hover .image {
-    transform: scale(1.03);
+  .image {
+    transform: scale(1);
+    transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  .card:focus-visible .image {
+    transform: scale(1.06);
+  }
+}
+
+@media (min-width: 960px) and (hover: hover) and (pointer: fine) {
+  .card:hover .image {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
   .image {
-    transition: transform 0.5s ease;
+    transition: none;
   }
 }

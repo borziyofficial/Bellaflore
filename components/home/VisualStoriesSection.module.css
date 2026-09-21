@@ -97,14 +97,19 @@
 
 .image {
   object-position: 50% 48%;
-  transform: scale(1.002);
-  transition: transform 8s ease;
+  transform: scale(1);
+  transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 
-.card:hover .image,
+@media (hover: hover) and (pointer: fine) {
+  .card:hover .image {
+    transform: scale(1.06);
+  }
+}
+
 .card:focus-visible .image {
-  transform: scale(1.035);
+  transform: scale(1.06);
 }
 
 .cardBody {
