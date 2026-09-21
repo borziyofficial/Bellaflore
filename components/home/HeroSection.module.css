@@ -155,6 +155,9 @@
   text-decoration: none;
   text-transform: uppercase;
   cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
