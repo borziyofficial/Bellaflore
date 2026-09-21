@@ -1,6 +1,6 @@
 // ==================================================
 // SECTION: HERO
-// РАЗДЕЛ: Главный экран (PHASE V2 — editorial art scene)
+// РАЗДЕЛ: Главный editorial-экран BellaFlore
 // ==================================================
 "use client";
 
@@ -12,16 +12,14 @@ type HeroSectionProps = {
   onOrderBouquet: () => void;
 };
 
+const EDITORIAL_HERO_URL = "/images/hero-editorial-premium.png";
+
 function isCatalogHeroLink(buttonLink: string): boolean {
   const link = buttonLink.trim();
-  if (!link) {
-    return true;
-  }
+  if (!link) return true;
 
   const normalized = link.toLowerCase().replace(/\/+$/, "");
-  if (["#catalog", "/#catalog", "/catalog"].includes(normalized)) {
-    return true;
-  }
+  if (["#catalog", "/#catalog", "/catalog"].includes(normalized)) return true;
 
   try {
     const url = new URL(link, "https://bellaflore.vercel.app");
@@ -36,192 +34,71 @@ function isCatalogHeroLink(buttonLink: string): boolean {
   }
 }
 
-const FALLBACK_HERO_IMAGE = "/images/hero-floral-composition.png";
-
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const { settings: banner } = useHeroBannerSettings();
-
-  const enabledPhotos = (banner?.photos ?? []).filter((photo) => photo.isEnabled);
-  const primaryPhoto =
-    enabledPhotos.find((photo) => photo.isPrimary) ?? enabledPhotos[0] ?? null;
-  const slideTotal = enabledPhotos.length || 1;
-
-  const desktopImageUrl = primaryPhoto?.imageUrl?.trim() || FALLBACK_HERO_IMAGE;
-  const mobileImageUrl = primaryPhoto?.mobileImageUrl?.trim() || "";
-  const objectPosition = primaryPhoto?.objectPosition?.trim() || "50% 50%";
-
-  const headline = banner?.title?.trim() || "Больше\nчем цветы";
-  const [headlineLine1, headlineLine2] = headline
-    .split("\n")
-    .map((line) => line.trim());
-
-  const eyebrowCopy = banner?.eyebrow?.trim() || "Эмоции,\nкоторые остаются";
-  const eyebrowLines = eyebrowCopy.split("\n").map((line) => line.trim());
-
-  const supportingCopy =
+  const configuredTitle = banner?.title?.trim();
+  const title =
+    !configuredTitle || configuredTitle === "Цветы, которые запоминаются"
+      ? "Больше, чем цветы"
+      : configuredTitle;
+  const subtitle =
     banner?.subtitle?.trim() ||
-    "Авторские букеты\nдля особенных\nмоментов\nв Москве";
-  const supportingLines = supportingCopy.split("\n").map((line) => line.trim());
-
+    "Авторские букеты для особенных моментов в Москве";
+  const eyebrow = banner?.eyebrow?.trim() || "Цветы · искусство · люди";
+  const cardTitle = banner?.cardTitle?.trim() || "Красота\nв каждой\nдетали";
+  const cardSubtitle = banner?.cardSubtitle?.trim() || "BellaFlore\nMoscow";
+  const tagline = banner?.tagline?.trim() || "Вдохновение — всегда";
   const buttonText = banner?.buttonText?.trim() || "Выбрать букет";
   const buttonLink = banner?.buttonLink?.trim() || "";
-
-  const cardTitleCopy = banner?.cardTitle?.trim() || "Красота\nв каждой\nдетали";
-  const cardTitleLines = cardTitleCopy.split("\n").map((line) => line.trim());
-
-  const cardSubtitleCopy = banner?.cardSubtitle?.trim() || "BellaFlore\nMoscow";
-  const cardSubtitleLines = cardSubtitleCopy.split("\n").map((line) => line.trim());
-
-  const tagline = banner?.tagline?.trim() || "Вдохновлять — всегда";
-
   const isExternalLink = !isCatalogHeroLink(buttonLink);
+
   const primaryAction = isExternalLink ? (
     <a href={buttonLink} className={styles.primaryAction}>
       {buttonText}
-      <span aria-hidden="true" className={styles.primaryActionArrow}>
-        →
-      </span>
+      <span aria-hidden="true">→</span>
     </a>
   ) : (
     <button type="button" className={styles.primaryAction} onClick={onOrderBouquet}>
       {buttonText}
-      <span aria-hidden="true" className={styles.primaryActionArrow}>
-        →
-      </span>
+      <span aria-hidden="true">→</span>
     </button>
   );
 
   return (
-    <main id="home" className={styles.hero}>
-      <div className={styles.scene}>
-        <div className={`bf-reveal bf-reveal-up ${styles.textBlock}`}>
-          <h1 className={styles.headline}>
-            {headlineLine1}
-            {headlineLine2 ? (
-              <>
-                <br />
-                {headlineLine2}
-              </>
-            ) : null}
-          </h1>
-          <p className={styles.eyebrow}>
-            {eyebrowLines.map((line, index) => (
-              <span key={`${line}-${index}`}>
-                {line}
-                {index < eyebrowLines.length - 1 ? <br /> : null}
-              </span>
-            ))}
-          </p>
-          <p className={styles.supporting}>
-            {supportingLines.map((line, index) => (
-              <span key={`${line}-${index}`}>
-                {line}
-                {index < supportingLines.length - 1 ? <br /> : null}
-              </span>
-            ))}
-          </p>
-          {primaryAction}
+    <main id="home" className={`hero ${styles.hero}`}>
+      <div className={styles.artwork} aria-hidden="true">
+        <Image
+          src={EDITORIAL_HERO_URL}
+          alt=""
+          fill
+          preload
+          quality={92}
+          sizes="100vw"
+          className={styles.artworkImage}
+        />
+      </div>
+
+      <div className={styles.wash} aria-hidden="true" />
+      <div className={styles.orbit} aria-hidden="true" />
+      <div className={styles.orbitInner} aria-hidden="true" />
+
+      <div className={styles.shell}>
+        <div className={`bf-reveal bf-reveal-up ${styles.content}`}>
+          <p className={styles.eyebrow}>{eyebrow}</p>
+          <h1 className={styles.title}>{title}</h1>
+          <p className={styles.subtitle}>{subtitle.replace(/\n+/g, " ")}</p>
+          <div className={styles.actions}>{primaryAction}</div>
         </div>
 
-        <div className={styles.artWrap} aria-hidden="true">
-          <svg
-            className={styles.arc}
-            viewBox="0 0 420 420"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M145,11.5 A190,190 0 1,1 87.8,335.5"
-              stroke="url(#heroArcGradient)"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-            <defs>
-              <linearGradient
-                id="heroArcGradient"
-                x1="42"
-                y1="0"
-                x2="378"
-                y2="320"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop offset="0%" stopColor="#c4aa7a" stopOpacity="0" />
-                <stop offset="35%" stopColor="#c4aa7a" stopOpacity="0.9" />
-                <stop offset="65%" stopColor="#a88a5a" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#a88a5a" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-          </svg>
+        <aside className={styles.detailCard} aria-label="BellaFlore — красота в каждой детали">
+          <span className={styles.detailRule} aria-hidden="true" />
+          <p>{cardTitle}</p>
+          <small>{cardSubtitle}</small>
+        </aside>
 
-          <div className={styles.photo}>
-            {mobileImageUrl ? (
-              <>
-                <Image
-                  className={`${styles.photoImage} ${styles.photoImageMobile}`}
-                  src={mobileImageUrl}
-                  alt="Авторская флористическая композиция BellaFlore"
-                  fill
-                  style={{ objectPosition }}
-                  sizes="320px"
-                  quality={88}
-                  fetchPriority="high"
-                  priority
-                />
-                <Image
-                  className={`${styles.photoImage} ${styles.photoImageDesktop}`}
-                  src={desktopImageUrl}
-                  alt="Авторская флористическая композиция BellaFlore"
-                  fill
-                  style={{ objectPosition }}
-                  sizes="560px"
-                  quality={88}
-                  fetchPriority="high"
-                  priority
-                />
-              </>
-            ) : (
-              <Image
-                className={styles.photoImage}
-                src={desktopImageUrl}
-                alt="Авторская флористическая композиция BellaFlore"
-                fill
-                style={{ objectPosition }}
-                sizes="(max-width: 960px) 320px, 560px"
-                quality={88}
-                fetchPriority="high"
-                priority
-              />
-            )}
-          </div>
-
-          <div className={styles.glassCard}>
-            <p className={styles.glassCardTitle}>
-              {cardTitleLines.map((line, index) => (
-                <span key={`${line}-${index}`}>
-                  {line}
-                  {index < cardTitleLines.length - 1 ? <br /> : null}
-                </span>
-              ))}
-            </p>
-            <span className={styles.glassDivider} aria-hidden="true" />
-            <p className={styles.glassCardBrand}>
-              {cardSubtitleLines.map((line, index) => (
-                <span key={`${line}-${index}`}>
-                  {line}
-                  {index < cardSubtitleLines.length - 1 ? <br /> : null}
-                </span>
-              ))}
-            </p>
-          </div>
-        </div>
-
-        <div className={styles.sceneFooter}>
-          <span className={styles.counter}>
-            {String(primaryPhoto ? enabledPhotos.indexOf(primaryPhoto) + 1 : 1).padStart(2, "0")} /{" "}
-            {String(slideTotal).padStart(2, "0")}
-          </span>
-          <span className={styles.footerDivider} aria-hidden="true" />
-          <span className={styles.tagline}>{tagline}</span>
+        <div className={styles.sceneFooter} aria-hidden="true">
+          <span>01 <i>/</i> 01</span>
+          <p>{tagline}</p>
         </div>
       </div>
     </main>

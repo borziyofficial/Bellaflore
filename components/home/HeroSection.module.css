@@ -1,346 +1,409 @@
-/* ==========================================
-   PHASE V2: Hero — unified editorial art scene
-   Target: light ivory/marble luxury floral composition
-   ========================================== */
-
 .hero {
   position: relative;
   isolation: isolate;
-  display: flex;
-  flex-direction: column;
   width: 100%;
-  min-height: min(100svh, 880px);
+  min-height: min(92svh, 880px);
   overflow: hidden;
-  padding: 0;
-  background:
-    radial-gradient(circle at 82% 8%, rgba(196, 170, 122, 0.14), transparent 42%),
-    var(--color-surface-primary, #fdfbf9);
-  color: var(--color-text-primary, #2a2521);
-  text-align: left;
+  border-radius: 0 0 28px 28px;
+  background: #eee6dc;
+  color: #241d18;
 }
 
-.scene {
+:global(.hero).hero {
+  min-height: min(92svh, 880px);
+  padding: 0;
+}
+
+:global(.hero).hero::before,
+:global(.hero).hero::after {
+  display: none;
+  content: none;
+}
+
+.artwork,
+.wash {
+  position: absolute;
+  inset: 0;
+}
+
+.artwork { z-index: 0; }
+
+.artworkImage {
+  object-fit: cover;
+  object-position: 64% 50%;
+  filter: saturate(0.92) contrast(0.96) brightness(1.03);
+  transform: scale(1.015);
+}
+
+.wash {
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(249, 244, 237, 0.94) 0%, rgba(249, 244, 237, 0.78) 31%, rgba(249, 244, 237, 0.18) 55%, rgba(249, 244, 237, 0.02) 78%),
+    linear-gradient(180deg, rgba(255, 252, 246, 0.18), transparent 52%, rgba(45, 34, 25, 0.1));
+}
+
+.orbit,
+.orbitInner {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  border: 2px solid rgba(166, 119, 56, 0.62);
+  border-left-color: transparent;
+  border-bottom-color: rgba(166, 119, 56, 0.22);
+  border-radius: 50%;
+  transform: rotate(17deg);
+}
+
+.orbit {
+  top: -18%;
+  right: 7%;
+  width: min(42vw, 560px);
+  aspect-ratio: 0.72;
+}
+
+.orbitInner {
+  right: -7%;
+  bottom: -26%;
+  width: min(34vw, 450px);
+  aspect-ratio: 0.68;
+  opacity: 0.55;
+}
+
+.shell {
   position: relative;
   z-index: 3;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  flex: 1;
-  padding: 76px 18px 0;
+  width: min(100%, 1380px);
+  min-height: min(92svh, 880px);
+  margin: 0 auto;
+  padding: 150px 54px 72px;
 }
 
-.textBlock {
+.content {
   position: relative;
   z-index: 4;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-width: 260px;
-  gap: 0;
-}
-
-.headline {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(34px, 9.5vw, 46px);
-  font-weight: 600;
-  line-height: 1.06;
-  letter-spacing: -0.01em;
-  color: var(--color-text-primary, #2a2521);
-  text-transform: uppercase;
+  align-items: flex-start;
+  width: min(53%, 700px);
 }
 
 .eyebrow {
-  margin: 10px 0 0;
-  font-family: var(--font-sans);
+  margin: 0 0 24px;
+  color: #765b3e;
+  font-family: var(--font-inter), Arial, sans-serif;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 650;
   line-height: 1.4;
-  letter-spacing: 0.06em;
-  color: var(--color-champagne, #a88a5a);
   text-transform: uppercase;
+  text-align: left;
+  white-space: pre-line;
 }
 
-.supporting {
-  margin: 16px 0 0;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--color-text-secondary, #6b6259);
-  max-width: 190px;
+.eyebrow::before {
+  display: inline-block;
+  width: 34px;
+  height: 1px;
+  margin: 0 12px 3px 0;
+  background: #a77b43;
+  content: "";
 }
+
+.title {
+  max-width: 720px;
+  margin: 0;
+  color: #211a16;
+  font-family: var(--font-playfair), "Times New Roman", serif;
+  font-size: 82px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 0.94;
+  text-wrap: balance;
+  text-align: left;
+}
+
+.subtitle {
+  max-width: 370px;
+  margin: 28px 0 0;
+  color: #564b42;
+  font-family: var(--font-inter), Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.actions { margin-top: 36px; }
 
 .primaryAction {
-  position: relative;
-  z-index: 6;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  width: fit-content;
-  min-height: 46px;
-  margin-top: 22px;
-  padding: 0 22px;
-  border: none;
+  gap: 30px;
+  min-height: 50px;
+  padding: 0 25px;
+  border: 1px solid rgba(133, 93, 47, 0.45);
   border-radius: 999px;
-  background: linear-gradient(135deg, #c9ac78, #a88a5a);
-  box-shadow: 0 10px 24px rgba(168, 138, 90, 0.28);
-  color: #fffdf9;
-  font-family: var(--font-sans);
+  background: linear-gradient(110deg, rgba(132, 93, 48, 0.92), rgba(190, 151, 99, 0.82));
+  box-shadow: 0 12px 30px rgba(76, 53, 30, 0.16);
+  color: #fffaf2;
+  font-family: var(--font-inter), Arial, sans-serif;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 650;
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.primaryAction span {
+  font-size: 18px;
+  font-weight: 300;
 }
 
 .primaryAction:hover,
 .primaryAction:focus-visible {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(168, 138, 90, 0.34);
+  box-shadow: 0 16px 34px rgba(76, 53, 30, 0.22);
   outline: none;
 }
 
-.primaryActionArrow {
-  font-size: 13px;
-}
-
-.artWrap {
-  position: relative;
-  width: 100%;
-  margin-top: 2px;
-  padding-left: 16%;
-}
-
-.arc {
+.detailCard {
   position: absolute;
-  top: -6%;
-  left: 0;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.photo {
-  position: relative;
-  z-index: 2;
-  width: 108%;
-  aspect-ratio: 1 / 0.86;
-  overflow: visible;
-}
-
-.photoImage {
-  object-fit: contain;
-}
-
-.photoImageMobile {
-  display: block;
-}
-
-.photoImageDesktop {
-  display: none;
-}
-
-.glassCard {
-  position: absolute;
+  right: clamp(32px, 7vw, 104px);
+  bottom: 18%;
   z-index: 5;
-  right: -6px;
-  bottom: 8%;
-  display: flex;
-  flex-direction: column;
-  width: 108px;
-  padding: 14px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  width: 152px;
+  min-height: 192px;
+  padding: 28px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
   border-radius: 4px;
-  background: rgba(255, 253, 249, 0.42);
-  backdrop-filter: blur(14px) saturate(1.1);
-  -webkit-backdrop-filter: blur(14px) saturate(1.1);
-  box-shadow: 0 12px 28px rgba(54, 45, 35, 0.1);
+  background: rgba(246, 239, 231, 0.56);
+  box-shadow: 0 18px 54px rgba(72, 50, 30, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.66);
+  color: #4e4034;
+  -webkit-backdrop-filter: blur(15px) saturate(0.9);
+  backdrop-filter: blur(15px) saturate(0.9);
 }
 
-.glassCardTitle {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.01em;
-  color: var(--color-text-primary, #2a2521);
-  text-transform: uppercase;
-}
-
-.glassDivider {
+.detailRule {
   display: block;
-  width: 18px;
+  width: 23px;
   height: 1px;
-  margin: 10px 0;
-  background: rgba(54, 45, 35, 0.3);
+  margin-bottom: 24px;
+  background: #9d7547;
 }
 
-.glassCardBrand {
+.detailCard p {
   margin: 0;
-  font-family: var(--font-sans);
-  font-size: 8px;
-  font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: 0.1em;
-  color: var(--color-text-secondary, #6b6259);
+  font-family: var(--font-inter), Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.65;
   text-transform: uppercase;
+  white-space: pre-line;
+}
+
+.detailCard small {
+  display: block;
+  margin-top: 25px;
+  font-family: var(--font-inter), Arial, sans-serif;
+  font-size: 7px;
+  font-weight: 650;
+  line-height: 1.55;
+  text-transform: uppercase;
+  white-space: pre-line;
 }
 
 .sceneFooter {
-  position: relative;
-  z-index: 4;
+  position: absolute;
+  right: 54px;
+  bottom: 30px;
+  left: 54px;
+  z-index: 5;
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  margin-top: 18px;
-  padding: 14px 18px 18px;
-}
-
-.counter {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--color-text-secondary, #6b6259);
-}
-
-.footerDivider {
-  width: 20px;
-  height: 1px;
-  background: rgba(54, 45, 35, 0.18);
-}
-
-.tagline {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  color: var(--color-text-secondary, #6b6259);
+  justify-content: space-between;
+  color: rgba(66, 49, 37, 0.74);
+  font-family: var(--font-inter), Arial, sans-serif;
+  font-size: 9px;
+  font-weight: 650;
   text-transform: uppercase;
 }
 
-/* ==========================================
-   Tablet (430px+)
-   ========================================== */
-
-@media (min-width: 430px) {
-  .scene {
-    padding: 84px 24px 0;
-  }
-
-  .textBlock {
-    max-width: 300px;
-  }
-
-  .headline {
-    font-size: clamp(38px, 8vw, 50px);
-  }
-
-  .supporting {
-    max-width: 220px;
-    font-size: 14px;
-  }
-
-  .glassCard {
-    width: 120px;
-  }
+.sceneFooter span i {
+  margin: 0 5px;
+  font-style: normal;
+  opacity: 0.45;
 }
 
-/* ==========================================
-   Desktop (960px+)
-   ========================================== */
+.sceneFooter p {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
 
-@media (min-width: 960px) {
-  .hero {
-    min-height: 100vh;
+.sceneFooter p::before {
+  width: 42px;
+  height: 1px;
+  background: rgba(92, 68, 48, 0.45);
+  content: "";
+}
+
+@media (max-width: 960px) {
+  .hero,
+  .shell { min-height: 730px; }
+
+  :global(.hero).hero { min-height: 730px; }
+
+  .artworkImage { object-position: 57% 48%; }
+
+  .wash {
+    background:
+      linear-gradient(90deg, rgba(249, 244, 237, 0.9) 0%, rgba(249, 244, 237, 0.58) 45%, rgba(249, 244, 237, 0.04) 78%),
+      linear-gradient(180deg, rgba(255, 252, 246, 0.12), transparent 58%, rgba(45, 34, 25, 0.08));
   }
 
-  .photoImageMobile {
-    display: none;
+  .shell { padding: 122px 28px 62px; }
+  .content { width: 70%; }
+  .title { font-size: 66px; }
+
+  .orbit {
+    right: -4%;
+    width: 58vw;
   }
 
-  .photoImageDesktop {
-    display: block;
-  }
-
-  .scene {
-    display: grid;
-    grid-template-columns: 0.62fr 1fr;
-    align-items: center;
-    height: 100%;
-    padding: 96px 56px;
-    gap: 24px;
-  }
-
-  .textBlock {
-    grid-column: 1;
-    grid-row: 1;
-    max-width: 420px;
-  }
-
-  .headline {
-    font-size: clamp(46px, 5vw, 68px);
-  }
-
-  .eyebrow {
-    font-size: 13px;
-    margin-top: 16px;
-  }
-
-  .supporting {
-    max-width: 320px;
-    font-size: 16px;
-    margin-top: 22px;
-  }
-
-  .primaryAction {
-    min-height: 54px;
-    padding: 0 30px;
-    font-size: 12px;
-    margin-top: 32px;
-  }
-
-  .artWrap {
-    grid-column: 2;
-    grid-row: 1;
-    margin-top: 0;
-    padding-left: 12%;
-  }
-
-  .glassCard {
-    width: 150px;
-    padding: 20px 16px;
-    right: 0;
-  }
-
-  .glassCardTitle {
-    font-size: 15px;
-  }
-
-  .glassCardBrand {
-    font-size: 9px;
+  .detailCard {
+    right: 24px;
+    bottom: 15%;
   }
 
   .sceneFooter {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 32px;
-    padding: 0 56px;
+    right: 28px;
+    left: 28px;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .primaryAction {
-    transition: none;
+@media (max-width: 640px) {
+  .hero,
+  .shell { min-height: 700px; }
+
+  :global(.hero).hero { min-height: 700px; }
+
+  .hero { border-radius: 0; }
+
+  .artworkImage {
+    object-position: 55% 50%;
+    filter: saturate(0.9) contrast(0.95) brightness(1.025);
+    transform: scale(1.01);
   }
+
+  .wash {
+    background:
+      linear-gradient(90deg, rgba(250, 246, 239, 0.9) 0%, rgba(250, 246, 239, 0.62) 38%, rgba(250, 246, 239, 0.12) 70%, transparent 100%),
+      linear-gradient(180deg, rgba(255, 252, 247, 0.22) 0%, transparent 52%, rgba(38, 28, 22, 0.11) 100%);
+  }
+
+  .shell { padding: 106px 18px 54px; }
+  .content { width: 94%; }
+
+  .eyebrow {
+    width: 140px;
+    margin-bottom: 26px;
+    font-size: 8px;
+    line-height: 1.6;
+  }
+
+  .eyebrow::before {
+    width: 24px;
+    margin-right: 8px;
+  }
+
+  .title {
+    max-width: 350px;
+    font-size: 54px;
+    line-height: 0.92;
+  }
+
+  .subtitle {
+    max-width: 210px;
+    margin-top: 24px;
+    font-size: 11px;
+    line-height: 1.75;
+  }
+
+  .actions { margin-top: 28px; }
+
+  .primaryAction {
+    gap: 24px;
+    min-height: 46px;
+    padding: 0 22px;
+    font-size: 9px;
+  }
+
+  .orbit {
+    top: -4%;
+    right: -20%;
+    width: 78vw;
+    border-width: 1.5px;
+  }
+
+  .orbitInner {
+    right: -35%;
+    bottom: -16%;
+    width: 72vw;
+    border-width: 1px;
+  }
+
+  .detailCard {
+    right: 14px;
+    bottom: 13%;
+    width: 112px;
+    min-height: 146px;
+    padding: 20px 17px;
+    border-radius: 4px;
+  }
+
+  .detailRule {
+    width: 18px;
+    margin-bottom: 17px;
+  }
+
+  .detailCard p {
+    font-size: 8px;
+    line-height: 1.55;
+  }
+
+  .detailCard small {
+    margin-top: 18px;
+    font-size: 6px;
+  }
+
+  .sceneFooter {
+    right: 16px;
+    bottom: 20px;
+    left: 16px;
+    font-size: 7px;
+  }
+
+  .sceneFooter p::before { width: 26px; }
+}
+
+@media (max-width: 420px) {
+  .hero,
+  .shell { min-height: 680px; }
+
+  :global(.hero).hero { min-height: 680px; }
+
+  .title {
+    max-width: 340px;
+    font-size: 50px;
+  }
+
+  .detailCard { bottom: 12%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primaryAction { transition: none; }
 }
