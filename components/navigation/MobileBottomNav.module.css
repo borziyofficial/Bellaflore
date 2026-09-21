@@ -1,8 +1,9 @@
-/* BellaFlore bottom navbar — premium cream + gold */
+/* BellaFlore mobile bottom navigation — PHASE V2 simplified flat design */
 .nav {
   display: none;
-  --nav-gold-soft: #b58d37;
-  --nav-ink-soft: #746f68;
+  --nav-gold: #c4aa7a;
+  --nav-text: #2a2521;
+  --nav-text-muted: #8b8680;
 }
 
 @media (max-width: 768px) {
@@ -10,77 +11,63 @@
     position: fixed;
     left: 0;
     right: 0;
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    z-index: 2147483010;
-    width: min(90vw, 360px);
-    height: 46px;
-    min-height: 46px;
-    max-height: 46px;
-    margin-inline: auto;
+    bottom: 0;
+    z-index: 2000;
+    width: 100%;
+    height: 52px;
+    min-height: 52px;
+    max-height: 52px;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    justify-content: space-around;
+    align-items: center;
     gap: 0;
-    padding: 2px 10px calc(2px + env(safe-area-inset-bottom));
-    border: 1px solid rgba(54, 45, 35, 0.12);
-    border-top: 1px solid rgba(54, 45, 35, 0.12);
-    border-radius: 999px;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 253, 249, 0.97),
-      rgba(247, 245, 241, 0.95)
-    );
-    box-shadow:
-      0 8px 24px rgba(54, 45, 35, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    padding: 0;
+    border-top: 1px solid rgba(54, 45, 35, 0.1);
+    border-radius: 0;
+    background: var(--color-surface-primary, #fdfbf9);
+    box-shadow: none;
     pointer-events: auto;
     touch-action: manipulation;
     isolation: isolate;
-    overflow: visible;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    box-sizing: border-box;
-    transform: none;
-    transition: none;
-    will-change: auto;
+    overflow: hidden;
   }
 
   .glass {
     display: none;
   }
 
-  .item {
+  .item,
+  .itemContact {
     position: relative;
     z-index: 1;
-    flex: 1 1 0;
-    min-width: 0;
-    max-width: 52px;
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
     margin: 0;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
-    gap: 1px;
-    padding: 0;
-    color: var(--nav-ink-soft);
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 8px;
+    color: var(--nav-text-muted);
     border: 0;
     border-radius: 0;
     background: transparent;
     text-decoration: none;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     cursor: pointer;
     box-shadow: none;
-    transition: color 120ms ease, opacity 120ms ease;
+    transition: color 0.2s ease;
+    height: 100%;
   }
 
-  .item:active {
-    transform: scale(0.96);
+  .item:active,
+  .itemContact:active {
+    transform: none;
     background: transparent;
-    transition: color 120ms ease, opacity 120ms ease;
   }
 
   .iconWrap {
@@ -94,14 +81,15 @@
     pointer-events: none;
   }
 
-  .item svg {
+  .item svg,
+  .itemContact svg {
     width: 22px;
     height: 22px;
     flex: 0 0 auto;
     fill: none;
-    color: var(--nav-ink-soft);
+    color: currentColor;
     stroke: currentColor;
-    stroke-width: 1.7;
+    stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
     vector-effect: non-scaling-stroke;
@@ -110,31 +98,40 @@
 
   .item svg path,
   .item svg circle,
-  .item svg rect {
+  .item svg rect,
+  .itemContact svg path,
+  .itemContact svg circle,
+  .itemContact svg rect {
     fill: none;
     stroke: inherit;
   }
 
   .item span,
-  .item svg {
+  .item svg,
+  .itemContact span,
+  .itemContact svg {
     pointer-events: none;
   }
 
-  .label {
+  .label,
+  .labelContact {
     display: block;
     max-width: none;
     overflow: visible;
-    color: var(--nav-ink-soft);
-    font-size: 11px;
-    font-weight: 400;
-    line-height: 1.05;
+    color: currentColor;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
     text-align: center;
     white-space: nowrap;
+    letter-spacing: 0.02em;
   }
 
   .item:hover,
-  .item:focus-visible {
-    color: var(--nav-gold-soft);
+  .item:focus-visible,
+  .itemContact:hover,
+  .itemContact:focus-visible {
+    color: var(--nav-gold);
     background: transparent;
     border: 0;
     box-shadow: none;
@@ -142,123 +139,55 @@
   }
 
   .itemActive {
-    color: var(--nav-gold-soft);
+    color: var(--nav-gold);
   }
 
   .itemActive svg,
   .itemActive .label {
-    color: var(--nav-gold-soft);
+    color: var(--nav-gold);
   }
 
   .contactCluster {
     position: relative;
-    z-index: 2;
-    flex: 1 1 0;
-    min-width: 0;
-    max-width: 58px;
+    z-index: 1;
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     overflow: visible;
-    min-height: 35px;
+    min-height: auto;
     flex-shrink: 0;
-  }
-
-  .itemContact {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    margin: 0;
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 1px;
+    height: 100%;
     padding: 0;
-    padding-top: 21px;
-    border: 0;
-    background: transparent;
-    color: var(--nav-ink-soft);
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    cursor: pointer;
-    box-shadow: none;
-    transition: color 120ms ease, opacity 120ms ease;
-  }
-
-  .itemContact:active {
-    transform: scale(0.96);
-    background: transparent;
-    transition: color 120ms ease, opacity 120ms ease;
-  }
-
-  .itemContact:active .contactFab {
-    transform: translate(-50%, -17px) scale(0.96);
-  }
-
-  .itemContact:focus-visible {
-    outline: none;
-    background: transparent;
   }
 
   .contactFab {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    transform: translate(-50%, -17px);
+    position: static;
+    width: 22px;
+    height: 22px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 52px;
-    height: 52px;
-    border: 0;
-    border-radius: 999px;
-    background: radial-gradient(circle at 35% 30%, #d3ab5e, #b58d37 75%);
-    box-shadow:
-      0 6px 16px rgba(181, 141, 55, 0.32),
-      0 0 0 3px rgba(255, 253, 249, 0.97);
-    color: #ffffff;
-    pointer-events: none;
+    border-radius: 0;
+    background: transparent;
+    transform: none !important;
+    box-shadow: none;
   }
 
   .contactFab svg {
-    width: 24px;
-    height: 24px;
-    fill: none;
-    stroke: #ffffff;
-    stroke-width: 1.7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    vector-effect: non-scaling-stroke;
-    pointer-events: none;
-  }
-
-  .contactFab svg path {
-    fill: none;
-    stroke: #ffffff;
-  }
-
-  .labelContact {
-    display: block;
-    width: 100%;
-    max-width: none;
-    overflow: visible;
-    color: var(--nav-ink-soft);
-    font-size: 11px;
-    font-weight: 400;
-    line-height: 1.05;
-    text-align: center;
-    white-space: nowrap;
-    flex-shrink: 0;
-    pointer-events: none;
+    width: 22px;
+    height: 22px;
+    stroke: white;
   }
 
   .orderBadge,
   .favoriteBadge {
     position: absolute;
-    top: -7px;
-    right: -5px;
+    top: 3px;
+    right: 3px;
     z-index: 2;
     width: 16px;
     height: 16px;
@@ -268,27 +197,26 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--nav-gold-soft);
+    background: var(--nav-gold);
     color: #ffffff;
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
     line-height: 1;
     pointer-events: none;
   }
 
   .favoriteBadge {
-    right: -6px;
+    right: 3px;
   }
 
   .compact {
-    /* Scroll-stable: identical geometry to default nav */
-    width: min(90vw, 360px);
-    height: 46px;
-    min-height: 46px;
-    max-height: 46px;
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    padding: 2px 10px calc(2px + env(safe-area-inset-bottom));
-    border-radius: 999px;
+    width: 100%;
+    height: 52px;
+    min-height: 52px;
+    max-height: 52px;
+    bottom: 0;
+    padding: 0;
+    border-radius: 0;
   }
 
   .compact .iconWrap {
@@ -296,32 +224,28 @@
     height: 22px;
   }
 
-  .compact .item svg {
+  .compact .item svg,
+  .compact .itemContact svg {
     width: 22px;
     height: 22px;
   }
 
   .compact .itemContact {
-    padding-top: 21px;
+    padding: 6px 8px;
   }
 
   .compact .contactFab {
-    width: 52px;
-    height: 52px;
-    transform: translate(-50%, -17px);
-  }
-
-  .compact .itemContact:active .contactFab {
-    transform: translate(-50%, -17px) scale(0.96);
+    width: 22px;
+    height: 22px;
   }
 
   .compact .contactFab svg {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
   }
 
   .compact .label,
   .compact .labelContact {
-    font-size: 11px;
+    font-size: 10px;
   }
 }
