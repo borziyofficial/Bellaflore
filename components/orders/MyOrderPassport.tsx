@@ -4,7 +4,10 @@
 // ==================================================
 "use client";
 
-import type { CustomerOrderStatusId } from "@/components/orders/orderStatus";
+import type {
+  CustomerOrderProgressStep,
+  CustomerOrderStatusId,
+} from "@/components/orders/orderStatus";
 import styles from "@/components/orders/MyOrderPassport.module.css";
 
 export type OrderPassportItem = {
@@ -32,6 +35,10 @@ export type OrderPassportData = {
   totalRub: number | null;
   orderStatus: string;
   statusColorId?: CustomerOrderStatusId;
+  /** Real payment status label ("Оплачено" / "Ожидает оплаты" / "Возврат выполнен") — kept separate from orderStatus. */
+  paymentStatusLabel?: string | null;
+  /** Real 6-step lifecycle ladder derived from the order's actual current status. Null/undefined when not applicable (e.g. a draft order, or a cancelled order). */
+  statusSteps?: CustomerOrderProgressStep[] | null;
   courierStatus: string;
   hasConfirmedOrder: boolean;
 };
@@ -68,6 +75,29 @@ function PassportRow({
   );
 }
 
+function OrderProgressTimeline({
+  steps,
+}: {
+  steps: CustomerOrderProgressStep[];
+}) {
+  return (
+    <ol className={styles.timeline} aria-label="Статус заказа">
+      {steps.map((step) => (
+        <li
+          key={step.id}
+          className={`${styles.timelineStep} ${
+            step.reached ? styles.timelineStepReached : ""
+          } ${step.current ? styles.timelineStepCurrent : ""}`}
+          aria-current={step.current ? "step" : undefined}
+        >
+          <span className={styles.timelineDot} aria-hidden="true" />
+          <span className={styles.timelineLabel}>{step.titleRu}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function MyOrderPassport({ data, formatPrice }: MyOrderPassportProps) {
   const items = data.items ?? [];
   const statusClassName = data.statusColorId
@@ -83,6 +113,11 @@ export function MyOrderPassport({ data, formatPrice }: MyOrderPassportProps) {
         >
           {displayValue(data.orderStatus)}
         </span>
+        {data.paymentStatusLabel ? (
+          <span className={styles.paymentBadge} role="status">
+            {data.paymentStatusLabel}
+          </span>
+        ) : null}
         {data.orderNumber ? (
           <span className={styles.orderNumber}>Заказ {data.orderNumber}</span>
         ) : null}
@@ -90,6 +125,10 @@ export function MyOrderPassport({ data, formatPrice }: MyOrderPassportProps) {
           <span className={styles.orderDate}>{data.createdAtLabel}</span>
         ) : null}
       </div>
+
+      {data.statusSteps && data.statusSteps.length > 0 ? (
+        <OrderProgressTimeline steps={data.statusSteps} />
+      ) : null}
 
       <article className={styles.passport}>
         {items.length > 0 ? (
@@ -164,16 +203,13 @@ export function MyOrderPassportEmpty({
 }: MyOrderPassportEmptyProps) {
   return (
     <div className={styles.empty} role="status">
-      <p className={styles.emptyTitle}>Заказ пока не создан</p>
+      <p className={styles.emptyTitle}>У вас пока нет активного заказа</p>
       <p className={styles.emptyCopy}>
         Выберите букет в каталоге — заказ появится здесь.
       </p>
-      <p className={styles.trackingNote}>
-        Курьер будет назначен после подтверждения заказа
-      </p>
       <div className={styles.emptyActions}>
         <button type="button" className={styles.emptyButton} onClick={onOpenCatalog}>
-          В каталог
+          Перейти в каталог
         </button>
       </div>
     </div>

@@ -12,7 +12,11 @@
 // (/api/orders/lookup) по номеру заказа или телефону и преобразует
 // ответ в формат OrderPassportData для раздела «Мой заказ».
 // ==================================================
-import { getCustomerFacingOrderStatus } from "@/components/orders/orderStatus";
+import {
+  getCustomerFacingOrderStatus,
+  getOrderProgressSteps,
+  getPaymentStatusLabel,
+} from "@/components/orders/orderStatus";
 import type {
   OrderPassportData,
   OrderPassportItem,
@@ -40,6 +44,7 @@ export type OrderLookupApiItem = {
 export type OrderLookupApiOrder = {
   orderNumber: string;
   status: string;
+  paymentStatus: string;
   createdAt: string;
   customerName: string;
   customerPhone: string;
@@ -120,6 +125,7 @@ function parseLookupOrder(value: unknown): OrderLookupApiOrder | null {
   if (
     typeof value.orderNumber !== "string" ||
     typeof value.status !== "string" ||
+    typeof value.paymentStatus !== "string" ||
     typeof value.createdAt !== "string" ||
     typeof value.customerName !== "string" ||
     typeof value.customerPhone !== "string" ||
@@ -139,6 +145,7 @@ function parseLookupOrder(value: unknown): OrderLookupApiOrder | null {
   return {
     orderNumber: value.orderNumber,
     status: value.status,
+    paymentStatus: value.paymentStatus,
     createdAt: value.createdAt,
     customerName: value.customerName,
     customerPhone: value.customerPhone,
@@ -285,6 +292,7 @@ export function mapLookupOrderToPassport(
   order: OrderLookupApiOrder,
 ): OrderPassportData {
   const customerStatus = getCustomerFacingOrderStatus(order.status);
+
   const items: OrderPassportItem[] = order.items.map((item) => ({
     name: item.name,
     sizeLabel: getProductSizeRuLabel(item.size),
@@ -302,6 +310,7 @@ export function mapLookupOrderToPassport(
     deliveryDate: formatDeliveryDateRu(order.deliveryDate),
     deliveryTime: order.deliveryInterval,
     paymentMethod: PAYMENT_METHOD_LABELS[order.paymentMethod] ?? order.paymentMethod,
+    paymentStatusLabel: getPaymentStatusLabel(order.paymentStatus),
     bouquetName: "",
     items,
     comment: order.customerComment,
@@ -310,6 +319,9 @@ export function mapLookupOrderToPassport(
     totalRub: order.total,
     orderStatus: customerStatus.label,
     statusColorId: customerStatus.id,
+    // The real 6-step lifecycle ladder, derived from the actual current
+    // server status — only steps up to that status are marked reached.
+    statusSteps: getOrderProgressSteps(order.status),
     courierStatus: resolveCourierNote(customerStatus.id),
     hasConfirmedOrder: true,
   };

@@ -1,19 +1,25 @@
 // ==================================================
-// SECTION: MY PROFILE
-// РАЗДЕЛ: Родительский хаб профиля (без регистрации)
+// SECTION: MY ORDER
+// РАЗДЕЛ: Панель «Мой заказ» (BellaFlore Premium)
+//
+// Purpose (EN):
+// Shows the customer's own order directly — no profile dashboard,
+// no menu, no "coming soon" placeholders. Either the unconfirmed
+// cart-draft passport, the real server-confirmed order, or the
+// premium empty state.
+//
+// Назначение (RU):
+// Показывает заказ покупателя напрямую — без меню профиля и без
+// заглушек «Скоро». Либо черновик корзины, либо подтверждённый
+// заказ с сервера, либо premium-заглушка пустого состояния.
 // ==================================================
 "use client";
 
-import { ProfileHubDashboard } from "@/components/orders/ProfileHubDashboard";
-import { ProfileHubPlaceholderSection } from "@/components/orders/ProfileHubPlaceholderSection";
-import { ProfileHubSectionPanel } from "@/components/orders/ProfileHubSectionPanel";
-import { ProfilePersonalSection } from "@/components/orders/ProfilePersonalSection";
 import {
   MyOrderPassport,
   type OrderPassportData,
 } from "@/components/orders/MyOrderPassport";
 import { MyOrderLookupSection } from "@/components/orders/MyOrderLookupSection";
-import type { ProfileHubSectionId } from "@/components/orders/profileHubTypes";
 import styles from "@/components/orders/MyOrderHub.module.css";
 
 type MyOrderHubProps = {
@@ -21,125 +27,31 @@ type MyOrderHubProps = {
   hasDraftOrder: boolean;
   /** Real server order number of the customer's most recent order (persists across visits). */
   latestOrderNumber: string | null;
-  favoritesCount?: number;
-  activeSection?: ProfileHubSectionId | null;
-  onActiveSectionChange?: (sectionId: ProfileHubSectionId | null) => void;
-  onClose: () => void;
   onOpenCatalog: () => void;
-  onOpenFavorites?: () => void;
-  onOpenContact: () => void;
   formatPrice: (priceRub: number) => string;
 };
-
-const SECTION_TITLES: Record<ProfileHubSectionId, string> = {
-  personal: "Личные данные",
-  myOrder: "Мой заказ",
-  tracking: "Отслеживание заказа",
-  favorites: "Избранное",
-  contact: "Связь",
-};
-
-function resolveOrderMenuHint(
-  passport: OrderPassportData | null,
-  hasDraftOrder: boolean,
-): string | null {
-  if (!hasDraftOrder || !passport) {
-    return "Не создан";
-  }
-
-  const status = passport.orderStatus.trim();
-  return status.length > 0 ? status : null;
-}
 
 export function MyOrderHub({
   passport,
   hasDraftOrder,
   latestOrderNumber,
-  favoritesCount = 0,
-  activeSection = null,
-  onActiveSectionChange,
-  onClose,
   onOpenCatalog,
-  onOpenFavorites,
-  onOpenContact,
   formatPrice,
 }: MyOrderHubProps) {
-  const navigateToSection = (sectionId: ProfileHubSectionId) => {
-    onActiveSectionChange?.(sectionId);
-  };
-
-  const handleExternalAction = (sectionId: ProfileHubSectionId) => {
-    if (sectionId === "favorites") {
-      onOpenFavorites?.();
-      return;
-    }
-
-    if (sectionId === "contact") {
-      onOpenContact();
-    }
-  };
-
-  const renderSectionContent = (sectionId: ProfileHubSectionId) => {
-    switch (sectionId) {
-      case "personal":
-        return (
-          <ProfilePersonalSection
-            recipientName={passport?.recipientName ?? ""}
-            phone={passport?.phone ?? ""}
-          />
-        );
-      case "myOrder": {
-        const isUnconfirmedCartPreview =
-          passport !== null && hasDraftOrder && !passport.hasConfirmedOrder;
-
-        if (isUnconfirmedCartPreview) {
-          return <MyOrderPassport data={passport} formatPrice={formatPrice} />;
-        }
-
-        return (
-          <MyOrderLookupSection
-            initialOrderNumber={latestOrderNumber}
-            onOpenCatalog={onOpenCatalog}
-            formatPrice={formatPrice}
-          />
-        );
-      }
-      case "tracking":
-        return (
-          <ProfileHubPlaceholderSection
-            title="Отслеживание появится позже"
-            message="Отслеживание появится после подтверждения заказа. Курьер будет назначен после подтверждения."
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  if (activeSection !== null) {
-    return (
-      <div className={styles.hub}>
-        <ProfileHubSectionPanel
-          title={SECTION_TITLES[activeSection]}
-          onBack={() => onActiveSectionChange?.(null)}
-        >
-          {renderSectionContent(activeSection)}
-        </ProfileHubSectionPanel>
-      </div>
-    );
-  }
+  const isUnconfirmedCartPreview =
+    passport !== null && hasDraftOrder && !passport.hasConfirmedOrder;
 
   return (
     <div className={styles.hub}>
-      <ProfileHubDashboard
-        favoritesCount={favoritesCount}
-        orderHint={resolveOrderMenuHint(passport, hasDraftOrder)}
-        onSelectSection={navigateToSection}
-        onExternalAction={handleExternalAction}
-      />
-      <button type="button" className={styles.closeRow} onClick={onClose}>
-        Закрыть
-      </button>
+      {isUnconfirmedCartPreview ? (
+        <MyOrderPassport data={passport} formatPrice={formatPrice} />
+      ) : (
+        <MyOrderLookupSection
+          initialOrderNumber={latestOrderNumber}
+          onOpenCatalog={onOpenCatalog}
+          formatPrice={formatPrice}
+        />
+      )}
     </div>
   );
 }

@@ -337,3 +337,84 @@ export function isValidKanbanDragTarget(
 
   return toStatusId === previousStatus || toStatusId === nextStatus;
 }
+
+
+// ==================================================
+// SECTION: CUSTOMER PROGRESS LADDER
+// РАЗДЕЛ: Компактная timeline статусов для «Мой заказ»
+//
+// Purpose (EN):
+// Builds the 6-step customer-facing progress ladder (Создан →
+// Подтверждён → Готовится → Курьер назначен → В пути → Доставлен) from
+// the REAL current order status. Only steps up to and including the
+// current status are marked "reached" — nothing beyond the actual
+// current status is invented. Returns null for a cancelled order, which
+// the UI renders as a distinct cancelled state instead of a ladder.
+//
+// Назначение (RU):
+// Строит компактную timeline из 6 реальных статусов заказа на основе
+// текущего статуса. Отмечает как «достигнутые» только шаги вплоть до
+// фактического текущего статуса. Для отменённого заказа возвращает
+// null — UI показывает отдельное состояние "отменён".
+// ==================================================
+export type CustomerOrderProgressStep = {
+  id: OrderStatusId;
+  titleRu: string;
+  reached: boolean;
+  current: boolean;
+};
+
+export function getOrderProgressSteps(
+  rawStatus: string,
+): CustomerOrderProgressStep[] | null {
+  const currentStatus = getOrderStatus(rawStatus);
+
+  if (!currentStatus || currentStatus.id === "CANCELLED") {
+    return null;
+  }
+
+  return getOrderStatusesInSortOrder()
+    .filter((status) => status.id !== "CANCELLED")
+    .map((status) => ({
+      id: status.id,
+      titleRu: status.titleRu,
+      reached: status.sortOrder <= currentStatus.sortOrder,
+      current: status.id === currentStatus.id,
+    }));
+}
+
+export function isOrderCancelled(rawStatus: string): boolean {
+  return getOrderStatus(rawStatus)?.id === "CANCELLED";
+}
+
+
+// ==================================================
+// SECTION: PAYMENT STATUS
+// РАЗДЕЛ: Статус оплаты
+//
+// Purpose (EN):
+// Real payment status labels for the customer-facing "Мой заказ" view,
+// separate from the order lifecycle status above.
+//
+// Назначение (RU):
+// Подписи реального статуса оплаты для «Мой заказ», отдельно от
+// статуса жизненного цикла заказа выше.
+// ==================================================
+export type OrderPaymentStatusId = "PENDING" | "PAID" | "REFUNDED";
+
+const PAYMENT_STATUS_LABELS: Record<OrderPaymentStatusId, string> = {
+  PENDING: "Ожидает оплаты",
+  PAID: "Оплачено",
+  REFUNDED: "Возврат выполнен",
+};
+
+export function getPaymentStatusLabel(
+  paymentStatusId: string | null | undefined,
+): string | null {
+  if (!paymentStatusId) {
+    return null;
+  }
+
+  const normalized = paymentStatusId.trim().toUpperCase();
+  return PAYMENT_STATUS_LABELS[normalized as OrderPaymentStatusId] ?? null;
+}

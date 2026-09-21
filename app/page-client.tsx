@@ -46,6 +46,10 @@ import {
 import type { OrderTimelineEvent } from "@/components/orders/orderTimeline";
 import { getCustomerOrderStatusLabel } from "@/components/orders/resolveCustomerOrderTimeline";
 import {
+  getOrderProgressSteps,
+  getPaymentStatusLabel,
+} from "@/components/orders/orderStatus";
+import {
   type CheckoutForm,
   type CheckoutOrderPayload,
   type DeliveryDatePreset,
@@ -91,7 +95,6 @@ import {
   writeCustomerProfile,
 } from "@/components/orders/customerProfileStorage";
 import type { OrderPassportData } from "@/components/orders/MyOrderPassport";
-import type { ProfileHubSectionId } from "@/components/orders/profileHubTypes";
 import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
 import { getOrdersUrl } from "@/app/orders/orderUtils";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
@@ -496,8 +499,6 @@ export default function HomePageClient({
   const [closingBottomNavPanel, setClosingBottomNavPanel] =
     useState<BottomNavPanelId | null>(null);
   const bottomNavCloseTimerRef = useRef<number | null>(null);
-  const [profileActiveSection, setProfileActiveSection] =
-    useState<ProfileHubSectionId | null>(null);
   const [showOrdersOnly, setShowOrdersOnly] = useState(false);
   const [publicAppView, setPublicAppView] = useState<PublicAppView>("home");
   const [catalogFocusNonce, setCatalogFocusNonce] = useState(0);
@@ -1040,7 +1041,6 @@ export default function HomePageClient({
 
     if (panel === "myOrder") {
       storedOrders = prepareMyOrderPanelData();
-      setProfileActiveSection(null);
     }
 
     switch (panel) {
@@ -1104,7 +1104,6 @@ export default function HomePageClient({
   const closeFavoritesPanel = () => closeBottomNavPanel("favorites", true);
   const closeCheckoutPanel = () => setCheckoutPanelOpen(false);
   const closeMyOrderPanel = () => {
-    setProfileActiveSection(null);
     closeBottomNavPanel("myOrder", true);
   };
 
@@ -1315,6 +1314,8 @@ export default function HomePageClient({
         deliveryPriceRub: latestOrder.deliveryZonePriceRub ?? null,
         totalRub: latestOrder.totalPriceRub,
         orderStatus: getCustomerOrderStatusLabel(latestOrder),
+        paymentStatusLabel: getPaymentStatusLabel(latestOrder.paymentStatus),
+        statusSteps: getOrderProgressSteps(latestOrder.status),
         courierStatus: resolveProfileCourierStatus(latestOrder.status),
         hasConfirmedOrder: true,
       };
@@ -1855,7 +1856,6 @@ export default function HomePageClient({
     setLatestOrderId(orderId);
     writeLatestCheckoutOrderId(orderId);
     prepareMyOrderPanelData();
-    setProfileActiveSection("myOrder");
     setMyOrderPanelOpen(true);
     setBottomNavAction(CHECKOUT_ORDER_CREATED_STATUS);
   };
@@ -2364,21 +2364,9 @@ export default function HomePageClient({
       passport={orderPassport}
       hasDraftOrder={hasDraftOrder}
       latestOrderNumber={latestOrderId || null}
-      favoritesCount={favoriteBouquetIds.length}
-      activeSection={profileActiveSection}
-      onActiveSectionChange={setProfileActiveSection}
-      onClose={closeMyOrderPanel}
       onOpenCatalog={() => {
         closeMyOrderPanel();
         openBottomNavPanel("catalog");
-      }}
-      onOpenFavorites={() => {
-        closeMyOrderPanel();
-        openBottomNavPanel("favorites");
-      }}
-      onOpenContact={() => {
-        closeMyOrderPanel();
-        openBottomNavPanel("contact");
       }}
       formatPrice={formatPrice}
     />

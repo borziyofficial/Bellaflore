@@ -421,10 +421,6 @@
     order: 5;
   }
 
-  .ratingTeaser {
-    order: 6;
-  }
-
   .description {
     order: 7;
   }
@@ -435,25 +431,6 @@
 
   .actionRow {
     order: 9;
-  }
-
-  /* Keep technical/product detail out of the way until the client asks for it. */
-  .card:not(.cardExpanded) .category,
-  .card:not(.cardExpanded) .catalogNumber,
-  .card:not(.cardExpanded) .ratingTeaser,
-  .card:not(.cardExpanded) .description,
-  .card:not(.cardExpanded) .sizeSelectorBlock,
-  .card:not(.cardExpanded) .actionRow {
-    display: none;
-  }
-
-  .cardExpanded .category,
-  .cardExpanded .catalogNumber,
-  .cardExpanded .ratingTeaser,
-  .cardExpanded .description,
-  .cardExpanded .sizeSelectorBlock,
-  .cardExpanded .actionRow {
-    animation: catalogCardDetailsReveal 180ms ease-out both;
   }
 
   .cardExpanded .category {
@@ -551,6 +528,65 @@
     animation: none !important;
     transition: none;
   }
+}
+
+/* Unified reveal ordering + hide-until-expanded gating for the compact
+   "Подробнее" toggle. Applies at every breakpoint (mobile AND desktop) so
+   the default card always stays minimal — photo, heart, title, price,
+   arrow, "Подробнее" — and category/catalogNumber/description/size
+   selector/buy button only appear once the card is expanded. */
+.category {
+  order: 1;
+}
+
+.catalogNumber {
+  order: 2;
+}
+
+.titleButton {
+  order: 3;
+}
+
+.ratingTeaser {
+  order: 4;
+}
+
+.description {
+  order: 5;
+}
+
+.priceRow {
+  order: 6;
+}
+
+.detailsButton {
+  order: 7;
+}
+
+.sizeSelectorBlock {
+  order: 9;
+}
+
+.actionRow {
+  order: 10;
+}
+
+.card:not(.cardExpanded) .category,
+.card:not(.cardExpanded) .catalogNumber,
+.card:not(.cardExpanded) .ratingTeaser,
+.card:not(.cardExpanded) .description,
+.card:not(.cardExpanded) .sizeSelectorBlock,
+.card:not(.cardExpanded) .actionRow {
+  display: none;
+}
+
+.cardExpanded .category,
+.cardExpanded .catalogNumber,
+.cardExpanded .ratingTeaser,
+.cardExpanded .description,
+.cardExpanded .sizeSelectorBlock,
+.cardExpanded .actionRow {
+  animation: catalogCardDetailsReveal 180ms ease-out both;
 }
 
 /* ==================================================
@@ -699,13 +735,6 @@
   stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.ratingTeaser,
-.detailsButton,
-.sizeSelectorBlock,
-.actionRow {
-  display: none;
 }
 
 @media (max-width: 768px) {

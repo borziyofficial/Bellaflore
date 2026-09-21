@@ -40,14 +40,14 @@ export function MyOrderPanel({
           <div>
             <BrandLogo variant="panel" className={styles.eyebrow} />
             <h2 id="my-profile-panel-title" className={styles.title}>
-              Профиль
+              Мой заказ
             </h2>
           </div>
           <button
             type="button"
             className={styles.close}
             onClick={closeMyOrderPanel}
-            aria-label="Закрыть профиль"
+            aria-label="Закрыть «Мой заказ»"
           >
             <span className={styles.closeGlyph} aria-hidden="true">×</span>
           </button>

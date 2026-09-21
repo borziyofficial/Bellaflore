@@ -39,6 +39,7 @@ function publicOrderDetail(order: StoredOrderRecord) {
   return {
     orderNumber: order.publicNumber,
     status: order.status,
+    paymentStatus: order.paymentStatus,
     createdAt: order.createdAt,
     customerName: order.customerName,
     customerPhone: order.customerPhone,
