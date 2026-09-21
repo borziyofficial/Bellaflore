@@ -17,6 +17,7 @@ import {
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import {
+  type KeyboardEvent,
   useMemo,
   useRef,
   useState,
@@ -134,6 +135,29 @@ export function LuxuryCatalogProductCard({
     }
   };
 
+  const shouldIgnoreCardOpen = (target: EventTarget | null) => {
+    return target instanceof HTMLElement && Boolean(target.closest("button, a, input, select, textarea"));
+  };
+
+  const openProductFromCard = (target: EventTarget | null) => {
+    if (!shouldIgnoreCardOpen(target)) {
+      onProductOpen?.(product.id);
+    }
+  };
+
+  const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    if (shouldIgnoreCardOpen(event.target)) {
+      return;
+    }
+
+    event.preventDefault();
+    onProductOpen?.(product.id);
+  };
+
   const handleBuyClick = (event: MouseEvent<HTMLButtonElement>) => {
     if (shouldSuppressActionClick(event)) {
       return;
@@ -173,7 +197,14 @@ export function LuxuryCatalogProductCard({
   };
 
   return (
-    <article className={`${styles.card} ${detailsExpanded ? styles.cardExpanded : ""}`}>
+    <article
+      className={`${styles.card} ${detailsExpanded ? styles.cardExpanded : ""}`}
+      role="link"
+      tabIndex={0}
+      aria-label={`Открыть ${product.title}`}
+      onClick={(event) => openProductFromCard(event.target)}
+      onKeyDown={handleCardKeyDown}
+    >
       <div className={styles.mediaWrap}>
         <button
           type="button"
@@ -292,7 +323,22 @@ export function LuxuryCatalogProductCard({
             {detailsExpanded ? "Свернуть ↑" : "Подробнее ↓"}
           </button>
 
-          <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
+          <div className={styles.priceRow}>
+            <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
+            <button
+              type="button"
+              className={styles.openButton}
+              onClick={openProduct}
+              onTouchStart={handleActionTouchStart}
+              onTouchMove={handleActionTouchMove}
+              onTouchEnd={handleActionTouchEnd}
+              aria-label={`Открыть ${product.title}`}
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M7 17 17 7M10 7h7v7" />
+              </svg>
+            </button>
+          </div>
 
           {visibleVariants.length > 0 ? (
             <div className={styles.sizeSelectorBlock}>

@@ -235,12 +235,17 @@ export function CollectionsSection({
     <section id="catalog" className={`${styles.section} ${!fullCatalog ? styles.homeShowcase : ""}`}>
       <header className={`${styles.header} bf-reveal bf-reveal-up`}>
         {!fullCatalog ? <span className={styles.homeEyebrow}>Категории</span> : null}
+        {fullCatalog ? <span className={styles.catalogEyebrow}>BellaFlore Moscow</span> : null}
         <h2>{fullCatalog ? homeCatalogTitle : "Выберите настроение"}</h2>
-        {!fullCatalog ? (
+        {fullCatalog ? (
+          <p className={styles.subtitle}>
+            Цветы для особенных моментов, собранные в светлой editorial-подборке.
+          </p>
+        ) : (
           <p className={styles.subtitle}>
             Нажмите на категорию — откроется подборка подходящих композиций.
           </p>
-        ) : null}
+        )}
       </header>
 
       {fullCatalog ? (
@@ -339,6 +344,12 @@ export function CollectionsSection({
               Сброс
             </button>
           ) : null}
+        </div>
+
+        <div className={styles.resultsMeta} aria-live="polite">
+          <span>{displayedProducts.length} композиций</span>
+          <span aria-hidden="true" />
+          <span>Москва, сегодня</span>
         </div>
       </div>
       ) : null}
