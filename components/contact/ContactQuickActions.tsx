@@ -5,6 +5,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import styles from "@/components/contact/ContactQuickActions.module.css";
 
 type ContactQuickActionsProps = {
@@ -114,7 +115,7 @@ export function ContactQuickActions({
     };
   }, [closeContactHub]);
 
-  return (
+  const contactHub = (
     <>
       <div
         className={`${styles.overlay} contact-quick-actions-overlay`}
@@ -134,7 +135,19 @@ export function ContactQuickActions({
         aria-label="Связь с BellaFlore"
         onClick={(event) => event.stopPropagation()}
       >
-        <span className={styles.eyebrow}>Связь с BellaFlore</span>
+        <div className={styles.header}>
+          <span className={styles.eyebrow}>Связь с BellaFlore</span>
+          <button
+            type="button"
+            className={styles.closeButton}
+            onClick={closeContactHub}
+            aria-label="Закрыть связь"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M4 4l8 8M12 4l-8 8" />
+            </svg>
+          </button>
+        </div>
 
         <div className={styles.list}>
           {CONTACT_ACTIONS.map((action) => (
@@ -163,4 +176,10 @@ export function ContactQuickActions({
       </div>
     </>
   );
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(contactHub, document.body);
 }

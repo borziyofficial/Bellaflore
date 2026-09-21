@@ -2434,7 +2434,7 @@ export default function HomePageClient({
       ) : null}
 
       {publicAppView === "home" ? (
-        <FeaturedSection block={homepageBlocks?.featured} />
+        <FeaturedSection block={homepageBlocks?.featured} products={bouquets} />
       ) : null}
 
       <CollectionsSection

@@ -7,27 +7,60 @@
 import Image from "next/image";
 import { getEnabledCards } from "@/components/home/useHomepageBlocks";
 import type { HomepageBlock } from "@/lib/homepageBlocksTypes";
+import type { CatalogProduct } from "@/data/catalogProducts";
 import styles from "@/components/home/FeaturedSection.module.css";
 
 type FeaturedSectionProps = {
   block: HomepageBlock | undefined | null;
+  products?: CatalogProduct[];
 };
 
-export function FeaturedSection({ block }: FeaturedSectionProps) {
-  if (!block || !block.isEnabled) {
+type FeaturedCard = {
+  id: string;
+  imageUrl: string;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  buttonLink: string;
+};
+
+function getProductFeaturedCards(products: CatalogProduct[]): FeaturedCard[] {
+  return products
+    .filter((product) => Boolean(product.src && product.title))
+    .slice(0, 3)
+    .map((product) => ({
+      id: product.id,
+      imageUrl: product.src,
+      title: product.title,
+      subtitle: product.description || product.category || "Авторская композиция",
+      buttonText: "Открыть",
+      buttonLink: `/?product=${encodeURIComponent(product.id)}#catalog`,
+    }));
+}
+
+export function FeaturedSection({ block, products = [] }: FeaturedSectionProps) {
+  const productCards = getProductFeaturedCards(products);
+
+  if (productCards.length === 0 && (!block || !block.isEnabled)) {
     return null;
   }
 
-  const cards = getEnabledCards(block);
+  const cards = productCards.length > 0 ? productCards : getEnabledCards(block);
   if (cards.length === 0) {
     return null;
   }
 
+  const title = block?.isEnabled && block.title ? block.title : "Подборка недели";
+  const subtitle =
+    block?.isEnabled && block.subtitle
+      ? block.subtitle
+      : "Реальные композиции BellaFlore, которые чаще всего выбирают сейчас.";
+
   return (
-    <section className={styles.section} aria-label={block.title || "Подборка"}>
+    <section className={styles.section} aria-label={title || "Подборка"}>
       <div className={`bf-reveal bf-reveal-up ${styles.intro}`}>
-        {block.title ? <h2>{block.title}</h2> : null}
-        {block.subtitle ? <p>{block.subtitle}</p> : null}
+        {title ? <h2>{title}</h2> : null}
+        {subtitle ? <p>{subtitle}</p> : null}
       </div>
 
       <div className={`bf-reveal-stagger ${styles.row}`}>

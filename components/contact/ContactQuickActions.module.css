@@ -26,14 +26,16 @@
     z-index: 2147483006;
     display: flex;
     flex-direction: column;
-    width: min(272px, calc(100vw - 32px));
+    width: min(318px, calc(100vw - 32px));
     max-width: calc(100vw - 32px);
     padding: 14px;
     box-sizing: border-box;
-    border: 1px solid rgba(201, 162, 75, 0.32);
-    border-radius: 18px;
-    background: var(--color-surface-primary, #fdfbf9);
-    box-shadow: 0 20px 48px rgba(54, 45, 35, 0.22);
+    border: 1px solid rgba(155, 124, 80, 0.24);
+    border-radius: 8px;
+    background:
+      linear-gradient(180deg, rgba(253, 251, 249, 0.94), rgba(247, 243, 237, 0.94)),
+      var(--color-surface-primary, #fdfbf9);
+    box-shadow: 0 20px 48px rgba(42, 37, 33, 0.18);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
     backdrop-filter: blur(18px) saturate(140%);
     transform: translate(-50%, 0);
@@ -42,15 +44,66 @@
     animation: contactPanelIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 7px;
+  }
+
   .eyebrow {
-    display: block;
-    margin: 0 0 10px 2px;
-    color: #765b3e;
-    font-family: var(--font-inter), Arial, sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: var(--color-bronze-subtle, #9b7c50);
+    font-family: var(--font-sans), Arial, sans-serif;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+
+  .eyebrow::after {
+    content: "";
+    width: 34px;
+    height: 1px;
+    background: rgba(155, 124, 80, 0.32);
+  }
+
+  .closeButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid rgba(155, 124, 80, 0.18);
+    border-radius: 999px;
+    background: rgba(253, 251, 249, 0.72);
+    color: var(--color-text-primary, #2a2521);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .closeButton svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  .note {
+    margin: 0 0 11px;
+    color: rgba(42, 37, 33, 0.62);
+    font-family: var(--font-sans), Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.35;
   }
 
   .list {
@@ -65,10 +118,10 @@
     gap: 12px;
     min-height: 52px;
     padding: 8px 10px;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    background: transparent;
-    color: #211a16;
+    border: 1px solid rgba(155, 124, 80, 0.12);
+    border-radius: 8px;
+    background: rgba(253, 251, 249, 0.58);
+    color: var(--color-text-primary, #2a2521);
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
@@ -77,7 +130,7 @@
 
   .row:active {
     background: rgba(196, 170, 122, 0.14);
-    border-color: rgba(201, 162, 75, 0.3);
+    border-color: rgba(155, 124, 80, 0.3);
   }
 
   .rowIcon {
@@ -88,9 +141,9 @@
     height: 38px;
     flex: 0 0 auto;
     border-radius: 50%;
-    border: 1px solid rgba(133, 93, 47, 0.28);
-    background: rgba(196, 170, 122, 0.1);
-    color: #85552f;
+    border: 1px solid rgba(155, 124, 80, 0.24);
+    background: rgba(196, 170, 122, 0.12);
+    color: var(--color-bronze-subtle, #9b7c50);
   }
 
   .rowIcon svg {
@@ -105,8 +158,8 @@
   }
 
   .rowText strong {
-    color: #211a16;
-    font-family: var(--font-inter), Arial, sans-serif;
+    color: var(--color-text-primary, #2a2521);
+    font-family: var(--font-sans), Arial, sans-serif;
     font-size: 13px;
     font-weight: 650;
     line-height: 1.3;
@@ -114,8 +167,8 @@
 
   .rowText small {
     overflow: hidden;
-    color: #746f68;
-    font-family: var(--font-inter), Arial, sans-serif;
+    color: var(--color-text-tertiary, #6b5f59);
+    font-family: var(--font-sans), Arial, sans-serif;
     font-size: 11px;
     line-height: 1.3;
     white-space: nowrap;
