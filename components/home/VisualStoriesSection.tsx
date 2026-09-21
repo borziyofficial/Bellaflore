@@ -12,13 +12,8 @@ type VisualStoriesSectionProps = {
   onOpenCatalog?: () => void;
 };
 
-const FALLBACK_IDS = [
-  "royal-collection",
-  "pink-elegance",
-  "white-pearl",
-  "luxury-box",
-  "red-luxury",
-] as const;
+const FALLBACK_IDS = ["royal-collection", "pink-elegance", "white-pearl"] as const;
+const CARD_COUNT = 3;
 
 type StoryView = {
   id: string;
@@ -45,14 +40,14 @@ function buildFallbackStories(bouquets: CatalogProduct[]): StoryView[] {
   }
 
   for (const product of bouquets) {
-    if (selected.length >= 5) break;
+    if (selected.length >= CARD_COUNT) break;
     if (!used.has(product.id)) {
       selected.push(product);
       used.add(product.id);
     }
   }
 
-  return selected.slice(0, 5).map((product) => ({
+  return selected.slice(0, CARD_COUNT).map((product) => ({
     id: product.id,
     imageUrl: product.src,
     eyebrow: product.category || "BellaFlore",
@@ -107,7 +102,7 @@ export function VisualStoriesSection({
             stories
               .filter((story) => story.isEnabled && story.imageUrl)
               .sort((left, right) => left.sortOrder - right.sortOrder)
-              .slice(0, 6),
+              .slice(0, CARD_COUNT),
           );
         }
       })
@@ -127,15 +122,6 @@ export function VisualStoriesSection({
   if (stories.length === 0) {
     return null;
   }
-
-  const storyClassNames = [
-    styles.heroStory,
-    styles.tallStory,
-    styles.tallStory,
-    styles.wideStory,
-    styles.wideStory,
-    styles.finalStory,
-  ];
 
   const openStory = (story: StoryView) => {
     if (story.destinationType === "product" && story.destinationValue) {
@@ -166,8 +152,8 @@ export function VisualStoriesSection({
   return (
     <section className={styles.section} aria-label="Коллекции BellaFlore">
       <div className={styles.intro}>
-        <span>Коллекции BellaFlore</span>
-        <h2>Коллекции, которые хочется рассматривать</h2>
+        <span>Коллекции</span>
+        <h2>Истории в цветах</h2>
         <p>
           Авторские композиции BellaFlore для признаний, праздников и красивых
           моментов без повода.
@@ -175,32 +161,34 @@ export function VisualStoriesSection({
       </div>
 
       <div className={styles.grid}>
-        {stories.map((story, index) => (
+        {stories.map((story) => (
           <button
             key={story.id}
             type="button"
-            className={`${styles.story} ${storyClassNames[index] ?? styles.wideStory}`}
+            className={styles.card}
             onClick={() => openStory(story)}
             aria-label={`Открыть ${story.title}`}
           >
-            <span className={styles.imageWrap}>
+            <span className={styles.cardMedia}>
               <ProductImageWithFallback
                 src={story.imageUrl}
                 alt={story.alt}
                 width={story.width}
                 height={story.height}
-                sizes={index === 0 ? "100vw" : "(max-width: 780px) 100vw, 50vw"}
+                sizes="(max-width: 780px) 100vw, 33vw"
                 imageClassName={styles.image}
                 fallbackClassName={styles.fallback}
               />
             </span>
 
-            <span className={styles.shade} aria-hidden="true" />
-
-            <span className={styles.caption}>
-              <small>{story.eyebrow}</small>
-              <strong>{story.title}</strong>
-              <span className={styles.captionLink}>Смотреть</span>
+            <span className={styles.cardBody}>
+              <span className={styles.cardText}>
+                <strong>{story.title}</strong>
+                <small>{story.eyebrow}</small>
+              </span>
+              <span className={styles.cardArrow} aria-hidden="true">
+                →
+              </span>
             </span>
           </button>
         ))}
