@@ -1,8 +1,5 @@
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { listPublishedCatalogProducts } from "../lib/catalogDb/index.ts";
 
-const __dirname = join(fileURLToPath(import.meta.url), "..");
 
 // Valid categories based on user specification
 const VALID_CATEGORIES = [

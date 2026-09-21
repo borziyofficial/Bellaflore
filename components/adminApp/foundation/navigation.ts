@@ -105,7 +105,7 @@ export const ADMIN_SIDEBAR_ITEMS: AdminNavItem[] = [
   },
   {
     id: "smart-banner",
-    label: "Умный баннер",
+    label: "Фото на главной",
     href: "/admin/smart-banner",
     description: "Управление главной страницей",
     sidebarOnly: true,
@@ -227,7 +227,7 @@ const ADMIN_PAGE_TITLES: Record<string, string> = {
   "/admin/orders": "Заказы",
   "/admin/reviews": "Отзывы",
   "/admin/profile": "Профиль",
-  "/admin/smart-banner": "Умный баннер",
+  "/admin/smart-banner": "Фото на главной",
   "/admin/delivery-zones": "Зоны доставки",
   "/admin/categories": "Категории",
   "/admin/customers": "Клиенты",

@@ -152,7 +152,7 @@ function main() {
 
   for (const v of validated) {
     if (createdCount >= 75) break;
-    const [title, defaultCat, shortDesc] = NAMES[nameIdx % NAMES.length];
+    const [title, defaultCat] = NAMES[nameIdx % NAMES.length];
     nameIdx++;
 
     if (TEST_TITLES.has(title.toLowerCase())) {

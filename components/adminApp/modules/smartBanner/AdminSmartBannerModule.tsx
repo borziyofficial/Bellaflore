@@ -18,6 +18,8 @@ import {
   AdminHeroBannerPanel,
   type AdminHeroBannerSettings,
 } from "@/components/adminApp/modules/smartBanner/AdminHeroBannerPanel";
+import { AdminVisualStoriesPanel } from "@/components/adminApp/modules/smartBanner/AdminVisualStoriesPanel";
+import { AdminHomepageBlockPanel } from "@/components/adminApp/modules/smartBanner/AdminHomepageBlockPanel";
 import {
   ensureCatalogLoaded,
   getCachedProducts,
@@ -707,7 +709,7 @@ export function AdminSmartBannerModule({
   return (
     <div className={`${ui.stack} ${styles.moduleRoot}`}>
       <AdminModuleHeader
-        title="Умный баннер"
+        title="Фото на главной"
         subtitle="Промо-слайды между Hero и каталогом на главной странице"
       />
 
@@ -716,6 +718,28 @@ export function AdminSmartBannerModule({
       <div className={styles.layout}>
         <div className={styles.mainColumn}>
           <AdminHeroBannerPanel initialSettings={initialHeroSettings} />
+
+          <AdminVisualStoriesPanel />
+
+          <AdminHomepageBlockPanel
+            kind="featured"
+            panelTitle="Подборка недели (Featured)"
+            description="Карточки-хайлайты между витриной и каталогом на главной."
+          />
+
+          <AdminHomepageBlockPanel
+            kind="seasonal"
+            panelTitle="К этому дню (Seasonal / Occasion)"
+            description="Круглые карточки поводов после блока «О BellaFlore»."
+          />
+
+          <AdminHomepageBlockPanel
+            kind="ctaBand"
+            panelTitle="Призыв к действию перед Footer"
+            description="Финальный баннер с заголовком, подписью и кнопкой перед футером."
+            showCards={false}
+            showCta
+          />
 
           <AdminPanel title="Статус баннера">
             <div className={styles.statusControl}>

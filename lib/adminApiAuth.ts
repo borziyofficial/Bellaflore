@@ -3,11 +3,19 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 export const ADMIN_SESSION_COOKIE = "bellaflore_admin_session";
 
 function getAdminSessionSecret(): string {
-  return (
+  const configuredSecret =
     process.env.ADMIN_SESSION_SECRET?.trim() ||
-    process.env.ADMIN_PASSWORD?.trim() ||
-    "bellaflore-dev-admin-secret"
-  );
+    process.env.ADMIN_PASSWORD?.trim();
+
+  if (configuredSecret) {
+    return configuredSecret;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_SESSION_SECRET_NOT_CONFIGURED");
+  }
+
+  return "bellaflore-dev-admin-secret";
 }
 
 export function createAdminSessionToken(userId: string): string {

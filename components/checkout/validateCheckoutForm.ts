@@ -34,6 +34,15 @@ export function getCheckoutFieldErrors(
     }
   }
 
+  if (!checkoutForm.recipientIsCustomer) {
+    if (!checkoutForm.recipientName.trim()) {
+      errors.recipientName = "Укажите имя получателя";
+    }
+    if (!checkoutForm.recipientPhone.trim()) {
+      errors.recipientPhone = "Укажите телефон получателя";
+    }
+  }
+
   if (checkoutForm.deliveryDate.trim() && checkoutForm.deliveryTime.trim()) {
     const availableIntervals = getAvailableDeliveryIntervals(
       checkoutForm.deliveryDate.trim(),
@@ -56,7 +65,7 @@ export function isCheckoutFormReady(
   hasCartItems: boolean,
   now = new Date(),
 ) {
-  if (!hasCartItems) {
+  if (!hasCartItems || !checkoutForm.legalAccepted) {
     return false;
   }
 

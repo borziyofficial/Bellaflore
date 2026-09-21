@@ -45,8 +45,13 @@ export async function PUT(request: Request) {
     const patch: HeroBannerUpdateInput = {};
     if (typeof body.settings.title === "string") patch.title = body.settings.title.trim();
     if (typeof body.settings.subtitle === "string") patch.subtitle = body.settings.subtitle.trim();
+    if (typeof body.settings.eyebrow === "string") patch.eyebrow = body.settings.eyebrow.trim();
     if (typeof body.settings.buttonText === "string") patch.buttonText = body.settings.buttonText.trim();
     if (typeof body.settings.buttonLink === "string") patch.buttonLink = body.settings.buttonLink.trim();
+    if (typeof body.settings.cardTitle === "string") patch.cardTitle = body.settings.cardTitle.trim();
+    if (typeof body.settings.cardSubtitle === "string")
+      patch.cardSubtitle = body.settings.cardSubtitle.trim();
+    if (typeof body.settings.tagline === "string") patch.tagline = body.settings.tagline.trim();
     if (typeof body.settings.imageUrl === "string") patch.imageUrl = body.settings.imageUrl.trim();
     if (Array.isArray(body.settings.photos)) patch.photos = body.settings.photos;
     if (typeof body.settings.isEnabled === "boolean") patch.isEnabled = body.settings.isEnabled;

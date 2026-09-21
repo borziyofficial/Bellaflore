@@ -91,3 +91,17 @@ export async function storePromoBannerImage(
 ): Promise<StoredImageResult> {
   return storeImageToFolder(file, "promo/banner", "promo-banner");
 }
+
+export async function storeVisualStoryImage(
+  file: File,
+): Promise<StoredImageResult> {
+  return storeImageToFolder(file, "home/visual-stories", "visual-stories");
+}
+
+export async function storeHomepageBlockImage(
+  file: File,
+  kind: string,
+): Promise<StoredImageResult> {
+  const safeKind = kind.replace(/[^a-z0-9-]/gi, "") || "block";
+  return storeImageToFolder(file, `home/blocks/${safeKind}`, `homepage-blocks/${safeKind}`);
+}

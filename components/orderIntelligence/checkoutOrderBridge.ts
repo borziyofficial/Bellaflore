@@ -55,9 +55,11 @@ export function buildOrderFromCheckoutInput(
       email: null,
     },
     recipient: {
-      name: input.payload.customerName,
-      phone: input.payload.phone,
-      isSameAsCustomer: true,
+      name: input.payload.recipientName,
+      phone: input.payload.recipientPhone,
+      isSameAsCustomer:
+        input.payload.recipientName === input.payload.customerName &&
+        input.payload.recipientPhone === input.payload.phone,
     },
     delivery: {
       address: input.payload.deliveryAddress,
@@ -70,7 +72,10 @@ export function buildOrderFromCheckoutInput(
       deliveryDate: input.payload.deliveryDate,
       deliveryInterval: input.payload.deliveryInterval,
       comment: input.payload.comment,
-      cardMessage: input.cardMessage?.trim() || undefined,
+      cardMessage:
+        input.payload.cardMessage?.trim() ||
+        input.cardMessage?.trim() ||
+        undefined,
       deliveryEta: input.payload.deliveryZoneRoadDurationMinutes
         ? `${input.payload.deliveryZoneRoadDurationMinutes} мин`
         : null,
@@ -127,6 +132,12 @@ export function getExampleOrderPayload(): Order {
       ],
       customerName: "Анна Иванова",
       phone: "+7 900 123-45-67",
+      recipientName: "Анна Иванова",
+      recipientPhone: "+7 900 123-45-67",
+      anonymousDelivery: false,
+      doNotCallRecipient: false,
+      photoBeforeDelivery: true,
+      cardMessage: "С днём рождения!",
       deliveryAddress: "Москва, ул. Тверская, 12",
       deliveryDate: "2026-06-25",
       deliveryInterval: "14:00–16:00",

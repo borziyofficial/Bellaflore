@@ -12,8 +12,12 @@ export type HeroBannerSettings = {
   photos: HeroBannerPhoto[];
   title: string;
   subtitle: string;
+  eyebrow: string;
   buttonText: string;
   buttonLink: string;
+  cardTitle: string;
+  cardSubtitle: string;
+  tagline: string;
   isEnabled: boolean;
   updatedAt: string;
 };
@@ -21,6 +25,8 @@ export type HeroBannerSettings = {
 export type HeroBannerPhoto = {
   id: string;
   imageUrl: string;
+  mobileImageUrl: string;
+  objectPosition: string;
   isEnabled: boolean;
   isPrimary: boolean;
   sortOrder: number;
@@ -31,8 +37,12 @@ const DEFAULT_SETTINGS: HeroBannerSettings = {
   photos: [],
   title: "",
   subtitle: "",
+  eyebrow: "",
   buttonText: "",
   buttonLink: "",
+  cardTitle: "",
+  cardSubtitle: "",
+  tagline: "",
   isEnabled: false,
   updatedAt: new Date(0).toISOString(),
 };
@@ -41,8 +51,12 @@ type HeroBannerRow = {
   image_url: string;
   title: string;
   subtitle: string;
+  eyebrow: string;
   button_text: string;
   button_link: string;
+  card_title: string;
+  card_subtitle: string;
+  tagline: string;
   is_enabled: boolean;
   photos_json?: unknown;
   updated_at: string | Date;
@@ -88,6 +102,22 @@ async function ensureSchema(): Promise<void> {
         ALTER TABLE hero_banner_settings
         ADD COLUMN IF NOT EXISTS photos_json JSONB NOT NULL DEFAULT '[]'::jsonb
       `)
+      .then(() => sql`
+        ALTER TABLE hero_banner_settings
+        ADD COLUMN IF NOT EXISTS eyebrow TEXT NOT NULL DEFAULT ''
+      `)
+      .then(() => sql`
+        ALTER TABLE hero_banner_settings
+        ADD COLUMN IF NOT EXISTS card_title TEXT NOT NULL DEFAULT ''
+      `)
+      .then(() => sql`
+        ALTER TABLE hero_banner_settings
+        ADD COLUMN IF NOT EXISTS card_subtitle TEXT NOT NULL DEFAULT ''
+      `)
+      .then(() => sql`
+        ALTER TABLE hero_banner_settings
+        ADD COLUMN IF NOT EXISTS tagline TEXT NOT NULL DEFAULT ''
+      `)
       .then(() => undefined);
   }
   await schemaReady;
@@ -97,6 +127,8 @@ function createLegacyPhoto(imageUrl: string): HeroBannerPhoto {
   return {
     id: "legacy-primary",
     imageUrl,
+    mobileImageUrl: "",
+    objectPosition: "50% 50%",
     isEnabled: true,
     isPrimary: true,
     sortOrder: 0,
@@ -126,6 +158,12 @@ function normalizeHeroPhotos(
                 ? candidate.id.trim()
                 : `hero-photo-${index}`,
             imageUrl,
+            mobileImageUrl:
+              typeof candidate.mobileImageUrl === "string" ? candidate.mobileImageUrl.trim() : "",
+            objectPosition:
+              typeof candidate.objectPosition === "string" && candidate.objectPosition.trim()
+                ? candidate.objectPosition.trim()
+                : "50% 50%",
             isEnabled: typeof candidate.isEnabled === "boolean" ? candidate.isEnabled : true,
             isPrimary: typeof candidate.isPrimary === "boolean" ? candidate.isPrimary : false,
             sortOrder: Number.isFinite(candidate.sortOrder) ? Number(candidate.sortOrder) : index,
@@ -171,8 +209,12 @@ function rowToSettings(row: HeroBannerRow): HeroBannerSettings {
     photos: normalizeHeroPhotos(row.photos_json, row.image_url),
     title: row.title,
     subtitle: row.subtitle,
+    eyebrow: row.eyebrow ?? "",
     buttonText: row.button_text,
     buttonLink: row.button_link,
+    cardTitle: row.card_title ?? "",
+    cardSubtitle: row.card_subtitle ?? "",
+    tagline: row.tagline ?? "",
     isEnabled: row.is_enabled,
     updatedAt: new Date(row.updated_at).toISOString(),
   });
@@ -230,15 +272,19 @@ export async function updateHeroBannerSettings(
 
   await ensureSchema();
   const rows = await sql<HeroBannerRow[]>`
-    INSERT INTO hero_banner_settings (id, image_url, photos_json, title, subtitle, button_text, button_link, is_enabled, updated_at)
-    VALUES ('default', ${next.imageUrl}, ${sql.json(next.photos)}, ${next.title}, ${next.subtitle}, ${next.buttonText}, ${next.buttonLink}, ${next.isEnabled}, ${next.updatedAt})
+    INSERT INTO hero_banner_settings (id, image_url, photos_json, title, subtitle, eyebrow, button_text, button_link, card_title, card_subtitle, tagline, is_enabled, updated_at)
+    VALUES ('default', ${next.imageUrl}, ${sql.json(next.photos)}, ${next.title}, ${next.subtitle}, ${next.eyebrow}, ${next.buttonText}, ${next.buttonLink}, ${next.cardTitle}, ${next.cardSubtitle}, ${next.tagline}, ${next.isEnabled}, ${next.updatedAt})
     ON CONFLICT (id) DO UPDATE SET
       image_url = EXCLUDED.image_url,
       photos_json = EXCLUDED.photos_json,
       title = EXCLUDED.title,
       subtitle = EXCLUDED.subtitle,
+      eyebrow = EXCLUDED.eyebrow,
       button_text = EXCLUDED.button_text,
       button_link = EXCLUDED.button_link,
+      card_title = EXCLUDED.card_title,
+      card_subtitle = EXCLUDED.card_subtitle,
+      tagline = EXCLUDED.tagline,
       is_enabled = EXCLUDED.is_enabled,
       updated_at = EXCLUDED.updated_at
     RETURNING *

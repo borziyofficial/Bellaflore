@@ -189,6 +189,16 @@ export function mapCheckoutPaymentMethod(
   return paymentMethod === "cash" ? "cashOnDelivery" : "cardTransfer";
 }
 
+function buildPremiumOrderComment(payload: CheckoutOrderPayload): string {
+  const parts: string[] = [];
+  if (payload.comment.trim()) parts.push(payload.comment.trim());
+  if (payload.cardMessage.trim()) parts.push(`Открытка: ${payload.cardMessage.trim()}`);
+  if (payload.anonymousDelivery) parts.push("Анонимная доставка");
+  if (payload.doNotCallRecipient) parts.push("Не звонить получателю");
+  if (payload.photoBeforeDelivery) parts.push("Фото готового букета перед отправкой");
+  return parts.join("\n");
+}
+
 export function buildCheckoutOrderApiRequest(
   payload: CheckoutOrderPayload,
   paymentMethod: CheckoutPaymentMethodUi,
@@ -223,15 +233,15 @@ export function buildCheckoutOrderApiRequest(
   return {
     customerName: payload.customerName,
     customerPhone: payload.phone,
-    recipientName: payload.customerName,
-    recipientPhone: payload.phone,
+    recipientName: payload.recipientName,
+    recipientPhone: payload.recipientPhone,
     deliveryAddress: payload.deliveryAddress,
     deliveryLatitude: payload.addressLatitude,
     deliveryLongitude: payload.addressLongitude,
     deliveryDate: payload.deliveryDate,
     deliveryInterval: payload.deliveryInterval,
     paymentMethod: mapCheckoutPaymentMethod(paymentMethod),
-    customerComment: payload.comment,
+    customerComment: buildPremiumOrderComment(payload),
     items,
   };
 }

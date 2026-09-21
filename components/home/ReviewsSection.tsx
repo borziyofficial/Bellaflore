@@ -69,8 +69,7 @@ Purpose (EN): Section header and demo disclaimer
         <span className={styles.kicker}>Отзывы</span>
         <h2 id="reviews-title">Слова, которые остаются с нами</h2>
         <p className={styles.demoNote}>
-          Реальные отзывы публикуются после правил модерации. Демо-примеры
-          отмечены отдельно и используются только для предпросмотра.
+          Здесь публикуются отзывы клиентов BellaFlore после проверки на спам и корректность.
         </p>
       </div>
 
@@ -85,12 +84,16 @@ Purpose (EN): Average rating and total count cards
           <div className={styles.score}>
             <span>Средняя оценка</span>
             <strong>{averageReviewRatingLabel}</strong>
-            <p
-              className={styles.summaryStars}
-              aria-label={`Средняя оценка ${averageReviewRatingLabel} из 5`}
-            >
-              {renderRatingStars(Math.round(averageReviewRating))}
-            </p>
+            {reviewsCount > 0 ? (
+              <p
+                className={styles.summaryStars}
+                aria-label={`Средняя оценка ${averageReviewRatingLabel} из 5`}
+              >
+                {renderRatingStars(Math.round(averageReviewRating))}
+              </p>
+            ) : (
+              <p className={styles.demoNote}>Пока без публичной оценки</p>
+            )}
           </div>
           <div className={styles.count}>
             <span>Всего отзывов</span>
@@ -199,11 +202,6 @@ Purpose (EN): Empty state or review card grid
                 <div className={styles.cardHeader}>
                   <div>
                     <span>{review.createdAtDisplay}</span>
-                    {review.id.startsWith("demo-") && (
-                      <span className={styles.demoBadge}>
-                        Локальный пример
-                      </span>
-                    )}
                     <h3>{review.name}</h3>
                   </div>
                   <strong

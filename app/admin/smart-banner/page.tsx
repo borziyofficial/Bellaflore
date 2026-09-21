@@ -22,7 +22,7 @@ export default async function AdminSmartBannerPage() {
     : [null, null];
 
   return (
-    <AdminAppPage route="/admin" title="Умный баннер">
+    <AdminAppPage route="/admin" title="Фото на главной">
       <AdminSmartBannerModule
         initialSnapshot={initialSnapshot}
         initialHeroSettings={initialHeroSettings}

@@ -24,7 +24,6 @@ import "./admin-theme-guard.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { inter, playfairDisplay } from "@/lib/fonts";
 import {
-  absoluteUrl,
   homepageDescription,
   homepageKeywords,
   homepageTitle,
@@ -115,7 +114,6 @@ const jsonLd = {
         addressLocality: "Москва",
         addressCountry: "RU",
       },
-      sameAs: [absoluteUrl("/")],
     },
   ],
 };
@@ -144,7 +142,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className={inter.className}>
+      <body>
         {isSandbox ? (
           <div className="sandbox-environment-badge" role="status">
             SANDBOX — тестовая версия

@@ -68,11 +68,38 @@ function writeCachedStorefrontCatalog(products: CatalogProduct[]) {
 
 type PublicStorefrontCatalogStatus = "loading" | "ready" | "error";
 
-export function usePublicStorefrontCatalog() {
-  const [catalog, setCatalog] = useState<CatalogProduct[]>(INITIAL_STOREFRONT_CATALOG);
-  const [isReady, setIsReady] = useState(false);
-  const [status, setStatus] = useState<PublicStorefrontCatalogStatus>("loading");
-  const [errorMessage, setErrorMessage] = useState("");
+type UsePublicStorefrontCatalogProps = {
+  initialProducts?: CatalogProduct[];
+  initialStatus?: "ready" | "error";
+};
+
+export function usePublicStorefrontCatalog(
+  props?: UsePublicStorefrontCatalogProps,
+) {
+  const initialProducts = props?.initialProducts;
+  const initialStatus = props?.initialStatus;
+
+  const [catalog, setCatalog] = useState<CatalogProduct[]>(
+    initialProducts && initialProducts.length > 0
+      ? initialProducts
+      : INITIAL_STOREFRONT_CATALOG,
+  );
+
+  // If initialStatus is "error", mark as error instead of ready
+  const [isReady, setIsReady] = useState(!!initialProducts?.length);
+  const [status, setStatus] = useState<PublicStorefrontCatalogStatus>(
+    initialStatus === "error"
+      ? "error"
+      : initialProducts?.length
+        ? "ready"
+        : "loading",
+  );
+
+  const [errorMessage, setErrorMessage] = useState(
+    initialStatus === "error"
+      ? "Не удалось загрузить каталог. Попробуйте обновить страницу."
+      : "",
+  );
 
   const reload = useCallback(async () => {
     setStatus((currentStatus) => (catalog.length > 0 ? currentStatus : "loading"));
@@ -97,11 +124,38 @@ export function usePublicStorefrontCatalog() {
   useEffect(() => {
     let active = true;
 
+    // If we already have initialProducts from SSR and status is ready, skip API call
+    if (initialProducts?.length && initialStatus !== "error") {
+      writeCachedStorefrontCatalog(initialProducts);
+      // State already initialized correctly, just mark as ready
+      void Promise.resolve().then(() => {
+        if (active) {
+          setIsReady(true);
+        }
+      });
+      return;
+    }
+
+    // If initialStatus is "error", skip API call (state already initialized with error)
+    if (initialStatus === "error") {
+      // Mark as ready without state change (already set during init)
+      void Promise.resolve().then(() => {
+        if (active) {
+          setIsReady(true);
+        }
+      });
+      return;
+    }
+
+    // No initial products: try to load from cache or API
     const cachedCatalog = readCachedStorefrontCatalog();
     if (cachedCatalog && cachedCatalog.length > 0) {
-      setCatalog(cachedCatalog);
-      setStatus("ready");
-      setIsReady(true);
+      void Promise.resolve().then(() => {
+        if (!active) return;
+        setCatalog(cachedCatalog);
+        setStatus("ready");
+        setIsReady(true);
+      });
     }
 
     void (async () => {
@@ -132,7 +186,7 @@ export function usePublicStorefrontCatalog() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialProducts, initialStatus]);
 
   return { catalog, isReady, status, errorMessage, reload };
 }

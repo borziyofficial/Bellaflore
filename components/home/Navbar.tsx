@@ -68,14 +68,35 @@ export function Navbar({
 
         <button
           type="button"
-          className={`menu-button ${styles.menuButton} ${menuOpen ? styles.menuButtonOpen : ""}`}
+          className={`${styles.iconButton} ${styles.menuButton} ${menuOpen ? styles.menuButtonOpen : ""}`}
           onClick={() => setMenuOpen((open) => !open)}
-          aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
+          aria-label={menuOpen ? "Закрыть меню" : "Открыть информационное меню"}
           aria-expanded={menuOpen}
           aria-controls={menuOpen ? "mobile-navigation" : undefined}
         >
-          <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
-          МЕНЮ
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            {menuOpen ? (
+              <path
+                d="M6 6L18 18M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            ) : (
+              <path
+                d="M4 7H20M4 12H20M4 17H20"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            )}
+          </svg>
         </button>
       </nav>
       {menuOpen ? (

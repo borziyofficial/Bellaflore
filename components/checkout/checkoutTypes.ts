@@ -9,6 +9,13 @@
 export type CheckoutForm = {
   name: string;
   phone: string;
+  recipientIsCustomer: boolean;
+  recipientName: string;
+  recipientPhone: string;
+  anonymousDelivery: boolean;
+  doNotCallRecipient: boolean;
+  photoBeforeDelivery: boolean;
+  legalAccepted: boolean;
   address: string;
   deliveryDate: string;
   deliveryTime: string;
@@ -21,6 +28,8 @@ export type DeliveryDatePreset = "today" | "tomorrow" | "custom";
 export type CheckoutValidatedField =
   | "name"
   | "phone"
+  | "recipientName"
+  | "recipientPhone"
   | "address"
   | "deliveryDate"
   | "deliveryTime";
@@ -53,6 +62,12 @@ export type CheckoutOrderPayload = {
   items: CheckoutOrderPayloadItem[];
   customerName: string;
   phone: string;
+  recipientName: string;
+  recipientPhone: string;
+  anonymousDelivery: boolean;
+  doNotCallRecipient: boolean;
+  photoBeforeDelivery: boolean;
+  cardMessage: string;
   deliveryAddress: string;
   deliveryDate: string;
   deliveryInterval: string;

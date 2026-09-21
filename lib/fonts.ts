@@ -1,15 +1,14 @@
-import { Inter, Playfair_Display } from "next/font/google";
+/**
+ * Font configuration with system fallback stack
+ * Removed Google Fonts dependency to ensure build works without network access
+ * Uses system fonts with premium fallback stack for editorial and UI
+ */
 
-export const playfairDisplay = Playfair_Display({
-  subsets: ["latin", "cyrillic"],
-  weight: ["600", "700"],
+// Placeholder objects for compatibility - actual fonts loaded via CSS
+export const playfairDisplay = {
   variable: "--font-playfair",
-  display: "swap",
-});
+};
 
-export const inter = Inter({
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
+export const inter = {
   variable: "--font-inter",
-  display: "swap",
-});
+};

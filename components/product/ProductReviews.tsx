@@ -66,34 +66,54 @@ export function ProductReviews({
   }, [productId]);
 
   useEffect(() => {
-    try {
-      const storedRating = Number(
-        window.sessionStorage.getItem(
-          `bellaflore:review-rating:${productId}`,
-        ),
-      );
-      if (Number.isInteger(storedRating) && storedRating >= 1 && storedRating <= 5) {
-        setRating(storedRating);
-        setFormOpen(true);
-        window.sessionStorage.removeItem(
-          `bellaflore:review-rating:${productId}`,
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      try {
+        const storedRating = Number(
+          window.sessionStorage.getItem(
+            `bellaflore:review-rating:${productId}`,
+          ),
         );
+        if (
+          Number.isInteger(storedRating) &&
+          storedRating >= 1 &&
+          storedRating <= 5
+        ) {
+          setRating(storedRating);
+          setFormOpen(true);
+          window.sessionStorage.removeItem(
+            `bellaflore:review-rating:${productId}`,
+          );
+        }
+      } catch {
+        // Ignore private-mode/sessionStorage limitations.
       }
-    } catch {
-      // Ignore private-mode/sessionStorage limitations.
-    }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [productId]);
 
   useEffect(() => {
-    if (
-      requestedRating !== null &&
-      Number.isInteger(requestedRating) &&
-      requestedRating >= 1 &&
-      requestedRating <= 5
-    ) {
-      setRating(requestedRating);
-      setFormOpen(true);
-    }
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (
+        !cancelled &&
+        requestedRating !== null &&
+        Number.isInteger(requestedRating) &&
+        requestedRating >= 1 &&
+        requestedRating <= 5
+      ) {
+        setRating(requestedRating);
+        setFormOpen(true);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [requestedRating]);
 
   const averageRating = useMemo(() => {
@@ -256,7 +276,7 @@ export function ProductReviews({
           </button>
 
           <p className={styles.moderationNote}>
-            4–5★ публикуются автоматически. 1–3★ проходят модерацию.
+            Все отзывы проходят одинаковую проверку на спам и корректность независимо от оценки.
           </p>
         </form>
       ) : message ? (

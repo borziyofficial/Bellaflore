@@ -869,3 +869,53 @@
   font-size: 12px;
   line-height: 1.35;
 }
+
+.checkoutRecipientGrid,
+.checkoutGiftOptions {
+  display: grid;
+  gap: 10px;
+}
+
+.checkoutOption {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid rgba(201, 162, 75, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 250, 241, 0.72);
+  cursor: pointer;
+}
+
+.checkoutOption input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--color-gold, #c9a24b);
+}
+
+.checkoutOption > span {
+  display: grid;
+  gap: 2px;
+  color: #2f2a24 !important;
+}
+
+.checkoutOption strong {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.checkoutOption small {
+  color: #746f68;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.checkoutOption small a {
+  color: #9d7627;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgba(157, 118, 39, 0.35);
+  text-underline-offset: 2px;
+}

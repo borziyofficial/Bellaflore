@@ -2,7 +2,6 @@ import {
   CatalogDatabaseNotConfiguredError,
   getCatalogDatabaseMode,
   listCatalogProducts,
-  listPublishedCatalogProducts,
 } from "@/lib/catalogDb";
 import {
   readCategoryStorage,
@@ -17,6 +16,7 @@ import {
 import { resolvePublishedCatalogProduct } from "@/lib/catalogDb/resolvePublishedCatalogProduct";
 import { buildCategoryTitleMap } from "@/lib/adminCategoriesDb";
 import { logCatalogServerError } from "@/lib/catalogDb/logging";
+import { loadPublishedStorefrontCatalog } from "@/lib/catalogDb/publicStorefront";
 
 export const runtime = "nodejs";
 
@@ -41,11 +41,40 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const publishedOnly = url.searchParams.get("published") === "1";
 
+    if (publishedOnly) {
+      // Use shared server-only helper for published storefront
+      const catalogResult = await loadPublishedStorefrontCatalog();
+
+      if (catalogResult.status === "unconfigured") {
+        return Response.json(
+          {
+            message: catalogResult.error || "Catalog database is not configured.",
+            configured: false,
+            mode: getCatalogDatabaseMode(),
+          },
+          { status: 503 },
+        );
+      }
+
+      if (catalogResult.status === "error") {
+        return Response.json(
+          { message: "Не удалось загрузить каталог." },
+          { status: 500 },
+        );
+      }
+
+      return Response.json({
+        products: catalogResult.products,
+        mode: getCatalogDatabaseMode(),
+      });
+    }
+
+    // Non-published products (admin view)
     const [products, customCategoryTitleById] = await Promise.all([
-      publishedOnly ? listPublishedCatalogProducts() : listCatalogProducts(),
+      listCatalogProducts(),
       buildCategoryTitleMap(),
     ]);
-    const bouquetProducts = publishedOnly ? await listPublishedBouquetCatalogProducts() : [];
+    const bouquetProducts = await listPublishedBouquetCatalogProducts();
 
     const storefrontProducts = [
       ...products.map((product) =>
@@ -55,9 +84,7 @@ export async function GET(request: Request) {
     ];
 
     return Response.json({
-      products: publishedOnly
-        ? storefrontProducts.filter(isPublicStorefrontProductOrderable)
-        : storefrontProducts,
+      products: storefrontProducts,
       records: products.map((product) =>
         storedProductToCatalogRecord(product, customCategoryTitleById),
       ),

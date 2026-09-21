@@ -1,101 +1,67 @@
 // ==================================================
 // SECTION: CONTACT HUB
-// РАЗДЕЛ: Fan popup (bottom nav «Связь»)
+// РАЗДЕЛ: Premium contact panel (bottom nav «Связь»)
 // ==================================================
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import styles from "@/components/contact/ContactQuickActions.module.css";
 
 type ContactQuickActionsProps = {
   closeContactHub: () => void;
 };
 
-type FanAction = {
+type ContactAction = {
   id: string;
   label: string;
+  meta: string;
   href: string;
   external?: boolean;
-  positionClass: string;
-  brandClass: string;
   icon: ReactNode;
 };
 
-const FAN_ACTIONS: FanAction[] = [
-  {
-    id: "whatsapp",
-    label: "WhatsApp",
-    href: "https://wa.me/70000000000",
-    external: true,
-    positionClass: styles.fanWhatsapp,
-    brandClass: styles.fanWhatsapp,
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          fill="currentColor"
-          d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.09.61 4.03 1.66 5.66L2 22l4.58-1.76A9.86 9.86 0 0 0 12.04 22c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm5.57 13.93c-.24.67-1.2 1.24-1.96 1.4-.5.11-1.15.2-3.34-.72-2.8-1.22-4.61-4.1-4.75-4.29-.14-.19-1.14-1.52-1.14-2.9 0-1.38.72-2.06 1-2.34.24-.24.62-.35.99-.35.12 0 .24 0 .35.01.11.01.26-.04.4.31.15.36.51 1.24.55 1.33.04.09.07.2.01.32-.06.12-.09.2-.18.31-.09.11-.19.24-.27.32-.09.09-.18.19-.08.37.1.18.45.74.96 1.2.66.59 1.22.77 1.4.86.18.09.28.08.38-.05.1-.13.43-.5.54-.67.11-.17.22-.14.37-.09.15.05.96.45 1.12.53.16.08.27.12.31.19.04.07.04.41-.2 1.08Z"
-        />
-      </svg>
-    ),
-  },
+const CONTACT_ACTIONS: ContactAction[] = [
   {
     id: "telegram",
     label: "Telegram",
-    href: "https://t.me/",
+    meta: "@BellaFlore_bot",
+    href: "https://t.me/BellaFlore_bot",
     external: true,
-    positionClass: styles.fanTelegram,
-    brandClass: styles.fanTelegram,
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
-          fill="currentColor"
-          d="M20.5 4.7 4 11.2l6.3 2.3 2.4 6.1 2.9-4.2 4.9-10.7Z"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: "instagram",
-    label: "Instagram",
-    href: "https://instagram.com/",
-    external: true,
-    positionClass: styles.fanInstagram,
-    brandClass: styles.fanInstagram,
-    icon: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect
-          x="4.5"
-          y="4.5"
-          width="15"
-          height="15"
-          rx="4.2"
+          d="M20.5 4.5 3.6 11.2c-.7.28-.7.75-.02.96l4.3 1.34 1.66 5.1c.2.5.36.7.72.7.28 0 .4-.13.56-.28l1.98-1.9 4.12 3.04c.76.42 1.3.2 1.5-.7l2.72-12.8c.28-1.1-.42-1.6-1.64-1.16Z"
           fill="none"
           stroke="currentColor"
-          strokeWidth="1.8"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
-        <circle
-          cx="12"
-          cy="12"
-          r="3.6"
+        <path
+          d="M9.7 14.4 17.3 8l-9 5.1"
           fill="none"
           stroke="currentColor"
-          strokeWidth="1.8"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
-        <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" />
       </svg>
     ),
   },
   {
     id: "phone",
     label: "Позвонить",
-    href: "tel:+70000000000",
-    positionClass: styles.fanPhone,
-    brandClass: styles.fanPhone,
+    meta: "+7 (991) 270-07-20",
+    href: "tel:+79912700720",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path
-          fill="currentColor"
           d="M7.2 5.2 9.3 4c.6-.3 1.3-.1 1.6.5l1.2 2.5c.2.5.1 1-.3 1.4l-1.1 1.1a9.8 9.8 0 0 0 3.8 3.8l1.1-1.1c.4-.4.9-.5 1.4-.3l2.5 1.2c.6.3.8 1 .5 1.6l-1.2 2.1c-.4.7-1.2 1.1-2 1A14.7 14.7 0 0 1 6.2 6.3c-.1-.8.3-1.6 1-2Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     ),
@@ -105,49 +71,95 @@ const FAN_ACTIONS: FanAction[] = [
 export function ContactQuickActions({
   closeContactHub,
 }: ContactQuickActionsProps) {
-  const [fanOpen, setFanOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setFanOpen(true);
-    });
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeContactHub();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [closeContactHub]);
+
+  // Belt-and-suspenders outside-tap close: the backdrop div below already
+  // covers the page content area, but it intentionally stops above the
+  // bottom nav strip so the "Связь" trigger button stays tappable (a
+  // second tap on it must close the panel, not be swallowed by the
+  // backdrop). The fixed top navbar also paints in its own stacking
+  // context above the backdrop. This listener catches taps that land on
+  // either of those — anywhere that isn't the panel itself or the
+  // trigger button — so "tap outside closes it" holds everywhere.
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent | MouseEvent | TouchEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+
+      if (panelRef.current?.contains(target)) return;
+
+      const trigger = document.querySelector('button[aria-label="Связь"]');
+      if (trigger && trigger.contains(target)) return;
+
+      closeContactHub();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("touchstart", handlePointerDown, true);
 
     return () => {
-      window.cancelAnimationFrame(frame);
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+      document.removeEventListener("touchstart", handlePointerDown, true);
     };
-  }, []);
+  }, [closeContactHub]);
 
   return (
     <>
       <div
         className={`${styles.overlay} contact-quick-actions-overlay`}
         onClick={closeContactHub}
+        onTouchEnd={(event) => {
+          event.preventDefault();
+          closeContactHub();
+        }}
         aria-hidden="true"
       />
       <div
-        className={`${styles.fanRoot} ${fanOpen ? styles.fanOpen : ""}`}
+        ref={panelRef}
+        className={styles.panel}
         id="contact-quick-actions"
         role="dialog"
         aria-modal="true"
         aria-label="Связь с BellaFlore"
+        onClick={(event) => event.stopPropagation()}
       >
-        {FAN_ACTIONS.map((action) => (
-          <a
-            key={action.id}
-            className={`${styles.fanItem} ${action.positionClass} ${action.brandClass}`}
-            href={action.href}
-          {...(action.external
-            ? { target: "_blank", rel: "noopener noreferrer" }
-            : {})}
-          aria-label={action.label}
-          onClick={(event) => {
-            event.stopPropagation();
-            closeContactHub();
-          }}
-        >
-          {action.icon}
-          </a>
-        ))}
+        <span className={styles.eyebrow}>Связь с BellaFlore</span>
+
+        <div className={styles.list}>
+          {CONTACT_ACTIONS.map((action) => (
+            <a
+              key={action.id}
+              className={styles.row}
+              href={action.href}
+              {...(action.external
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
+              onClick={(event) => {
+                event.stopPropagation();
+                closeContactHub();
+              }}
+            >
+              <span className={styles.rowIcon} aria-hidden="true">
+                {action.icon}
+              </span>
+              <span className={styles.rowText}>
+                <strong>{action.label}</strong>
+                <small>{action.meta}</small>
+              </span>
+            </a>
+          ))}
+        </div>
       </div>
     </>
   );
