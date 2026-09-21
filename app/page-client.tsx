@@ -251,6 +251,13 @@ const paymentMethodLabels: Record<PaymentMethod, string> = {
 
 const initialReviews: BellafloreReview[] = []
 
+// Internal/dev seed reviews that must never reach the public storefront.
+// The underlying database rows are NOT deleted or reassigned to a fake
+// customer name — this is a display-only exclusion applied client-side
+// after the real /api/reviews fetch, so Admin (/api/admin/reviews,
+// listAdminReviews) still lists them unchanged for moderation/dev use.
+const HIDDEN_STOREFRONT_REVIEW_NAMES = new Set<string>(["Тестовый Пользователь"])
+
 function formatDateInputValue(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -573,11 +580,14 @@ export default function HomePageClient({
         };
 
         if (!cancelled && Array.isArray(payload.reviews)) {
+          const publicReviews = payload.reviews.filter(
+            (review) => !HIDDEN_STOREFRONT_REVIEW_NAMES.has(review.name),
+          );
           setReviews([
-            ...payload.reviews,
+            ...publicReviews,
             ...initialReviews.filter(
               (demoReview) =>
-                !payload.reviews?.some((review) => review.id === demoReview.id),
+                !publicReviews.some((review) => review.id === demoReview.id),
             ),
           ]);
         }
