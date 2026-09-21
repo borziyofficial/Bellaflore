@@ -11,6 +11,8 @@ import styles from "@/components/adminApp/modules/smartBanner/AdminSmartBannerMo
 export type AdminHeroBannerPhoto = {
   id: string;
   imageUrl: string;
+  mobileImageUrl: string;
+  objectPosition: string;
   isEnabled: boolean;
   isPrimary: boolean;
   sortOrder: number;
@@ -21,8 +23,12 @@ export type AdminHeroBannerSettings = {
   photos: AdminHeroBannerPhoto[];
   title: string;
   subtitle: string;
+  eyebrow: string;
   buttonText: string;
   buttonLink: string;
+  cardTitle: string;
+  cardSubtitle: string;
+  tagline: string;
   isEnabled: boolean;
   updatedAt: string;
 };
@@ -32,11 +38,23 @@ const EMPTY_HERO_SETTINGS: AdminHeroBannerSettings = {
   photos: [],
   title: "",
   subtitle: "",
+  eyebrow: "",
   buttonText: "",
   buttonLink: "",
+  cardTitle: "",
+  cardSubtitle: "",
+  tagline: "",
   isEnabled: false,
   updatedAt: "",
 };
+
+const OBJECT_POSITION_PRESETS: { value: string; label: string }[] = [
+  { value: "50% 20%", label: "Сверху" },
+  { value: "50% 50%", label: "По центру" },
+  { value: "50% 80%", label: "Снизу" },
+  { value: "20% 50%", label: "Слева" },
+  { value: "80% 50%", label: "Справа" },
+];
 
 type HeroBannerResponse = {
   settings?: AdminHeroBannerSettings | null;
@@ -60,6 +78,8 @@ function createHeroPhoto(
   return {
     id: createPhotoId(),
     imageUrl,
+    mobileImageUrl: "",
+    objectPosition: "50% 50%",
     isEnabled: true,
     isPrimary,
     sortOrder,
@@ -77,6 +97,8 @@ function normalizeHeroPhotos(
         .map((photo, index) => ({
           id: photo.id || `hero-photo-${index}`,
           imageUrl: photo.imageUrl.trim(),
+          mobileImageUrl: (photo.mobileImageUrl ?? "").trim(),
+          objectPosition: (photo.objectPosition ?? "").trim() || "50% 50%",
           isEnabled: photo.isEnabled,
           isPrimary: photo.isPrimary,
           sortOrder: index,
@@ -88,6 +110,8 @@ function normalizeHeroPhotos(
       {
         id: "legacy-primary",
         imageUrl: legacyImageUrl.trim(),
+        mobileImageUrl: "",
+        objectPosition: "50% 50%",
         isEnabled: true,
         isPrimary: true,
         sortOrder: 0,
@@ -119,8 +143,12 @@ function normalizeHeroDraft(settings: AdminHeroBannerSettings): AdminHeroBannerS
     photos,
     title: settings.title.trim(),
     subtitle: settings.subtitle.trim(),
+    eyebrow: settings.eyebrow.trim(),
     buttonText: settings.buttonText.trim(),
     buttonLink: settings.buttonLink.trim(),
+    cardTitle: settings.cardTitle.trim(),
+    cardSubtitle: settings.cardSubtitle.trim(),
+    tagline: settings.tagline.trim(),
   };
 }
 
@@ -131,8 +159,12 @@ function serializeHeroSettings(settings: AdminHeroBannerSettings): string {
     photos: normalized.photos,
     title: normalized.title,
     subtitle: normalized.subtitle,
+    eyebrow: normalized.eyebrow,
     buttonText: normalized.buttonText,
     buttonLink: normalized.buttonLink,
+    cardTitle: normalized.cardTitle,
+    cardSubtitle: normalized.cardSubtitle,
+    tagline: normalized.tagline,
     isEnabled: normalized.isEnabled,
   });
 }
@@ -303,6 +335,49 @@ export function AdminHeroBannerPanel({
     }
   };
 
+  const uploadMobilePhoto = async (photoId: string, files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setUploading(true);
+    setNotice(null);
+    try {
+      const imageForm = new FormData();
+      imageForm.append("image", file);
+      const imageResponse = await fetch("/api/admin/hero-banner/image", {
+        method: "POST",
+        credentials: "include",
+        body: imageForm,
+      });
+      const imageBody = (await imageResponse.json()) as HeroBannerResponse;
+      if (!imageResponse.ok || !imageBody.imageUrl) {
+        throw new Error(imageBody.message || `Не удалось загрузить ${file.name}.`);
+      }
+
+      setDraft((current) =>
+        normalizeHeroDraft({
+          ...current,
+          photos: normalizeHeroDraft(current).photos.map((photo) =>
+            photo.id === photoId ? { ...photo, mobileImageUrl: imageBody.imageUrl! } : photo,
+          ),
+        }),
+      );
+      setNotice({
+        tone: "success",
+        text: "Мобильная версия фото загружена. Сохраните Hero, чтобы опубликовать изменение.",
+      });
+    } catch (error) {
+      setNotice({
+        tone: "error",
+        text: error instanceof Error ? error.message : "Не удалось загрузить мобильное фото.",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const updatePhoto = (photoId: string, patch: Partial<AdminHeroBannerPhoto>) => {
     setDraft((current) =>
       normalizeHeroDraft({
@@ -375,8 +450,12 @@ export function AdminHeroBannerPanel({
             photos: nextDraft.photos,
             title: nextDraft.title,
             subtitle: nextDraft.subtitle,
+            eyebrow: nextDraft.eyebrow,
             buttonText: nextDraft.buttonText,
             buttonLink: nextDraft.buttonLink,
+            cardTitle: nextDraft.cardTitle,
+            cardSubtitle: nextDraft.cardSubtitle,
+            tagline: nextDraft.tagline,
             isEnabled: nextDraft.isEnabled,
           },
         }),
@@ -466,13 +545,24 @@ export function AdminHeroBannerPanel({
               </label>
 
               <label className={styles.field}>
-                <span>Подзаголовок</span>
+                <span>Подзаголовок (описание под заголовком)</span>
                 <textarea
                   value={draft.subtitle}
                   onChange={(event) =>
                     setDraft((current) => ({ ...current, subtitle: event.target.value }))
                   }
                   placeholder="Свежие цветы • Доставка за 90 минут"
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>Эйбрау (маленькая строка над заголовком)</span>
+                <textarea
+                  value={draft.eyebrow}
+                  onChange={(event) =>
+                    setDraft((current) => ({ ...current, eyebrow: event.target.value }))
+                  }
+                  placeholder="Эмоции, которые остаются"
                 />
               </label>
 
@@ -495,6 +585,39 @@ export function AdminHeroBannerPanel({
                     setDraft((current) => ({ ...current, buttonLink: event.target.value }))
                   }
                   placeholder="/catalog"
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>Заголовок editorial-карточки</span>
+                <textarea
+                  value={draft.cardTitle}
+                  onChange={(event) =>
+                    setDraft((current) => ({ ...current, cardTitle: event.target.value }))
+                  }
+                  placeholder="Красота в каждой детали"
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>Подпись editorial-карточки</span>
+                <textarea
+                  value={draft.cardSubtitle}
+                  onChange={(event) =>
+                    setDraft((current) => ({ ...current, cardSubtitle: event.target.value }))
+                  }
+                  placeholder="BellaFlore Moscow"
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>Tagline (нижняя строка Hero)</span>
+                <input
+                  value={draft.tagline}
+                  onChange={(event) =>
+                    setDraft((current) => ({ ...current, tagline: event.target.value }))
+                  }
+                  placeholder="Вдохновлять — всегда"
                 />
               </label>
 
@@ -544,6 +667,40 @@ export function AdminHeroBannerPanel({
                           <span>{getImageFileName(photo.imageUrl)}</span>
                         </div>
                         <div className={styles.heroPhotoActions}>
+                          <select
+                            value={photo.objectPosition}
+                            aria-label="Положение фото в кадре"
+                            onChange={(event) =>
+                              updatePhoto(photo.id, { objectPosition: event.target.value })
+                            }
+                          >
+                            {OBJECT_POSITION_PRESETS.map((preset) => (
+                              <option key={preset.value} value={preset.value}>
+                                {preset.label}
+                              </option>
+                            ))}
+                          </select>
+                          <label className={styles.secondaryButton}>
+                            {photo.mobileImageUrl ? "Заменить mobile-фото" : "Mobile-фото"}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              disabled={uploading}
+                              onChange={(event) =>
+                                void uploadMobilePhoto(photo.id, event.target.files)
+                              }
+                            />
+                          </label>
+                          {photo.mobileImageUrl ? (
+                            <button
+                              type="button"
+                              className={styles.secondaryButton}
+                              onClick={() => updatePhoto(photo.id, { mobileImageUrl: "" })}
+                            >
+                              Убрать mobile-фото
+                            </button>
+                          ) : null}
                           <label
                             className={`${styles.switch} ${photo.isEnabled ? styles.switchOn : ""}`}
                             aria-label={photo.isEnabled ? "Отключить фото" : "Включить фото"}

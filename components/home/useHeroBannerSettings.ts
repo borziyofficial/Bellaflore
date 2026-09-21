@@ -11,14 +11,20 @@ export type HeroBannerSettings = {
   photos?: HeroBannerPhoto[];
   title: string;
   subtitle: string;
+  eyebrow?: string;
   buttonText: string;
   buttonLink: string;
+  cardTitle?: string;
+  cardSubtitle?: string;
+  tagline?: string;
   isEnabled: boolean;
 };
 
 export type HeroBannerPhoto = {
   id: string;
   imageUrl: string;
+  mobileImageUrl?: string;
+  objectPosition?: string;
   isEnabled: boolean;
   isPrimary: boolean;
   sortOrder: number;

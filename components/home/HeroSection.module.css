@@ -137,7 +137,14 @@
 
 .photoImage {
   object-fit: contain;
-  object-position: 50% 50%;
+}
+
+.photoImageMobile {
+  display: block;
+}
+
+.photoImageDesktop {
+  display: none;
 }
 
 .glassCard {
@@ -255,6 +262,14 @@
 @media (min-width: 960px) {
   .hero {
     min-height: 100vh;
+  }
+
+  .photoImageMobile {
+    display: none;
+  }
+
+  .photoImageDesktop {
+    display: block;
   }
 
   .scene {

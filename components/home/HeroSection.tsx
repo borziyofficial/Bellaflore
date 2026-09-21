@@ -36,13 +36,27 @@ function isCatalogHeroLink(buttonLink: string): boolean {
   }
 }
 
+const FALLBACK_HERO_IMAGE = "/images/hero-floral-composition.png";
+
 export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const { settings: banner } = useHeroBannerSettings();
+
+  const enabledPhotos = (banner?.photos ?? []).filter((photo) => photo.isEnabled);
+  const primaryPhoto =
+    enabledPhotos.find((photo) => photo.isPrimary) ?? enabledPhotos[0] ?? null;
+  const slideTotal = enabledPhotos.length || 1;
+
+  const desktopImageUrl = primaryPhoto?.imageUrl?.trim() || FALLBACK_HERO_IMAGE;
+  const mobileImageUrl = primaryPhoto?.mobileImageUrl?.trim() || "";
+  const objectPosition = primaryPhoto?.objectPosition?.trim() || "50% 50%";
 
   const headline = banner?.title?.trim() || "Больше\nчем цветы";
   const [headlineLine1, headlineLine2] = headline
     .split("\n")
     .map((line) => line.trim());
+
+  const eyebrowCopy = banner?.eyebrow?.trim() || "Эмоции,\nкоторые остаются";
+  const eyebrowLines = eyebrowCopy.split("\n").map((line) => line.trim());
 
   const supportingCopy =
     banner?.subtitle?.trim() ||
@@ -51,6 +65,14 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
 
   const buttonText = banner?.buttonText?.trim() || "Выбрать букет";
   const buttonLink = banner?.buttonLink?.trim() || "";
+
+  const cardTitleCopy = banner?.cardTitle?.trim() || "Красота\nв каждой\nдетали";
+  const cardTitleLines = cardTitleCopy.split("\n").map((line) => line.trim());
+
+  const cardSubtitleCopy = banner?.cardSubtitle?.trim() || "BellaFlore\nMoscow";
+  const cardSubtitleLines = cardSubtitleCopy.split("\n").map((line) => line.trim());
+
+  const tagline = banner?.tagline?.trim() || "Вдохновлять — всегда";
 
   const isExternalLink = !isCatalogHeroLink(buttonLink);
   const primaryAction = isExternalLink ? (
@@ -83,9 +105,12 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
             ) : null}
           </h1>
           <p className={styles.eyebrow}>
-            Эмоции,
-            <br />
-            которые остаются
+            {eyebrowLines.map((line, index) => (
+              <span key={`${line}-${index}`}>
+                {line}
+                {index < eyebrowLines.length - 1 ? <br /> : null}
+              </span>
+            ))}
           </p>
           <p className={styles.supporting}>
             {supportingLines.map((line, index) => (
@@ -129,38 +154,74 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
           </svg>
 
           <div className={styles.photo}>
-            <Image
-              className={styles.photoImage}
-              src="/images/hero-floral-composition.png"
-              alt="Авторская флористическая композиция BellaFlore"
-              fill
-              sizes="(max-width: 960px) 320px, 560px"
-              quality={88}
-              fetchPriority="high"
-              priority
-            />
+            {mobileImageUrl ? (
+              <>
+                <Image
+                  className={`${styles.photoImage} ${styles.photoImageMobile}`}
+                  src={mobileImageUrl}
+                  alt="Авторская флористическая композиция BellaFlore"
+                  fill
+                  style={{ objectPosition }}
+                  sizes="320px"
+                  quality={88}
+                  fetchPriority="high"
+                  priority
+                />
+                <Image
+                  className={`${styles.photoImage} ${styles.photoImageDesktop}`}
+                  src={desktopImageUrl}
+                  alt="Авторская флористическая композиция BellaFlore"
+                  fill
+                  style={{ objectPosition }}
+                  sizes="560px"
+                  quality={88}
+                  fetchPriority="high"
+                  priority
+                />
+              </>
+            ) : (
+              <Image
+                className={styles.photoImage}
+                src={desktopImageUrl}
+                alt="Авторская флористическая композиция BellaFlore"
+                fill
+                style={{ objectPosition }}
+                sizes="(max-width: 960px) 320px, 560px"
+                quality={88}
+                fetchPriority="high"
+                priority
+              />
+            )}
           </div>
 
           <div className={styles.glassCard}>
             <p className={styles.glassCardTitle}>
-              Красота
-              <br />в каждой
-              <br />
-              детали
+              {cardTitleLines.map((line, index) => (
+                <span key={`${line}-${index}`}>
+                  {line}
+                  {index < cardTitleLines.length - 1 ? <br /> : null}
+                </span>
+              ))}
             </p>
             <span className={styles.glassDivider} aria-hidden="true" />
             <p className={styles.glassCardBrand}>
-              BellaFlore
-              <br />
-              Moscow
+              {cardSubtitleLines.map((line, index) => (
+                <span key={`${line}-${index}`}>
+                  {line}
+                  {index < cardSubtitleLines.length - 1 ? <br /> : null}
+                </span>
+              ))}
             </p>
           </div>
         </div>
 
         <div className={styles.sceneFooter}>
-          <span className={styles.counter}>01 / 03</span>
+          <span className={styles.counter}>
+            {String(primaryPhoto ? enabledPhotos.indexOf(primaryPhoto) + 1 : 1).padStart(2, "0")} /{" "}
+            {String(slideTotal).padStart(2, "0")}
+          </span>
           <span className={styles.footerDivider} aria-hidden="true" />
-          <span className={styles.tagline}>Вдохновлять — всегда</span>
+          <span className={styles.tagline}>{tagline}</span>
         </div>
       </div>
     </main>
