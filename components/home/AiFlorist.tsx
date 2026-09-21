@@ -137,8 +137,54 @@ function selectCandidates(
     .map((entry) => entry.product);
 }
 
+type ClientFallbackIntent = "greeting" | "service" | "care" | "delivery" | "bouquet";
+
+function classifyClientFallbackIntent(message: string): ClientFallbackIntent {
+  const lower = message.toLowerCase().trim();
+
+  if (
+    /^(привет|здравствуйте|здравствуй|добрый день|добрый вечер|доброе утро|хай|hello|hi)\b/.test(lower) &&
+    lower.length <= 40
+  ) {
+    return "greeting";
+  }
+
+  if (
+    /(относ|подход).{0,18}клиент/.test(lower) ||
+    /как.{0,12}(вы|bellaflore).{0,18}работа/.test(lower) ||
+    /почему.{0,18}(выбрать|вы|bellaflore)/.test(lower)
+  ) {
+    return "service";
+  }
+
+  if (/(уход|поливать|подрезать|хранить букет|дольше|долго.{0,10}сто)/.test(lower)) {
+    return "care";
+  }
+
+  if (/(доставк|курьер)/.test(lower)) {
+    return "delivery";
+  }
+
+  return "bouquet";
+}
+
 function buildFallbackText(message: string): string {
+  const intent = classifyClientFallbackIntent(message);
   const lower = message.toLowerCase();
+
+  if (intent === "greeting") {
+    return "Здравствуйте! Я AI-флорист BellaFlore. Расскажите, для кого выбираете цветы или какой нужен совет.";
+  }
+  if (intent === "service") {
+    return "В BellaFlore к каждому клиенту подходят внимательно и лично — подбираем букет под повод и вкус и остаёмся на связи. Могу помочь подобрать букет прямо сейчас.";
+  }
+  if (intent === "care") {
+    return "Чтобы букет стоял дольше: подрезайте стебли под углом, меняйте воду каждые 1–2 дня и держите цветы вдали от батарей и солнца.";
+  }
+  if (intent === "delivery") {
+    return "Точную стоимость и время доставки покажу на оформлении заказа по вашему адресу. Если хотите, для начала подберу букет.";
+  }
+
   const firstMeeting =
     /перв(ое|ого|ая)?\s+(знакомств|встреч|свидан)|первое знакомство|первая встреча/.test(lower);
 
@@ -219,6 +265,11 @@ function storeChat(messages: ChatMessage[]) {
   }
 }
 
+// A real keyboard opening on iOS typically shrinks the visual viewport by
+// 250px+. Smaller shifts (browser chrome collapsing, URL bar) stay under
+// this threshold so the panel doesn't jitter its position for those.
+const KEYBOARD_INSET_THRESHOLD_PX = 80;
+
 export function AiFlorist({
   bouquets,
   formatPrice,
@@ -229,8 +280,13 @@ export function AiFlorist({
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [assistantMode, setAssistantMode] = useState<"ai" | "fallback" | null>(null);
+  const [keyboardInset, setKeyboardInset] = useState<{ bottomGap: number; viewportHeight: number } | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
+  const launcherRef = useRef<HTMLButtonElement | null>(null);
+  const closeTimerRef = useRef<number | null>(null);
+  const composerFocusedRef = useRef(false);
   const messageSequenceRef = useRef(1);
   const dragRef = useRef<{
     pointerId: number;
@@ -313,19 +369,127 @@ export function AiFlorist({
     };
   }, []);
 
+  // ==================================================
+  // SECTION: IPHONE KEYBOARD / VISUAL VIEWPORT
+  // РАЗДЕЛ: Адаптация к visualViewport при открытой клавиатуре
+  //
+  // Purpose (EN):
+  // iOS Safari does not resize the layout viewport when the keyboard
+  // opens — only the *visual* viewport shrinks. A plain `position: fixed`
+  // panel stays pinned to the (unchanged) layout viewport bottom, which
+  // is exactly the reported bug: composer hidden behind the keyboard.
+  // window.visualViewport reports the real visible area; we track the
+  // gap between it and the layout viewport and reposition the panel
+  // above that gap only when it looks like a real keyboard (not just
+  // browser chrome moving a little).
+  // ==================================================
+  useEffect(() => {
+    if (!open) return;
+
+    const visualViewport = window.visualViewport;
+    if (!visualViewport) {
+      return;
+    }
+
+    const update = () => {
+      const bottomGap = Math.max(
+        0,
+        window.innerHeight - visualViewport.height - visualViewport.offsetTop,
+      );
+      setKeyboardInset(
+        bottomGap > KEYBOARD_INSET_THRESHOLD_PX
+          ? { bottomGap, viewportHeight: visualViewport.height }
+          : null,
+      );
+    };
+
+    update();
+    visualViewport.addEventListener("resize", update);
+    visualViewport.addEventListener("scroll", update);
+    return () => {
+      visualViewport.removeEventListener("resize", update);
+      visualViewport.removeEventListener("scroll", update);
+      setKeyboardInset(null);
+    };
+  }, [open]);
+
+  const scrollChatToBottom = (behavior: ScrollBehavior = "smooth") => {
+    const chatBody = chatBodyRef.current;
+    if (chatBody) {
+      chatBody.scrollTo({ top: chatBody.scrollHeight, behavior });
+    }
+  };
+
   useEffect(() => {
     if (!open) return;
     const frame = window.requestAnimationFrame(() => {
-      const chatBody = chatBodyRef.current;
-      if (chatBody) {
-        chatBody.scrollTo({
-          top: chatBody.scrollHeight,
-          behavior: "smooth",
-        });
-      }
+      scrollChatToBottom("smooth");
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [messages, open, sending]);
+  }, [messages, open, sending, keyboardInset]);
+
+  // ==================================================
+  // SECTION: OPEN / CLOSE UX
+  // РАЗДЕЛ: Открытие и закрытие панели
+  //
+  // Desktop: mouse leaving the panel starts a ~700ms auto-close timer,
+  // cancelled if the pointer returns or if the composer is focused.
+  // Both desktop and mobile: outside click/tap, Escape, the × button and
+  // re-tapping the launcher all close the panel. A touch ending INSIDE
+  // the panel never closes it (the outside-click handler only reacts to
+  // targets outside the panel), and the keyboard opening/closing never
+  // triggers a close on its own.
+  // ==================================================
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => clearCloseTimer, []);
+
+  const handlePanelMouseEnter = () => {
+    clearCloseTimer();
+  };
+
+  const handlePanelMouseLeave = () => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    if (composerFocusedRef.current) return;
+
+    clearCloseTimer();
+    closeTimerRef.current = window.setTimeout(() => {
+      if (!composerFocusedRef.current) {
+        setOpen(false);
+      }
+    }, 700);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (panelRef.current?.contains(target)) return;
+      if (launcherRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
 
   const sendMessage = async (rawText: string) => {
     const text = rawText.trim();
@@ -340,6 +504,7 @@ export function AiFlorist({
     setMessages(nextMessages);
     setInput("");
     setSending(true);
+    window.requestAnimationFrame(() => scrollChatToBottom("smooth"));
 
     const candidates = selectCandidates(bouquets, nextMessages);
 
@@ -484,10 +649,24 @@ export function AiFlorist({
       } satisfies CSSProperties)
     : undefined;
 
+  const panelStyle: CSSProperties | undefined = keyboardInset
+    ? {
+        bottom: `${keyboardInset.bottomGap + 8}px`,
+        maxHeight: `${Math.max(240, keyboardInset.viewportHeight - 96)}px`,
+      }
+    : undefined;
+
   return (
     <div className={styles.root} style={rootStyle}>
       {open ? (
-        <section className={styles.panel} aria-label="AI-флорист BellaFlore">
+        <section
+          className={styles.panel}
+          style={panelStyle}
+          aria-label="AI-флорист BellaFlore"
+          ref={panelRef}
+          onMouseEnter={handlePanelMouseEnter}
+          onMouseLeave={handlePanelMouseLeave}
+        >
           <div className={styles.panelHeader}>
             <div className={styles.identity}>
               <span className={styles.smallMark} aria-hidden="true">
@@ -608,6 +787,14 @@ export function AiFlorist({
             <input
               value={input}
               onChange={(event) => setInput(event.target.value)}
+              onFocus={() => {
+                composerFocusedRef.current = true;
+                clearCloseTimer();
+                window.setTimeout(() => scrollChatToBottom("smooth"), 300);
+              }}
+              onBlur={() => {
+                composerFocusedRef.current = false;
+              }}
               placeholder="Напишите: для кого, повод, бюджет…"
               aria-label="Сообщение AI-флористу"
               autoComplete="off"
@@ -627,7 +814,7 @@ export function AiFlorist({
             </button>
             <span>
               {assistantMode === "fallback"
-                ? "Консультант работает в резервном режиме."
+                ? "Помощник временно работает в упрощённом режиме."
                 : "AI использует только реальные товары BellaFlore."}
             </span>
           </div>
@@ -637,6 +824,7 @@ export function AiFlorist({
       <button
         type="button"
         className={`${styles.launcher} ${open ? styles.launcherOpen : ""}`}
+        ref={launcherRef}
         onPointerDown={handleLauncherPointerDown}
         onPointerMove={handleLauncherPointerMove}
         onPointerUp={finishLauncherDrag}

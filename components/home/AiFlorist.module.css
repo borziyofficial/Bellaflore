@@ -38,9 +38,8 @@
 }
 
 .launcherOpen {
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.86);
+  opacity: 0.88;
+  transform: scale(0.9);
 }
 
 .launcher span {
@@ -434,7 +433,7 @@
   }
 
   .panelHeader {
-    padding: 13px 12px 11px;
+    padding: 10px 12px 9px;
   }
 
   .identity strong {
