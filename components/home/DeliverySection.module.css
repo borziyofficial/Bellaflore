@@ -1,58 +1,169 @@
+/* ==========================================
+   DELIVERY — premium editorial info block
+   No prices / zones here by design.
+   ========================================== */
+
 .section {
-  padding-top: 56px;
-  padding-bottom: 56px;
+  width: 100%;
+  padding: 64px 0 56px;
 }
 
-.staticCopy {
-  color: var(--champagne-text, #2f2a24);
-  font-size: 0.92rem;
-  line-height: 1.55;
+.inner {
+  width: min(100%, 1280px);
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 64px);
+  box-sizing: border-box;
+  display: grid;
+  gap: 36px;
 }
 
-.lead {
-  margin: 0;
+.intro {
+  display: flex;
+  flex-direction: column;
 }
 
-.highlight {
-  margin: 10px 0 0;
-  font-weight: 600;
-}
-
-.zoneList {
-  margin-top: 12px;
-}
-
-.zoneListTitle {
-  margin: 0 0 6px;
-  color: var(--champagne-muted, #75695c);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  color: var(--color-gold-subtle, #a88a5a);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
-.zoneList ul {
-  margin: 0;
-  padding-left: 1.1rem;
+.eyebrow::before {
+  display: inline-block;
+  width: 34px;
+  height: 1px;
+  margin: 0 12px 2px 0;
+  background: var(--color-gold-accent, #c4aa7a);
+  content: "";
 }
 
-.zoneList li + li {
-  margin-top: 4px;
+.heading {
+  margin: 14px 0 0;
+  color: var(--color-text-primary, #2a2521);
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 4.2vw, 42px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.12;
 }
 
-.sameDay {
-  margin: 12px 0 0;
+.body {
+  max-width: 42ch;
+  margin: 16px 0 0;
+  color: var(--champagne-text, #2f2a24);
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  line-height: 1.6;
 }
 
-.checkoutNote {
+.accent {
+  max-width: 42ch;
   margin: 10px 0 0;
-  color: var(--champagne-muted, #75695c);
-  font-size: 0.84rem;
+  color: var(--color-gold-subtle, #a88a5a);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.94rem;
+  line-height: 1.55;
 }
 
-@media (max-width: 768px) {
+.featuresCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px 20px;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 0 0;
+  border-top: 1px solid rgba(54, 45, 35, 0.14);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--color-gold-subtle, #a88a5a);
+}
+
+.featureTitle {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-primary, #2a2521);
+}
+
+.featureText {
+  margin: 0;
+  color: var(--champagne-muted, #75695c);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.note {
+  margin: 28px 0 0;
+  color: var(--champagne-muted, #75695c);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.signature {
+  margin: 10px 0 0;
+  color: var(--color-gold-subtle, #a88a5a);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 860px) {
   .section {
-    padding-top: 44px;
-    padding-bottom: 44px;
+    padding: 96px 0 80px;
+  }
+
+  .inner {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    align-items: start;
+    gap: 0;
+  }
+
+  .intro {
+    padding-right: 64px;
+  }
+
+  .featuresCol {
+    padding-left: 56px;
+    border-left: 1px solid rgba(54, 45, 35, 0.12);
+  }
+
+  .features {
+    gap: 32px 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .features {
+    gap: 22px 14px;
+  }
+
+  .feature {
+    padding-top: 16px;
   }
 }
