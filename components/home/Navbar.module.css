@@ -1,34 +1,72 @@
 .navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  margin-inline: 0 !important;
+  border-radius: 0 !important;
   gap: 12px;
   align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px !important;
+  background: var(--color-surface-primary, #fdfbf9) !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(54, 45, 35, 0.06) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: padding 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbar.scrolled {
+  padding: 10px 20px !important;
+  box-shadow: 0 4px 16px rgba(54, 45, 35, 0.06) !important;
+  background: var(--color-surface-primary, #fdfbf9) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .logo {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
+  margin: 0 auto;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--color-text-primary, #2a2521) !important;
+  text-shadow: none !important;
+}
+
+.iconButton {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-primary, #2a2521);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.iconButton:hover {
+  color: var(--color-champagne, #c4aa7a);
+  background: rgba(196, 170, 122, 0.08);
+}
+
+.cartCount {
+  display: none;
 }
 
 .menuButton {
-  flex: 0 0 auto;
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
   position: relative;
-  padding: 8px 12px;
-  border: none;
-  background: transparent;
-  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--color-text-primary, #2a2521);
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.menuButton:hover {
-  color: var(--color-champagne, #c4aa7a);
 }
 
 .menuButtonOpen {
@@ -51,13 +89,13 @@
   --menu-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   position: fixed;
-  top: 56px;
+  top: 64px;
   right: 16px;
   z-index: 1002;
   display: flex;
   flex-direction: column;
   gap: 0 !important;
-  width: 240px;
+  width: 220px;
   max-width: calc(100vw - 32px);
   min-width: 0 !important;
   padding: 4px 0 !important;
@@ -112,7 +150,7 @@
 
 @media (max-width: 768px) {
   .navbar {
-    padding: 8px 16px;
+    padding: 12px 14px !important;
     min-height: 52px;
   }
 
@@ -120,23 +158,15 @@
     font-size: 16px !important;
   }
 
-  .menuButton {
-    padding: 6px 10px !important;
-    min-height: auto;
-    font-size: 11px !important;
-    letter-spacing: 0.08em !important;
-    gap: 6px !important;
-  }
-
-  .menuButton span {
-    width: 12px;
-    font-size: 13px;
+  .iconButton {
+    width: 32px;
+    height: 32px;
   }
 
   .mobileMenu {
-    top: 60px !important;
-    right: 16px !important;
-    width: min(240px, calc(100vw - 32px));
+    top: 56px !important;
+    right: 14px !important;
+    width: min(220px, calc(100vw - 28px));
   }
 }
 
