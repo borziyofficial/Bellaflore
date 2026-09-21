@@ -2413,8 +2413,6 @@ export default function HomePageClient({
           scrolled={scrolled}
           elevated={Boolean(activeProductExperience)}
           onNavigate={handleTopNavNavigate}
-          cartItemCount={cartItemCount}
-          onCartClick={handleMyOrderNavClick}
         />
 
       {/* ==================================================

@@ -16,6 +16,12 @@
   box-shadow: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  /* A legacy global ".navbar { pointer-events: none }" hotfix in
+     app/globals.css only re-enables pointer-events for the old
+     ".menu-button"/".nav-center" class names, which this component no
+     longer renders. Restore it here so the current menu button (and any
+     other interactive child) actually receives taps/clicks. */
+  pointer-events: auto !important;
   transition: padding 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -60,10 +66,6 @@
 .iconButton:hover {
   color: var(--color-champagne, #c4aa7a);
   background: rgba(196, 170, 122, 0.08);
-}
-
-.cartCount {
-  display: none;
 }
 
 .menuButton {
