@@ -131,8 +131,15 @@ export function LuxuryCatalogProductCard({
     }
   };
 
+  // FAVORITE-HEART FIX: the heart icon is an inline <svg>/<path>, and SVG
+  // elements are SVGElement, not HTMLElement — `target instanceof
+  // HTMLElement` was false whenever the tap landed on the icon graphic
+  // itself, so `.closest("button")` never ran and the card's own onClick
+  // fell through to onProductOpen, navigating to the product page on top of
+  // toggling the favorite. `Element` covers HTML *and* SVG targets, so
+  // `.closest()` correctly walks up to the ancestor <button> either way.
   const shouldIgnoreCardOpen = (target: EventTarget | null) => {
-    return target instanceof HTMLElement && Boolean(target.closest("button, a, input, select, textarea"));
+    return target instanceof Element && Boolean(target.closest("button, a, input, select, textarea"));
   };
 
   const openProductFromCard = (target: EventTarget | null) => {
