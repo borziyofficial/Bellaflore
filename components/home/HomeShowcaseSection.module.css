@@ -1,0 +1,79 @@
+.section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 56px 16px 8px;
+}
+
+.header {
+  margin-bottom: 22px;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: var(--color-gold-hover, #b58d37);
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.header h2 {
+  margin: 0;
+  font-family: var(--font-brand, "Playfair Display", serif);
+  font-size: 2.05rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--text-light, #1e1b18);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 10px;
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding: 72px 24px 16px;
+  }
+
+  .header h2 {
+    font-size: 2.3rem;
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 44px 16px 4px;
+  }
+
+  .header {
+    margin-bottom: 18px;
+    text-align: left;
+  }
+
+  .header h2 {
+    max-width: 330px;
+    font-size: 1.7rem;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+  }
+}

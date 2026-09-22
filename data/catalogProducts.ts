@@ -90,6 +90,8 @@ export const catalogProducts: CatalogProduct[] = [
       "premium",
       "букет",
       "сегодня",
+      "годовщина",
+      "anniversary",
     ],
     priceRub: 11900,
     sizes: [
@@ -131,6 +133,8 @@ export const catalogProducts: CatalogProduct[] = [
       "сегодня",
       "день рождения",
       "birthday",
+      "свадьба",
+      "wedding",
     ],
     priceRub: 24900,
     sizes: [

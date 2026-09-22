@@ -1,13 +1,9 @@
 // ==================================================
 // SECTION: LUXURY CATALOG PRODUCT CARD
-// РАЗДЕЛ: Pearl Luxury card v2 (Stage 58)
+// РАЗДЕЛ: Pearl Luxury card v2 (Stage 58) — compact commerce layout
 // ==================================================
 "use client";
 
-import {
-  getProductCardDescription,
-  getProductCategoryHint,
-} from "@/components/catalog/filterHomeCatalogProducts";
 import styles from "@/components/catalog/LuxuryCatalogProductCard.module.css";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
 import {
@@ -17,10 +13,10 @@ import {
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import {
-  type KeyboardEvent,
   useMemo,
   useRef,
   useState,
+  type KeyboardEvent,
   type MouseEvent,
   type TouchEvent,
 } from "react";
@@ -41,6 +37,15 @@ type LuxuryCatalogProductCardProps = {
   onProductOpen?: (productId: string) => void;
 };
 
+// Compact commerce card: photo, name, price + "Подробнее ↓" (opens the full
+// product page), and an always-visible "Купить" primary action. The old
+// circular ↗ button and the hide-until-expanded accordion (category /
+// catalog number / rating / description / size picker gated behind an
+// in-place "expand" toggle) were removed — Buy was invisible by default on
+// every breakpoint before this change, which is the defect this rewrite
+// fixes. Full details (rating, description, size selection) remain one tap
+// away via "Подробнее" / the product page, so nothing is lost — it just no
+// longer hides the primary Buy action.
 export function LuxuryCatalogProductCard({
   product,
   formatPrice,
@@ -57,8 +62,6 @@ export function LuxuryCatalogProductCard({
     experienceData.defaultSizeId,
   );
   const [trackedProductId, setTrackedProductId] = useState(product.id);
-  const [selectedReviewRating, setSelectedReviewRating] = useState(0);
-  const [detailsExpanded, setDetailsExpanded] = useState(false);
   const actionGestureRef = useRef({
     startX: 0,
     startY: 0,
@@ -68,16 +71,9 @@ export function LuxuryCatalogProductCard({
   if (product.id !== trackedProductId) {
     setTrackedProductId(product.id);
     setSelectedSizeId(experienceData.defaultSizeId);
-    setSelectedReviewRating(0);
-    setDetailsExpanded(false);
   }
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
-  const categoryLabel = getProductCategoryHint(product);
-  const description = getProductCardDescription(product);
-  const visibleVariants = experienceData.sizeVariants.filter((variant) =>
-    ["S", "M", "L", "XL"].includes(variant.sizeId),
-  );
 
   const handleActionTouchStart = (event: TouchEvent<HTMLButtonElement>) => {
     const touch = event.touches[0];
@@ -166,39 +162,9 @@ export function LuxuryCatalogProductCard({
     onBuyClick(event, product.id, selectedVariant.sizeId, selectedVariant.priceRub);
   };
 
-  const handleSizeSelect = (sizeId: ProductSizeId) => {
-    setSelectedSizeId(sizeId);
-  };
-
-  const handleReviewRatingSelect = (
-    event: MouseEvent<HTMLButtonElement>,
-    rating: number,
-  ) => {
-    if (shouldSuppressActionClick(event)) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const reviewProductId = product.catalogNumber ?? product.id;
-    setSelectedReviewRating(rating);
-
-    try {
-      window.sessionStorage.setItem(
-        `bellaflore:review-rating:${reviewProductId}`,
-        String(rating),
-      );
-    } catch {
-      // The review form still opens even if browser storage is unavailable.
-    }
-
-    onProductOpen?.(product.id);
-  };
-
   return (
     <article
-      className={`${styles.card} ${detailsExpanded ? styles.cardExpanded : ""}`}
+      className={styles.card}
       role="link"
       tabIndex={0}
       aria-label={`Открыть ${product.title}`}
@@ -254,39 +220,6 @@ export function LuxuryCatalogProductCard({
 
       <div className={styles.info}>
         <div className={styles.contentBlock}>
-          <p className={styles.category}>{categoryLabel}</p>
-
-          {product.catalogNumber ? (
-            <span className={styles.catalogNumber} aria-label={`Артикул ${product.catalogNumber}`}>
-              {product.catalogNumber}
-            </span>
-          ) : null}
-
-          <div
-            className={styles.ratingTeaser}
-            role="radiogroup"
-            aria-label={`Оценить ${product.title}`}
-          >
-            {[1, 2, 3, 4, 5].map((rating) => (
-              <button
-                key={rating}
-                type="button"
-                role="radio"
-                aria-checked={selectedReviewRating === rating}
-                aria-label={`${rating} из 5`}
-                className={`${styles.ratingStar} ${
-                  rating <= selectedReviewRating ? styles.ratingStarActive : ""
-                }`}
-                onClick={(event) => handleReviewRatingSelect(event, rating)}
-                onTouchStart={handleActionTouchStart}
-                onTouchMove={handleActionTouchMove}
-                onTouchEnd={handleActionTouchEnd}
-              >
-                ★
-              </button>
-            ))}
-          </div>
-
           <button
             type="button"
             className={styles.titleButton}
@@ -298,84 +231,20 @@ export function LuxuryCatalogProductCard({
             <h3 className={styles.title}>{product.title}</h3>
           </button>
 
-          {/* Always rendered (even when empty) so every card reserves the
-              same fixed description slot — otherwise cards without a
-              description would be shorter than ones with one, breaking the
-              uniform-height grid. */}
-          <p className={styles.description}>{description}</p>
-
-          <button
-            type="button"
-            className={styles.detailsButton}
-            onClick={(event) => {
-              if (!shouldSuppressActionClick(event)) {
-                event.preventDefault();
-                event.stopPropagation();
-                setDetailsExpanded((current) => !current);
-              }
-            }}
-            onTouchStart={handleActionTouchStart}
-            onTouchMove={handleActionTouchMove}
-            onTouchEnd={handleActionTouchEnd}
-            aria-label={`${detailsExpanded ? "Свернуть" : "Подробнее о"} ${product.title}`}
-            aria-expanded={detailsExpanded}
-          >
-            {detailsExpanded ? "Свернуть ↑" : "Подробнее ↓"}
-          </button>
-
           <div className={styles.priceRow}>
             <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
             <button
               type="button"
-              className={styles.openButton}
+              className={styles.detailsButton}
               onClick={openProduct}
               onTouchStart={handleActionTouchStart}
               onTouchMove={handleActionTouchMove}
               onTouchEnd={handleActionTouchEnd}
-              aria-label={`Открыть ${product.title}`}
+              aria-label={`Подробнее о ${product.title}`}
             >
-              <svg aria-hidden="true" viewBox="0 0 24 24">
-                <path d="M7 17 17 7M10 7h7v7" />
-              </svg>
+              Подробнее ↓
             </button>
           </div>
-
-          {visibleVariants.length > 0 ? (
-            <div className={styles.sizeSelectorBlock}>
-              <span className={styles.sizeSelectorLabel}>Размер</span>
-              <div
-                className={styles.sizeSelectorRow}
-                role="radiogroup"
-                aria-label={`Размер букета ${product.title}`}
-              >
-                {visibleVariants.map((variant) => {
-                  const isActive = variant.sizeId === selectedSizeId;
-                  return (
-                    <button
-                      key={variant.sizeId}
-                      type="button"
-                      role="radio"
-                      aria-checked={isActive}
-                      aria-label={`Размер ${variant.sizeId}, ${formatPrice(variant.priceRub)}`}
-                      className={`${styles.sizeOption} ${
-                        isActive ? styles.sizeOptionActive : ""
-                      }`}
-                      onClick={(event) => {
-                        if (!shouldSuppressActionClick(event)) {
-                          handleSizeSelect(variant.sizeId);
-                        }
-                      }}
-                      onTouchStart={handleActionTouchStart}
-                      onTouchMove={handleActionTouchMove}
-                      onTouchEnd={handleActionTouchEnd}
-                    >
-                      {variant.sizeId}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ) : null}
 
           <div className={styles.actionRow}>
             <button

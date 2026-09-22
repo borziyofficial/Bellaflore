@@ -433,10 +433,6 @@
     order: 9;
   }
 
-  .cardExpanded .category {
-    margin-top: 7px;
-  }
-
   .favorite {
     top: 8px;
     right: 8px;
@@ -571,23 +567,7 @@
   order: 10;
 }
 
-.card:not(.cardExpanded) .category,
-.card:not(.cardExpanded) .catalogNumber,
-.card:not(.cardExpanded) .ratingTeaser,
-.card:not(.cardExpanded) .description,
-.card:not(.cardExpanded) .sizeSelectorBlock,
-.card:not(.cardExpanded) .actionRow {
-  display: none;
-}
-
-.cardExpanded .category,
-.cardExpanded .catalogNumber,
-.cardExpanded .ratingTeaser,
-.cardExpanded .description,
-.cardExpanded .sizeSelectorBlock,
-.cardExpanded .actionRow {
-  animation: catalogCardDetailsReveal 180ms ease-out both;
-}
+/* Buy is always visible now — no longer gated behind an expand toggle. */
 
 /* ==================================================
    V4 PREMIUM EDITORIAL CARD
@@ -715,34 +695,6 @@
   letter-spacing: 0;
 }
 
-.openButton {
-  display: inline-flex;
-  flex: 0 0 31px;
-  align-items: center;
-  justify-content: center;
-  width: 31px;
-  height: 31px;
-  padding: 0;
-  border: 1px solid rgba(155, 124, 80, 0.23);
-  border-radius: 999px;
-  background: rgba(253, 251, 249, 0.58);
-  color: var(--color-bronze-subtle, #9b7c50);
-  box-shadow: none;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-.openButton svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 @media (max-width: 768px) {
   .card {
     gap: 8px;
@@ -800,12 +752,6 @@
     margin: 0;
     font-size: 0.94rem;
     line-height: 1.1;
-  }
-
-  .openButton {
-    flex-basis: 28px;
-    width: 28px;
-    height: 28px;
   }
 
   .favorite {

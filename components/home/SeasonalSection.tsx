@@ -6,12 +6,31 @@
 
 import Image from "next/image";
 import { getEnabledCards } from "@/components/home/useHomepageBlocks";
-import type { HomepageBlock } from "@/lib/homepageBlocksTypes";
+import type { HomepageBlock, HomepageBlockCard } from "@/lib/homepageBlocksTypes";
 import styles from "@/components/home/SeasonalSection.module.css";
 
 type SeasonalSectionProps = {
   block: HomepageBlock | undefined | null;
 };
+
+// Real BellaFlore catalog photos used whenever an occasion card has no
+// admin-set image yet — replaces the empty "✿" placeholder circles with an
+// actual, thematically matching bouquet photo. An admin-uploaded imageUrl
+// (set from the Admin panel) always takes priority over this fallback.
+const OCCASION_FALLBACK_IMAGES: Record<string, string> = {
+  "день рождения": "/roza rouze royal.PNG", // bright, festive red roses
+  "свадьба": "/white rose 101.PNG", // light, tender white roses
+  "годовщина": "/0002.jpg", // romantic pink composition
+};
+const GENERIC_FALLBACK_IMAGE = "/0002.jpg";
+
+function resolveCardImage(card: HomepageBlockCard): string {
+  if (card.imageUrl) {
+    return card.imageUrl;
+  }
+  const key = card.title.trim().toLowerCase();
+  return OCCASION_FALLBACK_IMAGES[key] ?? GENERIC_FALLBACK_IMAGE;
+}
 
 export function SeasonalSection({ block }: SeasonalSectionProps) {
   if (!block || !block.isEnabled) {
@@ -35,19 +54,13 @@ export function SeasonalSection({ block }: SeasonalSectionProps) {
           const content = (
             <>
               <span className={styles.imageWrap}>
-                {card.imageUrl ? (
-                  <Image
-                    src={card.imageUrl}
-                    alt={card.title || ""}
-                    fill
-                    sizes="(max-width: 780px) 46vw, 22vw"
-                    className={styles.image}
-                  />
-                ) : (
-                  <span className={styles.placeholder} aria-hidden="true">
-                    <span className={styles.placeholderGlyph}>✿</span>
-                  </span>
-                )}
+                <Image
+                  src={resolveCardImage(card)}
+                  alt={card.title || ""}
+                  fill
+                  sizes="(max-width: 780px) 46vw, 22vw"
+                  className={styles.image}
+                />
                 <span className={styles.shade} aria-hidden="true" />
                 {card.title ? <span className={styles.chipTitle}>{card.title}</span> : null}
               </span>

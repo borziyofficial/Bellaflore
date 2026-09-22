@@ -114,6 +114,23 @@ export function CollectionsSection({
     return () => window.clearTimeout(timer);
   }, [categoryChips]);
 
+  // "К этому дню" (occasion) tiles on the homepage link here as
+  // "/?q=<term>#catalog" — reusing the existing search filter (same engine
+  // as the search field below) instead of inventing a second, parallel
+  // catalog just for occasions.
+  useEffect(() => {
+    const requestedQuery = new URLSearchParams(window.location.search).get("q");
+    if (!requestedQuery) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setActiveCategoryId("all");
+      setSearchQuery(requestedQuery);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     if (!catalogFocusNonce) {
       return;
@@ -231,24 +248,24 @@ export function CollectionsSection({
     setSortMode("default");
   };
 
+  // The homepage "teaser" mode (mood-picker chips + "Смотреть весь каталог")
+  // was removed — it duplicated the real catalog and ate homepage space that
+  // the Hero CTA / bottom nav already cover. This component now renders only
+  // as the real full catalog view.
+  if (!fullCatalog) {
+    return null;
+  }
+
   return (
-    <section id="catalog" className={`${styles.section} ${!fullCatalog ? styles.homeShowcase : ""}`}>
+    <section id="catalog" className={styles.section}>
       <header className={`${styles.header} bf-reveal bf-reveal-up`}>
-        {!fullCatalog ? <span className={styles.homeEyebrow}>Категории</span> : null}
-        {fullCatalog ? <span className={styles.catalogEyebrow}>BellaFlore Moscow</span> : null}
-        <h2>{fullCatalog ? homeCatalogTitle : "Выберите настроение"}</h2>
-        {fullCatalog ? (
-          <p className={styles.subtitle}>
-            Цветы для особенных моментов, собранные в светлой editorial-подборке.
-          </p>
-        ) : (
-          <p className={styles.subtitle}>
-            Нажмите на категорию — откроется подборка подходящих композиций.
-          </p>
-        )}
+        <span className={styles.catalogEyebrow}>BellaFlore Moscow</span>
+        <h2>{homeCatalogTitle}</h2>
+        <p className={styles.subtitle}>
+          Цветы для особенных моментов, собранные в светлой editorial-подборке.
+        </p>
       </header>
 
-      {fullCatalog ? (
       <div className={`${styles.toolbar} bf-reveal bf-reveal-up`}>
         <label className={styles.searchField}>
           <span className={styles.searchIcon} aria-hidden="true">
@@ -352,31 +369,8 @@ export function CollectionsSection({
           <span>Москва, сегодня</span>
         </div>
       </div>
-      ) : null}
 
-      {!fullCatalog ? (
-        <div className={`${styles.homeCategoryBlock} bf-reveal bf-reveal-up`}>
-          <div className={styles.categoryRow} role="tablist" aria-label="Категории букетов">
-            {categoryChips.map((chip) => {
-              const isActive = activeCategoryId === chip.id;
-              return (
-                <button
-                  key={chip.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  className={`${styles.categoryChip} ${isActive ? styles.categoryChipActive : ""}`}
-                  onClick={() => handleCategorySelect(chip.id)}
-                >
-                  {chip.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
-
-      {fullCatalog && isInitialCatalogLoading ? (
+      {isInitialCatalogLoading ? (
         <div
           className={`${styles.grid} ${styles.loadingGrid}`}
           data-catalog-state="loading"
@@ -439,14 +433,6 @@ export function CollectionsSection({
         </div>
       ) : null}
 
-      {!fullCatalog && bouquets.length > 0 ? (
-        <div className={styles.fullCatalogButtonWrap}>
-          <button type="button" className={styles.fullCatalogButton} onClick={onOpenFullCatalog}>
-            Смотреть весь каталог
-            <span aria-hidden="true">→</span>
-          </button>
-        </div>
-      ) : null}
     </section>
   );
 }

@@ -75,6 +75,7 @@ import { CtaBandSection } from "@/components/home/CtaBandSection";
 import { DeliverySection } from "@/components/home/DeliverySection";
 import { FeaturedSection } from "@/components/home/FeaturedSection";
 import { HeroSection } from "@/components/home/HeroSection";
+import { HomeShowcaseSection } from "@/components/home/HomeShowcaseSection";
 import { SeasonalSection } from "@/components/home/SeasonalSection";
 import { SmartPromoBanner } from "@/components/home/SmartPromoBanner";
 import { useHomepageBlocks } from "@/components/home/useHomepageBlocks";
@@ -2449,6 +2450,16 @@ export default function HomePageClient({
         fullCatalog={publicAppView === "catalog"}
         onOpenFullCatalog={openCatalogView}
       />
+      {publicAppView === "home" ? (
+        <HomeShowcaseSection
+          bouquets={bouquets}
+          favoriteBouquetIds={favoriteBouquetIds}
+          formatPrice={formatPrice}
+          handleFavoriteClick={handleFavoriteClick}
+          handleBouquetOrderClick={handleBouquetOrderClick}
+          onProductOpen={openProductExperience}
+        />
+      ) : null}
       <AboutSection />
       {publicAppView === "home" ? (
         <SeasonalSection block={homepageBlocks?.seasonal} />
