@@ -627,11 +627,25 @@
   backdrop-filter: blur(16px);
 }
 
+/* FAVORITE-HEART CONTRAST FIX: this "V4 PREMIUM EDITORIAL CARD" variant of
+   .favoriteActive comes later in the cascade than the base .favoriteActive
+   rule above (same selector specificity, later wins), so it was silently
+   overriding the intended strong red with a muted gold fill at only 20%
+   opacity -- on a real device this read as barely-different from the
+   unselected outline state. Restored to a solid, fully-opaque premium
+   rose-red (matches the base rule's #e63946) so the selected state is
+   unmistakable at a glance, with a matching tinted border/glow on the
+   button itself for extra contrast against the unselected outline state. */
 .favoriteActive,
 .favoriteActive svg {
-  color: #9b7c50;
-  fill: rgba(155, 124, 80, 0.2);
-  stroke: #9b7c50;
+  color: #e63946;
+  fill: #e63946;
+  stroke: #e63946;
+}
+
+.favoriteActive {
+  border-color: rgba(230, 57, 70, 0.4);
+  box-shadow: 0 10px 22px rgba(230, 57, 70, 0.24);
 }
 
 .info {
