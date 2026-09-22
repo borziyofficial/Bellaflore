@@ -362,28 +362,14 @@
     border-width: 1px;
   }
 
+  /* MOBILE HERO DETAIL-CARD HIDE: the "Красота в каждой детали /
+     BellaFlore Moscow" decorative overlay card wastes space and covers
+     the Hero image on real mobile screens. Hidden here (inside the
+     existing <=640px breakpoint) only -- desktop keeps the card
+     unchanged, and the Hero image, headline, CTA, "01/01" and
+     "Вдохновение — всегда" footer are untouched. */
   .detailCard {
-    right: 12px;
-    bottom: 11%;
-    width: 96px;
-    min-height: 126px;
-    padding: 16px 14px;
-    border-radius: 4px;
-  }
-
-  .detailRule {
-    width: 16px;
-    margin-bottom: 14px;
-  }
-
-  .detailCard p {
-    font-size: 7px;
-    line-height: 1.55;
-  }
-
-  .detailCard small {
-    margin-top: 14px;
-    font-size: 5px;
+    display: none;
   }
 
   .sceneFooter {
