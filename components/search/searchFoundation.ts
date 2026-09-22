@@ -198,8 +198,8 @@ const SEARCH_SYNONYMS: Record<string, string[]> = {
   premium: ["premium", "премиум"],
   luxury: ["luxury"],
   collection: ["collection", "коллекц"],
-  "день рождения": ["день", "рожден"],
-  birthday: ["день", "рожден"],
+  "день рождения": ["день", "рожден", "алая", "пламенная", "карминовая", "празднич", "торжествен", "рубинов"],
+  birthday: ["день", "рожден", "алая", "пламенная", "карминовая", "празднич", "торжествен", "рубинов"],
   любимой: ["любим"],
   любимая: ["любим"],
   маме: ["мам"],
@@ -209,10 +209,26 @@ const SEARCH_SYNONYMS: Record<string, string[]> = {
   извинения: ["извин"],
   извинение: ["извин"],
   новорожденному: ["новорожден", "роддом"],
-  юбилей: ["юбил"],
+  юбилей: ["юбил", "розов", "малинов", "вишнёв", "клубничн", "карамельн", "нежн"],
   выпускной: ["выпуск"],
-  свадьба: ["свад"],
-  wedding: ["свад"],
+  свадьба: ["свад", "бел", "жемчужн", "платинов", "серебрян", "ледян", "пудров", "зефирн", "сакуров"],
+  wedding: ["свад", "бел", "жемчужн", "платинов", "серебрян", "ледян", "пудров", "зефирн", "сакуров"],
+  // OCCASION-TILE REAL-DATA EXPANSION
+  // The homepage "К этому дню" tiles link to `?q=<occasion>#catalog`, but no
+  // real product in the catalog DB is literally tagged "свадьба"/"день
+  // рождения"/"годовщина" (admin tags are poetic color+noun names like
+  // "Алая аврора", "Пудровая мечта" — there's no occasion dimension in the
+  // data yet). Rather than invent fake products or hack the static
+  // data/catalogProducts.ts fallback (which Preview doesn't even read — the
+  // live catalog is 100% Postgres-backed), each occasion query is expanded
+  // here to the REAL, already-existing color/theme tag vocabulary that a
+  // florist would consider on-theme for that occasion: bright/festive reds
+  // for a birthday, white/silver/pastel tones for a wedding, romantic
+  // pink/berry tones for an anniversary. This runs through the existing
+  // synonym → token-expansion → matchesSearch pipeline, so it surfaces real
+  // catalog products today and keeps working as more products are tagged.
+  годовщина: ["годовщин", "юбил", "розов", "малинов", "вишнёв", "клубничн", "карамельн", "нежн"],
+  anniversary: ["годовщин", "юбил", "розов", "малинов", "вишнёв", "клубничн", "карамельн", "нежн"],
 };
 
 const GROUP_BRIDGE_TOKENS: Record<string, string[]> = {

@@ -326,7 +326,7 @@ export function storedProductToCatalogRecord(
       : customCategoryTitle
         ? [customCategoryTitle.toLowerCase()]
         : [],
-    occasions: [],
+    occasions: product.occasion ? [product.occasion] : [],
     seasons: ["all-season"],
     sizes,
     images: storedImages.length
@@ -386,7 +386,19 @@ export function storedProductToCatalogRecord(
         locale: "ru_RU",
       },
     },
-    searchTerms: [...product.tags, ...product.seoKeywords],
+    // OCCASION FIELD WIRED INTO SEARCH
+    // `product.occasion` is an existing admin-editable field (see
+    // adminFormToStoredProduct above) that was captured from the form but
+    // never actually reached the public storefront's search/filter data —
+    // `occasions` was hardcoded to `[]` and searchTerms only pulled from
+    // tags/seoKeywords. Wiring it in here means that whenever an admin sets
+    // a product's occasion (e.g. "свадьба", "день рождения"), it becomes
+    // genuinely searchable/filterable on the storefront, same as a tag.
+    searchTerms: [
+      ...product.tags,
+      ...product.seoKeywords,
+      ...(product.occasion ? [product.occasion] : []),
+    ],
     searchIndexText: "",
     metadata: {
       catalogVersion: "catalog-db-v1",
