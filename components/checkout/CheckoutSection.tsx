@@ -386,6 +386,16 @@ export function CheckoutSection({
       suggestionAddress: selectedSuggestionAddressRef.current,
       addressTouched: touchedFields.has("address"),
     };
+    // MAP DUPLICATE SHOW/HIDE STATE FIX: the inline preview map and the
+    // expanded modal map are two independent DeliveryZoneMap instances,
+    // each loading and owning its own Yandex Maps SDK map object. Nothing
+    // previously stopped both from being mounted at once (open the inline
+    // preview, then tap the modal entry point) -- two live map instances
+    // meant duplicate SDK work and visible flicker/reflow while the modal
+    // opened over the still-mounted inline one. Hiding the inline preview
+    // whenever the expanded map opens guarantees only one Yandex map
+    // instance is ever mounted at a time.
+    setMapVisible(false);
     setExpandedMapOpen(true);
   };
 
@@ -751,17 +761,32 @@ export function CheckoutSection({
                     existing marker: a customer whose street will not resolve
                     by text must still be able to open the map and place the
                     pin by hand.
+
+                    MAP DUPLICATE SHOW/HIDE STATE FIX: this button used to
+                    render unconditionally, so once an address resolved and
+                    the inline preview map auto-opened below (with its own
+                    "Скрыть карту" toggle), the customer saw a "Показать
+                    карту" control and a "Скрыть карту" control on screen at
+                    the same time -- two controls both nominally about
+                    showing/hiding a map, in contradictory states. The inline
+                    map's own toggle + "↗" expand button already cover this
+                    once a marker exists, so this entry point is only needed
+                    while there is no inline map currently visible.
                   */}
-                  <button
-                    type="button"
-                    className={checkoutSectionStyles.checkoutMapOpenButton}
-                    onClick={handleExpandedMapOpen}
-                  >
-                    Показать карту
-                  </button>
-                  <span className={checkoutSectionStyles.checkoutMapOpenHint}>
-                    Нажмите, чтобы уточнить точку на карте
-                  </span>
+                  {!(checkoutMapMarker && mapVisible) ? (
+                    <>
+                      <button
+                        type="button"
+                        className={checkoutSectionStyles.checkoutMapOpenButton}
+                        onClick={handleExpandedMapOpen}
+                      >
+                        Показать карту
+                      </button>
+                      <span className={checkoutSectionStyles.checkoutMapOpenHint}>
+                        Нажмите, чтобы уточнить точку на карте
+                      </span>
+                    </>
+                  ) : null}
 
                   {checkoutMapMarker ? (
                     <div className={checkoutSectionStyles.checkoutMapWrap}>
