@@ -52,13 +52,13 @@ const MAX_MESSAGE_LENGTH = 1200;
 // РАЗДЕЛ: Защита от случайного понижения модели
 //
 // Purpose (EN):
-// The brain is GPT-5.6 Sol. Direct OpenAI uses "gpt-5.6"; Vercel AI
+// The brain is GPT-5.6 Sol. Direct OpenAI uses "gpt-5.6-sol"; Vercel AI
 // Gateway uses "openai/gpt-5.6-sol". If OPENAI_FLORIST_MODEL is set to
 // anything that does not match the expected GPT-5.6 family, it is
 // ignored (logged, never silently trusted) so production can never be
 // accidentally downgraded below GPT-5.6 Sol.
 // ==================================================
-const SAFE_DIRECT_MODEL = "gpt-5.6";
+const SAFE_DIRECT_MODEL = "gpt-5.6-sol";
 const SAFE_GATEWAY_MODEL = "openai/gpt-5.6-sol";
 const ALLOWED_DIRECT_MODEL_PATTERN = /^gpt-5\.6/i;
 const ALLOWED_GATEWAY_MODEL_PATTERN = /^openai\/gpt-5\.6/i;
