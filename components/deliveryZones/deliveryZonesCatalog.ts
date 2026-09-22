@@ -53,6 +53,13 @@ export type DeliveryZoneMetaOverride = {
   priceRub: number;
   estimatedTime: string;
   isActive: boolean;
+  /**
+   * Real outer boundary of this zone, in km from the base (MKAD) polygon.
+   * This is now the single source of truth for zone geometry/detection —
+   * see rebuildDeliveryZoneCatalogEntries() below. Ignored for the base
+   * zone, which is always 0 (inside MKAD has no km boundary).
+   */
+  maxDistanceFromBaseKm: number;
 };
 
 export const DEFAULT_DELIVERY_ZONE_FILL_OPACITY = 0.22;
@@ -60,21 +67,24 @@ export const DEFAULT_DELIVERY_ZONE_FILL_OPACITY = 0.22;
 type ZoneShapeDefinition = {
   zoneId: DeliveryZoneId;
   isBaseZone: boolean;
-  maxDistanceFromBaseKm: number;
   sortOrder: number;
   cityId: DeliveryZoneCityId;
 };
 
-// Authoritative Moscow coverage. Every outer polygon is derived from the
-// real/editable MKAD polygon, not from a circle around the city centre.
+// Zone IDs, base/non-base flag, sort order and city stay code-defined (they
+// are structural/stable — orders and the public API key off zoneId). The
+// real km boundary is NOT here any more: it comes from meta.maxDistanceFromBaseKm
+// (DEFAULT_DELIVERY_ZONE_META, or an admin-saved override applied via
+// rebuildDeliveryZoneCatalogEntries() below) — this is what makes Admin ->
+// Delivery zones the real single source of truth for geometry.
 const ZONE_SHAPE_DEFINITIONS: ZoneShapeDefinition[] = [
-  { zoneId: "base", isBaseZone: true, maxDistanceFromBaseKm: 0, sortOrder: 1, cityId: "moscow" },
-  { zoneId: "7km", isBaseZone: false, maxDistanceFromBaseKm: 7, sortOrder: 2, cityId: "moscow" },
-  { zoneId: "14km", isBaseZone: false, maxDistanceFromBaseKm: 16, sortOrder: 3, cityId: "moscow" },
-  { zoneId: "21km", isBaseZone: false, maxDistanceFromBaseKm: 26, sortOrder: 4, cityId: "moscow" },
-  { zoneId: "28km", isBaseZone: false, maxDistanceFromBaseKm: 41, sortOrder: 5, cityId: "moscow" },
-  { zoneId: "38km", isBaseZone: false, maxDistanceFromBaseKm: 60, sortOrder: 6, cityId: "moscow" },
-  { zoneId: "48km", isBaseZone: false, maxDistanceFromBaseKm: 100, sortOrder: 7, cityId: "moscow" },
+  { zoneId: "base", isBaseZone: true, sortOrder: 1, cityId: "moscow" },
+  { zoneId: "7km", isBaseZone: false, sortOrder: 2, cityId: "moscow" },
+  { zoneId: "14km", isBaseZone: false, sortOrder: 3, cityId: "moscow" },
+  { zoneId: "21km", isBaseZone: false, sortOrder: 4, cityId: "moscow" },
+  { zoneId: "28km", isBaseZone: false, sortOrder: 5, cityId: "moscow" },
+  { zoneId: "38km", isBaseZone: false, sortOrder: 6, cityId: "moscow" },
+  { zoneId: "48km", isBaseZone: false, sortOrder: 7, cityId: "moscow" },
 ];
 
 export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMetaOverride> = {
@@ -86,6 +96,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
     priceRub: 790,
     estimatedTime: "1–1.5 ч",
     isActive: true,
+    maxDistanceFromBaseKm: 0,
   },
   "7km": {
     title: "Зона 2",
@@ -95,6 +106,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
     priceRub: 1290,
     estimatedTime: "1.5–2 ч",
     isActive: true,
+    maxDistanceFromBaseKm: 7,
   },
   "14km": {
     title: "Зона 3",
@@ -104,6 +116,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
     priceRub: 1990,
     estimatedTime: "2–2.5 ч",
     isActive: true,
+    maxDistanceFromBaseKm: 16,
   },
   "21km": {
     title: "Зона 4",
@@ -113,6 +126,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
     priceRub: 2690,
     estimatedTime: "2.5–3 ч",
     isActive: true,
+    maxDistanceFromBaseKm: 26,
   },
   "28km": {
     title: "Зона 5",
@@ -122,6 +136,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
     priceRub: 3990,
     estimatedTime: "3–3.5 ч",
     isActive: true,
+    maxDistanceFromBaseKm: 41,
   },
   "38km": {
     title: "Зона 6",
@@ -131,6 +146,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
     priceRub: 4590,
     estimatedTime: "3.5–4 ч",
     isActive: true,
+    maxDistanceFromBaseKm: 60,
   },
   "48km": {
     title: "Зона 7",
@@ -140,6 +156,7 @@ export const DEFAULT_DELIVERY_ZONE_META: Record<DeliveryZoneId, DeliveryZoneMeta
     priceRub: 5990,
     estimatedTime: "4–5 ч",
     isActive: true,
+    maxDistanceFromBaseKm: 100,
   },
 };
 
@@ -178,6 +195,11 @@ export function rebuildDeliveryZoneCatalogEntries(
 
   return ZONE_SHAPE_DEFINITIONS.map((shape) => {
     const meta = metaByZoneId[shape.zoneId] ?? DEFAULT_DELIVERY_ZONE_META[shape.zoneId];
+    // The real, editable outer boundary always comes from meta (DB-backed
+    // when admin-saved, DEFAULT_DELIVERY_ZONE_META otherwise) — never from
+    // a hardcoded shape constant. Zone 1/base is always exactly 0 (inside
+    // MKAD has no km boundary) regardless of what meta carries.
+    const maxDistanceFromBaseKm = shape.isBaseZone ? 0 : meta.maxDistanceFromBaseKm;
     return {
       zoneId: shape.zoneId,
       title: meta.title,
@@ -188,12 +210,12 @@ export function rebuildDeliveryZoneCatalogEntries(
       estimatedTime: meta.estimatedTime,
       isActive: meta.isActive,
       isBaseZone: shape.isBaseZone,
-      maxDistanceFromBaseKm: shape.maxDistanceFromBaseKm,
+      maxDistanceFromBaseKm,
       sortOrder: shape.sortOrder,
       cityId: shape.cityId,
       polygonCoordinates: buildZonePolygon(
         basePolygon,
-        shape.maxDistanceFromBaseKm,
+        maxDistanceFromBaseKm,
         shape.isBaseZone,
         centroid,
       ),
@@ -225,13 +247,32 @@ export function resetDeliveryZonesCatalogToDefault(): void {
   applyDeliveryZoneOverrides(buildDefaultDeliveryZoneCatalog());
 }
 
-export const DELIVERY_ZONE_MAX_DISTANCE_KM = 100;
-
 export function getActiveDeliveryZones(
   cityId: DeliveryZoneCityId = "moscow",
 ): DeliveryZoneCatalogEntry[] {
   return DELIVERY_ZONES_CATALOG.filter(
     (zone) => zone.isActive && zone.cityId === cityId,
+  );
+}
+
+/**
+ * The maximum deliverable distance (km from the base/MKAD polygon), derived
+ * live from the actual (possibly admin/DB-hydrated) catalog's active zones
+ * — never an independent hardcoded constant. This is what
+ * calculateDeliveryZoneByDistance() uses to decide "outside delivery area",
+ * so it always matches whatever the furthest active zone's boundary
+ * currently is in Admin -> Delivery zones.
+ */
+export function getDeliveryZoneMaxDistanceKm(
+  cityId: DeliveryZoneCityId = "moscow",
+): number {
+  const activeZones = getActiveDeliveryZones(cityId);
+  if (activeZones.length === 0) {
+    return 0;
+  }
+  return activeZones.reduce(
+    (max, zone) => Math.max(max, zone.maxDistanceFromBaseKm),
+    0,
   );
 }
 

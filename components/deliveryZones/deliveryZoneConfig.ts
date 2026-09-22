@@ -11,14 +11,19 @@ import type { DeliveryZoneDefinition } from "@/components/deliveryZones/delivery
 
 export { DELIVERY_ZONES_CATALOG } from "@/components/deliveryZones/deliveryZonesCatalog";
 export {
-  DELIVERY_ZONE_MAX_DISTANCE_KM,
+  getDeliveryZoneMaxDistanceKm,
   getActiveDeliveryZones,
   getDeliveryZoneCatalogEntry,
   getDeliveryZonesForCity,
 } from "@/components/deliveryZones/deliveryZonesCatalog";
 
-export const DELIVERY_ZONE_DEFINITIONS: DeliveryZoneDefinition[] =
-  DELIVERY_ZONES_CATALOG.map((zone) => ({
+// NOTE: this used to be a frozen array/const snapshotted once at module
+// import time — which meant admin-saved zone boundaries (hydrated into
+// DELIVERY_ZONES_CATALOG later, in place) were invisible here forever
+// after the first import. It is now a function so every caller always
+// reads the current (possibly DB-hydrated) catalog.
+export function getDeliveryZoneDefinitions(): DeliveryZoneDefinition[] {
+  return DELIVERY_ZONES_CATALOG.map((zone) => ({
     zoneId: zone.zoneId,
     label: zone.label,
     color: zone.color,
@@ -27,11 +32,12 @@ export const DELIVERY_ZONE_DEFINITIONS: DeliveryZoneDefinition[] =
     isBaseZone: zone.isBaseZone,
     sortOrder: zone.sortOrder,
   }));
+}
 
 export function getDeliveryZoneById(
   zoneId: DeliveryZoneDefinition["zoneId"],
 ): DeliveryZoneDefinition | null {
   return (
-    DELIVERY_ZONE_DEFINITIONS.find((zone) => zone.zoneId === zoneId) ?? null
+    getDeliveryZoneDefinitions().find((zone) => zone.zoneId === zoneId) ?? null
   );
 }

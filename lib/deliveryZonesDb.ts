@@ -72,6 +72,7 @@ type DeliveryZoneRow = {
   estimated_time: string;
   is_active: boolean;
   base_polygon: GeoCoordinate[] | null;
+  max_distance_from_base_km: number | string | null;
   updated_at: string | Date;
 };
 
@@ -91,20 +92,48 @@ function getSqlClient(): ReturnType<typeof postgres> | null {
 
 async function ensureSchema(sql: ReturnType<typeof postgres>): Promise<void> {
   if (!schemaReady) {
-    schemaReady = sql`
-      CREATE TABLE IF NOT EXISTS delivery_zones (
-        zone_id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        label TEXT NOT NULL,
-        color TEXT NOT NULL,
-        fill_opacity DOUBLE PRECISION NOT NULL DEFAULT 0.22,
-        price_rub INTEGER NOT NULL,
-        estimated_time TEXT NOT NULL,
-        is_active BOOLEAN NOT NULL DEFAULT TRUE,
-        base_polygon JSONB,
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `.then(() => undefined);
+    schemaReady = (async () => {
+      await sql`
+        CREATE TABLE IF NOT EXISTS delivery_zones (
+          zone_id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          label TEXT NOT NULL,
+          color TEXT NOT NULL,
+          fill_opacity DOUBLE PRECISION NOT NULL DEFAULT 0.22,
+          price_rub INTEGER NOT NULL,
+          estimated_time TEXT NOT NULL,
+          is_active BOOLEAN NOT NULL DEFAULT TRUE,
+          base_polygon JSONB,
+          max_distance_from_base_km DOUBLE PRECISION,
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `;
+
+      // Safe migration for production DBs created before this column
+      // existed (additive only — ADD COLUMN IF NOT EXISTS is a no-op on a
+      // table that already has it, and is a fast metadata-only change on
+      // Postgres since the new column has no NOT NULL/default to backfill
+      // synchronously).
+      await sql`
+        ALTER TABLE delivery_zones
+        ADD COLUMN IF NOT EXISTS max_distance_from_base_km DOUBLE PRECISION
+      `;
+
+      // Backfill any row left NULL by the ALTER above (i.e. every zone row
+      // that existed before this migration) with the exact same distances
+      // that were previously hardcoded in ZONE_SHAPE_DEFINITIONS, so no
+      // existing production zone silently changes its real boundary the
+      // first time this runs. Idempotent (WHERE ... IS NULL) and cheap —
+      // this table only ever has 7 rows.
+      for (const zoneId of ZONE_IDS) {
+        const fallbackKm = DEFAULT_DELIVERY_ZONE_META[zoneId].maxDistanceFromBaseKm;
+        await sql`
+          UPDATE delivery_zones
+          SET max_distance_from_base_km = ${fallbackKm}
+          WHERE zone_id = ${zoneId} AND max_distance_from_base_km IS NULL
+        `;
+      }
+    })();
   }
   await schemaReady;
 }
@@ -124,11 +153,11 @@ async function seedIfEmpty(sql: ReturnType<typeof postgres>): Promise<void> {
     await sql`
       INSERT INTO delivery_zones (
         zone_id, title, label, color, fill_opacity, price_rub,
-        estimated_time, is_active, base_polygon
+        estimated_time, is_active, base_polygon, max_distance_from_base_km
       ) VALUES (
         ${zoneId}, ${meta.title}, ${meta.label}, ${meta.color},
         ${meta.fillOpacity}, ${meta.priceRub}, ${meta.estimatedTime},
-        ${meta.isActive}, ${basePolygon}
+        ${meta.isActive}, ${basePolygon}, ${meta.maxDistanceFromBaseKm}
       )
       ON CONFLICT (zone_id) DO NOTHING
     `;
@@ -177,7 +206,16 @@ function rowsToEntries(rows: DeliveryZoneRow[]): DeliveryZoneCatalogEntry[] | nu
     if (!ZONE_IDS.includes(row.zone_id as DeliveryZoneId)) {
       continue;
     }
-    metaByZoneId[row.zone_id as DeliveryZoneId] = {
+    const zoneId = row.zone_id as DeliveryZoneId;
+    // Defensive fallback: a row can only have a NULL
+    // max_distance_from_base_km in the brief window between the ALTER
+    // TABLE and backfill in ensureSchema() — never in steady state — but
+    // real calculation must never silently treat that as 0/unbounded.
+    const maxDistanceFromBaseKm =
+      row.max_distance_from_base_km !== null && row.max_distance_from_base_km !== undefined
+        ? Number(row.max_distance_from_base_km)
+        : DEFAULT_DELIVERY_ZONE_META[zoneId].maxDistanceFromBaseKm;
+    metaByZoneId[zoneId] = {
       title: row.title,
       label: row.label,
       color: row.color,
@@ -185,6 +223,7 @@ function rowsToEntries(rows: DeliveryZoneRow[]): DeliveryZoneCatalogEntry[] | nu
       priceRub: Number(row.price_rub),
       estimatedTime: row.estimated_time,
       isActive: row.is_active,
+      maxDistanceFromBaseKm,
     };
   }
 
@@ -284,6 +323,7 @@ export type DeliveryZoneMetaPatch = Partial<{
   priceRub: number;
   estimatedTime: string;
   isActive: boolean;
+  maxDistanceFromBaseKm: number;
 }>;
 
 export type DeliveryZoneWriteResult =
@@ -311,6 +351,55 @@ function validateMetaPatch(patch: DeliveryZoneMetaPatch): string | null {
   if (patch.title !== undefined && patch.title.trim().length === 0) {
     return "Название зоны не может быть пустым.";
   }
+  if (
+    patch.maxDistanceFromBaseKm !== undefined &&
+    (!Number.isFinite(patch.maxDistanceFromBaseKm) || patch.maxDistanceFromBaseKm <= 0)
+  ) {
+    return "Внешняя граница зоны должна быть положительным числом (км).";
+  }
+  return null;
+}
+
+/**
+ * Zone boundaries must strictly increase along the fixed zoneId order
+ * (base=0 is implicit, then 7km < 14km < 21km < 28km < 38km < 48km).
+ * Checks the proposed new value for `zoneId` against every other zone's
+ * CURRENT saved value (or its default, if the DB row hasn't been backfilled
+ * yet) — this is the authoritative check; the Admin UI also pre-checks
+ * client-side for immediate feedback, but this is what actually guards the
+ * data.
+ */
+function validateDistanceOrdering(
+  rows: DeliveryZoneRow[],
+  zoneId: DeliveryZoneId,
+  newDistanceKm: number,
+): string | null {
+  const distanceByZoneId = new Map<DeliveryZoneId, number>();
+  for (const id of ZONE_IDS) {
+    if (id === "base") {
+      distanceByZoneId.set(id, 0);
+      continue;
+    }
+    const row = rows.find((candidate) => candidate.zone_id === id);
+    const current =
+      row?.max_distance_from_base_km !== null && row?.max_distance_from_base_km !== undefined
+        ? Number(row.max_distance_from_base_km)
+        : DEFAULT_DELIVERY_ZONE_META[id].maxDistanceFromBaseKm;
+    distanceByZoneId.set(id, current);
+  }
+  distanceByZoneId.set(zoneId, newDistanceKm);
+
+  let previousKm = 0;
+  for (const id of ZONE_IDS) {
+    if (id === "base") {
+      continue;
+    }
+    const valueKm = distanceByZoneId.get(id)!;
+    if (!Number.isFinite(valueKm) || valueKm <= previousKm) {
+      return `Границы зон должны строго возрастать (например: 0 / 7 / 14 / 21 / 28 / 35 / 50). Зона «${id}» (${valueKm} км) должна быть больше предыдущей (${previousKm} км).`;
+    }
+    previousKm = valueKm;
+  }
   return null;
 }
 
@@ -322,6 +411,13 @@ export async function updateDeliveryZoneMeta(
   const validationError = validateMetaPatch(patch);
   if (validationError) {
     return { ok: false, error: validationError };
+  }
+
+  if (zoneId === "base" && patch.maxDistanceFromBaseKm !== undefined) {
+    return {
+      ok: false,
+      error: "Зона 1 (внутри МКАД) не редактируется как километровая зона — её граница всегда 0.",
+    };
   }
 
   const sql = getSqlClient();
@@ -336,13 +432,23 @@ export async function updateDeliveryZoneMeta(
     await ensureSchema(sql);
     await seedIfEmpty(sql);
 
-    const current = await sql<DeliveryZoneRow[]>`
-      SELECT * FROM delivery_zones WHERE zone_id = ${zoneId} LIMIT 1
-    `;
-    const existing = current[0];
+    const rows = await sql<DeliveryZoneRow[]>`SELECT * FROM delivery_zones`;
+    const existing = rows.find((row) => row.zone_id === zoneId);
     if (!existing) {
       return { ok: false, error: "Зона не найдена." };
     }
+
+    if (patch.maxDistanceFromBaseKm !== undefined) {
+      const orderingError = validateDistanceOrdering(rows, zoneId, patch.maxDistanceFromBaseKm);
+      if (orderingError) {
+        return { ok: false, error: orderingError };
+      }
+    }
+
+    const existingDistanceKm =
+      existing.max_distance_from_base_km !== null && existing.max_distance_from_base_km !== undefined
+        ? Number(existing.max_distance_from_base_km)
+        : DEFAULT_DELIVERY_ZONE_META[zoneId].maxDistanceFromBaseKm;
 
     await sql`
       UPDATE delivery_zones SET
@@ -353,6 +459,7 @@ export async function updateDeliveryZoneMeta(
         price_rub = ${patch.priceRub ?? Number(existing.price_rub)},
         estimated_time = ${patch.estimatedTime ?? existing.estimated_time},
         is_active = ${patch.isActive ?? existing.is_active},
+        max_distance_from_base_km = ${patch.maxDistanceFromBaseKm ?? existingDistanceKm},
         updated_at = NOW()
       WHERE zone_id = ${zoneId}
     `;

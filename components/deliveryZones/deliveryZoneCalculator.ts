@@ -7,8 +7,8 @@
 // Назначение (RU): Определение зон МКАД, тарифы и расчёт дорожного расстояния.
 // ==================================================
 import {
-  DELIVERY_ZONE_DEFINITIONS,
-  DELIVERY_ZONE_MAX_DISTANCE_KM,
+  getDeliveryZoneDefinitions,
+  getDeliveryZoneMaxDistanceKm,
 } from "@/components/deliveryZones/deliveryZoneConfig";
 import { DELIVERY_UNAVAILABLE_MESSAGE } from "@/components/deliveryZones/deliveryIntelligenceMessages";
 import type {
@@ -87,12 +87,14 @@ export function calculateDeliveryZoneByDistance(
     return buildUnknownResult("Distance from base zone is unavailable.");
   }
 
-  if (distanceFromBaseKm > DELIVERY_ZONE_MAX_DISTANCE_KM) {
+  if (distanceFromBaseKm > getDeliveryZoneMaxDistanceKm()) {
     return buildOutsideResult(distanceFromBaseKm);
   }
 
+  const zoneDefinitions = getDeliveryZoneDefinitions();
+
   if (distanceFromBaseKm === 0) {
-    const baseZone = DELIVERY_ZONE_DEFINITIONS.find((zone) => zone.isBaseZone);
+    const baseZone = zoneDefinitions.find((zone) => zone.isBaseZone);
     if (!baseZone) {
       return buildUnknownResult("Base delivery zone is not configured.");
     }
@@ -100,7 +102,7 @@ export function calculateDeliveryZoneByDistance(
     return buildAvailableResult(baseZone, 0);
   }
 
-  const matchedZone = DELIVERY_ZONE_DEFINITIONS.find(
+  const matchedZone = zoneDefinitions.find(
     (zone) =>
       !zone.isBaseZone && distanceFromBaseKm <= zone.maxDistanceFromBaseKm,
   );

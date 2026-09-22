@@ -52,6 +52,9 @@ export async function PUT(
       patch.estimatedTime = body.zone.estimatedTime.trim();
     }
     if (typeof body.zone.isActive === "boolean") patch.isActive = body.zone.isActive;
+    if (typeof body.zone.maxDistanceFromBaseKm === "number") {
+      patch.maxDistanceFromBaseKm = body.zone.maxDistanceFromBaseKm;
+    }
 
     const result = await updateDeliveryZoneMeta(zoneId, patch);
     if (!result.ok) {

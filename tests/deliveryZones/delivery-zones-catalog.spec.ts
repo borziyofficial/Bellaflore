@@ -41,8 +41,8 @@ const EXPECTED_MAX_DISTANCE_KM: Record<string, number> = {
   "14km": 16,
   "21km": 26,
   "28km": 41,
-  "38km": 56,
-  "48km": 71,
+  "38km": 60,
+  "48km": 100,
 };
 
 function ringAreaAbs(ring: GeoCoordinate[]): number {
@@ -125,6 +125,33 @@ test.describe("rebuildDeliveryZoneCatalogEntries", () => {
     // A zone with no override falls back to the built-in default metadata.
     const zone2 = entries.find((entry) => entry.zoneId === "7km")!;
     expect(zone2.title).toBe(DEFAULT_DELIVERY_ZONE_META["7km"].title);
+  });
+
+  test("admin-saved maxDistanceFromBaseKm overrides the default boundary and reshapes the polygon", () => {
+    const base = buildSyntheticBasePolygon();
+    const customDistanceKm = 3;
+    const defaultEntries = rebuildDeliveryZoneCatalogEntries(base, DEFAULT_DELIVERY_ZONE_META);
+    const defaultZone2 = defaultEntries.find((entry) => entry.zoneId === "7km")!;
+
+    const overriddenEntries = rebuildDeliveryZoneCatalogEntries(base, {
+      "7km": { ...DEFAULT_DELIVERY_ZONE_META["7km"], maxDistanceFromBaseKm: customDistanceKm },
+    });
+    const overriddenZone2 = overriddenEntries.find((entry) => entry.zoneId === "7km")!;
+
+    expect(overriddenZone2.maxDistanceFromBaseKm).toBe(customDistanceKm);
+    expect(overriddenZone2.maxDistanceFromBaseKm).not.toBe(defaultZone2.maxDistanceFromBaseKm);
+    // A smaller boundary must produce a smaller (or equal) polygon area —
+    // proves the real geometry actually moves, not just the label.
+    expect(ringAreaAbs(overriddenZone2.polygonCoordinates)).toBeLessThan(
+      ringAreaAbs(defaultZone2.polygonCoordinates),
+    );
+
+    // Zone 1/base always stays exactly 0 even if a caller mistakenly passes
+    // a non-zero override for it.
+    const baseOverridden = rebuildDeliveryZoneCatalogEntries(base, {
+      base: { ...DEFAULT_DELIVERY_ZONE_META.base, maxDistanceFromBaseKm: 999 },
+    });
+    expect(baseOverridden.find((entry) => entry.zoneId === "base")!.maxDistanceFromBaseKm).toBe(0);
   });
 });
 

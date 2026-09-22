@@ -60,6 +60,7 @@ type ZoneDraft = {
   priceRub: number;
   estimatedTime: string;
   isActive: boolean;
+  maxDistanceFromBaseKm: number;
 };
 
 function draftFromRow(row: DeliveryZoneAdminRow): ZoneDraft {
@@ -71,6 +72,7 @@ function draftFromRow(row: DeliveryZoneAdminRow): ZoneDraft {
     priceRub: row.priceRub,
     estimatedTime: row.estimatedTime,
     isActive: row.isActive,
+    maxDistanceFromBaseKm: row.maxDistanceFromBaseKm,
   };
 }
 
@@ -82,8 +84,36 @@ function isDraftDirty(draft: ZoneDraft, row: DeliveryZoneAdminRow): boolean {
     draft.fillOpacity !== row.fillOpacity ||
     draft.priceRub !== row.priceRub ||
     draft.estimatedTime !== row.estimatedTime ||
-    draft.isActive !== row.isActive
+    draft.isActive !== row.isActive ||
+    draft.maxDistanceFromBaseKm !== row.maxDistanceFromBaseKm
   );
+}
+
+/**
+ * Client-side pre-check mirroring the authoritative server-side validation
+ * in lib/deliveryZonesDb.ts#validateDistanceOrdering — gives the admin
+ * immediate feedback without a round-trip. The server still re-validates
+ * against the real DB state (other cards' unsaved drafts here are not
+ * visible to it, only what's actually saved).
+ */
+function validateDistanceOrderingClientSide(
+  zoneId: DeliveryZoneId,
+  newDistanceKm: number,
+  allRows: DeliveryZoneAdminRow[],
+): string | null {
+  const sorted = [...allRows].sort((a, b) => a.sortOrder - b.sortOrder);
+  let previousKm = 0;
+  for (const row of sorted) {
+    if (row.isBaseZone) {
+      continue;
+    }
+    const valueKm = row.zoneId === zoneId ? newDistanceKm : row.maxDistanceFromBaseKm;
+    if (!Number.isFinite(valueKm) || valueKm <= previousKm) {
+      return `Границы зон должны строго возрастать. Значение для «${row.zoneId}» (${valueKm} км) должно быть больше предыдущей зоны (${previousKm} км).`;
+    }
+    previousKm = valueKm;
+  }
+  return null;
 }
 
 function formatDistanceRange(row: DeliveryZoneAdminRow, allRows: DeliveryZoneAdminRow[]): string {
@@ -112,6 +142,17 @@ function ZoneMetaCard({
   const dirty = isDraftDirty(draft, row);
 
   const save = useCallback(async () => {
+    if (!row.isBaseZone) {
+      const orderingError = validateDistanceOrderingClientSide(
+        row.zoneId,
+        draft.maxDistanceFromBaseKm,
+        allRows,
+      );
+      if (orderingError) {
+        setNotice({ tone: "error", text: orderingError });
+        return;
+      }
+    }
     setSaving(true);
     setNotice(null);
     try {
@@ -119,7 +160,12 @@ function ZoneMetaCard({
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ zone: draft }),
+        // Base zone (Zone 1) never sends maxDistanceFromBaseKm — it has no
+        // km boundary (always 0) and the server rejects that field for it.
+        // JSON.stringify drops `undefined` properties automatically.
+        body: JSON.stringify({
+          zone: row.isBaseZone ? { ...draft, maxDistanceFromBaseKm: undefined } : draft,
+        }),
       });
       const body = (await response.json()) as {
         zones?: DeliveryZoneAdminRow[];
@@ -220,6 +266,23 @@ function ZoneMetaCard({
             placeholder="60–90 минут"
           />
         </label>
+        {!row.isBaseZone ? (
+          <label className={styles.field}>
+            <span>Внешняя граница от МКАД, км</span>
+            <input
+              type="number"
+              min={0.1}
+              step="0.1"
+              value={draft.maxDistanceFromBaseKm}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  maxDistanceFromBaseKm: Number(event.target.value) || 0,
+                }))
+              }
+            />
+          </label>
+        ) : null}
       </div>
 
       {notice ? <p className={styles[notice.tone]}>{notice.text}</p> : null}

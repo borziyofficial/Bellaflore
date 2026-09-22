@@ -9,8 +9,8 @@
 // Бизнес-правила и пороги оценки уверенности доставки.
 // ==================================================
 import {
-  DELIVERY_ZONE_DEFINITIONS,
-  DELIVERY_ZONE_MAX_DISTANCE_KM,
+  getDeliveryZoneDefinitions,
+  getDeliveryZoneMaxDistanceKm,
 } from "@/components/deliveryZones/deliveryZoneConfig";
 import type { DeliveryZoneId } from "@/components/deliveryZones/deliveryZoneTypes";
 import type {
@@ -57,7 +57,7 @@ const DEFAULT_ZONE_ETA: Record<DeliveryZoneId, ZoneEstimatedDeliveryTime> = {
 function buildDefaultZoneRules(): DeliveryRulesConfig["zones"] {
   const zones: DeliveryRulesConfig["zones"] = {};
 
-  for (const zone of DELIVERY_ZONE_DEFINITIONS) {
+  for (const zone of getDeliveryZoneDefinitions()) {
     const isFarZone = zone.zoneId === "38km" || zone.zoneId === "48km";
 
     zones[zone.zoneId] = {
@@ -73,7 +73,7 @@ function buildDefaultZoneRules(): DeliveryRulesConfig["zones"] {
 function buildDefaultDeliveryPriceByZone(): DeliveryRulesConfig["deliveryPriceByZone"] {
   const prices: DeliveryRulesConfig["deliveryPriceByZone"] = {};
 
-  for (const zone of DELIVERY_ZONE_DEFINITIONS) {
+  for (const zone of getDeliveryZoneDefinitions()) {
     prices[zone.zoneId] = zone.priceRub;
   }
 
@@ -86,7 +86,7 @@ export const DEFAULT_DELIVERY_RULES: DeliveryRulesConfig = {
   defaultFreeDeliveryFromAmount: 15000,
   freeDeliveryMessage: "Бесплатная доставка",
   minimumOrderAmount: 1500,
-  maxDeliveryDistanceKm: DELIVERY_ZONE_MAX_DISTANCE_KM,
+  maxDeliveryDistanceKm: getDeliveryZoneMaxDistanceKm(),
   allowOutsideZone: false,
   deliveryPriceByZone: buildDefaultDeliveryPriceByZone(),
   estimatedDeliveryTimeByZone: DEFAULT_ZONE_ETA,
