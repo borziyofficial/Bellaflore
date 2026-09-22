@@ -795,3 +795,44 @@
     transform: none;
   }
 }
+
+
+/* --------------------------------------------------------------
+   MOBILE PRICE-ROW FIX
+   `.price` used to have `overflow: hidden`, which (per the flexbox
+   spec) makes its *automatic* minimum size 0, so the flex layout was
+   free to squeeze it below its own content width whenever the
+   "Подробнее ↓" pill didn't leave enough room on narrow 2-column
+   cards — that's what produced "19 9…" / "39 …" / "88…" instead of
+   the full price. Fix: the price never shrinks (flex-shrink: 0, no
+   ellipsis) and the pill is more compact; `flex-wrap` is a safety net
+   so in an extreme case the pill drops to its own line instead of
+   ever clipping the price. Unconditional (not inside a media query)
+   so it applies at every breakpoint and in both Catalog and
+   HomeShowcaseSection, which share this component. -------------- */
+.priceRow {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.price {
+  flex: 0 0 auto;
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.detailsButton {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 768px) {
+  .priceRow {
+    gap: 6px;
+    row-gap: 4px;
+  }
+
+  .detailsButton {
+    padding: 3px 7px;
+    font-size: 8px;
+  }
+}
