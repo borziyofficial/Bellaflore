@@ -782,42 +782,56 @@ ${catalogText || "Нет доступных кандидатов — дай со
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 14_000);
 
+    const requestPayload: Record<string, unknown> = {
+      model,
+      instructions,
+      input: messages.map((message) => ({
+        type: "message",
+        role: message.role,
+        content: message.content,
+      })),
+      max_output_tokens: 700,
+      reasoning: { effort: reasoningEffort },
+      text: {
+        format: {
+          type: "json_schema",
+          name: "florist_reply",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              reply: { type: "string" },
+              recommendedProductIds: {
+                type: "array",
+                items: { type: "string" },
+              },
+            },
+            required: ["reply", "recommendedProductIds"],
+            additionalProperties: false,
+          },
+        },
+      },
+    };
+
+    // The Gateway's automatic routing was sending this model to an
+    // Azure-backed provider that returns 403 before generating any
+    // tokens. Force the OpenAI provider on Gateway calls only — direct
+    // OpenAI calls (useGateway === false) never send providerOptions.
+    if (useGateway) {
+      requestPayload.providerOptions = {
+        gateway: {
+          only: ["openai"],
+        },
+      };
+    }
+
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model,
-        instructions,
-        input: messages.map((message) => ({
-          type: "message",
-          role: message.role,
-          content: message.content,
-        })),
-        max_output_tokens: 700,
-        reasoning: { effort: reasoningEffort },
-        text: {
-          format: {
-            type: "json_schema",
-            name: "florist_reply",
-            strict: true,
-            schema: {
-              type: "object",
-              properties: {
-                reply: { type: "string" },
-                recommendedProductIds: {
-                  type: "array",
-                  items: { type: "string" },
-                },
-              },
-              required: ["reply", "recommendedProductIds"],
-              additionalProperties: false,
-            },
-          },
-        },
-      }),
+      body: JSON.stringify(requestPayload),
       signal: controller.signal,
     });
     clearTimeout(timeout);
