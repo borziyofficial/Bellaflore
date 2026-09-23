@@ -89,6 +89,7 @@ type CheckoutSectionProps = {
   checkoutForm: CheckoutForm;
   deliveryDateMode: DeliveryDatePreset;
   todayDateValue: string;
+  tomorrowDateValue: string;
   availableDeliveryIntervals: DeliveryInterval[];
   cartBouquets: CheckoutCartItem[];
   checkoutTotalPrice: number;
@@ -200,6 +201,7 @@ export function CheckoutSection({
   checkoutForm,
   deliveryDateMode,
   todayDateValue,
+  tomorrowDateValue,
   availableDeliveryIntervals,
   cartBouquets,
   checkoutTotalPrice,
@@ -698,31 +700,49 @@ export function CheckoutSection({
                   isOpen={openStep === "delivery"}
                   onToggle={toggleCheckoutStep}
                 >
-                  <div className={checkoutSectionStyles.checkoutFlatDelivery}>
-                    <span>Сегодня</span>
-                    {availableDeliveryIntervals.length > 0 ? (
-                      <label className={checkoutSectionStyles.checkoutFlatSelectWrap}>
-                        <span className="sr-only">Интервал доставки</span>
-                        <select
-                          value={checkoutForm.deliveryTime}
-                          onChange={(event) =>
-                            handleIntervalSelect(event.target.value)
-                          }
-                          aria-label="Интервал доставки"
-                        >
-                          {availableDeliveryIntervals.map((interval) => (
-                            <option key={interval.label} value={interval.label}>
-                              {interval.label}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    ) : (
-                      <span className={checkoutSectionStyles.checkoutFlatMuted}>
-                        Интервалов на сегодня нет
-                      </span>
-                    )}
+                  <div className={checkoutSectionStyles.checkoutDeliveryDatePicker}>
+                    <div className={checkoutSectionStyles.checkoutDeliveryDateButtons}>
+                      <button
+                        type="button"
+                        className={`${checkoutSectionStyles.checkoutDeliveryDateButton} ${deliveryDateMode === "today" ? checkoutSectionStyles.checkoutDeliveryDateButtonActive : ""}`}
+                        onClick={() => selectDeliveryDatePreset("today")}
+                      >
+                        Сегодня
+                      </button>
+                      <button
+                        type="button"
+                        className={`${checkoutSectionStyles.checkoutDeliveryDateButton} ${deliveryDateMode === "tomorrow" ? checkoutSectionStyles.checkoutDeliveryDateButtonActive : ""}`}
+                        onClick={() => selectDeliveryDatePreset("tomorrow")}
+                      >
+                        Завтра
+                      </button>
+                    </div>
                   </div>
+
+                  {availableDeliveryIntervals.length > 0 ? (
+                    <label className={checkoutSectionStyles.checkoutFlatSelectWrap}>
+                      <span className="sr-only">Интервал доставки</span>
+                      <select
+                        value={checkoutForm.deliveryTime}
+                        onChange={(event) =>
+                          handleIntervalSelect(event.target.value)
+                        }
+                        aria-label="Интервал доставки"
+                      >
+                        {availableDeliveryIntervals.map((interval) => (
+                          <option key={interval.label} value={interval.label}>
+                            {interval.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : (
+                    <span className={checkoutSectionStyles.checkoutFlatMuted}>
+                      {deliveryDateMode === "today"
+                        ? "Интервалов на сегодня нет. Выберите завтра."
+                        : "Интервалов не доступно для выбранной даты"}
+                    </span>
+                  )}
                   {renderFieldError("deliveryTime")}
                 </CheckoutGlassStep>
 

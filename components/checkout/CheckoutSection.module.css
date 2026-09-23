@@ -919,3 +919,83 @@
   text-decoration-color: rgba(157, 118, 39, 0.35);
   text-underline-offset: 2px;
 }
+
+/* Delivery date picker */
+.checkoutDeliveryDatePicker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.checkoutDeliveryDateButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.checkoutDeliveryDateButton {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(201, 162, 75, 0.35);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.08), rgba(201, 162, 75, 0.03));
+  color: #6a4f14;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: center;
+}
+
+.checkoutDeliveryDateButton:hover {
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.15), rgba(201, 162, 75, 0.08));
+  border-color: rgba(201, 162, 75, 0.5);
+}
+
+.checkoutDeliveryDateButton:active {
+  transform: scale(0.98);
+}
+
+.checkoutDeliveryDateButtonActive {
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.3), rgba(201, 162, 75, 0.15));
+  border-color: rgba(201, 162, 75, 0.8);
+  color: #5a3e09;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(201, 162, 75, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .checkoutDeliveryDateButton {
+    background: linear-gradient(135deg, rgba(201, 162, 75, 0.12), rgba(201, 162, 75, 0.05));
+    color: #d4af7f;
+    border-color: rgba(201, 162, 75, 0.4);
+  }
+
+  .checkoutDeliveryDateButton:hover {
+    background: linear-gradient(135deg, rgba(201, 162, 75, 0.18), rgba(201, 162, 75, 0.1));
+    border-color: rgba(201, 162, 75, 0.6);
+  }
+
+  .checkoutDeliveryDateButtonActive {
+    background: linear-gradient(135deg, rgba(201, 162, 75, 0.35), rgba(201, 162, 75, 0.2));
+    border-color: rgba(201, 162, 75, 0.9);
+    color: #e8c690;
+    box-shadow: 0 2px 8px rgba(201, 162, 75, 0.2);
+  }
+}
+
+@media (max-width: 640px) {
+  .checkoutDeliveryDateButtons {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .checkoutDeliveryDateButton {
+    min-height: 40px;
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+}

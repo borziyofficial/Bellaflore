@@ -2346,6 +2346,7 @@ export default function HomePageClient({
       checkoutForm={checkoutForm}
       deliveryDateMode={deliveryDateMode}
       todayDateValue={todayDateValue}
+      tomorrowDateValue={tomorrowDateValue}
       availableDeliveryIntervals={availableDeliveryIntervals}
       cartBouquets={cartBouquets}
       checkoutTotalPrice={checkoutTotalPrice}
