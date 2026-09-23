@@ -52,8 +52,8 @@ const AI_RATE_LIMIT_MAX_REQUESTS = 8;
 const AI_RATE_LIMIT_WINDOW_MS = 60_000;
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_TOOL_CALLS = 10;
-const SAFE_DIRECT_MODEL = "gpt-5.6-sol";
-const SAFE_GATEWAY_MODEL = "openai/gpt-5.6-sol";
+const SAFE_DIRECT_MODEL = "gpt-4o-mini";
+const SAFE_GATEWAY_MODEL = "openai/gpt-4o-mini";
 
 // Tool definitions for OpenAI function calling
 const TOOL_DEFINITIONS = [
