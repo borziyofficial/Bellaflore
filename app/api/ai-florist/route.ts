@@ -3,8 +3,10 @@
 import { getVercelOidcToken } from "@vercel/oidc";
 
 type FloristMessage = {
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "tool";
   content: string | any[];
+  tool_call_id?: string;
+  tool_calls?: any[];
 };
 
 type FloristCandidate = {
@@ -357,15 +359,27 @@ export async function POST(request: Request) {
       const model = useGateway ? SAFE_GATEWAY_MODEL : SAFE_DIRECT_MODEL;
 
       // Build messages with system prompt as first message (FIX #4)
+      // CRITICAL: Preserve tool_calls and tool_call_id in message history
       const messagesForApi = [
         {
           role: "developer" as const,
           content: systemPrompt,
         },
-        ...conversationMessages.map(msg => ({
-          role: msg.role,
-          content: typeof msg.content === "string" ? msg.content : msg.content,
-        })),
+        ...conversationMessages.map(msg => {
+          const msgObj: any = {
+            role: msg.role,
+            content: typeof msg.content === "string" ? msg.content : msg.content,
+          };
+          // Preserve tool_calls if present (assistant messages with tool calls)
+          if ((msg as any).tool_calls) {
+            msgObj.tool_calls = (msg as any).tool_calls;
+          }
+          // Preserve tool_call_id if present (tool response messages)
+          if ((msg as any).tool_call_id) {
+            msgObj.tool_call_id = (msg as any).tool_call_id;
+          }
+          return msgObj;
+        }),
       ];
 
       const requestPayload: Record<string, any> = {
@@ -428,9 +442,30 @@ export async function POST(request: Request) {
       if (!toolCalls || toolCalls.length === 0) {
         // No more tool calls - we have the final response
         clearTimeout(timeout);
+        
+        // Extract recommendedProductIds from conversation history (FIX #2)
+        const recommendedProductIds: string[] = [];
+        for (const msg of conversationMessages) {
+          if (msg.role === "tool") {
+            try {
+              const toolContent = typeof msg.content === "string" 
+                ? JSON.parse(msg.content)
+                : msg.content;
+              if (toolContent?.data?.productIds && Array.isArray(toolContent.data.productIds)) {
+                recommendedProductIds.push(...toolContent.data.productIds);
+              }
+              if (toolContent?.data?.id && toolContent.data.id.startsWith("prod_")) {
+                recommendedProductIds.push(toolContent.data.id);
+              }
+            } catch {
+              // Skip parsing errors
+            }
+          }
+        }
+        
         return Response.json({
           reply: choice.message.content || "Я готов помочь подобрать букет.",
-          recommendedProductIds: [],
+          recommendedProductIds: [...new Set(recommendedProductIds)],
           mode: "ai",
         } satisfies FloristReply);
       }
@@ -443,8 +478,9 @@ export async function POST(request: Request) {
             ? JSON.parse(toolCall.function.arguments)
             : toolCall.function.arguments;
           
-          // FIX #5: Enforce draftId from request body for update_draft
-          if (toolCall.function.name === "update_draft" && body.draftId) {
+          // FIX #4, #5: Enforce draftId from request body for draft operations
+          // Security: prevent model from accessing other drafts
+          if ((toolCall.function.name === "update_draft" || toolCall.function.name === "get_draft_summary") && body.draftId) {
             toolArgs.draftId = body.draftId;
           }
           
