@@ -1,7 +1,7 @@
 .card {
   position: relative;
   display: grid;
-  grid-template-rows: max-content max-content;
+  grid-template-rows: max-content 1fr;
   align-content: start;
   align-self: start;
   height: fit-content;
@@ -106,7 +106,7 @@
   flex-direction: column;
   justify-content: flex-start;
   gap: 2px;
-  height: auto;
+  height: 100%;
   min-height: 0;
 }
 
@@ -241,8 +241,8 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  margin-top: 4px;
-  padding-top: 0;
+  margin-top: auto;
+  padding-top: 4px;
 }
 
 .buyButton {
