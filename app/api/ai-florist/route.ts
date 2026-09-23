@@ -1,7 +1,5 @@
 "use server";
 
-import { getVercelOidcToken } from "@vercel/oidc";
-
 type FloristMessage = {
   role: "user" | "assistant" | "tool";
   content: string | any[];
@@ -54,8 +52,6 @@ const AI_RATE_LIMIT_WINDOW_MS = 60_000;
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_TOOL_CALLS = 10;
 const SAFE_DIRECT_MODEL = "gpt-5.6-sol";
-const SAFE_GATEWAY_MODEL = "openai/gpt-5.6-sol";
-const SAFE_GATEWAY_FALLBACK_MODEL = "openai/gpt-4o-mini";
 
 // Tool definitions for OpenAI function calling
 const TOOL_DEFINITIONS = [
@@ -227,30 +223,6 @@ function consumeRequestQuota(request: Request): Response | null {
   return null;
 }
 
-async function resolveAiRouting() {
-  const openAiApiKey = process.env.OPENAI_API_KEY?.trim() || undefined;
-  let gatewayApiKey =
-    process.env.AI_GATEWAY_API_KEY?.trim() || process.env.VERCEL_OIDC_TOKEN?.trim() || undefined;
-  let vercelOidcAvailable = false;
-
-  if (!openAiApiKey && !gatewayApiKey) {
-    try {
-      const token = (await getVercelOidcToken()).trim();
-      if (token) {
-        gatewayApiKey = token;
-        vercelOidcAvailable = true;
-      }
-    } catch {
-      vercelOidcAvailable = false;
-    }
-  }
-
-  // Prefer direct OpenAI whenever OPENAI_API_KEY is configured.
-  // Vercel Gateway/OIDC remains only as fallback.
-  const useGateway = !openAiApiKey && Boolean(gatewayApiKey);
-  return { openAiApiKey, gatewayApiKey, useGateway, vercelOidcAvailable };
-}
-
 async function executeTool(toolName: string, toolInput: Record<string, any>): Promise<string> {
   try {
     const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
@@ -318,9 +290,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const { openAiApiKey, gatewayApiKey, useGateway } = await resolveAiRouting();
+  const openAiApiKey = process.env.OPENAI_API_KEY?.trim();
 
-  if (!openAiApiKey && !gatewayApiKey) {
+  if (!openAiApiKey) {
     console.info("[ai-florist] mode=fallback reason=missing_credentials");
     return Response.json({
       reply: "Сервис временно недоступен.",
@@ -357,13 +329,7 @@ export async function POST(request: Request) {
     let toolCallCount = 0;
 
     for (toolCallCount = 0; toolCallCount < MAX_TOOL_CALLS; toolCallCount++) {
-      const endpoint = useGateway
-        ? "https://ai-gateway.vercel.sh/v1/chat/completions"
-        : "https://api.openai.com/v1/chat/completions";
-      const token = useGateway ? gatewayApiKey : openAiApiKey;
-      const model = useGateway ? SAFE_GATEWAY_MODEL : SAFE_DIRECT_MODEL;
-
-      // Build messages with system prompt as first message (FIX #4)
+      // Build messages with system prompt as first message
       // CRITICAL: Preserve tool_calls and tool_call_id in message history
       const messagesForApi = [
         {
@@ -387,29 +353,19 @@ export async function POST(request: Request) {
         }),
       ];
 
+      // Use OpenAI Responses API directly with gpt-5.6-sol
       const requestPayload: Record<string, any> = {
-        model,
+        model: SAFE_DIRECT_MODEL,
         messages: messagesForApi,
         tools: TOOL_DEFINITIONS,
         tool_choice: "auto",
         max_tokens: 2000,
       };
 
-      if (useGateway) {
-        // GPT-5.6 Sol is the primary model.
-        // Keep gpt-4o-mini only as an emergency Gateway fallback so the
-        // consultant remains available if the primary model is temporarily
-        // unavailable to this Vercel project.
-        (requestPayload as any).models = [SAFE_GATEWAY_FALLBACK_MODEL];
-        (requestPayload as any).provider = {
-          order: ["openai"],
-        };
-      }
-
-      const response = await fetch(endpoint, {
+      const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${openAiApiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(requestPayload),
@@ -440,7 +396,7 @@ export async function POST(request: Request) {
         } satisfies FloristReply);
       }
 
-      // Add assistant message WITH tool_calls to conversation (FIX #3)
+      // Add assistant message WITH tool_calls to conversation
       conversationMessages.push({
         role: "assistant",
         content: choice.message.content || "",
@@ -453,7 +409,7 @@ export async function POST(request: Request) {
         // No more tool calls - we have the final response
         clearTimeout(timeout);
         
-        // Extract recommendedProductIds from conversation history (FIX #2)
+        // Extract recommendedProductIds from conversation history
         const recommendedProductIds: string[] = [];
         for (const msg of conversationMessages) {
           if (msg.role === "tool") {
@@ -482,19 +438,19 @@ export async function POST(request: Request) {
           modelUsed:
             typeof responseData.model === "string"
               ? responseData.model
-              : model,
+              : SAFE_DIRECT_MODEL,
         } satisfies FloristReply);
       }
 
-      // Execute tool calls with proper protocol (FIX #2, #3, #5)
+      // Execute tool calls with proper protocol
       for (const toolCall of toolCalls) {
         try {
-          // FIX #2: Parse tool arguments from JSON string
+          // Parse tool arguments from JSON string
           const toolArgs = typeof toolCall.function.arguments === 'string'
             ? JSON.parse(toolCall.function.arguments)
             : toolCall.function.arguments;
           
-          // FIX #4, #5: Enforce draftId from request body for draft operations
+          // Enforce draftId from request body for draft operations
           // Security: prevent model from accessing other drafts
           if (toolCall.function.name === "update_draft" || toolCall.function.name === "get_draft_summary") {
             if (!body.draftId) {
@@ -505,7 +461,7 @@ export async function POST(request: Request) {
           
           const toolResult = await executeTool(toolCall.function.name, toolArgs);
           
-          // FIX #3: Add proper tool message (role: "tool", not user)
+          // Add proper tool message (role: "tool", not user)
           conversationMessages.push({
             role: "tool",
             tool_call_id: toolCall.id,
