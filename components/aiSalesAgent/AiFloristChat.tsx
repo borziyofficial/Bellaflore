@@ -19,6 +19,7 @@ type Message = {
     id: string;
     title: string;
     priceRub: number;
+    size?: "S" | "M" | "L" | "XL";
   }>;
 };
 
@@ -174,13 +175,23 @@ export const AiFloristChat = forwardRef<any, AiFloristChatProps>(
 
                     if (!res.ok) return null;
                     const result = await res.json();
-                    return (
-                      result.data && {
-                        id: result.data.id,
-                        title: result.data.title,
-                        priceRub: result.data.priceRub,
-                      }
-                    );
+                    if (!result.data) return null;
+
+                    const size =
+                      Array.isArray(result.data.sizes)
+                        ? result.data.sizes.find(
+                            (item: any) =>
+                              item &&
+                              ["S", "M", "L", "XL"].includes(item.label),
+                          )?.label
+                        : undefined;
+
+                    return {
+                      id: result.data.id,
+                      title: result.data.title,
+                      priceRub: result.data.priceRub,
+                      size: size || "S",
+                    };
                   } catch {
                     return null;
                   }
@@ -231,6 +242,47 @@ export const AiFloristChat = forwardRef<any, AiFloristChatProps>(
       }
     };
 
+    const handleSelectProduct = async (product: {
+      id: string;
+      title: string;
+      priceRub: number;
+      size?: "S" | "M" | "L" | "XL";
+    }) => {
+      if (!draftId) return;
+
+      try {
+        const response = await fetch("/api/order-drafts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "update",
+            draftId,
+            updates: {
+              items: [
+                {
+                  productId: product.id,
+                  size: product.size || "S",
+                  quantity: 1,
+                },
+              ],
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to save selected product");
+        }
+
+        setError(null);
+        setInput(
+          `Выбираю "${product.title}" (${product.priceRub.toLocaleString("ru-RU")} ₽)`,
+        );
+      } catch (err) {
+        console.error("Failed to save selected product:", err);
+        setError("Не удалось сохранить выбранный букет");
+      }
+    };
+
     return (
       <div className={styles.container}>
         <div className={styles.header}>
@@ -262,11 +314,7 @@ export const AiFloristChat = forwardRef<any, AiFloristChatProps>(
                         )}
                         <button
                           className={styles.selectButton}
-                          onClick={() =>
-                            setInput(
-                              `Выбираю "${product.title}" (${product.priceRub.toLocaleString("ru-RU")} ₽)`,
-                            )
-                          }
+                          onClick={() => void handleSelectProduct(product)}
                         >
                           Выбрать
                         </button>
