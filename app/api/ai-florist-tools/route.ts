@@ -391,6 +391,9 @@ async function updateDraft(params: {
   deliveryLatitude?: unknown;
   deliveryLongitude?: unknown;
   deliveryZoneId?: unknown;
+  deliveryDate?: unknown;
+  deliveryInterval?: unknown;
+  customerComment?: unknown;
   items?: unknown;
 }): Promise<ToolResponse> {
   try {
@@ -414,6 +417,9 @@ async function updateDraft(params: {
       deliveryLatitude: Number.isFinite(Number(params.deliveryLatitude)) ? Number(params.deliveryLatitude) : undefined,
       deliveryLongitude: Number.isFinite(Number(params.deliveryLongitude)) ? Number(params.deliveryLongitude) : undefined,
       deliveryZoneId: validateString(params.deliveryZoneId),
+      deliveryDate: validateString(params.deliveryDate),
+      deliveryInterval: validateString(params.deliveryInterval),
+      customerComment: validateString(params.customerComment),
       items: Array.isArray(params.items) ? params.items : undefined,
     };
 

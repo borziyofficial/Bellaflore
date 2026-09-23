@@ -103,7 +103,18 @@ const TOOL_DEFINITIONS = [
           deliveryLongitude: { type: "number" },
           deliveryDate: { type: "string" },
           deliveryInterval: { type: "string" },
-          items: { type: "array" },
+          items: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                productId: { type: "string" },
+                size: { type: "string", enum: ["S", "M", "L", "XL"] },
+                quantity: { type: "number" },
+              },
+              required: ["productId", "size", "quantity"],
+            },
+          },
           customerComment: { type: "string" },
         },
         required: ["draftId"],
@@ -136,6 +147,37 @@ const TOOL_DEFINITIONS = [
           longitude: { type: "number" },
         },
         required: ["latitude", "longitude"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_draft_summary",
+      description: "Get current draft summary with all collected data",
+      parameters: {
+        type: "object",
+        properties: {
+          draftId: { type: "string" },
+        },
+        required: ["draftId"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "validate_product_availability",
+      description: "Check if selected products are available",
+      parameters: {
+        type: "object",
+        properties: {
+          productIds: {
+            type: "array",
+            items: { type: "string" },
+          },
+        },
+        required: ["productIds"],
       },
     },
   },
@@ -309,18 +351,26 @@ export async function POST(request: Request) {
 
     for (toolCallCount = 0; toolCallCount < MAX_TOOL_CALLS; toolCallCount++) {
       const endpoint = useGateway
-        ? "https://api.vercel.com/v1/chat/completions"
+        ? "https://ai-gateway.vercel.sh/v1/chat/completions"
         : "https://api.openai.com/v1/chat/completions";
       const token = useGateway ? gatewayApiKey : openAiApiKey;
       const model = useGateway ? SAFE_GATEWAY_MODEL : SAFE_DIRECT_MODEL;
 
-      const requestPayload: Record<string, any> = {
-        model,
-        messages: conversationMessages.map(msg => ({
+      // Build messages with system prompt as first message (FIX #4)
+      const messagesForApi = [
+        {
+          role: "developer" as const,
+          content: systemPrompt,
+        },
+        ...conversationMessages.map(msg => ({
           role: msg.role,
           content: typeof msg.content === "string" ? msg.content : msg.content,
         })),
-        system: systemPrompt,
+      ];
+
+      const requestPayload: Record<string, any> = {
+        model,
+        messages: messagesForApi,
         tools: TOOL_DEFINITIONS,
         tool_choice: "auto",
         max_tokens: 2000,
@@ -366,11 +416,12 @@ export async function POST(request: Request) {
         } satisfies FloristReply);
       }
 
-      // Add assistant message to conversation
+      // Add assistant message WITH tool_calls to conversation (FIX #3)
       conversationMessages.push({
         role: "assistant",
         content: choice.message.content || "",
-      });
+        tool_calls: choice.message.tool_calls,
+      } as any);
 
       // Check for tool calls
       const toolCalls = choice.message.tool_calls;
@@ -384,23 +435,36 @@ export async function POST(request: Request) {
         } satisfies FloristReply);
       }
 
-      // Execute tool calls
-      const toolResults = [];
+      // Execute tool calls with proper protocol (FIX #2, #3, #5)
       for (const toolCall of toolCalls) {
-        const toolResult = await executeTool(toolCall.function.name, toolCall.function.arguments);
-        
-        toolResults.push({
-          tool_call_id: toolCall.id,
-          role: "tool",
-          content: toolResult,
-        });
+        try {
+          // FIX #2: Parse tool arguments from JSON string
+          const toolArgs = typeof toolCall.function.arguments === 'string'
+            ? JSON.parse(toolCall.function.arguments)
+            : toolCall.function.arguments;
+          
+          // FIX #5: Enforce draftId from request body for update_draft
+          if (toolCall.function.name === "update_draft" && body.draftId) {
+            toolArgs.draftId = body.draftId;
+          }
+          
+          const toolResult = await executeTool(toolCall.function.name, toolArgs);
+          
+          // FIX #3: Add proper tool message (role: "tool", not user)
+          conversationMessages.push({
+            role: "tool",
+            tool_call_id: toolCall.id,
+            content: toolResult,
+          } as any);
+        } catch (toolError) {
+          console.error("[ai-florist] tool execution error:", toolError);
+          conversationMessages.push({
+            role: "tool",
+            tool_call_id: toolCall.id,
+            content: JSON.stringify({ status: "error", message: "Tool execution failed" }),
+          } as any);
+        }
       }
-
-      // Add tool results to conversation
-      conversationMessages.push({
-        role: "user",
-        content: toolResults as any,
-      });
     }
 
     clearTimeout(timeout);
