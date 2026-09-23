@@ -593,15 +593,79 @@ async function finalizeOrderFromDraft(params: {
       };
     }
 
+    // === STRICT VALIDATION: Trim and validate all string fields ===
+    const customerName = draft.customerName?.trim();
+    const customerPhone = draft.customerPhone?.trim();
+    const recipientName = draft.recipientName?.trim();
+    const deliveryAddress = draft.deliveryAddress?.trim();
+    const deliveryDate = draft.deliveryDate?.trim();
+    const deliveryInterval = draft.deliveryInterval?.trim();
+
     // Validate draft is complete with all required fields
-    if (!draft.customerName || !draft.customerPhone ||
-        !draft.recipientName || !draft.deliveryAddress ||
-        !draft.deliveryDate || !draft.deliveryInterval ||
+    if (!customerName || !customerPhone ||
+        !recipientName || !deliveryAddress ||
+        !deliveryDate || !deliveryInterval ||
         !draft.items || draft.items.length === 0) {
       return {
         status: "error",
         message: "Черновик неполный. Заполните все обязательные поля.",
       };
+    }
+
+    // === CRITICAL VALIDATION: Validate coordinates are present and valid ===
+    // NEVER substitute 0,0. If coordinates missing, return error.
+    if (draft.deliveryLatitude === undefined || draft.deliveryLatitude === null ||
+        draft.deliveryLongitude === undefined || draft.deliveryLongitude === null) {
+      return {
+        status: "error",
+        message: "Координаты доставки не установлены. Используйте поиск адреса.",
+      };
+    }
+
+    const lat = Number(draft.deliveryLatitude);
+    const lon = Number(draft.deliveryLongitude);
+
+    // Reject exactly 0,0 (placeholder)
+    if (lat === 0 && lon === 0) {
+      return {
+        status: "error",
+        message: "Координаты доставки некорректны. Используйте поиск адреса.",
+      };
+    }
+
+    // Validate geographic bounds
+    if (Math.abs(lat) > 85 || Math.abs(lon) > 180) {
+      return {
+        status: "error",
+        message: "Координаты доставки вне допустимого диапазона.",
+      };
+    }
+
+    // === ITEM VALIDATION: Validate each item has required fields ===
+    for (let i = 0; i < draft.items.length; i++) {
+      const item = draft.items[i];
+      
+      if (!item.productId) {
+        return {
+          status: "error",
+          message: `Товар ${i + 1}: не указан ID товара.`,
+        };
+      }
+
+      if (!item.size) {
+        return {
+          status: "error",
+          message: `Товар ${i + 1}: не указан размер.`,
+        };
+      }
+
+      const qty = Math.max(1, parseInt(String(item.quantity || 1)));
+      if (qty < 1) {
+        return {
+          status: "error",
+          message: `Товар ${i + 1}: количество должно быть не менее 1.`,
+        };
+      }
     }
 
     // Validate product availability before finalizing
@@ -625,26 +689,27 @@ async function finalizeOrderFromDraft(params: {
 
     // Generate idempotency key based on draft (phone + draftId)
     // This ensures same result if finalize is called multiple times
-    const idempotencyKeyInput = `${draft.customerPhone}:${draftId}`;
+    const idempotencyKeyInput = `${customerPhone}:${draftId}`;
     const idempotencyKey = createHash("sha256").update(idempotencyKeyInput).digest("hex");
 
     // Create CreateOrderInput from draft data
+    // CRITICAL: Use validated coordinates, NEVER 0,0
     const createOrderInput: CreateOrderInput = {
-      customerName: draft.customerName,
-      customerPhone: draft.customerPhone,
-      recipientName: draft.recipientName,
-      recipientPhone: draft.recipientPhone || draft.customerPhone,
-      deliveryAddress: draft.deliveryAddress,
-      deliveryLatitude: draft.deliveryLatitude || 0,
-      deliveryLongitude: draft.deliveryLongitude || 0,
-      deliveryDate: draft.deliveryDate,
-      deliveryInterval: draft.deliveryInterval,
+      customerName,
+      customerPhone,
+      recipientName,
+      recipientPhone: draft.recipientPhone?.trim() || customerPhone,
+      deliveryAddress,
+      deliveryLatitude: lat,
+      deliveryLongitude: lon,
+      deliveryDate,
+      deliveryInterval,
       paymentMethod: draft.paymentMethod || "cardTransfer",
-      customerComment: draft.customerComment || "",
+      customerComment: draft.customerComment?.trim() || "",
       items: draft.items.map((item: any) => ({
         productId: item.productId,
         size: item.size || "M",
-        quantity: item.quantity || 1,
+        quantity: Math.max(1, parseInt(String(item.quantity || 1))),
       })),
     };
 
