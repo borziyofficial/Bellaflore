@@ -103,6 +103,7 @@ const TOOL_DEFINITIONS = [
           deliveryAddress: { type: "string" },
           deliveryLatitude: { type: "number" },
           deliveryLongitude: { type: "number" },
+          deliveryZoneId: { type: "string" },
           deliveryDate: { type: "string" },
           deliveryInterval: { type: "string" },
           items: {
@@ -451,10 +452,12 @@ export async function POST(request: Request) {
               const toolContent = typeof msg.content === "string" 
                 ? JSON.parse(msg.content)
                 : msg.content;
-              if (toolContent?.data?.productIds && Array.isArray(toolContent.data.productIds)) {
-                recommendedProductIds.push(...toolContent.data.productIds);
+              // Extract from search_products results
+              if (toolContent?.data?.products && Array.isArray(toolContent.data.products)) {
+                recommendedProductIds.push(...toolContent.data.products.map((p: any) => p.id));
               }
-              if (toolContent?.data?.id && toolContent.data.id.startsWith("prod_")) {
+              // Extract from get_product result
+              if (toolContent?.data?.id && typeof toolContent.data.id === "string") {
                 recommendedProductIds.push(toolContent.data.id);
               }
             } catch {
@@ -480,7 +483,10 @@ export async function POST(request: Request) {
           
           // FIX #4, #5: Enforce draftId from request body for draft operations
           // Security: prevent model from accessing other drafts
-          if ((toolCall.function.name === "update_draft" || toolCall.function.name === "get_draft_summary") && body.draftId) {
+          if (toolCall.function.name === "update_draft" || toolCall.function.name === "get_draft_summary") {
+            if (!body.draftId) {
+              throw new Error(`Tool ${toolCall.function.name} requires draftId in request body`);
+            }
             toolArgs.draftId = body.draftId;
           }
           

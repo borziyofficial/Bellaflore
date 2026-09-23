@@ -199,7 +199,7 @@ export const AiFloristChat = forwardRef<any, AiFloristChatProps>(
         };
 
         const finalState = {
-          turns: [...conversationState.turns.slice(0, -1), turnWithReply],
+          turns: [...updatedState.turns.slice(0, -1), turnWithReply],
         };
 
         setConversationState(finalState);
