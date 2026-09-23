@@ -1,25 +1,23 @@
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS order_drafts (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_name TEXT,
   customer_phone TEXT,
   recipient_name TEXT,
   recipient_phone TEXT,
   delivery_address TEXT,
-  delivery_latitude DOUBLE PRECISION,
-  delivery_longitude DOUBLE PRECISION,
+  delivery_latitude NUMERIC(10, 8),
+  delivery_longitude NUMERIC(10, 8),
   delivery_zone_id TEXT,
-  delivery_date TEXT,
+  delivery_date DATE,
   delivery_interval TEXT,
   payment_method TEXT,
   customer_comment TEXT DEFAULT '',
-  items JSONB DEFAULT '[]'::jsonb,
-  conversation_state JSONB DEFAULT '{"turns": []}'::jsonb,
-  status TEXT NOT NULL DEFAULT 'active' CHECK (
-    status IN ('active', 'abandoned', 'converted')
-  ),
-  converted_to_order_id TEXT,
+  items JSONB NOT NULL DEFAULT '[]'::jsonb,
+  conversation_state JSONB NOT NULL DEFAULT '{"turns": []}'::jsonb,
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'abandoned', 'converted')),
+  converted_to_order_id UUID,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   abandoned_at TIMESTAMPTZ

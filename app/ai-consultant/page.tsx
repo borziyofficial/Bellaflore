@@ -1,4 +1,4 @@
-import { AiFloristChat } from "@/components/aiSalesAgent/AiFloristChat";
+import { AiFloristChatWithSummary } from "@/components/aiSalesAgent/AiFloristChatWithSummary";
 import styles from "./page.module.css";
 
 export const metadata = {
@@ -10,7 +10,7 @@ export default function AiConsultantPage() {
   return (
     <main className={styles.main}>
       <div className={styles.container}>
-        <AiFloristChat />
+        <AiFloristChatWithSummary />
       </div>
     </main>
   );

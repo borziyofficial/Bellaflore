@@ -50,17 +50,17 @@ CREATE INDEX IF NOT EXISTS idx_catalog_products_slug ON catalog_products(slug);
 
 CREATE TABLE IF NOT EXISTS order_drafts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  customer_name TEXT NOT NULL,
-  customer_phone TEXT NOT NULL,
-  recipient_name TEXT NOT NULL,
-  recipient_phone TEXT NOT NULL,
-  delivery_address TEXT NOT NULL,
+  customer_name TEXT,
+  customer_phone TEXT,
+  recipient_name TEXT,
+  recipient_phone TEXT,
+  delivery_address TEXT,
   delivery_latitude NUMERIC(10, 8),
   delivery_longitude NUMERIC(10, 8),
   delivery_zone_id TEXT,
-  delivery_date DATE NOT NULL,
-  delivery_interval TEXT NOT NULL,
-  payment_method TEXT NOT NULL,
+  delivery_date DATE,
+  delivery_interval TEXT,
+  payment_method TEXT,
   customer_comment TEXT DEFAULT '',
   items JSONB NOT NULL DEFAULT '[]'::jsonb,
   conversation_state JSONB NOT NULL DEFAULT '{"turns": []}'::jsonb,
@@ -71,6 +71,6 @@ CREATE TABLE IF NOT EXISTS order_drafts (
   abandoned_at TIMESTAMPTZ
 );
 
-CREATE INDEX IF NOT EXISTS idx_order_drafts_customer_phone ON order_drafts(customer_phone);
+CREATE INDEX IF NOT EXISTS idx_order_drafts_customer_phone ON order_drafts(customer_phone) WHERE customer_phone IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_order_drafts_status_created ON order_drafts(status, created_at);
 CREATE INDEX IF NOT EXISTS idx_order_drafts_active ON order_drafts(created_at) WHERE status = 'active';
