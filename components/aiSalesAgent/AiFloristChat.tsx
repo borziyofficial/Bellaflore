@@ -3,6 +3,14 @@
 import { useState, useRef, useEffect } from "react";
 import styles from "./AiFloristChat.module.css";
 
+type ConversationTurn = {
+  turn: number;
+  timestamp: string;
+  userMessage?: string;
+  aiReply?: string;
+  recommendedProductIds?: string[];
+};
+
 type Message = {
   id: string;
   role: "user" | "assistant";
@@ -19,13 +27,42 @@ export function AiFloristChat() {
     {
       id: "initial",
       role: "assistant",
-      content: "Здравствуйте! Я — AI-консультант BellaFlore. Помогу вам подобрать идеальный букет. Кому вы хотите подарить цветы?",
+      content:
+        "Здравствуйте! Я — AI-консультант BellaFlore. Помогу вам подобрать идеальный букет. Кому вы хотите подарить цветы?",
     },
   ]);
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [conversationState, setConversationState] = useState<{ turns: ConversationTurn[] }>({ turns: [] });
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize draft on mount
+  useEffect(() => {
+    const initializeDraft = async () => {
+      try {
+        const response = await fetch("/api/order-drafts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "create" }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create draft");
+        }
+
+        const draft = await response.json();
+        setDraftId(draft.id);
+      } catch (err) {
+        console.error("Failed to initialize draft:", err);
+        setError("Не удалось инициализировать сеанс");
+      }
+    };
+
+    initializeDraft();
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,7 +74,7 @@ export function AiFloristChat() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || !draftId) return;
 
     // Add user message
     const userMessage: Message = {
@@ -49,8 +86,33 @@ export function AiFloristChat() {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
+    setError(null);
 
     try {
+      // Record user message in conversation state
+      const newTurn: ConversationTurn = {
+        turn: conversationState.turns.length,
+        timestamp: new Date().toISOString(),
+        userMessage: input,
+      };
+
+      const updatedState = {
+        turns: [...conversationState.turns, newTurn],
+      };
+
+      // Update draft with user message
+      await fetch("/api/order-drafts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update",
+          draftId,
+          updates: {
+            conversationState: updatedState,
+          },
+        }),
+      }).catch((err) => console.error("Failed to update draft with user message:", err));
+
       // Call AI florist API
       const response = await fetch("/api/ai-florist", {
         method: "POST",
@@ -64,39 +126,93 @@ export function AiFloristChat() {
             }))
             .concat([{ role: "user", content: input }]),
           candidates: [],
+          draftId,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("API error");
+        if (response.status === 429) {
+          setError("Слишком много сообщений. Попробуйте немного позже.");
+        } else {
+          throw new Error("API error");
+        }
+        return;
       }
 
       const data = await response.json();
 
+      // Fetch product details for recommended products
       const assistantMessage: Message = {
         id: `assistant_${Date.now()}`,
         role: "assistant",
         content: data.reply || "Извините, я не смог обработать ваш запрос.",
         recommendedProducts: data.recommendedProductIds?.length
-          ? [
-              {
-                id: data.recommendedProductIds[0],
-                title: "Рекомендуемый товар",
-                priceRub: 0,
-              },
-            ]
+          ? await Promise.all(
+              data.recommendedProductIds.slice(0, 3).map(async (id: string) => {
+                try {
+                  const res = await fetch("/api/ai-florist-tools", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      tool: "get_product",
+                      params: { id },
+                    }),
+                  });
+
+                  if (!res.ok) return null;
+                  const result = await res.json();
+                  return (
+                    result.data && {
+                      id: result.data.id,
+                      title: result.data.title,
+                      priceRub: result.data.priceRub,
+                    }
+                  );
+                } catch {
+                  return null;
+                }
+              }),
+            ).then((products) => products.filter((p): p is any => p !== null))
           : undefined,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Error:", error);
-      const errorMessage: Message = {
-        id: `error_${Date.now()}`,
-        role: "assistant",
-        content: "Извините, произошла ошибка. Пожалуйста, попробуйте ещё раз.",
+
+      // Update conversation state with AI reply
+      const turnWithReply: ConversationTurn = {
+        ...newTurn,
+        aiReply: data.reply,
+        recommendedProductIds: data.recommendedProductIds || [],
       };
-      setMessages((prev) => [...prev, errorMessage]);
+
+      const finalState = {
+        turns: [...conversationState.turns.slice(0, -1), turnWithReply],
+      };
+
+      setConversationState(finalState);
+
+      // Update draft with AI response
+      await fetch("/api/order-drafts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update",
+          draftId,
+          updates: {
+            conversationState: finalState,
+          },
+        }),
+      }).catch((err) => console.error("Failed to update draft with AI reply:", err));
+    } catch (err) {
+      console.error("Error:", err);
+      if (!error) {
+        const errorMessage: Message = {
+          id: `error_${Date.now()}`,
+          role: "assistant",
+          content: "Извините, произошла ошибка. Пожалуйста, попробуйте ещё раз.",
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+      }
     } finally {
       setLoading(false);
     }
@@ -106,10 +222,11 @@ export function AiFloristChat() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>🌸 AI-консультант BellaFlore</h2>
-        <p className={styles.subtitle}>
-          Подберу для вас идеальный букет
-        </p>
+        <p className={styles.subtitle}>Подберу для вас идеальный букет</p>
+        {draftId && <p className={styles.draftId}>ID сеанса: {draftId.slice(0, 8)}...</p>}
       </div>
+
+      {error && <div className={styles.errorMessage}>{error}</div>}
 
       <div className={styles.messagesContainer}>
         {messages.map((message) => (
@@ -117,9 +234,7 @@ export function AiFloristChat() {
             key={message.id}
             className={`${styles.message} ${styles[`message_${message.role}`]}`}
           >
-            {message.role === "assistant" && (
-              <div className={styles.avatar}>🌸</div>
-            )}
+            {message.role === "assistant" && <div className={styles.avatar}>🌸</div>}
             <div className={styles.content}>
               <p className={styles.text}>{message.content}</p>
               {message.recommendedProducts && (
@@ -132,14 +247,22 @@ export function AiFloristChat() {
                           {product.priceRub.toLocaleString("ru-RU")} ₽
                         </p>
                       )}
+                      <button
+                        className={styles.selectButton}
+                        onClick={() =>
+                          setInput(
+                            `Выбираю "${product.title}" (${product.priceRub.toLocaleString("ru-RU")} ₽)`,
+                          )
+                        }
+                      >
+                        Выбрать
+                      </button>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-            {message.role === "user" && (
-              <div className={styles.avatar}>👤</div>
-            )}
+            {message.role === "user" && <div className={styles.avatar}>👤</div>}
           </div>
         ))}
         {loading && (
@@ -163,12 +286,12 @@ export function AiFloristChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Напишите, что вы ищете..."
-          disabled={loading}
+          disabled={loading || !draftId}
           className={styles.input}
         />
         <button
           type="submit"
-          disabled={loading || !input.trim()}
+          disabled={loading || !input.trim() || !draftId}
           className={styles.sendButton}
         >
           Отправить
