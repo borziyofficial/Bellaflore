@@ -19,10 +19,14 @@ type OrderDraftData = {
     latitude?: number;
     longitude?: number;
     zoneId?: string;
+    date?: string;
+    interval?: string;
   };
   items: Array<{
     id: string;
+    productId?: string;
     title: string;
+    size?: "S" | "M" | "L" | "XL";
     price: number;
     quantity: number;
   }>;
@@ -52,6 +56,8 @@ export function OrderDraftSummary({
     draft.customer?.phone &&
     draft.recipient?.name &&
     draft.delivery?.address &&
+    draft.delivery?.date &&
+    draft.delivery?.interval &&
     draft.items?.length > 0
   );
 
@@ -70,7 +76,9 @@ export function OrderDraftSummary({
             <div className={styles.itemsList}>
               {draft.items.map((item) => (
                 <div key={item.id} className={styles.item}>
-                  <span className={styles.itemTitle}>{item.title}</span>
+                  <span className={styles.itemTitle}>
+                    {item.title}{item.size ? ` · ${item.size}` : ""}
+                  </span>
                   <span className={styles.itemQty}>x{item.quantity}</span>
                   <span className={styles.itemPrice}>
                     {(item.price * item.quantity).toLocaleString("ru-RU")} ₽
@@ -119,6 +127,14 @@ export function OrderDraftSummary({
           <div className={styles.detail}>
             <span className={styles.label}>Зона доставки:</span>
             <span className={styles.value}>{draft.delivery?.zoneId || "—"}</span>
+          </div>
+          <div className={styles.detail}>
+            <span className={styles.label}>Дата:</span>
+            <span className={styles.value}>{draft.delivery?.date || "—"}</span>
+          </div>
+          <div className={styles.detail}>
+            <span className={styles.label}>Интервал:</span>
+            <span className={styles.value}>{draft.delivery?.interval || "—"}</span>
           </div>
         </div>
 

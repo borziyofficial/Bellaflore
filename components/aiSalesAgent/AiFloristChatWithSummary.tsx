@@ -21,10 +21,14 @@ type OrderDraftData = {
     latitude?: number;
     longitude?: number;
     zoneId?: string;
+    date?: string;
+    interval?: string;
   };
   items: Array<{
     id: string;
+    productId?: string;
     title: string;
+    size?: "S" | "M" | "L" | "XL";
     price: number;
     quantity: number;
   }>;
@@ -118,17 +122,41 @@ export function AiFloristChatWithSummary({
         throw new Error(errorMessage);
       }
 
-      const result = (await response.json()) as OrderConfirmationResult;
-      
+      const result = (await response.json()) as {
+        status: "ok" | "error";
+        message?: string;
+        data?: {
+          message?: string;
+          orderNumber?: string;
+          orderId?: string;
+          replayed?: boolean;
+          order?: {
+            total?: number;
+          };
+        };
+      };
+
       if (result.status === "error") {
         setConfirmationError(result.message || "Ошибка при оформлении заказа");
         setConfirmationResult(null);
       } else {
-        setConfirmationResult(result);
-        if (result.replayed) {
-          setConfirmationError(null);
+        const normalized: OrderConfirmationResult = {
+          status: "ok",
+          message: result.data?.message,
+          orderNumber: result.data?.orderNumber,
+          orderId: result.data?.orderId,
+          replayed: Boolean(result.data?.replayed),
+          total: result.data?.order?.total,
+        };
+
+        if (!normalized.orderNumber) {
+          throw new Error("Сервер не вернул номер созданного заказа");
         }
-        if (!result.replayed) {
+
+        setConfirmationResult(normalized);
+        setConfirmationError(null);
+
+        if (!normalized.replayed) {
           onOrderConfirmed?.(draftData.draftId);
         }
       }

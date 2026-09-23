@@ -46,14 +46,16 @@ type FloristReply = {
   recommendedProductIds?: string[];
   mode: "ai" | "fallback";
   fallbackReason?: FloristFallbackReason;
+  modelUsed?: string;
 };
 
 const AI_RATE_LIMIT_MAX_REQUESTS = 8;
 const AI_RATE_LIMIT_WINDOW_MS = 60_000;
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_TOOL_CALLS = 10;
-const SAFE_DIRECT_MODEL = "gpt-4o-mini";
-const SAFE_GATEWAY_MODEL = "openai/gpt-4o-mini";
+const SAFE_DIRECT_MODEL = "gpt-5.6-sol";
+const SAFE_GATEWAY_MODEL = "openai/gpt-5.6-sol";
+const SAFE_GATEWAY_FALLBACK_MODEL = "openai/gpt-4o-mini";
 
 // Tool definitions for OpenAI function calling
 const TOOL_DEFINITIONS = [
@@ -392,6 +394,11 @@ export async function POST(request: Request) {
       };
 
       if (useGateway) {
+        // GPT-5.6 Sol is the primary model.
+        // Keep gpt-4o-mini only as an emergency Gateway fallback so the
+        // consultant remains available if the primary model is temporarily
+        // unavailable to this Vercel project.
+        (requestPayload as any).models = [SAFE_GATEWAY_FALLBACK_MODEL];
         (requestPayload as any).provider = {
           order: ["openai"],
         };
@@ -468,8 +475,12 @@ export async function POST(request: Request) {
         
         return Response.json({
           reply: choice.message.content || "Я готов помочь подобрать букет.",
-          recommendedProductIds: [...new Set(recommendedProductIds)],
+          recommendedProductIds: [...new Set(recommendedProductIds)].slice(0, 3),
           mode: "ai",
+          modelUsed:
+            typeof responseData.model === "string"
+              ? responseData.model
+              : model,
         } satisfies FloristReply);
       }
 

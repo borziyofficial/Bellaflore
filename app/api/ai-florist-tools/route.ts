@@ -454,7 +454,7 @@ async function getDraftSummary(params: {
   try {
     const draftRepository = new PostgresOrderDraftRepository();
     const draftId = validateString(params.draftId);
-    
+
     if (!draftId) {
       return {
         status: "error",
@@ -470,10 +470,48 @@ async function getDraftSummary(params: {
       };
     }
 
-    // Calculate total from items
-    const total = draft.items?.reduce((sum, item: any) => {
-      return sum + ((item.price || 0) * (item.quantity || 1));
-    }, 0) || 0;
+    // Resolve selected draft items against the REAL published catalog.
+    // Draft stores only productId/size/quantity; title and price are derived
+    // server-side so the Summary never trusts client/AI-provided prices.
+    const catalogResult = await loadPublishedStorefrontCatalog();
+    if (catalogResult.status !== "success") {
+      return {
+        status: "error",
+        message: "Каталог недоступен",
+      };
+    }
+
+    const catalogById = new Map(
+      catalogResult.products.map((product) => [product.id, product]),
+    );
+
+    const summaryItems = (draft.items || []).map((item) => {
+      const product = catalogById.get(item.productId);
+
+      const selectedSize =
+        product && Array.isArray(product.sizes)
+          ? product.sizes.find((size) => size.label === item.size)
+          : undefined;
+
+      const price =
+        selectedSize?.price ??
+        product?.priceRub ??
+        0;
+
+      return {
+        id: item.productId,
+        productId: item.productId,
+        title: product?.title || "Товар",
+        size: item.size,
+        price,
+        quantity: item.quantity,
+      };
+    });
+
+    const total = summaryItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
 
     return {
       status: "ok",
@@ -493,8 +531,10 @@ async function getDraftSummary(params: {
           latitude: draft.deliveryLatitude,
           longitude: draft.deliveryLongitude,
           zoneId: draft.deliveryZoneId,
+          date: draft.deliveryDate,
+          interval: draft.deliveryInterval,
         },
-        items: draft.items || [],
+        items: summaryItems,
         total,
         conversationTurns: draft.conversationState?.turns?.length || 0,
         createdAt: draft.createdAt,
@@ -509,7 +549,6 @@ async function getDraftSummary(params: {
     };
   }
 }
-
 
 // ==================================================
 // TOOL: validate_product_availability
