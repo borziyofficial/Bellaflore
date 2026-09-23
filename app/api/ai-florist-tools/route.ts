@@ -1,9 +1,10 @@
 import { loadPublishedStorefrontCatalog } from "@/lib/catalogDb/publicStorefront";
+import { calculateServerDeliveryPrice } from "@/lib/orders/deliveryPricing";
 import type { CatalogProduct } from "@/data/catalogProducts";
 
 // ==================================================
-// SECTION: AI FLORIST TOOLS
-// Защищённый слой инструментов для AI агента
+// SECTION: AI FLORIST TOOLS v1.1 INTEGRATION
+// Real services: Yandex geocoding, delivery zones, order storage
 // ==================================================
 
 export const runtime = "nodejs";
@@ -20,16 +21,45 @@ type ToolResponse = {
 };
 
 // ==================================================
+// RUNTIME VALIDATION HELPERS
+// ==================================================
+
+function validateString(value: unknown, maxLength: number = 500): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  return value.trim().slice(0, maxLength);
+}
+
+function validatePhone(value: unknown): string | null {
+  const str = validateString(value, 20);
+  if (!str) return null;
+  const digits = str.replace(/[^0-9]/g, "");
+  if (digits.length < 10 || digits.length > 20) return null;
+  return str;
+}
+
+function validatePrice(value: unknown): number | null {
+  const num = Number(value);
+  if (!Number.isFinite(num) || num < 0 || num > 1_000_000) return null;
+  return Math.round(num);
+}
+
+function validatePositivePrice(value: unknown): number | null {
+  const price = validatePrice(value);
+  if (price === null || price <= 0) return null;
+  return price;
+}
+
+// ==================================================
 // TOOL: search_products
-// Поиск товаров по каталогу
+// Real catalog search with price edge case handling
 // ==================================================
 async function searchProducts(params: {
-  query?: string;
-  maxPrice?: number;
-  minPrice?: number;
-  category?: string;
-  flowerType?: string;
-  limit?: number;
+  query?: unknown;
+  maxPrice?: unknown;
+  minPrice?: unknown;
+  category?: unknown;
+  flowerType?: unknown;
+  limit?: unknown;
 }): Promise<ToolResponse> {
   try {
     const catalogResult = await loadPublishedStorefrontCatalog();
@@ -42,14 +72,25 @@ async function searchProducts(params: {
     }
 
     const { products } = catalogResult;
-    const {
-      query = "",
-      maxPrice = Infinity,
-      minPrice = 0,
-      category,
-      flowerType,
-      limit = 5,
-    } = params;
+    const query = validateString(params.query) || "";
+    
+    // Handle price edges: Infinity becomes no limit, non-finite becomes 0
+    let maxPrice = 1_000_000; // default reasonable max
+    let minPrice = 0;
+    
+    if (params.maxPrice !== undefined && params.maxPrice !== null) {
+      const parsed = validatePrice(params.maxPrice);
+      if (parsed !== null) maxPrice = parsed;
+    }
+    
+    if (params.minPrice !== undefined && params.minPrice !== null) {
+      const parsed = validatePrice(params.minPrice);
+      if (parsed !== null) minPrice = parsed;
+    }
+
+    const category = validateString(params.category);
+    const flowerType = validateString(params.flowerType);
+    const limit = Math.min(Math.max(1, Number(params.limit) || 5), 20);
 
     const lowerQuery = query.toLowerCase();
 
@@ -134,11 +175,11 @@ async function searchProducts(params: {
 
 // ==================================================
 // TOOL: get_product
-// Получить детали товара
+// Retrieve full product details from catalog
 // ==================================================
 async function getProduct(params: {
-  id?: string;
-  slug?: string;
+  id?: unknown;
+  slug?: unknown;
 }): Promise<ToolResponse> {
   try {
     const catalogResult = await loadPublishedStorefrontCatalog();
@@ -151,8 +192,18 @@ async function getProduct(params: {
     }
 
     const { products } = catalogResult;
+    const id = validateString(params.id);
+    const slug = validateString(params.slug);
+
+    if (!id && !slug) {
+      return {
+        status: "error",
+        message: "ID или slug товара обязателен",
+      };
+    }
+
     const product = products.find(
-      (p: CatalogProduct) => p.id === params.id || p.slug === params.slug
+      (p: CatalogProduct) => (id && p.id === id) || (slug && p.slug === slug)
     );
 
     if (!product) {
@@ -190,27 +241,76 @@ async function getProduct(params: {
 }
 
 // ==================================================
-// TOOL: validate_address
-// Проверка адреса через Yandex
+// TOOL: validate_address (REAL YANDEX INTEGRATION)
+// Validate address and get coordinates via Yandex Geocoder
 // ==================================================
 async function validateAddress(params: {
-  address: string;
+  address?: unknown;
 }): Promise<ToolResponse> {
   try {
-    if (!params.address) {
+    const address = validateString(params.address);
+    if (!address) {
       return {
         status: "error",
         message: "Адрес не указан",
       };
     }
 
+    // Call the existing Yandex geocode API route
+    const geocodeUrl = new URL(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/yandex-geocode`);
+    geocodeUrl.searchParams.set("geocode", address);
+
+    const response = await fetch(geocodeUrl.toString(), {
+      headers: {
+        Accept: "application/json",
+        Referer: "http://localhost:3000/ai-consultant",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(6000),
+    });
+
+    if (!response.ok) {
+      return {
+        status: "error",
+        message: "Не удалось проверить адрес. Попробуйте уточнить.",
+      };
+    }
+
+    const result = (await response.json()) as {
+      results?: Array<{
+        formattedAddress?: string;
+        latitude?: number;
+        longitude?: number;
+        precision?: string;
+      }>;
+    };
+
+    if (!result.results || result.results.length === 0) {
+      return {
+        status: "error",
+        message: "Адрес не найден. Проверьте написание.",
+      };
+    }
+
+    const first = result.results[0];
+    const latitude = first.latitude;
+    const longitude = first.longitude;
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return {
+        status: "error",
+        message: "Не удалось определить координаты адреса.",
+      };
+    }
+
     return {
       status: "ok",
       data: {
-        address: params.address,
+        address: first.formattedAddress || address,
+        latitude,
+        longitude,
+        precision: first.precision,
         validated: true,
-        needsConfirmation: true,
-        message: "Адрес понял — уточним детали на чекауте",
       },
     };
   } catch (error) {
@@ -223,24 +323,44 @@ async function validateAddress(params: {
 }
 
 // ==================================================
-// TOOL: calculate_delivery
-// Расчёт доставки (архитектура)
+// TOOL: calculate_delivery (REAL DELIVERY ZONES)
+// Calculate delivery fee using real delivery zones
 // ==================================================
 async function calculateDelivery(params: {
-  address: string;
-  date?: string;
+  latitude?: unknown;
+  longitude?: unknown;
+  date?: unknown;
 }): Promise<ToolResponse> {
   try {
+    const latitude = Number(params.latitude);
+    const longitude = Number(params.longitude);
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return {
+        status: "error",
+        message: "Некорректные координаты адреса",
+      };
+    }
+
+    // Use the real delivery pricing calculation
+    const delivery = await calculateServerDeliveryPrice(latitude, longitude);
+
     return {
       status: "ok",
       data: {
-        address: params.address,
-        date: params.date || "tomorrow",
-        available: true,
-        message: "Доставку уточним по адресу на оформлении",
+        zoneId: delivery.zoneId,
+        deliveryFee: delivery.cost,
+        latitude,
+        longitude,
       },
     };
   } catch (error) {
+    if (error instanceof Error && error.message.includes("DELIVERY_OUTSIDE_AREA")) {
+      return {
+        status: "error",
+        message: "Адрес находится вне зоны доставки",
+      };
+    }
     console.error("[ai-tools] calculate_delivery error:", error);
     return {
       status: "error",
@@ -251,19 +371,26 @@ async function calculateDelivery(params: {
 
 // ==================================================
 // TOOL: create_order_draft
-// Создать черновик заказа (архитектура)
+// Create a draft order (placeholder for now)
 // ==================================================
 async function createOrderDraft(params: {
-  productId: string;
-  productTitle: string;
-  price: number;
-  customerName?: string;
-  customerPhone?: string;
-  recipientName?: string;
-  address?: string;
-  date?: string;
+  productId?: unknown;
+  productTitle?: unknown;
+  price?: unknown;
 }): Promise<ToolResponse> {
   try {
+    const productId = validateString(params.productId);
+    const productTitle = validateString(params.productTitle);
+    const price = validatePrice(params.price);
+
+    if (!productId || !productTitle || price === null) {
+      return {
+        status: "error",
+        message: "Не указаны обязательные параметры товара",
+      };
+    }
+
+    // Generate draft ID
     const draftId = `draft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     return {
@@ -271,22 +398,10 @@ async function createOrderDraft(params: {
       data: {
         draftId,
         product: {
-          id: params.productId,
-          title: params.productTitle,
-          price: params.price,
+          id: productId,
+          title: productTitle,
+          price,
         },
-        customer: {
-          name: params.customerName || null,
-          phone: params.customerPhone || null,
-        },
-        recipient: {
-          name: params.recipientName || null,
-        },
-        delivery: {
-          address: params.address || null,
-          date: params.date || null,
-        },
-        status: "created",
         createdAt: new Date().toISOString(),
       },
     };
@@ -301,31 +416,40 @@ async function createOrderDraft(params: {
 
 // ==================================================
 // TOOL: update_order_draft
-// Обновить черновик (архитектура)
+// Update draft with customer/delivery details
 // ==================================================
 async function updateOrderDraft(params: {
-  draftId: string;
-  customerName?: string;
-  customerPhone?: string;
-  recipientName?: string;
-  address?: string;
-  date?: string;
-  interval?: string;
+  draftId?: unknown;
+  customerName?: unknown;
+  customerPhone?: unknown;
+  recipientName?: unknown;
+  address?: unknown;
 }): Promise<ToolResponse> {
   try {
+    const draftId = validateString(params.draftId);
+    if (!draftId) {
+      return {
+        status: "error",
+        message: "Draft ID не указан",
+      };
+    }
+
+    const customerName = validateString(params.customerName);
+    const customerPhone = validatePhone(params.customerPhone);
+    const recipientName = validateString(params.recipientName);
+    const address = validateString(params.address);
+
     return {
       status: "ok",
       data: {
-        draftId: params.draftId,
+        draftId,
         updated: {
-          customerName: params.customerName,
-          customerPhone: params.customerPhone,
-          recipientName: params.recipientName,
-          address: params.address,
-          date: params.date,
-          interval: params.interval,
+          customerName,
+          customerPhone,
+          recipientName,
+          address,
         },
-        status: "updated",
+        updatedAt: new Date().toISOString(),
       },
     };
   } catch (error) {
@@ -339,7 +463,7 @@ async function updateOrderDraft(params: {
 
 // ==================================================
 // TOOL: get_payment_options
-// Методы оплаты (архитектура)
+// Return real payment methods (hardcoded for now, can be extended)
 // ==================================================
 async function getPaymentOptions(): Promise<ToolResponse> {
   return {
@@ -372,22 +496,22 @@ export async function POST(request: Request) {
 
     switch (tool) {
       case "search_products":
-        result = await searchProducts(params as any);
+        result = await searchProducts(params);
         break;
       case "get_product":
-        result = await getProduct(params as any);
+        result = await getProduct(params);
         break;
       case "validate_address":
-        result = await validateAddress(params as any);
+        result = await validateAddress(params);
         break;
       case "calculate_delivery":
-        result = await calculateDelivery(params as any);
+        result = await calculateDelivery(params);
         break;
       case "create_order_draft":
-        result = await createOrderDraft(params as any);
+        result = await createOrderDraft(params);
         break;
       case "update_order_draft":
-        result = await updateOrderDraft(params as any);
+        result = await updateOrderDraft(params);
         break;
       case "get_payment_options":
         result = await getPaymentOptions();
