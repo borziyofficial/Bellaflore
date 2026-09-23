@@ -10,7 +10,9 @@ export type OrderErrorCode =
   | "ORDER_STORAGE_NOT_READY"
   | "ORDER_STORAGE_ERROR"
   | "ORDER_LOOKUP_INVALID"
-  | "ORDER_NOT_FOUND";
+  | "ORDER_NOT_FOUND"
+  | "DRAFT_STORAGE_NOT_READY"
+  | "DRAFT_STORAGE_ERROR";
 
 export class OrderError extends Error {
   constructor(
