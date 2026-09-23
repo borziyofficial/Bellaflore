@@ -1,0 +1,232 @@
+.container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  margin: 16px 0;
+}
+
+.header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #2a2a2a;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.section {
+  border-left: 4px solid #e8d7c3;
+  padding-left: 16px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2a2a2a;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.itemTitle {
+  flex: 1;
+  color: #2a2a2a;
+  font-weight: 500;
+}
+
+.itemQty {
+  color: #999;
+  margin: 0 12px;
+  font-size: 13px;
+}
+
+.itemPrice {
+  color: #d9534f;
+  font-weight: 600;
+}
+
+.empty {
+  color: #ccc;
+  font-size: 13px;
+  margin: 0;
+}
+
+.detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.label {
+  font-weight: 500;
+  color: #666;
+}
+
+.value {
+  color: #2a2a2a;
+  text-align: right;
+  flex: 1;
+  margin-left: 12px;
+}
+
+.totalSection {
+  background: linear-gradient(135deg, #fff8f3 0%, #fff5ef 100%);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  border: 1px solid #e8d7c3;
+}
+
+.totalLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2a2a2a;
+}
+
+.totalValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #d9534f;
+}
+
+.warning {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin: 16px 0;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.editButton,
+.confirmButton {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editButton {
+  background: #f5f5f5;
+  color: #2a2a2a;
+}
+
+.editButton:hover:not(:disabled) {
+  background: #e8e8e8;
+}
+
+.confirmButton {
+  background: #d9534f;
+  color: white;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background: #c9423f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(217, 83, 79, 0.3);
+}
+
+.confirmButton:disabled,
+.confirmButton.disabled {
+  background: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.detailsToggle {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.toggleLink {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.toggleLink:hover {
+  color: #666;
+}
+
+.details {
+  background: #f9f9f9;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-top: 16px;
+}
+
+.detailText {
+  margin: 8px 0;
+  font-size: 12px;
+  color: #666;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .totalValue {
+    font-size: 20px;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+}

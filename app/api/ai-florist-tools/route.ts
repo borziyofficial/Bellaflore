@@ -499,6 +499,137 @@ async function getDraftSummary(params: {
   }
 }
 
+
+// ==================================================
+// TOOL: validate_product_availability
+// Validate that products are still available in catalog
+// ==================================================
+async function validateProductAvailability(params: {
+  productIds?: unknown;
+}): Promise<ToolResponse> {
+  try {
+    const catalogResult = await loadPublishedStorefrontCatalog();
+    if (catalogResult.status !== "success") {
+      return {
+        status: "error",
+        message: "Каталог недоступен",
+      };
+    }
+
+    const { products } = catalogResult;
+    const productIds = Array.isArray(params.productIds) ? params.productIds : [];
+
+    if (productIds.length === 0) {
+      return {
+        status: "error",
+        message: "Список ID товаров не указан",
+      };
+    }
+
+    const results = productIds.map((id: any) => {
+      const product = products.find((p: CatalogProduct) => p.id === id);
+      return {
+        id,
+        available: !!product,
+        product: product ? {
+          id: product.id,
+          title: product.title,
+          priceRub: product.priceRub,
+          availability: product.availability,
+        } : null,
+      };
+    });
+
+    const allAvailable = results.every((r: any) => r.available);
+
+    return {
+      status: "ok",
+      data: {
+        allAvailable,
+        results,
+      },
+    };
+  } catch (error) {
+    console.error("[ai-tools] validate_product_availability error:", error);
+    return {
+      status: "error",
+      message: "Ошибка при проверке доступности товаров",
+    };
+  }
+}
+
+// ==================================================
+// TOOL: finalize_order_from_draft
+// Convert a draft to a confirmed order
+// ==================================================
+async function finalizeOrderFromDraft(params: {
+  draftId?: unknown;
+}): Promise<ToolResponse> {
+  try {
+    const draftRepository = new PostgresOrderDraftRepository();
+    const draftId = validateString(params.draftId);
+    
+    if (!draftId) {
+      return {
+        status: "error",
+        message: "Draft ID не указан",
+      };
+    }
+
+    const draft = await draftRepository.findById(draftId);
+    if (!draft) {
+      return {
+        status: "error",
+        message: "Черновик не найден",
+      };
+    }
+
+    // Validate draft is complete
+    if (!draft.customerName || !draft.customerPhone || 
+        !draft.recipientName || !draft.deliveryAddress || 
+        !draft.items || draft.items.length === 0) {
+      return {
+        status: "error",
+        message: "Черновик неполный. Заполните все обязательные поля.",
+      };
+    }
+
+    // Validate product availability before finalizing
+    const productIds = Array.isArray(draft.items) 
+      ? draft.items.map((item: any) => item.id || item.productId)
+      : [];
+
+    const availCheck = await validateProductAvailability({ productIds });
+    if (availCheck.status !== "ok" || !(availCheck.data as any).allAvailable) {
+      return {
+        status: "error",
+        message: "Некоторые товары недоступны. Пожалуйста, выберите другие.",
+      };
+    }
+
+    // Mark draft as converted (actual order creation would happen in Orders service)
+    const converted = await draftRepository.markAsConverted(draftId, `order_${Date.now()}`);
+
+    return {
+      status: "ok",
+      data: {
+        success: true,
+        draftId,
+        message: "Заказ успешно подтвержден",
+        orderId: `order_${Date.now()}`,
+        draft: converted,
+      },
+    };
+  } catch (error) {
+    console.error("[ai-tools] finalize_order_from_draft error:", error);
+    return {
+      status: "error",
+      message: "Ошибка при подтверждении заказа",
+    };
+  }
+}
+
+
 // ==================================================
 // MAIN ROUTING
 // ==================================================
@@ -535,6 +666,13 @@ export async function POST(request: Request) {
       case "get_draft_summary":
         result = await getDraftSummary(params);
         break;
+      case "validate_product_availability":
+        result = await validateProductAvailability(params);
+        break;
+      case "finalize_order_from_draft":
+        result = await finalizeOrderFromDraft(params);
+        break;
+
       default:
         return Response.json(
           { status: "error", message: `Unknown tool: ${tool}` },

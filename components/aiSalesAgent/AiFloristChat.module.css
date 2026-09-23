@@ -285,3 +285,24 @@
     font-size: 16px;
   }
 }
+
+.summaryButton {
+  background: #f39c12;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-left: 8px;
+}
+
+.summaryButton:hover {
+  background: #e67e22;
+}
+
+.summaryButton:active {
+  transform: translateY(1px);
+}
