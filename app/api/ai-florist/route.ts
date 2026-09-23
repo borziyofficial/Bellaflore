@@ -245,7 +245,9 @@ async function resolveAiRouting() {
     }
   }
 
-  const useGateway = Boolean(gatewayApiKey);
+  // Prefer direct OpenAI whenever OPENAI_API_KEY is configured.
+  // Vercel Gateway/OIDC remains only as fallback.
+  const useGateway = !openAiApiKey && Boolean(gatewayApiKey);
   return { openAiApiKey, gatewayApiKey, useGateway, vercelOidcAvailable };
 }
 
