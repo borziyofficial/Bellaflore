@@ -1,8 +1,13 @@
 import { loadPublishedStorefrontCatalog } from "@/lib/catalogDb/publicStorefront";
 import { calculateServerDeliveryPrice } from "@/lib/orders/deliveryPricing";
 import { PostgresOrderDraftRepository } from "@/lib/orders/draftRepository";
+import { PostgresOrderCatalogGateway } from "@/lib/orders/catalogGateway";
+import { PostgresOrderRepository } from "@/lib/orders/repository";
+import { createOrderService } from "@/lib/orders/service";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import type { UpdateOrderDraftInput } from "@/lib/orders/draftTypes";
+import type { CreateOrderInput } from "@/lib/orders/types";
+import { createHash } from "crypto";
 
 // ==================================================
 // SECTION: AI FLORIST TOOLS v2.0 INTEGRATION
@@ -562,13 +567,17 @@ async function validateProductAvailability(params: {
 // TOOL: finalize_order_from_draft
 // Convert a draft to a confirmed order
 // ==================================================
+// TOOL: finalize_order_from_draft
+// Creates a REAL ORDER from the draft by calling the Orders service
+// Uses idempotency key to prevent duplicate orders on retry
+// ==================================================
 async function finalizeOrderFromDraft(params: {
   draftId?: unknown;
 }): Promise<ToolResponse> {
   try {
     const draftRepository = new PostgresOrderDraftRepository();
     const draftId = validateString(params.draftId);
-    
+
     if (!draftId) {
       return {
         status: "error",
@@ -584,9 +593,10 @@ async function finalizeOrderFromDraft(params: {
       };
     }
 
-    // Validate draft is complete
-    if (!draft.customerName || !draft.customerPhone || 
-        !draft.recipientName || !draft.deliveryAddress || 
+    // Validate draft is complete with all required fields
+    if (!draft.customerName || !draft.customerPhone ||
+        !draft.recipientName || !draft.deliveryAddress ||
+        !draft.deliveryDate || !draft.deliveryInterval ||
         !draft.items || draft.items.length === 0) {
       return {
         status: "error",
@@ -595,7 +605,7 @@ async function finalizeOrderFromDraft(params: {
     }
 
     // Validate product availability before finalizing
-    const productIds = Array.isArray(draft.items) 
+    const productIds = Array.isArray(draft.items)
       ? draft.items.map((item: any) => item.id || item.productId)
       : [];
 
@@ -607,24 +617,84 @@ async function finalizeOrderFromDraft(params: {
       };
     }
 
-    // Mark draft as converted (actual order creation would happen in Orders service)
-    const converted = await draftRepository.markAsConverted(draftId, `order_${Date.now()}`);
+    // Create order service with dependencies
+    const orderService = createOrderService({
+      catalog: new PostgresOrderCatalogGateway(),
+      repository: new PostgresOrderRepository(),
+    });
+
+    // Generate idempotency key based on draft (phone + draftId)
+    // This ensures same result if finalize is called multiple times
+    const idempotencyKeyInput = `${draft.customerPhone}:${draftId}`;
+    const idempotencyKey = createHash("sha256").update(idempotencyKeyInput).digest("hex");
+
+    // Create CreateOrderInput from draft data
+    const createOrderInput: CreateOrderInput = {
+      customerName: draft.customerName,
+      customerPhone: draft.customerPhone,
+      recipientName: draft.recipientName,
+      recipientPhone: draft.recipientPhone || draft.customerPhone,
+      deliveryAddress: draft.deliveryAddress,
+      deliveryLatitude: draft.deliveryLatitude || 0,
+      deliveryLongitude: draft.deliveryLongitude || 0,
+      deliveryDate: draft.deliveryDate,
+      deliveryInterval: draft.deliveryInterval,
+      paymentMethod: draft.paymentMethod || "cardTransfer",
+      customerComment: draft.customerComment || "",
+      items: draft.items.map((item: any) => ({
+        productId: item.productId,
+        size: item.size || "M",
+        quantity: item.quantity || 1,
+      })),
+    };
+
+    // Call the order service to create a REAL order
+    // This will handle validation, price calculation, and persistence
+    const result = await orderService.create(createOrderInput, idempotencyKey);
+
+    // If order was replayed (idempotency key already existed), just return it
+    const isNewOrder = !result.replayed;
+
+    // Mark draft as converted with the real order ID
+    if (isNewOrder) {
+      await draftRepository.markAsConverted(draftId, result.order.id);
+    }
 
     return {
       status: "ok",
       data: {
         success: true,
         draftId,
-        message: "Заказ успешно подтвержден",
-        orderId: `order_${Date.now()}`,
-        draft: converted,
+        message: isNewOrder ? "Заказ успешно создан" : "Заказ уже был создан",
+        orderId: result.order.id,
+        orderNumber: result.order.publicNumber,
+        replayed: result.replayed,
+        order: {
+          id: result.order.id,
+          publicNumber: result.order.publicNumber,
+          status: result.order.status,
+          total: result.order.total,
+          items: result.order.items.map((item) => ({
+            productId: item.productId,
+            productName: item.productName,
+            size: item.size,
+            quantity: item.quantity,
+            lineTotal: item.lineTotal,
+          })),
+        },
       },
     };
   } catch (error) {
     console.error("[ai-tools] finalize_order_from_draft error:", error);
+
+    // Log detailed error for debugging
+    if (error instanceof Error) {
+      console.error("[ai-tools] Error details:", error.message, error.stack);
+    }
+
     return {
       status: "error",
-      message: "Ошибка при подтверждении заказа",
+      message: error instanceof Error ? error.message : "Ошибка при подтверждении заказа",
     };
   }
 }
