@@ -259,6 +259,173 @@ async function executeTool(toolName: string, toolInput: Record<string, any>): Pr
   }
 }
 
+
+type BudgetRange = {
+  minPrice?: number;
+  maxPrice?: number;
+};
+
+type VerifiedCatalogProduct = {
+  id: string;
+  title: string;
+  priceRub: number;
+};
+
+function parseBudgetAmount(raw: string, useThousands: boolean): number | undefined {
+  const normalized = Number(raw.replace(",", "."));
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    return undefined;
+  }
+
+  const scaled = useThousands && normalized <= 100 ? normalized * 1000 : normalized;
+  return Math.round(scaled);
+}
+
+function inferBudgetRange(messages: FloristMessage[]): BudgetRange | null {
+  const recentText = messages
+    .slice(-8)
+    .map((message) =>
+      typeof message.content === "string" ? message.content.toLowerCase() : "",
+    )
+    .join(" ");
+
+  const useThousands = /\bтыс(?:\.|яч(?:а|и|у|е|ей)?)?\b/i.test(recentText);
+
+  const userTexts = messages
+    .filter((message) => message.role === "user" && typeof message.content === "string")
+    .map((message) => String(message.content).toLowerCase())
+    .reverse();
+
+  for (const text of userTexts) {
+    const rangeMatch = text.match(
+      /(\d+(?:[.,]\d+)?)\s*(?:-|–|—|до)\s*(\d+(?:[.,]\d+)?)/,
+    );
+    if (rangeMatch) {
+      const minPrice = parseBudgetAmount(rangeMatch[1], useThousands);
+      const maxPrice = parseBudgetAmount(rangeMatch[2], useThousands);
+      if (minPrice && maxPrice) {
+        return {
+          minPrice: Math.min(minPrice, maxPrice),
+          maxPrice: Math.max(minPrice, maxPrice),
+        };
+      }
+    }
+
+    const maxMatch = text.match(/(?:до|за|бюджет(?:ом)?\s*(?:до)?|примерно)\s*(\d+(?:[.,]\d+)?)/);
+    if (maxMatch) {
+      const maxPrice = parseBudgetAmount(maxMatch[1], useThousands);
+      if (maxPrice) {
+        return { maxPrice };
+      }
+    }
+
+    const minMatch = text.match(/(?:от)\s*(\d+(?:[.,]\d+)?)/);
+    if (minMatch) {
+      const minPrice = parseBudgetAmount(minMatch[1], useThousands);
+      if (minPrice) {
+        return { minPrice };
+      }
+    }
+
+    const shortBudgetMatch = text.match(/^\s*(?:а\s+)?за\s+(\d+(?:[.,]\d+)?)\s*\??\s*$/);
+    if (shortBudgetMatch) {
+      const maxPrice = parseBudgetAmount(shortBudgetMatch[1], useThousands);
+      if (maxPrice) {
+        return { maxPrice };
+      }
+    }
+  }
+
+  return null;
+}
+
+function looksLikeNoProductsReply(reply: string): boolean {
+  const normalized = reply.toLowerCase();
+  return (
+    /ничего\s+не\s+наш/.test(normalized) ||
+    /не\s+нашл/.test(normalized) ||
+    /нет\s+подходящ/.test(normalized) ||
+    /подходящих\s+букетов.*нет/.test(normalized) ||
+    /вариантов.*нет/.test(normalized)
+  );
+}
+
+async function verifyBudgetCatalogBeforeNoResults(
+  messages: FloristMessage[],
+): Promise<{
+  products: VerifiedCatalogProduct[];
+  exactRangeEmpty: boolean;
+  range: BudgetRange;
+} | null> {
+  const range = inferBudgetRange(messages);
+  if (!range || (!range.minPrice && !range.maxPrice)) {
+    return null;
+  }
+
+  const primaryResultText = await executeTool("search_products", {
+    ...(range.minPrice ? { minPrice: range.minPrice } : {}),
+    ...(range.maxPrice ? { maxPrice: range.maxPrice } : {}),
+    limit: 5,
+  });
+
+  try {
+    const primaryResult = JSON.parse(primaryResultText);
+    const primaryProducts = Array.isArray(primaryResult?.data?.products)
+      ? (primaryResult.data.products as VerifiedCatalogProduct[])
+      : [];
+
+    if (primaryProducts.length > 0) {
+      return {
+        products: primaryProducts,
+        exactRangeEmpty: false,
+        range,
+      };
+    }
+
+    if (range.minPrice && range.maxPrice) {
+      const cheaperResultText = await executeTool("search_products", {
+        maxPrice: range.maxPrice,
+        limit: 5,
+      });
+      const cheaperResult = JSON.parse(cheaperResultText);
+      const cheaperProducts = Array.isArray(cheaperResult?.data?.products)
+        ? (cheaperResult.data.products as VerifiedCatalogProduct[])
+        : [];
+
+      if (cheaperProducts.length > 0) {
+        return {
+          products: cheaperProducts,
+          exactRangeEmpty: true,
+          range,
+        };
+      }
+    }
+  } catch (error) {
+    console.error("[ai-florist] budget verification parse error:", error);
+  }
+
+  return null;
+}
+
+function formatVerifiedProductsReply(
+  verification: {
+    products: VerifiedCatalogProduct[];
+    exactRangeEmpty: boolean;
+    range: BudgetRange;
+  },
+): string {
+  const options = verification.products
+    .slice(0, 3)
+    .map((product) => `${product.title} — ${product.priceRub.toLocaleString("ru-RU")} ₽`)
+    .join("; ");
+
+  if (verification.exactRangeEmpty && verification.range.minPrice && verification.range.maxPrice) {
+    return `В диапазоне ${verification.range.minPrice.toLocaleString("ru-RU")}–${verification.range.maxPrice.toLocaleString("ru-RU")} ₽ сейчас нет подходящих вариантов, но есть дешевле: ${options}. Показать один из них?`;
+  }
+
+  return `Нашёл реальные варианты в вашем бюджете: ${options}. Какой показать подробнее?`;
+}
+
 export async function POST(request: Request) {
   const limited = consumeRequestQuota(request);
   if (limited) return limited;
@@ -458,9 +625,40 @@ export async function POST(request: Request) {
 
       if (toolCallsToExecute.length === 0) {
         clearTimeout(timeout);
+        const finalReply =
+          textParts.join("\n").trim() || "Я готов помочь подобрать букет.";
+        let finalRecommendedProductIds = [...new Set(recommendedProductIds)].slice(0, 3);
+
+        // SALES SAFETY NET:
+        // A model must not turn a buyer away with a false "nothing available"
+        // statement. If a budget is present and no products were recommended,
+        // re-check the real catalog server-side without recipient/occasion
+        // text filters. Real catalog data wins over model wording.
+        if (
+          finalRecommendedProductIds.length === 0 &&
+          looksLikeNoProductsReply(finalReply)
+        ) {
+          const verification = await verifyBudgetCatalogBeforeNoResults(messages);
+          if (verification?.products.length) {
+            finalRecommendedProductIds = verification.products
+              .slice(0, 3)
+              .map((product) => product.id);
+
+            return Response.json({
+              reply: formatVerifiedProductsReply(verification),
+              recommendedProductIds: finalRecommendedProductIds,
+              mode: "ai",
+              modelUsed:
+                typeof responseData.model === "string"
+                  ? responseData.model
+                  : SAFE_DIRECT_MODEL,
+            } satisfies FloristReply);
+          }
+        }
+
         return Response.json({
-          reply: textParts.join("\n").trim() || "Я готов помочь подобрать букет.",
-          recommendedProductIds: [...new Set(recommendedProductIds)].slice(0, 3),
+          reply: finalReply,
+          recommendedProductIds: finalRecommendedProductIds,
           mode: "ai",
           modelUsed:
             typeof responseData.model === "string"
