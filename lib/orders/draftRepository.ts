@@ -85,6 +85,9 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
     if (!draftId?.trim()) return null;
     try {
       const sql = getOrdersSqlClient();
+
+
+
       const rows = await sql<OrderDraftRow[]>`
         SELECT * FROM order_drafts WHERE id = ${draftId} LIMIT 1
       `;
@@ -160,6 +163,20 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
     if (!draftId?.trim()) return null;
     try {
       const sql = getOrdersSqlClient();
+
+      const nextDeliveryAddress = updates.deliveryAddress?.trim() || null;
+      const nextDeliveryLatitude =
+        typeof updates.deliveryLatitude === "number" &&
+        Number.isFinite(updates.deliveryLatitude)
+          ? updates.deliveryLatitude
+          : null;
+      const nextDeliveryLongitude =
+        typeof updates.deliveryLongitude === "number" &&
+        Number.isFinite(updates.deliveryLongitude)
+          ? updates.deliveryLongitude
+          : null;
+      const nextDeliveryZoneId = updates.deliveryZoneId?.trim() || null;
+
       const rows = await sql<OrderDraftRow[]>`
         UPDATE order_drafts
         SET
@@ -167,10 +184,25 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
           customer_phone = COALESCE(${updates.customerPhone || null}, customer_phone),
           recipient_name = COALESCE(${updates.recipientName || null}, recipient_name),
           recipient_phone = COALESCE(${updates.recipientPhone || null}, recipient_phone),
-          delivery_address = COALESCE(${updates.deliveryAddress || null}, delivery_address),
-          delivery_latitude = COALESCE(${updates.deliveryLatitude || null}, delivery_latitude),
-          delivery_longitude = COALESCE(${updates.deliveryLongitude || null}, delivery_longitude),
-          delivery_zone_id = COALESCE(${updates.deliveryZoneId || null}, delivery_zone_id),
+          delivery_address = COALESCE(${nextDeliveryAddress}, delivery_address),
+          delivery_latitude = CASE
+            WHEN ${nextDeliveryAddress} IS NOT NULL
+              AND ${nextDeliveryAddress} IS DISTINCT FROM delivery_address
+            THEN ${nextDeliveryLatitude}
+            ELSE COALESCE(${nextDeliveryLatitude}, delivery_latitude)
+          END,
+          delivery_longitude = CASE
+            WHEN ${nextDeliveryAddress} IS NOT NULL
+              AND ${nextDeliveryAddress} IS DISTINCT FROM delivery_address
+            THEN ${nextDeliveryLongitude}
+            ELSE COALESCE(${nextDeliveryLongitude}, delivery_longitude)
+          END,
+          delivery_zone_id = CASE
+            WHEN ${nextDeliveryAddress} IS NOT NULL
+              AND ${nextDeliveryAddress} IS DISTINCT FROM delivery_address
+            THEN ${nextDeliveryZoneId}
+            ELSE COALESCE(${nextDeliveryZoneId}, delivery_zone_id)
+          END,
           delivery_date = COALESCE(${updates.deliveryDate || null}, delivery_date),
           delivery_interval = COALESCE(${updates.deliveryInterval || null}, delivery_interval),
           payment_method = COALESCE(${updates.paymentMethod || null}, payment_method),

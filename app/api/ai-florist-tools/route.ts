@@ -589,16 +589,67 @@ async function updateDraft(params: {
       };
     }
 
+    const deliveryAddress = validateString(params.deliveryAddress);
+    let authoritativeLatitude: number | undefined;
+    let authoritativeLongitude: number | undefined;
+    let authoritativeZoneId: string | undefined;
+
+    if (deliveryAddress) {
+      const addressCheck = await validateAddress({ address: deliveryAddress });
+
+      if (
+        addressCheck.status === "ok" &&
+        addressCheck.data &&
+        typeof addressCheck.data === "object"
+      ) {
+        const addressData = addressCheck.data as {
+          validated?: boolean;
+          latitude?: number;
+          longitude?: number;
+        };
+
+        if (
+          addressData.validated === true &&
+          typeof addressData.latitude === "number" &&
+          Number.isFinite(addressData.latitude) &&
+          typeof addressData.longitude === "number" &&
+          Number.isFinite(addressData.longitude)
+        ) {
+          authoritativeLatitude = addressData.latitude;
+          authoritativeLongitude = addressData.longitude;
+
+          const deliveryCheck = await calculateDelivery({
+            latitude: authoritativeLatitude,
+            longitude: authoritativeLongitude,
+          });
+
+          if (
+            deliveryCheck.status === "ok" &&
+            deliveryCheck.data &&
+            typeof deliveryCheck.data === "object"
+          ) {
+            const deliveryData = deliveryCheck.data as {
+              zoneId?: string;
+            };
+
+            if (typeof deliveryData.zoneId === "string") {
+              authoritativeZoneId = deliveryData.zoneId;
+            }
+          }
+        }
+      }
+    }
+
     const updates: UpdateOrderDraftInput = {
       conversationState: params.conversationState as any,
       customerName: validateString(params.customerName),
       customerPhone: validatePhone(params.customerPhone),
       recipientName: validateString(params.recipientName),
       recipientPhone: validatePhone(params.recipientPhone),
-      deliveryAddress: validateString(params.deliveryAddress),
-      deliveryLatitude: Number.isFinite(Number(params.deliveryLatitude)) ? Number(params.deliveryLatitude) : undefined,
-      deliveryLongitude: Number.isFinite(Number(params.deliveryLongitude)) ? Number(params.deliveryLongitude) : undefined,
-      deliveryZoneId: validateString(params.deliveryZoneId),
+      deliveryAddress,
+      deliveryLatitude: authoritativeLatitude,
+      deliveryLongitude: authoritativeLongitude,
+      deliveryZoneId: authoritativeZoneId,
       deliveryDate: validateString(params.deliveryDate),
       deliveryInterval: validateString(params.deliveryInterval),
       customerComment: validateString(params.customerComment),
@@ -690,10 +741,42 @@ async function getDraftSummary(params: {
       };
     });
 
-    const total = summaryItems.reduce(
+    const itemsTotal = summaryItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
+
+    let deliveryFee: number | null = null;
+    let authoritativeZoneId = draft.deliveryZoneId;
+
+    if (
+      typeof draft.deliveryLatitude === "number" &&
+      Number.isFinite(draft.deliveryLatitude) &&
+      typeof draft.deliveryLongitude === "number" &&
+      Number.isFinite(draft.deliveryLongitude)
+    ) {
+      try {
+        const authoritativeDelivery = await calculateServerDeliveryPrice(
+          draft.deliveryLatitude,
+          draft.deliveryLongitude,
+        );
+
+        deliveryFee = authoritativeDelivery.cost;
+        authoritativeZoneId = authoritativeDelivery.zoneId;
+
+        if (draft.deliveryZoneId !== authoritativeDelivery.zoneId) {
+          await draftRepository.update(draftId, {
+            deliveryZoneId: authoritativeDelivery.zoneId,
+          });
+        }
+      } catch {
+        deliveryFee = null;
+        authoritativeZoneId = undefined;
+      }
+    }
+
+    const grandTotal =
+      deliveryFee === null ? itemsTotal : itemsTotal + deliveryFee;
 
     return {
       status: "ok",
@@ -712,12 +795,15 @@ async function getDraftSummary(params: {
           address: draft.deliveryAddress,
           latitude: draft.deliveryLatitude,
           longitude: draft.deliveryLongitude,
-          zoneId: draft.deliveryZoneId,
+          zoneId: authoritativeZoneId,
+          deliveryFee,
           date: draft.deliveryDate,
           interval: draft.deliveryInterval,
         },
         items: summaryItems,
-        total,
+        total: itemsTotal,
+        itemsTotal,
+        grandTotal,
         conversationTurns: draft.conversationState?.turns?.length || 0,
         createdAt: draft.createdAt,
         updatedAt: draft.updatedAt,

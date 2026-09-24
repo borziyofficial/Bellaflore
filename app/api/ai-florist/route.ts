@@ -446,6 +446,59 @@ async function verifyBudgetCatalogBeforeNoResults(
   return null;
 }
 
+function formatAuthoritativeCheckoutSummary(summary: any): {
+  reply: string;
+  recommendedProductIds: string[];
+} | null {
+  const items = Array.isArray(summary?.items) ? summary.items : [];
+  const delivery = summary?.delivery;
+
+  if (
+    items.length === 0 ||
+    !delivery?.address ||
+    !delivery?.date ||
+    !delivery?.interval ||
+    !delivery?.zoneId ||
+    typeof delivery?.deliveryFee !== "number" ||
+    !Number.isFinite(delivery.deliveryFee) ||
+    typeof summary?.grandTotal !== "number" ||
+    !Number.isFinite(summary.grandTotal)
+  ) {
+    return null;
+  }
+
+  const itemText = items
+    .map((item: any) => {
+      const title = typeof item?.title === "string" ? item.title : "Букет";
+      const price =
+        typeof item?.price === "number"
+          ? `${item.price.toLocaleString("ru-RU")} ₽`
+          : "";
+      return price ? `${title} — ${price}` : title;
+    })
+    .join(", ");
+
+  const zoneLabel =
+    delivery.zoneId === "base" ? "базовая" : String(delivery.zoneId);
+
+  const recommendedProductIds = items
+    .map((item: any) => item?.productId || item?.id)
+    .filter((id: unknown): id is string => typeof id === "string")
+    .slice(0, 3);
+
+  return {
+    reply:
+      `Перед оформлением:\n` +
+      `- **Букет:** ${itemText}\n` +
+      `- **Адрес:** ${delivery.address}\n` +
+      `- **Зона доставки:** ${zoneLabel}\n` +
+      `- **Доставка:** ${delivery.date}, ${delivery.interval} — ${delivery.deliveryFee.toLocaleString("ru-RU")} ₽\n` +
+      `- **Итого:** ${summary.grandTotal.toLocaleString("ru-RU")} ₽\n\n` +
+      `Подтверждаете переход к оформлению?`,
+    recommendedProductIds,
+  };
+}
+
 function formatVerifiedProductsReply(
   verification: {
     products: VerifiedCatalogProduct[];
@@ -824,6 +877,44 @@ ${draftContext}
                   ? responseData.model
                   : SAFE_DIRECT_MODEL,
             } satisfies FloristReply);
+          }
+        }
+
+        if (body.draftId) {
+          try {
+            const authoritativeSummaryRaw = await executeTool(
+              "get_draft_summary",
+              { draftId: body.draftId },
+            );
+            const authoritativeSummary = JSON.parse(authoritativeSummaryRaw);
+
+            if (
+              authoritativeSummary?.status === "ok" &&
+              authoritativeSummary.data
+            ) {
+              const checkoutSummary =
+                formatAuthoritativeCheckoutSummary(
+                  authoritativeSummary.data,
+                );
+
+              if (checkoutSummary) {
+                return Response.json({
+                  reply: checkoutSummary.reply,
+                  recommendedProductIds:
+                    checkoutSummary.recommendedProductIds,
+                  mode: "ai",
+                  modelUsed:
+                    typeof responseData.model === "string"
+                      ? responseData.model
+                      : SAFE_DIRECT_MODEL,
+                } satisfies FloristReply);
+              }
+            }
+          } catch (error) {
+            console.error(
+              "[ai-florist] authoritative checkout summary failed:",
+              error,
+            );
           }
         }
 

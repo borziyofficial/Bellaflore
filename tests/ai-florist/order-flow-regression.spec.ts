@@ -145,4 +145,89 @@ test.describe("BellaFlore AI order-flow regression", () => {
       `/api/order-drafts?id=${encodeURIComponent(draft.id)}`,
     );
   });
+  test("Istra address uses authoritative zone and delivery fee", async ({ request }) => {
+    const productResponse = await request.post("/api/ai-florist-tools", {
+      data: {
+        tool: "search_products",
+        params: { limit: 1 },
+      },
+    });
+
+    const productData = await productResponse.json();
+    expect(productData.status).toBe("ok");
+    expect(productData.data.products.length).toBeGreaterThan(0);
+
+    const product = productData.data.products[0];
+
+    const createResponse = await request.post("/api/order-drafts", {
+      data: { action: "create" },
+    });
+    const draft = await createResponse.json();
+
+    const updateResponse = await request.post("/api/ai-florist-tools", {
+      data: {
+        tool: "update_draft",
+        params: {
+          draftId: draft.id,
+          customerName: "Камол",
+          customerPhone: "+79671677778",
+          recipientName: "Получатель",
+          recipientPhone: "+79991234567",
+          deliveryAddress:
+            "Московская область, город Истра, площадь Революции, дом 6",
+          deliveryDate: "сегодня",
+          deliveryInterval: "18:00–21:00",
+          items: [
+            {
+              productId: product.id,
+              size: "M",
+              quantity: 1,
+            },
+          ],
+        },
+      },
+    });
+
+    expect(updateResponse.ok()).toBeTruthy();
+
+    const summaryResponse = await request.post("/api/ai-florist-tools", {
+      data: {
+        tool: "get_draft_summary",
+        params: { draftId: draft.id },
+      },
+    });
+
+    const summary = await summaryResponse.json();
+
+    expect(summary.status).toBe("ok");
+    expect(summary.data.delivery.zoneId).toBe("28km");
+    expect(summary.data.delivery.deliveryFee).toBe(3990);
+    expect(summary.data.grandTotal).toBe(
+      summary.data.itemsTotal + 3990,
+    );
+
+    const aiResponse = await request.post("/api/ai-florist", {
+      data: {
+        draftId: draft.id,
+        messages: [
+          {
+            role: "user",
+            content:
+              "Покажи зону, стоимость доставки и итог перед оформлением.",
+          },
+        ],
+      },
+    });
+
+    const ai = await aiResponse.json();
+
+    expect(ai.reply).toMatch(/28km/i);
+    expect(ai.reply).toMatch(/3[\s\u00a0]?990/);
+    expect(ai.reply).not.toMatch(/базовая.*790|790.*базовая/i);
+
+    await request.delete(
+      `/api/order-drafts?id=${encodeURIComponent(draft.id)}`,
+    );
+  });
+
 });
