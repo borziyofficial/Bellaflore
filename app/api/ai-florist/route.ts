@@ -53,133 +53,112 @@ const MAX_MESSAGE_LENGTH = 2000;
 const MAX_TOOL_CALLS = 10;
 const SAFE_DIRECT_MODEL = "gpt-5.6-sol";
 
-// Tool definitions for OpenAI function calling
+// Tool definitions for Responses API (flat format, not nested)
 const TOOL_DEFINITIONS = [
   {
-    type: "function",
-    function: {
-      name: "search_products",
-      description: "Search for products in the catalog",
-      parameters: {
-        type: "object",
-        properties: {
-          query: { type: "string", description: "Search query" },
-          maxPrice: { type: "number", description: "Max price" },
-          limit: { type: "number", description: "Number of results" },
-        },
-        required: ["query"],
+    name: "search_products",
+    description: "Search for products in the catalog",
+    parameters: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Search query" },
+        maxPrice: { type: "number", description: "Max price" },
+        limit: { type: "number", description: "Number of results" },
       },
+      required: ["query"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "get_product",
-      description: "Get detailed product info",
-      parameters: {
-        type: "object",
-        properties: {
-          id: { type: "string", description: "Product ID" },
-        },
-        required: ["id"],
+    name: "get_product",
+    description: "Get detailed product info",
+    parameters: {
+      type: "object",
+      properties: {
+        id: { type: "string", description: "Product ID" },
       },
+      required: ["id"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "update_draft",
-      description: "Update order draft with collected data",
-      parameters: {
-        type: "object",
-        properties: {
-          draftId: { type: "string" },
-          customerName: { type: "string" },
-          customerPhone: { type: "string" },
-          recipientName: { type: "string" },
-          recipientPhone: { type: "string" },
-          deliveryAddress: { type: "string" },
-          deliveryLatitude: { type: "number" },
-          deliveryLongitude: { type: "number" },
-          deliveryZoneId: { type: "string" },
-          deliveryDate: { type: "string" },
-          deliveryInterval: { type: "string" },
+    name: "update_draft",
+    description: "Update order draft with collected data",
+    parameters: {
+      type: "object",
+      properties: {
+        draftId: { type: "string" },
+        customerName: { type: "string" },
+        customerPhone: { type: "string" },
+        recipientName: { type: "string" },
+        recipientPhone: { type: "string" },
+        deliveryAddress: { type: "string" },
+        deliveryLatitude: { type: "number" },
+        deliveryLongitude: { type: "number" },
+        deliveryZoneId: { type: "string" },
+        deliveryDate: { type: "string" },
+        deliveryInterval: { type: "string" },
+        items: {
+          type: "array",
           items: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                productId: { type: "string" },
-                size: { type: "string", enum: ["S", "M", "L", "XL"] },
-                quantity: { type: "number" },
-              },
-              required: ["productId", "size", "quantity"],
+            type: "object",
+            properties: {
+              productId: { type: "string" },
+              size: { type: "string", enum: ["S", "M", "L", "XL"] },
+              quantity: { type: "number" },
             },
-          },
-          customerComment: { type: "string" },
-        },
-        required: ["draftId"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "validate_address",
-      description: "Validate delivery address and get coordinates",
-      parameters: {
-        type: "object",
-        properties: {
-          address: { type: "string" },
-        },
-        required: ["address"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "calculate_delivery",
-      description: "Calculate delivery cost and zone",
-      parameters: {
-        type: "object",
-        properties: {
-          latitude: { type: "number" },
-          longitude: { type: "number" },
-        },
-        required: ["latitude", "longitude"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_draft_summary",
-      description: "Get current draft summary with all collected data",
-      parameters: {
-        type: "object",
-        properties: {
-          draftId: { type: "string" },
-        },
-        required: ["draftId"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "validate_product_availability",
-      description: "Check if selected products are available",
-      parameters: {
-        type: "object",
-        properties: {
-          productIds: {
-            type: "array",
-            items: { type: "string" },
+            required: ["productId", "size", "quantity"],
           },
         },
-        required: ["productIds"],
+        customerComment: { type: "string" },
       },
+      required: ["draftId"],
+    },
+  },
+  {
+    name: "validate_address",
+    description: "Validate delivery address and get coordinates",
+    parameters: {
+      type: "object",
+      properties: {
+        address: { type: "string" },
+      },
+      required: ["address"],
+    },
+  },
+  {
+    name: "calculate_delivery",
+    description: "Calculate delivery cost and zone",
+    parameters: {
+      type: "object",
+      properties: {
+        latitude: { type: "number" },
+        longitude: { type: "number" },
+      },
+      required: ["latitude", "longitude"],
+    },
+  },
+  {
+    name: "get_draft_summary",
+    description: "Get current draft summary with all collected data",
+    parameters: {
+      type: "object",
+      properties: {
+        draftId: { type: "string" },
+      },
+      required: ["draftId"],
+    },
+  },
+  {
+    name: "validate_product_availability",
+    description: "Check if selected products are available",
+    parameters: {
+      type: "object",
+      properties: {
+        productIds: {
+          type: "array",
+          items: { type: "string" },
+        },
+      },
+      required: ["productIds"],
     },
   },
 ];
@@ -226,7 +205,7 @@ function consumeRequestQuota(request: Request): Response | null {
 async function executeTool(toolName: string, toolInput: Record<string, any>): Promise<string> {
   try {
     const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-    
+
     const response = await fetch(`${baseUrl}/api/ai-florist-tools`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -307,7 +286,7 @@ export async function POST(request: Request) {
 
 Используй инструменты для:
 - Поиска букетов (search_products)
-- Получения деталей (get_product)  
+- Получения деталей (get_product)
 - Проверки адреса (validate_address)
 - Расчета доставки (calculate_delivery)
 - Сохранения данных в черновик (update_draft)
@@ -324,42 +303,48 @@ export async function POST(request: Request) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 28_000);
 
-    // Tool calling loop
-    const conversationMessages: FloristMessage[] = [...messages];
+    // Build input array for Responses API
+    // Input is an array of items with type: "text" | "function_call_output"
+    const inputItems: any[] = [];
+
+    // Add system instructions as first item
+    inputItems.push({
+      type: "text",
+      text: systemPrompt,
+    });
+
+    // Add conversation messages
+    for (const msg of messages) {
+      if (msg.role === "user") {
+        inputItems.push({
+          type: "text",
+          text: typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content),
+        });
+      } else if (msg.role === "assistant") {
+        // In Responses API, we don't resend assistant messages in the same way
+        // They will be part of the previous response flow or handled differently
+        // For now, skip them as Responses API handles message history differently
+      } else if (msg.role === "tool" && (msg as any).tool_call_id) {
+        // Function call output from previous iteration
+        inputItems.push({
+          type: "function_call_output",
+          call_id: (msg as any).tool_call_id,
+          output: msg.content,
+        });
+      }
+    }
+
+    // Tool calling loop for Responses API
     let toolCallCount = 0;
+    let finalReply = "";
+    const recommendedProductIds: string[] = [];
 
     for (toolCallCount = 0; toolCallCount < MAX_TOOL_CALLS; toolCallCount++) {
-      // Build messages with system prompt as first message
-      // CRITICAL: Preserve tool_calls and tool_call_id in message history
-      const messagesForApi = [
-        {
-          role: "developer" as const,
-          content: systemPrompt,
-        },
-        ...conversationMessages.map(msg => {
-          const msgObj: any = {
-            role: msg.role,
-            content: typeof msg.content === "string" ? msg.content : msg.content,
-          };
-          // Preserve tool_calls if present (assistant messages with tool calls)
-          if ((msg as any).tool_calls) {
-            msgObj.tool_calls = (msg as any).tool_calls;
-          }
-          // Preserve tool_call_id if present (tool response messages)
-          if ((msg as any).tool_call_id) {
-            msgObj.tool_call_id = (msg as any).tool_call_id;
-          }
-          return msgObj;
-        }),
-      ];
-
-      // Use OpenAI Responses API directly with gpt-5.6-sol
-      const requestPayload: Record<string, any> = {
+      // Call Responses API endpoint
+      const requestPayload = {
         model: SAFE_DIRECT_MODEL,
-        messages: messagesForApi,
+        input: inputItems,
         tools: TOOL_DEFINITIONS,
-        tool_choice: "auto",
-        max_tokens: 2000,
       };
 
       const response = await fetch("https://api.openai.com/v1/responses", {
@@ -374,7 +359,18 @@ export async function POST(request: Request) {
 
       if (!response.ok) {
         clearTimeout(timeout);
-        console.error("[ai-florist] upstream error", { status: response.status });
+        const errorText = await response.text();
+        let errorDetails = "Unknown error";
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorDetails = `${errorJson.error?.type || "unknown"}: ${errorJson.error?.message || ""}`;
+        } catch {
+          errorDetails = errorText.slice(0, 200);
+        }
+        console.error("[ai-florist] Responses API error", {
+          status: response.status,
+          error: errorDetails.slice(0, 500)
+        });
         return Response.json({
           reply: "Ошибка при обработке запроса.",
           recommendedProductIds: [],
@@ -384,10 +380,11 @@ export async function POST(request: Request) {
       }
 
       const responseData = (await response.json()) as any;
-      const choice = responseData.choices?.[0];
+      const output = responseData.output;
 
-      if (!choice) {
+      if (!Array.isArray(output) || output.length === 0) {
         clearTimeout(timeout);
+        console.error("[ai-florist] Invalid response format");
         return Response.json({
           reply: "Не удалось обработать запрос.",
           recommendedProductIds: [],
@@ -396,84 +393,92 @@ export async function POST(request: Request) {
         } satisfies FloristReply);
       }
 
-      // Add assistant message WITH tool_calls to conversation
-      conversationMessages.push({
-        role: "assistant",
-        content: choice.message.content || "",
-        tool_calls: choice.message.tool_calls,
-      } as any);
+      // Process output items
+      let hasToolCalls = false;
+      const toolCallsToExecute: Array<{ call_id: string; name: string; arguments: any }> = [];
 
-      // Check for tool calls
-      const toolCalls = choice.message.tool_calls;
-      if (!toolCalls || toolCalls.length === 0) {
-        // No more tool calls - we have the final response
+      for (const item of output) {
+        if (item.type === "text") {
+          finalReply = item.text || "";
+        } else if (item.type === "function_call") {
+          hasToolCalls = true;
+          toolCallsToExecute.push({
+            call_id: item.call_id,
+            name: item.name,
+            arguments: typeof item.arguments === "string"
+              ? JSON.parse(item.arguments)
+              : item.arguments,
+          });
+        }
+      }
+
+      // If no tool calls, we have the final response
+      if (!hasToolCalls) {
         clearTimeout(timeout);
-        
-        // Extract recommendedProductIds from conversation history
-        const recommendedProductIds: string[] = [];
-        for (const msg of conversationMessages) {
-          if (msg.role === "tool") {
+
+        // Extract product IDs from output if any
+        for (const item of output) {
+          if (item.type === "text") {
+            // Try to extract product IDs from tool results that were returned
             try {
-              const toolContent = typeof msg.content === "string" 
-                ? JSON.parse(msg.content)
-                : msg.content;
-              // Extract from search_products results
-              if (toolContent?.data?.products && Array.isArray(toolContent.data.products)) {
-                recommendedProductIds.push(...toolContent.data.products.map((p: any) => p.id));
-              }
-              // Extract from get_product result
-              if (toolContent?.data?.id && typeof toolContent.data.id === "string") {
-                recommendedProductIds.push(toolContent.data.id);
-              }
+              // This is a simplified extraction; real implementation might be more sophisticated
+              const productIdPattern = /product[_-]?\d+|id:?\s*["\']?([a-zA-Z0-9\-]+)["\']?/gi;
+              // Note: This is basic; rely on explicit tool results instead
             } catch {
-              // Skip parsing errors
+              // Skip extraction errors
             }
           }
         }
-        
+
         return Response.json({
-          reply: choice.message.content || "Я готов помочь подобрать букет.",
+          reply: finalReply || "Я готов помочь подобрать букет.",
           recommendedProductIds: [...new Set(recommendedProductIds)].slice(0, 3),
           mode: "ai",
-          modelUsed:
-            typeof responseData.model === "string"
-              ? responseData.model
-              : SAFE_DIRECT_MODEL,
+          modelUsed: SAFE_DIRECT_MODEL,
         } satisfies FloristReply);
       }
 
-      // Execute tool calls with proper protocol
-      for (const toolCall of toolCalls) {
+      // Execute tool calls
+      for (const toolCall of toolCallsToExecute) {
         try {
-          // Parse tool arguments from JSON string
-          const toolArgs = typeof toolCall.function.arguments === 'string'
-            ? JSON.parse(toolCall.function.arguments)
-            : toolCall.function.arguments;
-          
+          const toolArgs = toolCall.arguments;
+
           // Enforce draftId from request body for draft operations
-          // Security: prevent model from accessing other drafts
-          if (toolCall.function.name === "update_draft" || toolCall.function.name === "get_draft_summary") {
+          if (toolCall.name === "update_draft" || toolCall.name === "get_draft_summary") {
             if (!body.draftId) {
-              throw new Error(`Tool ${toolCall.function.name} requires draftId in request body`);
+              throw new Error(`Tool ${toolCall.name} requires draftId in request body`);
             }
             toolArgs.draftId = body.draftId;
           }
-          
-          const toolResult = await executeTool(toolCall.function.name, toolArgs);
-          
-          // Add proper tool message (role: "tool", not user)
-          conversationMessages.push({
-            role: "tool",
-            tool_call_id: toolCall.id,
-            content: toolResult,
-          } as any);
+
+          const toolResult = await executeTool(toolCall.name, toolArgs);
+
+          // Parse and extract product IDs if this is a search or product result
+          try {
+            const toolResultJson = JSON.parse(toolResult);
+            if (toolResultJson?.data?.products && Array.isArray(toolResultJson.data.products)) {
+              recommendedProductIds.push(...toolResultJson.data.products.map((p: any) => p.id));
+            }
+            if (toolResultJson?.data?.id && typeof toolResultJson.data.id === "string") {
+              recommendedProductIds.push(toolResultJson.data.id);
+            }
+          } catch {
+            // Ignore parsing errors
+          }
+
+          // Add function_call_output item to input for next iteration
+          inputItems.push({
+            type: "function_call_output",
+            call_id: toolCall.call_id,
+            output: toolResult,
+          });
         } catch (toolError) {
           console.error("[ai-florist] tool execution error:", toolError);
-          conversationMessages.push({
-            role: "tool",
-            tool_call_id: toolCall.id,
-            content: JSON.stringify({ status: "error", message: "Tool execution failed" }),
-          } as any);
+          inputItems.push({
+            type: "function_call_output",
+            call_id: toolCall.call_id,
+            output: JSON.stringify({ status: "error", message: "Tool execution failed" }),
+          });
         }
       }
     }
