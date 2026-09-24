@@ -38,6 +38,7 @@ const QUICK_PROMPTS = [
 ];
 
 const CHAT_STORAGE_KEY = "bellaflore:ai-florist-chat-v3";
+const DRAFT_STORAGE_KEY = "bellaflore:ai-florist-draft-id-v1";
 const CHAT_STORAGE_LIMIT = 20;
 
 const INITIAL_MESSAGE: ChatMessage = {
@@ -265,6 +266,32 @@ function storeChat(messages: ChatMessage[]) {
   }
 }
 
+
+function readStoredDraftId(): string | null {
+  try {
+    const value = window.sessionStorage.getItem(DRAFT_STORAGE_KEY)?.trim();
+    return value || null;
+  } catch {
+    return null;
+  }
+}
+
+function storeDraftId(draftId: string) {
+  try {
+    window.sessionStorage.setItem(DRAFT_STORAGE_KEY, draftId);
+  } catch {
+    // Draft still works in memory when sessionStorage is unavailable.
+  }
+}
+
+function clearStoredDraftId() {
+  try {
+    window.sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch {
+    // Ignore storage limitations.
+  }
+}
+
 // A real keyboard opening on iOS typically shrinks the visual viewport by
 // 250px+. Smaller shifts (browser chrome collapsing, URL bar) stay under
 // this threshold so the panel doesn't jitter its position for those.
@@ -277,6 +304,7 @@ export function AiFlorist({
 }: AiFloristProps) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
+  const [draftId, setDraftId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [assistantMode, setAssistantMode] = useState<"ai" | "fallback" | null>(null);
@@ -328,6 +356,11 @@ export function AiFlorist({
       if (stored) {
         setMessages(stored);
         messageSequenceRef.current = stored.length + 1;
+      }
+
+      const storedDraftId = readStoredDraftId();
+      if (storedDraftId) {
+        setDraftId(storedDraftId);
       }
     });
 
@@ -491,6 +524,42 @@ export function AiFlorist({
     };
   }, [open]);
 
+  const ensureDraftId = async (): Promise<string | null> => {
+    if (draftId) {
+      return draftId;
+    }
+
+    const storedDraftId = readStoredDraftId();
+    if (storedDraftId) {
+      setDraftId(storedDraftId);
+      return storedDraftId;
+    }
+
+    try {
+      const response = await fetch("/api/order-drafts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create" }),
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const created = (await response.json()) as { id?: string };
+      const createdDraftId = created.id?.trim() || null;
+
+      if (createdDraftId) {
+        setDraftId(createdDraftId);
+        storeDraftId(createdDraftId);
+      }
+
+      return createdDraftId;
+    } catch {
+      return null;
+    }
+  };
+
   const sendMessage = async (rawText: string) => {
     const text = rawText.trim();
     if (!text || sending) return;
@@ -506,6 +575,7 @@ export function AiFlorist({
     setSending(true);
     window.requestAnimationFrame(() => scrollChatToBottom("smooth"));
 
+    const activeDraftId = await ensureDraftId();
     const candidates = selectCandidates(bouquets, nextMessages);
 
     try {
@@ -513,6 +583,7 @@ export function AiFlorist({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          draftId: activeDraftId ?? undefined,
           messages: nextMessages.map(({ role, content }) => ({ role, content })),
           candidates: candidates.map((product) => ({
             id: product.id,
@@ -563,12 +634,23 @@ export function AiFlorist({
   };
 
   const reset = () => {
+    const previousDraftId = draftId ?? readStoredDraftId();
+
     setMessages([INITIAL_MESSAGE]);
+    setDraftId(null);
     setInput("");
+    clearStoredDraftId();
+
     try {
       window.sessionStorage.removeItem(CHAT_STORAGE_KEY);
     } catch {
       // Ignore storage limitations.
+    }
+
+    if (previousDraftId) {
+      void fetch(`/api/order-drafts?id=${encodeURIComponent(previousDraftId)}`, {
+        method: "DELETE",
+      }).catch(() => undefined);
     }
   };
 

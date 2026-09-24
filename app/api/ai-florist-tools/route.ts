@@ -415,33 +415,60 @@ async function getProduct(params: {
 async function validateAddress(params: {
   address?: unknown;
 }): Promise<ToolResponse> {
-  try {
-    const address = validateString(params.address);
-    if (!address) {
-      return {
-        status: "error",
-        message: "Адрес не указан",
-      };
-    }
+  const address = validateString(params.address);
 
-    // Call the existing Yandex geocode API route
-    const geocodeUrl = new URL(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/yandex-geocode`);
-    geocodeUrl.searchParams.set("geocode", address);
+  if (!address) {
+    return {
+      status: "error",
+      message: "Адрес не указан",
+    };
+  }
+
+  // Apartment / entrance / floor are delivery details, not geocoding input.
+  // Keep the original address for the order, but geocode only street + house.
+  const geocodeAddress = address
+    .split(",")
+    .map((part) => part.trim())
+    .filter(
+      (part) =>
+        part &&
+        !/(?:^|\s)(?:кв(?:артира)?\.?|подъезд|этаж|домофон|офис)\b/i.test(part),
+    )
+    .join(", ");
+
+  const siteBaseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
+  const manualReview = (reason: string): ToolResponse => ({
+    status: "ok",
+    data: {
+      address,
+      geocodeAddress,
+      validated: false,
+      manualReview: true,
+      reason,
+      message:
+        "Адрес сохранён. Геокодер не подтвердил его автоматически; продолжайте оформление без запроса метро или ориентира.",
+    },
+  });
+
+  try {
+    const geocodeUrl = new URL(`${siteBaseUrl}/api/yandex-geocode`);
+    geocodeUrl.searchParams.set("geocode", geocodeAddress);
 
     const response = await fetch(geocodeUrl.toString(), {
       headers: {
         Accept: "application/json",
-        Referer: "http://localhost:3000/ai-consultant",
+        Referer: `${siteBaseUrl}/ai-consultant`,
+        Origin: siteBaseUrl,
       },
       cache: "no-store",
       signal: AbortSignal.timeout(6000),
     });
 
     if (!response.ok) {
-      return {
-        status: "error",
-        message: "Не удалось проверить адрес. Попробуйте уточнить.",
-      };
+      return manualReview(`geocoder_http_${response.status}`);
     }
 
     const result = (await response.json()) as {
@@ -454,10 +481,7 @@ async function validateAddress(params: {
     };
 
     if (!result.results || result.results.length === 0) {
-      return {
-        status: "error",
-        message: "Адрес не найден. Проверьте написание.",
-      };
+      return manualReview("address_not_resolved");
     }
 
     const first = result.results[0];
@@ -465,28 +489,25 @@ async function validateAddress(params: {
     const longitude = first.longitude;
 
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      return {
-        status: "error",
-        message: "Не удалось определить координаты адреса.",
-      };
+      return manualReview("coordinates_not_resolved");
     }
 
     return {
       status: "ok",
       data: {
-        address: first.formattedAddress || address,
+        address,
+        geocodeAddress,
+        normalizedAddress: first.formattedAddress || geocodeAddress,
         latitude,
         longitude,
         precision: first.precision,
         validated: true,
+        manualReview: false,
       },
     };
   } catch (error) {
     console.error("[ai-tools] validate_address error:", error);
-    return {
-      status: "error",
-      message: "Ошибка при проверке адреса",
-    };
+    return manualReview("geocoder_unavailable");
   }
 }
 
