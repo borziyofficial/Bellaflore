@@ -59,15 +59,34 @@ const TOOL_DEFINITIONS = [
     type: "function",
     strict: false,
     name: "search_products",
-    description: "Search for products in the catalog",
+    description:
+      "Search real BellaFlore catalog products. Use budget fields for prices; use query only for actual flower/product keywords, never for recipient or occasion.",
     parameters: {
       type: "object",
       properties: {
-        query: { type: "string", description: "Search query" },
-        maxPrice: { type: "number", description: "Max price" },
-        limit: { type: "number", description: "Number of results" },
+        query: {
+          type: "string",
+          description:
+            "Optional flower/product/catalog keyword, e.g. 'гортензия' or 'розы'. Omit for generic gift/occasion requests.",
+        },
+        minPrice: {
+          type: "number",
+          description: "Minimum product price in RUB when the user gives a lower budget bound.",
+        },
+        maxPrice: {
+          type: "number",
+          description: "Maximum product price in RUB when the user gives an upper budget bound.",
+        },
+        category: {
+          type: "string",
+          description: "Optional catalog category only when explicitly relevant.",
+        },
+        flowerType: {
+          type: "string",
+          description: "Optional flower type only when the user names a flower.",
+        },
+        limit: { type: "number", description: "Number of results, usually 3-5." },
       },
-      required: ["query"],
     },
   },
   {
@@ -306,12 +325,19 @@ export async function POST(request: Request) {
 - Сохранения данных в черновик (update_draft)
 
 ВАЖНЫЕ ПРАВИЛА:
-1. Собирай постепенно: имя, телефон, адрес, дату, выбор букетов
-2. Используй update_draft чтобы сохранять собранные данные
-3. Никогда не выдумывай цены или товары
-4. Рекомендуй только товары из search_products результатов
-5. Если адрес не валиден, не подставляй координаты 0,0 — попроси уточнить адрес
-6. НЕ вызывай finalize_order_from_draft — это вызывает пользователь кнопкой Confirm`;
+1. Собирай постепенно: имя, телефон, адрес, дату, выбор букетов.
+2. Используй update_draft чтобы сохранять собранные данные.
+3. Никогда не выдумывай цены или товары.
+4. Рекомендуй только товары из search_products результатов.
+5. Если адрес не валиден, не подставляй координаты 0,0 — попроси уточнить адрес.
+6. НЕ вызывай finalize_order_from_draft — это вызывает пользователь кнопкой Confirm.
+7. Бюджет трактуй точно:
+   - "6–7 тысяч" / "от 6000 до 7000" => search_products с minPrice=6000 и maxPrice=7000.
+   - "до 7000" => только maxPrice=7000.
+   - "от 6000" => только minPrice=6000.
+8. Поле query используй ТОЛЬКО для реального названия цветка/товара/категории. Не передавай туда "знакомому", "маме", "без повода", "на день рождения" и подобные слова.
+9. Если в приблизительном диапазоне (например 6000–7000) ничего не найдено, не говори "до 7000 ничего нет". Скажи честно, что нет именно В ЭТОМ ДИАПАЗОНЕ, затем сделай второй search_products до верхней границы без minPrice и без лишнего query и предложи реальные более дешёвые варианты, если они есть.
+10. Никогда не утверждай, что "до X ничего нет", если не выполнялся поиск от 0 до X без дополнительных текстовых фильтров.`;
 
   try {
     const controller = new AbortController();
