@@ -432,7 +432,7 @@ async function validateAddress(params: {
     .filter(
       (part) =>
         part &&
-        !/(?:^|\s)(?:кв(?:артира)?\.?|подъезд|этаж|домофон|офис)\b/i.test(part),
+        !/^(?:кв(?:артира)?\.?|подъезд|этаж|домофон|офис)(?:\s|$)/i.test(part),
     )
     .join(", ");
 

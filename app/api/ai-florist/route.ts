@@ -531,6 +531,7 @@ export async function POST(request: Request) {
 
   let draftContext =
     "Активный черновик пока недоступен. Используй историю диалога и не повторяй уже известные данные.";
+  let draftSummaryData: any = null;
 
   if (body.draftId) {
     try {
@@ -540,10 +541,63 @@ export async function POST(request: Request) {
       const summary = JSON.parse(summaryRaw);
 
       if (summary?.status === "ok" && summary.data) {
+        draftSummaryData = summary.data;
         draftContext = JSON.stringify(summary.data, null, 2);
       }
     } catch (error) {
       console.error("[ai-florist] failed to load draft context:", error);
+    }
+  }
+
+  if (body.draftId && draftSummaryData) {
+    const selectedItems = Array.isArray(draftSummaryData.items)
+      ? draftSummaryData.items
+      : [];
+
+    const hasSelectedProduct = selectedItems.length > 0;
+    const hasCustomerContact = Boolean(
+      draftSummaryData.customer?.name &&
+      draftSummaryData.customer?.phone,
+    );
+    const hasRecipientContact = Boolean(
+      draftSummaryData.recipient?.name &&
+      draftSummaryData.recipient?.phone,
+    );
+    const hasContact = hasCustomerContact || hasRecipientContact;
+    const hasAddress = Boolean(draftSummaryData.delivery?.address);
+    const hasDate = Boolean(draftSummaryData.delivery?.date);
+    const hasInterval = Boolean(draftSummaryData.delivery?.interval);
+
+    const selectedProductIds = selectedItems
+      .map((item: any) => item?.productId || item?.id)
+      .filter((id: unknown): id is string => typeof id === "string")
+      .slice(0, 3);
+
+    // Deterministic checkout progression:
+    // once product + contact + address are known, never send the customer
+    // backwards to bouquet selection or repeat contact/address questions.
+    if (hasSelectedProduct && hasContact && hasAddress && !hasDate) {
+      return Response.json({
+        reply: "На какую дату нужна доставка — сегодня, завтра или на другую дату?",
+        recommendedProductIds: selectedProductIds,
+        mode: "ai",
+        modelUsed: SAFE_DIRECT_MODEL,
+      } satisfies FloristReply);
+    }
+
+    if (
+      hasSelectedProduct &&
+      hasContact &&
+      hasAddress &&
+      hasDate &&
+      !hasInterval
+    ) {
+      return Response.json({
+        reply: "Какой интервал доставки удобен: 09–12, 12–15, 15–18 или 18–21?",
+        recommendedProductIds: selectedProductIds,
+        mode: "ai",
+        modelUsed: SAFE_DIRECT_MODEL,
+      } satisfies FloristReply);
     }
   }
 
@@ -565,7 +619,7 @@ ${draftContext}
 2. Используй update_draft чтобы сохранять собранные данные.
 3. Никогда не выдумывай цены или товары.
 4. Рекомендуй только товары из search_products результатов.
-5. Если адрес не валиден, не подставляй координаты 0,0 — попроси уточнить адрес.
+5. Никогда не подставляй координаты 0,0. Если клиент не указал улицу или дом — попроси уточнить. Если улица и дом уже указаны, но геокодер временно не подтвердил адрес, сохрани полный адрес для ручной проверки и продолжай оформление без запроса метро или ориентира.
 6. НЕ вызывай finalize_order_from_draft — это вызывает пользователь кнопкой Confirm.
 7. Бюджет трактуй точно:
    - "6–7 тысяч" / "от 6000 до 7000" => search_products с minPrice=6000 и maxPrice=7000.
