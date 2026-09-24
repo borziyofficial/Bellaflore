@@ -145,8 +145,13 @@ export function AdminOrderDetailsModule({ orderId }: { orderId: string }) {
               <div><dt>Получатель</dt><dd>{order.recipient.name}</dd></div>
               <div><dt>Телефон получателя</dt><dd><a href={`tel:${order.recipient.phone}`}>{order.recipient.phone}</a></dd></div>
               <div><dt>Адрес</dt><dd>{order.delivery.address}</dd></div>
-              <div><dt>Доставка</dt><dd>{order.delivery.date} · {order.delivery.interval}</dd></div>
+              <div><dt>Доставка</dt><dd>{order.delivery.date} · {order.delivery.mode === "exact"
+                ? `к ${order.delivery.exactTime} (запрос, требует подтверждения)`
+                : order.delivery.interval}</dd></div>
               <div><dt>Зона</dt><dd>{order.delivery.zoneId}</dd></div>
+              <div><dt>Доставка по зоне</dt><dd>{formatOrderPrice(order.baseDeliveryCost)}</dd></div>
+              {order.delivery.mode === "exact" ? <div><dt>Точное время</dt><dd>+{formatOrderPrice(order.delivery.timeSurcharge)}</dd></div> : null}
+              <div><dt>Итого доставка</dt><dd>{formatOrderPrice(order.deliveryCost)}</dd></div>
               <div><dt>Способ оплаты</dt><dd>{paymentMethodLabel(order.paymentMethod)}</dd></div>
               <div><dt>Статус оплаты</dt><dd>{paymentStatusLabels[order.paymentStatus]}</dd></div>
               <div><dt>Комментарий</dt><dd>{order.customerComment || "—"}</dd></div>

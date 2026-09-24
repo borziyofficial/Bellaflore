@@ -119,7 +119,9 @@ export function AdminOrdersModule() {
                 </span>
                 <span>{formatOrderDate(order.createdAt)}</span>
                 <span>{order.customer.name} · {order.customer.phone}</span>
-                <span>{order.delivery.date} · {order.delivery.interval}</span>
+                <span>{order.delivery.date} · {order.delivery.mode === "exact"
+                  ? `к ${order.delivery.exactTime} (запрос)`
+                  : order.delivery.interval}</span>
                 <strong>{formatOrderPrice(order.total)}</strong>
               </Link>
             ))}

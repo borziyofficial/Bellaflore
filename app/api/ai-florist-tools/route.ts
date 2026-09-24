@@ -1,12 +1,14 @@
 import { loadPublishedStorefrontCatalog } from "@/lib/catalogDb/publicStorefront";
 import { calculateServerDeliveryPrice } from "@/lib/orders/deliveryPricing";
+import { exactTimeSurcharge, parseDeliveryDateAnswer, parseDeliveryTimeAnswer } from "@/lib/orders/deliverySchedule";
 import { PostgresOrderDraftRepository } from "@/lib/orders/draftRepository";
 import { PostgresOrderCatalogGateway } from "@/lib/orders/catalogGateway";
 import { PostgresOrderRepository } from "@/lib/orders/repository";
 import { createOrderService } from "@/lib/orders/service";
 import type { CatalogProduct } from "@/data/catalogProducts";
-import type { UpdateOrderDraftInput } from "@/lib/orders/draftTypes";
+import { hasCompleteDraftDeliveryTime, type UpdateOrderDraftInput } from "@/lib/orders/draftTypes";
 import type { CreateOrderInput } from "@/lib/orders/types";
+import { parseCreateOrderInput } from "@/lib/orders/validation";
 import { createHash } from "crypto";
 
 // ==================================================
@@ -519,6 +521,7 @@ async function calculateDelivery(params: {
   latitude?: unknown;
   longitude?: unknown;
   date?: unknown;
+  deliveryMode?: unknown;
 }): Promise<ToolResponse> {
   try {
     const latitude = Number(params.latitude);
@@ -533,12 +536,16 @@ async function calculateDelivery(params: {
 
     // Use the real delivery pricing calculation
     const delivery = await calculateServerDeliveryPrice(latitude, longitude);
+    const deliveryMode = params.deliveryMode === "exact" ? "exact" : "interval";
+    const surcharge = exactTimeSurcharge(deliveryMode, delivery.zoneId);
 
     return {
       status: "ok",
       data: {
         zoneId: delivery.zoneId,
-        deliveryFee: delivery.cost,
+        baseDeliveryFee: delivery.cost,
+        deliveryTimeSurcharge: surcharge,
+        deliveryFee: delivery.cost + surcharge,
         latitude,
         longitude,
       },
@@ -575,6 +582,8 @@ async function updateDraft(params: {
   deliveryZoneId?: unknown;
   deliveryDate?: unknown;
   deliveryInterval?: unknown;
+  deliveryMode?: unknown;
+  deliveryExactTime?: unknown;
   customerComment?: unknown;
   items?: unknown;
 }): Promise<ToolResponse> {
@@ -587,6 +596,38 @@ async function updateDraft(params: {
         status: "error",
         message: "Draft ID не указан",
       };
+    }
+
+    const currentDraft = await draftRepository.findById(draftId);
+    if (!currentDraft) return { status: "error", message: "Черновик не найден" };
+
+    let deliveryDate: string | undefined;
+    let deliveryTime = null;
+    try {
+      const rawDate = validateString(params.deliveryDate);
+      if (rawDate) {
+        deliveryDate = parseDeliveryDateAnswer(rawDate) ?? undefined;
+        if (!deliveryDate) throw new Error("Укажите дату доставки.");
+      }
+      const rawInterval = validateString(params.deliveryInterval);
+      const rawExactTime = validateString(params.deliveryExactTime);
+      const rawMode = validateString(params.deliveryMode);
+      if (rawMode && rawMode !== "interval" && rawMode !== "exact") {
+        throw new Error("Некорректный режим доставки.");
+      }
+      if (rawInterval && rawExactTime) throw new Error("Выберите интервал или точное время.");
+      if (rawInterval || rawExactTime) {
+        deliveryTime = parseDeliveryTimeAnswer(rawInterval ?? rawExactTime!);
+        if (!deliveryTime || (rawInterval && deliveryTime.mode !== "interval") ||
+            (rawExactTime && deliveryTime.mode !== "exact") ||
+            (rawMode && rawMode !== deliveryTime.mode)) {
+          throw new Error("Укажите доступный интервал или время HH:MM.");
+        }
+      } else if (rawMode && rawMode !== currentDraft.deliveryMode) {
+        throw new Error("Для нового режима укажите время доставки.");
+      }
+    } catch (error) {
+      return { status: "error", message: error instanceof Error ? error.message : "Некорректная дата или время." };
     }
 
     const deliveryAddress = validateString(params.deliveryAddress);
@@ -640,6 +681,21 @@ async function updateDraft(params: {
       }
     }
 
+    const deliveryMode = deliveryTime?.mode ?? currentDraft.deliveryMode;
+    let deliveryTimeSurcharge = deliveryMode === "exact" ? currentDraft.deliveryTimeSurcharge : 0;
+    const latitude = deliveryAddress ? authoritativeLatitude : currentDraft.deliveryLatitude;
+    const longitude = deliveryAddress ? authoritativeLongitude : currentDraft.deliveryLongitude;
+    if (typeof latitude === "number" && typeof longitude === "number") {
+      try {
+        const pricedZone = await calculateServerDeliveryPrice(latitude, longitude);
+        deliveryTimeSurcharge = exactTimeSurcharge(deliveryMode ?? "interval", pricedZone.zoneId);
+      } catch {
+        deliveryTimeSurcharge = 0;
+      }
+    } else {
+      deliveryTimeSurcharge = 0;
+    }
+
     const updates: UpdateOrderDraftInput = {
       conversationState: params.conversationState as any,
       customerName: validateString(params.customerName),
@@ -650,8 +706,11 @@ async function updateDraft(params: {
       deliveryLatitude: authoritativeLatitude,
       deliveryLongitude: authoritativeLongitude,
       deliveryZoneId: authoritativeZoneId,
-      deliveryDate: validateString(params.deliveryDate),
-      deliveryInterval: validateString(params.deliveryInterval),
+      deliveryDate,
+      deliveryInterval: deliveryTime?.interval ?? undefined,
+      deliveryMode: deliveryTime?.mode,
+      deliveryExactTime: deliveryTime?.exactTime ?? undefined,
+      deliveryTimeSurcharge,
       customerComment: validateString(params.customerComment),
       items: Array.isArray(params.items) ? params.items : undefined,
     };
@@ -747,6 +806,8 @@ async function getDraftSummary(params: {
     );
 
     let deliveryFee: number | null = null;
+    let baseDeliveryFee: number | null = null;
+    let deliveryTimeSurcharge = 0;
     let authoritativeZoneId = draft.deliveryZoneId;
 
     if (
@@ -761,16 +822,21 @@ async function getDraftSummary(params: {
           draft.deliveryLongitude,
         );
 
-        deliveryFee = authoritativeDelivery.cost;
+        baseDeliveryFee = authoritativeDelivery.cost;
+        deliveryTimeSurcharge = exactTimeSurcharge(draft.deliveryMode ?? "interval", authoritativeDelivery.zoneId);
+        deliveryFee = baseDeliveryFee + deliveryTimeSurcharge;
         authoritativeZoneId = authoritativeDelivery.zoneId;
 
-        if (draft.deliveryZoneId !== authoritativeDelivery.zoneId) {
+        if (draft.deliveryZoneId !== authoritativeDelivery.zoneId ||
+            draft.deliveryTimeSurcharge !== deliveryTimeSurcharge) {
           await draftRepository.update(draftId, {
             deliveryZoneId: authoritativeDelivery.zoneId,
+            deliveryTimeSurcharge,
           });
         }
       } catch {
         deliveryFee = null;
+        baseDeliveryFee = null;
         authoritativeZoneId = undefined;
       }
     }
@@ -797,8 +863,12 @@ async function getDraftSummary(params: {
           longitude: draft.deliveryLongitude,
           zoneId: authoritativeZoneId,
           deliveryFee,
+          baseDeliveryFee,
+          deliveryTimeSurcharge,
           date: draft.deliveryDate,
           interval: draft.deliveryInterval,
+          mode: draft.deliveryMode,
+          exactTime: draft.deliveryExactTime ?? null,
         },
         items: summaryItems,
         total: itemsTotal,
@@ -912,12 +982,15 @@ async function finalizeOrderFromDraft(params: {
     const recipientName = draft.recipientName?.trim();
     const deliveryAddress = draft.deliveryAddress?.trim();
     const deliveryDate = draft.deliveryDate?.trim();
-    const deliveryInterval = draft.deliveryInterval?.trim();
+    const deliveryMode = draft.deliveryMode;
+    const deliveryInterval = draft.deliveryInterval?.trim() ?? null;
+    const deliveryExactTime = draft.deliveryExactTime?.trim() ?? null;
 
     // Validate draft is complete with all required fields
     if (!customerName || !customerPhone ||
         !recipientName || !deliveryAddress ||
-        !deliveryDate || !deliveryInterval ||
+        !deliveryDate ||
+        !hasCompleteDraftDeliveryTime(draft) ||
         !draft.items || draft.items.length === 0) {
       return {
         status: "error",
@@ -1017,6 +1090,8 @@ async function finalizeOrderFromDraft(params: {
       deliveryLongitude: lon,
       deliveryDate,
       deliveryInterval,
+      deliveryMode: deliveryMode ?? undefined,
+      deliveryExactTime,
       paymentMethod: draft.paymentMethod || "cardTransfer",
       customerComment: draft.customerComment?.trim() || "",
       items: draft.items.map((item: any) => ({
@@ -1028,7 +1103,8 @@ async function finalizeOrderFromDraft(params: {
 
     // Call the order service to create a REAL order
     // This will handle validation, price calculation, and persistence
-    const result = await orderService.create(createOrderInput, idempotencyKey);
+    const validatedInput = parseCreateOrderInput(createOrderInput);
+    const result = await orderService.create(validatedInput, idempotencyKey);
 
     // If order was replayed (idempotency key already existed), just return it
     const isNewOrder = !result.replayed;

@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { OrderError } from "@/lib/orders/errors";
 import { calculateServerDeliveryPrice } from "@/lib/orders/deliveryPricing";
+import { exactTimeSurcharge } from "@/lib/orders/deliverySchedule";
 import type {
   CreateOrderInput,
   CreateOrderResult,
@@ -18,8 +19,10 @@ export type OrderServiceDependencies = {
 };
 
 function fingerprintRequest(input: CreateOrderInput): string {
+  const { deliveryMode, deliveryExactTime, ...legacyInput } = input;
   const canonical = {
-    ...input,
+    ...legacyInput,
+    ...(deliveryMode === "exact" ? { deliveryMode, deliveryExactTime } : {}),
     items: [...input.items].sort((left, right) =>
       `${left.productId}:${left.size}`.localeCompare(`${right.productId}:${right.size}`),
     ),
@@ -98,8 +101,11 @@ export function createOrderService(dependencies: OrderServiceDependencies) {
         input.deliveryLatitude,
         input.deliveryLongitude,
       );
-      const total = subtotal + delivery.cost;
-      if (![subtotal, total].every(Number.isSafeInteger)) {
+      const deliveryMode = input.deliveryMode ?? "interval";
+      const deliveryTimeSurcharge = exactTimeSurcharge(deliveryMode, delivery.zoneId);
+      const deliveryCost = delivery.cost + deliveryTimeSurcharge;
+      const total = subtotal + deliveryCost;
+      if (![subtotal, deliveryCost, total].every(Number.isSafeInteger)) {
         throw new OrderError("INVALID_REQUEST", "Сумма заказа слишком велика.", 400);
       }
 
@@ -119,13 +125,16 @@ export function createOrderService(dependencies: OrderServiceDependencies) {
         deliveryLongitude: input.deliveryLongitude,
         deliveryZoneId: delivery.zoneId,
         deliveryDate: input.deliveryDate,
-        deliveryInterval: input.deliveryInterval,
+        deliveryInterval: input.deliveryInterval ?? null,
+        deliveryMode,
+        deliveryExactTime: input.deliveryExactTime ?? null,
+        deliveryTimeSurcharge,
         paymentMethod: input.paymentMethod,
         paymentStatus: "PENDING",
         cancellationReason: null,
         customerComment: input.customerComment,
         subtotal,
-        deliveryCost: delivery.cost,
+        deliveryCost,
         total,
         currency: "RUB",
         status: "NEW",

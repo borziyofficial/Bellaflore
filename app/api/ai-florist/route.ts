@@ -1,5 +1,7 @@
 "use server";
 
+import { parseDeliveryDateAnswer, parseDeliveryTimeAnswer } from "@/lib/orders/deliverySchedule";
+
 type FloristMessage = {
   role: "user" | "assistant" | "tool";
   content: string | any[];
@@ -121,6 +123,8 @@ const TOOL_DEFINITIONS = [
         deliveryZoneId: { type: "string" },
         deliveryDate: { type: "string" },
         deliveryInterval: { type: "string" },
+        deliveryMode: { type: "string", enum: ["interval", "exact"] },
+        deliveryExactTime: { type: "string", description: "HH:MM, only for exact delivery" },
         items: {
           type: "array",
           items: {
@@ -161,6 +165,7 @@ const TOOL_DEFINITIONS = [
       properties: {
         latitude: { type: "number" },
         longitude: { type: "number" },
+        deliveryMode: { type: "string", enum: ["interval", "exact"] },
       },
       required: ["latitude", "longitude"],
     },
@@ -457,7 +462,7 @@ function formatAuthoritativeCheckoutSummary(summary: any): {
     items.length === 0 ||
     !delivery?.address ||
     !delivery?.date ||
-    !delivery?.interval ||
+    !(delivery?.mode === "exact" ? delivery?.exactTime : delivery?.interval) ||
     !delivery?.zoneId ||
     typeof delivery?.deliveryFee !== "number" ||
     !Number.isFinite(delivery.deliveryFee) ||
@@ -481,10 +486,13 @@ function formatAuthoritativeCheckoutSummary(summary: any): {
   const zoneLabel =
     delivery.zoneId === "base" ? "базовая" : String(delivery.zoneId);
 
-  const recommendedProductIds = items
-    .map((item: any) => item?.productId || item?.id)
-    .filter((id: unknown): id is string => typeof id === "string")
-    .slice(0, 3);
+  const exact = delivery.mode === "exact";
+  const baseDeliveryFee = delivery.baseDeliveryFee ??
+    (delivery.deliveryFee - (delivery.deliveryTimeSurcharge ?? 0));
+  const surcharge = delivery.deliveryTimeSurcharge ?? 0;
+  const timeLabel = exact
+    ? `к ${delivery.exactTime} (запрос требует подтверждения)`
+    : delivery.interval;
 
   return {
     reply:
@@ -492,10 +500,13 @@ function formatAuthoritativeCheckoutSummary(summary: any): {
       `- **Букет:** ${itemText}\n` +
       `- **Адрес:** ${delivery.address}\n` +
       `- **Зона доставки:** ${zoneLabel}\n` +
-      `- **Доставка:** ${delivery.date}, ${delivery.interval} — ${delivery.deliveryFee.toLocaleString("ru-RU")} ₽\n` +
+      `- **Доставка:** ${delivery.date}, ${timeLabel}\n` +
+      `- **Доставка по зоне:** ${baseDeliveryFee.toLocaleString("ru-RU")} ₽\n` +
+      (exact ? `- **Точное время:** +${surcharge.toLocaleString("ru-RU")} ₽\n` : "") +
+      `- **Итого доставка:** ${delivery.deliveryFee.toLocaleString("ru-RU")} ₽\n` +
       `- **Итого:** ${summary.grandTotal.toLocaleString("ru-RU")} ₽\n\n` +
       `Подтверждаете переход к оформлению?`,
-    recommendedProductIds,
+    recommendedProductIds: [],
   };
 }
 
@@ -602,7 +613,55 @@ export async function POST(request: Request) {
     }
   }
 
-  if (body.draftId && draftSummaryData) {
+  const latestUserText = [...messages].reverse().find(
+    (message) => message.role === "user" && typeof message.content === "string",
+  )?.content as string | undefined;
+  const wantsBouquetOptions = Boolean(latestUserText &&
+    /(?:покаж[а-яё]*|смен[а-яё]*|замен[а-яё]*|друг[а-яё]*).{0,50}(?:букет|цвет|товар|роз|гортенз)/iu.test(latestUserText));
+
+  if (body.draftId && draftSummaryData && latestUserText && !wantsBouquetOptions) {
+    const selectedItems = Array.isArray(draftSummaryData.items) ? draftSummaryData.items : [];
+    const hasContact = Boolean(
+      (draftSummaryData.customer?.name && draftSummaryData.customer?.phone) ||
+      (draftSummaryData.recipient?.name && draftSummaryData.recipient?.phone),
+    );
+    if (selectedItems.length > 0 && hasContact && draftSummaryData.delivery?.address) {
+      try {
+        const date = parseDeliveryDateAnswer(latestUserText);
+        const time = parseDeliveryTimeAnswer(latestUserText);
+        if (date || time) {
+          const updatedRaw = await executeTool("update_draft", {
+            draftId: body.draftId,
+            ...(date ? { deliveryDate: date } : {}),
+            ...(time?.mode === "interval"
+              ? { deliveryMode: "interval", deliveryInterval: time.interval }
+              : time?.mode === "exact"
+                ? { deliveryMode: "exact", deliveryExactTime: time.exactTime }
+                : {}),
+          });
+          const updated = JSON.parse(updatedRaw);
+          if (updated?.status !== "ok") {
+            return Response.json({
+              reply: updated?.message || "Не удалось сохранить дату или время доставки. Повторите, пожалуйста.",
+              recommendedProductIds: [], mode: "ai", modelUsed: SAFE_DIRECT_MODEL,
+            } satisfies FloristReply);
+          }
+          const refreshed = JSON.parse(await executeTool("get_draft_summary", { draftId: body.draftId }));
+          if (refreshed?.status === "ok" && refreshed.data) {
+            draftSummaryData = refreshed.data;
+            draftContext = JSON.stringify(refreshed.data, null, 2);
+          }
+        }
+      } catch (error) {
+        return Response.json({
+          reply: error instanceof Error ? error.message : "Уточните дату или время доставки.",
+          recommendedProductIds: [], mode: "ai", modelUsed: SAFE_DIRECT_MODEL,
+        } satisfies FloristReply);
+      }
+    }
+  }
+
+  if (body.draftId && draftSummaryData && !wantsBouquetOptions) {
     const selectedItems = Array.isArray(draftSummaryData.items)
       ? draftSummaryData.items
       : [];
@@ -619,12 +678,9 @@ export async function POST(request: Request) {
     const hasContact = hasCustomerContact || hasRecipientContact;
     const hasAddress = Boolean(draftSummaryData.delivery?.address);
     const hasDate = Boolean(draftSummaryData.delivery?.date);
-    const hasInterval = Boolean(draftSummaryData.delivery?.interval);
-
-    const selectedProductIds = selectedItems
-      .map((item: any) => item?.productId || item?.id)
-      .filter((id: unknown): id is string => typeof id === "string")
-      .slice(0, 3);
+    const hasTime = draftSummaryData.delivery?.mode === "exact"
+      ? Boolean(draftSummaryData.delivery?.exactTime)
+      : Boolean(draftSummaryData.delivery?.interval);
 
     // Deterministic checkout progression:
     // once product + contact + address are known, never send the customer
@@ -632,7 +688,7 @@ export async function POST(request: Request) {
     if (hasSelectedProduct && hasContact && hasAddress && !hasDate) {
       return Response.json({
         reply: "На какую дату нужна доставка — сегодня, завтра или на другую дату?",
-        recommendedProductIds: selectedProductIds,
+        recommendedProductIds: [],
         mode: "ai",
         modelUsed: SAFE_DIRECT_MODEL,
       } satisfies FloristReply);
@@ -643,14 +699,24 @@ export async function POST(request: Request) {
       hasContact &&
       hasAddress &&
       hasDate &&
-      !hasInterval
+      !hasTime
     ) {
       return Response.json({
-        reply: "Какой интервал доставки удобен: 09–12, 12–15, 15–18 или 18–21?",
-        recommendedProductIds: selectedProductIds,
+        reply: "Какой интервал доставки удобен: 09–12, 12–15, 15–18 или 18–21? Можно также запросить доставку к точному времени.",
+        recommendedProductIds: [],
         mode: "ai",
         modelUsed: SAFE_DIRECT_MODEL,
       } satisfies FloristReply);
+    }
+
+    if (hasSelectedProduct && hasContact && hasAddress && hasDate && hasTime) {
+      const checkoutSummary = formatAuthoritativeCheckoutSummary(draftSummaryData);
+      if (checkoutSummary) {
+        return Response.json({
+          reply: checkoutSummary.reply,
+          recommendedProductIds: [], mode: "ai", modelUsed: SAFE_DIRECT_MODEL,
+        } satisfies FloristReply);
+      }
     }
   }
 
@@ -692,8 +758,9 @@ ${draftContext}
 19. Если клиент написал "Москва, Палехская улица, 15, подъезд 2, этаж 8, квартира 66", для validate_address передай только "Москва, Палехская улица, 15", а в deliveryAddress сохрани полный адрес со всеми деталями.
 20. Если validate_address не смог подтвердить адрес, НЕ проси метро, ориентир или дополнительные объяснения, если клиент уже указал город, улицу и дом. Сохрани адрес для ручной проверки и продолжай оформление.
 21. Если координаты адреса уже сохранены в черновике, не вызывай validate_address повторно, пока клиент не изменил улицу или дом.
-22. После имени/телефона/адреса спроси только дату доставки. После даты — только интервал. Не возвращайся назад к уже заполненным данным.
-23. После получения интервала дай короткое резюме и попроси подтвердить переход к оформлению. Не создавай заказ самостоятельно.`;
+22. После имени/телефона/адреса спроси только дату доставки. После даты — интервал или запрос доставки к точному времени. Не возвращайся назад к уже заполненным данным.
+23. Сохраняй точное время отдельно: deliveryMode="exact", deliveryExactTime="HH:MM"; интервал при этом не передавай. Точное время — запрос, не гарантия доступности.
+24. После получения интервала или точного времени дай короткое резюме и попроси подтвердить переход к оформлению. Стоимость бери только из get_draft_summary. Не создавай заказ самостоятельно.`;
 
   try {
     const controller = new AbortController();
@@ -818,7 +885,9 @@ ${draftContext}
         clearTimeout(timeout);
         const finalReply =
           textParts.join("\n").trim() || "Я готов помочь подобрать букет.";
-        let finalRecommendedProductIds = [...new Set(recommendedProductIds)].slice(0, 3);
+        let finalRecommendedProductIds = draftSummaryData?.items?.length && !wantsBouquetOptions
+          ? []
+          : [...new Set(recommendedProductIds)].slice(0, 3);
 
         // SALES SAFETY NET:
         // A model must not turn a buyer away with a false "nothing available"
@@ -957,6 +1026,7 @@ ${draftContext}
               lastSearchResult = toolResultJson;
             }
             if (
+              toolCall.name === "search_products" &&
               toolResultJson?.data?.products &&
               Array.isArray(toolResultJson.data.products)
             ) {
@@ -965,6 +1035,7 @@ ${draftContext}
               );
             }
             if (
+              toolCall.name === "get_product" &&
               toolResultJson?.data?.id &&
               typeof toolResultJson.data.id === "string"
             ) {

@@ -10,6 +10,7 @@ import type {
   OrderPaymentMethod,
   OrderPaymentStatus,
   OrderProductSource,
+  DeliveryMode,
   OrderRepository,
   OrderSizeCode,
   OrderStatus,
@@ -31,7 +32,10 @@ type OrderRow = {
   delivery_longitude: number;
   delivery_zone_id: string;
   delivery_date: Date | string;
-  delivery_interval: string;
+  delivery_interval: string | null;
+  delivery_mode: DeliveryMode;
+  delivery_exact_time: string | null;
+  delivery_time_surcharge: string | number;
   payment_method: OrderPaymentMethod;
   payment_status: OrderPaymentStatus;
   cancellation_reason: string | null;
@@ -96,6 +100,9 @@ function mapOrder(row: OrderRow, itemRows: OrderItemRow[]): StoredOrderRecord {
     deliveryZoneId: row.delivery_zone_id,
     deliveryDate: dateOnly(row.delivery_date),
     deliveryInterval: row.delivery_interval,
+    deliveryMode: row.delivery_mode ?? "interval",
+    deliveryExactTime: row.delivery_exact_time?.slice(0, 5) ?? null,
+    deliveryTimeSurcharge: Number(row.delivery_time_surcharge ?? 0),
     paymentMethod: row.payment_method,
     paymentStatus: row.payment_status,
     cancellationReason: row.cancellation_reason,
@@ -345,7 +352,8 @@ export class PostgresOrderRepository implements OrderRepository {
             id, public_number, idempotency_key, request_fingerprint,
             customer_name, customer_phone, recipient_name, recipient_phone,
             delivery_address, delivery_latitude, delivery_longitude, delivery_zone_id,
-            delivery_date, delivery_interval, payment_method, payment_status,
+            delivery_date, delivery_interval, delivery_mode, delivery_exact_time,
+            delivery_time_surcharge, payment_method, payment_status,
             cancellation_reason, customer_comment,
             subtotal, delivery_cost, total, currency, status, created_at, updated_at
           ) VALUES (
@@ -353,7 +361,8 @@ export class PostgresOrderRepository implements OrderRepository {
             ${order.requestFingerprint}, ${order.customerName}, ${order.customerPhone},
             ${order.recipientName}, ${order.recipientPhone}, ${order.deliveryAddress},
             ${order.deliveryLatitude}, ${order.deliveryLongitude}, ${order.deliveryZoneId},
-            ${order.deliveryDate}, ${order.deliveryInterval}, ${order.paymentMethod},
+            ${order.deliveryDate}, ${order.deliveryInterval}, ${order.deliveryMode},
+            ${order.deliveryExactTime}, ${order.deliveryTimeSurcharge}, ${order.paymentMethod},
             ${order.paymentStatus}, ${order.cancellationReason}, ${order.customerComment},
             ${order.subtotal}, ${order.deliveryCost},
             ${order.total}, ${order.currency}, ${order.status}, ${order.createdAt},

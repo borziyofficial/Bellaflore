@@ -3,6 +3,7 @@ import {
   ORDER_PAYMENT_METHODS,
   ORDER_SIZE_CODES,
   type CreateOrderInput,
+  type DeliveryMode,
   type OrderPaymentMethod,
   type OrderSizeCode,
 } from "@/lib/orders/types";
@@ -190,14 +191,28 @@ export function parseCreateOrderInput(value: unknown, now = new Date()): CreateO
     );
   }
 
-  const deliveryInterval = readRequiredString(
-    value.deliveryInterval,
-    "deliveryInterval",
-    1,
-    32,
-  );
-  if (!deliveryIntervals.some((interval) => interval.label === deliveryInterval)) {
-    throw invalidField("deliveryInterval", "Выберите существующий интервал доставки.");
+  const deliveryMode = value.deliveryMode === undefined ? "interval" : value.deliveryMode;
+  if (deliveryMode !== "interval" && deliveryMode !== "exact") {
+    throw invalidField("deliveryMode", "Укажите interval или exact.");
+  }
+  let deliveryInterval: string | null = null;
+  let deliveryExactTime: string | null = null;
+  if (deliveryMode === "interval") {
+    deliveryInterval = readRequiredString(value.deliveryInterval, "deliveryInterval", 1, 32);
+    if (!deliveryIntervals.some((interval) => interval.label === deliveryInterval)) {
+      throw invalidField("deliveryInterval", "Выберите существующий интервал доставки.");
+    }
+    if (value.deliveryExactTime !== undefined && value.deliveryExactTime !== null) {
+      throw invalidField("deliveryExactTime", "Точное время нельзя сочетать с интервалом.");
+    }
+  } else {
+    if (value.deliveryInterval !== undefined && value.deliveryInterval !== null) {
+      throw invalidField("deliveryInterval", "Точное время хранится отдельно от интервала.");
+    }
+    deliveryExactTime = readRequiredString(value.deliveryExactTime, "deliveryExactTime", 5, 5);
+    if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/u.test(deliveryExactTime)) {
+      throw invalidField("deliveryExactTime", "Используйте формат HH:MM.");
+    }
   }
 
   return {
@@ -225,6 +240,8 @@ export function parseCreateOrderInput(value: unknown, now = new Date()): CreateO
     ),
     deliveryDate: readDeliveryDate(value.deliveryDate, now),
     deliveryInterval,
+    deliveryMode: deliveryMode as DeliveryMode,
+    deliveryExactTime,
     paymentMethod: paymentMethod as OrderPaymentMethod,
     customerComment: readOptionalString(value.customerComment, "customerComment", 1000),
     items: readItems(value.items),

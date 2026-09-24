@@ -1,4 +1,4 @@
-import type { OrderPaymentStatus, OrderStatus } from "@/lib/orders/types";
+import type { DeliveryMode, OrderPaymentStatus, OrderStatus } from "@/lib/orders/types";
 
 export type AdminOrderItem = {
   id: string;
@@ -26,7 +26,10 @@ export type AdminOrder = {
     longitude: number;
     zoneId: string;
     date: string;
-    interval: string;
+    interval: string | null;
+    mode: DeliveryMode;
+    exactTime: string | null;
+    timeSurcharge: number;
   };
   paymentMethod: string;
   paymentStatus: OrderPaymentStatus;
@@ -34,6 +37,7 @@ export type AdminOrder = {
   customerComment: string;
   subtotal: number;
   deliveryCost: number;
+  baseDeliveryCost: number;
   total: number;
   currency: "RUB";
   items: AdminOrderItem[];

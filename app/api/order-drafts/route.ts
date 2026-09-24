@@ -11,7 +11,7 @@
 // Черновики сохраняют состояние разговора, собранные данные и выбранные товары.
 // ==================================================
 import { PostgresOrderDraftRepository } from "@/lib/orders/draftRepository";
-import type { OrderDraft, UpdateOrderDraftInput, OrderDraftConversationState } from "@/lib/orders/draftTypes";
+import { createEmptyOrderDraft, type UpdateOrderDraftInput } from "@/lib/orders/draftTypes";
 
 const draftRepository = new PostgresOrderDraftRepository();
 
@@ -34,14 +34,7 @@ export async function POST(request: Request) {
 
     if (action === "create") {
       // Create a new draft with initial conversation state
-      const draft: Omit<OrderDraft, "id" | "createdAt" | "updatedAt"> = {
-        customerPhone: body.customerPhone || undefined,
-        conversationState: { turns: [] },
-        items: [],
-        status: "active",
-      };
-
-      const created = await draftRepository.create(draft);
+      const created = await draftRepository.create(createEmptyOrderDraft(body.customerPhone || undefined));
       return Response.json(created, { headers: { "Cache-Control": "no-store" } });
     }
 

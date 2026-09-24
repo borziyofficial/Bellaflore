@@ -1,4 +1,4 @@
-import type { CreateOrderItemInput, OrderPaymentMethod } from "@/lib/orders/types";
+import type { CreateOrderItemInput, DeliveryMode, OrderPaymentMethod } from "@/lib/orders/types";
 
 export type ConversationStateTurn = {
   turn: number;
@@ -37,7 +37,10 @@ export type OrderDraft = {
   deliveryLongitude?: number;
   deliveryZoneId?: string;
   deliveryDate?: string;
-  deliveryInterval?: string;
+  deliveryInterval: string | null;
+  deliveryMode: DeliveryMode | null;
+  deliveryExactTime: string | null;
+  deliveryTimeSurcharge: number;
   paymentMethod?: OrderPaymentMethod;
   items: DraftOrderItem[];
   conversationState: OrderDraftConversationState;
@@ -49,6 +52,71 @@ export type OrderDraft = {
 };
 
 export type UpdateOrderDraftInput = Partial<Omit<OrderDraft, "id" | "status" | "createdAt">>;
+
+export type DraftDeliveryTimeState = {
+  deliveryMode: DeliveryMode | null;
+  deliveryInterval: string | null;
+  deliveryExactTime: string | null;
+  deliveryTimeSurcharge: number;
+};
+
+export function createEmptyOrderDraft(customerPhone?: string): Omit<OrderDraft, "id" | "createdAt" | "updatedAt"> {
+  return {
+    customerPhone,
+    deliveryInterval: null,
+    deliveryMode: null,
+    deliveryExactTime: null,
+    deliveryTimeSurcharge: 0,
+    conversationState: { turns: [] },
+    items: [],
+    status: "active",
+  };
+}
+
+export function resolveDraftDeliveryTime(
+  current: Pick<OrderDraft, "deliveryMode" | "deliveryInterval" | "deliveryExactTime" | "deliveryTimeSurcharge">,
+  updates: UpdateOrderDraftInput,
+): DraftDeliveryTimeState {
+  const currentMode = current.deliveryMode ??
+    (current.deliveryInterval ? "interval" : current.deliveryExactTime ? "exact" : null);
+  const deliveryMode = updates.deliveryMode !== undefined
+    ? updates.deliveryMode
+    : updates.deliveryExactTime !== undefined
+      ? "exact"
+      : updates.deliveryInterval !== undefined
+        ? "interval"
+        : currentMode;
+
+  if (deliveryMode === null) {
+    return { deliveryMode: null, deliveryInterval: null, deliveryExactTime: null, deliveryTimeSurcharge: 0 };
+  }
+  if (deliveryMode === "interval") {
+    return {
+      deliveryMode,
+      deliveryInterval: updates.deliveryInterval ?? current.deliveryInterval ?? null,
+      deliveryExactTime: null,
+      deliveryTimeSurcharge: 0,
+    };
+  }
+  return {
+    deliveryMode,
+    deliveryInterval: null,
+    deliveryExactTime: updates.deliveryExactTime ?? current.deliveryExactTime ?? null,
+    deliveryTimeSurcharge: updates.deliveryTimeSurcharge ?? current.deliveryTimeSurcharge ?? 0,
+  };
+}
+
+export function hasCompleteDraftDeliveryTime(
+  draft: Pick<OrderDraft, "deliveryMode" | "deliveryInterval" | "deliveryExactTime">,
+): boolean {
+  if (draft.deliveryMode === "interval") {
+    return Boolean(draft.deliveryInterval?.trim()) && !draft.deliveryExactTime;
+  }
+  if (draft.deliveryMode === "exact") {
+    return Boolean(draft.deliveryExactTime?.trim()) && !draft.deliveryInterval;
+  }
+  return false;
+}
 
 export interface OrderDraftRepository {
   findById(draftId: string): Promise<OrderDraft | null>;

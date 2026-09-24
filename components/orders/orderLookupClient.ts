@@ -50,7 +50,10 @@ export type OrderLookupApiOrder = {
   customerPhone: string;
   deliveryAddress: string;
   deliveryDate: string;
-  deliveryInterval: string;
+  deliveryInterval: string | null;
+  deliveryMode: "interval" | "exact";
+  deliveryExactTime: string | null;
+  deliveryTimeSurcharge: number;
   paymentMethod: string;
   customerComment: string;
   subtotal: number;
@@ -131,7 +134,9 @@ function parseLookupOrder(value: unknown): OrderLookupApiOrder | null {
     typeof value.customerPhone !== "string" ||
     typeof value.deliveryAddress !== "string" ||
     typeof value.deliveryDate !== "string" ||
-    typeof value.deliveryInterval !== "string" ||
+    (value.deliveryMode === "exact"
+      ? typeof value.deliveryExactTime !== "string" || value.deliveryInterval !== null
+      : typeof value.deliveryInterval !== "string") ||
     typeof value.paymentMethod !== "string" ||
     typeof value.customerComment !== "string" ||
     !isFiniteNumber(value.subtotal) ||
@@ -151,7 +156,10 @@ function parseLookupOrder(value: unknown): OrderLookupApiOrder | null {
     customerPhone: value.customerPhone,
     deliveryAddress: value.deliveryAddress,
     deliveryDate: value.deliveryDate,
-    deliveryInterval: value.deliveryInterval,
+    deliveryInterval: typeof value.deliveryInterval === "string" ? value.deliveryInterval : null,
+    deliveryMode: value.deliveryMode === "exact" ? "exact" : "interval",
+    deliveryExactTime: typeof value.deliveryExactTime === "string" ? value.deliveryExactTime : null,
+    deliveryTimeSurcharge: isFiniteNumber(value.deliveryTimeSurcharge) ? value.deliveryTimeSurcharge : 0,
     paymentMethod: value.paymentMethod,
     customerComment: value.customerComment,
     subtotal: value.subtotal,
@@ -308,7 +316,9 @@ export function mapLookupOrderToPassport(
     phone: order.customerPhone,
     address: order.deliveryAddress,
     deliveryDate: formatDeliveryDateRu(order.deliveryDate),
-    deliveryTime: order.deliveryInterval,
+    deliveryTime: order.deliveryMode === "exact"
+      ? `К ${order.deliveryExactTime} (запрос, требует подтверждения)`
+      : order.deliveryInterval ?? "",
     paymentMethod: PAYMENT_METHOD_LABELS[order.paymentMethod] ?? order.paymentMethod,
     paymentStatusLabel: getPaymentStatusLabel(order.paymentStatus),
     bouquetName: "",

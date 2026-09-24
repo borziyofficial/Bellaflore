@@ -41,6 +41,9 @@ function adminOrder(order: StoredOrderRecord) {
       zoneId: order.deliveryZoneId,
       date: order.deliveryDate,
       interval: order.deliveryInterval,
+      mode: order.deliveryMode,
+      exactTime: order.deliveryExactTime,
+      timeSurcharge: order.deliveryTimeSurcharge,
     },
     paymentMethod: order.paymentMethod,
     paymentStatus: order.paymentStatus,
@@ -48,6 +51,7 @@ function adminOrder(order: StoredOrderRecord) {
     customerComment: order.customerComment,
     subtotal: order.subtotal,
     deliveryCost: order.deliveryCost,
+    baseDeliveryCost: order.deliveryCost - order.deliveryTimeSurcharge,
     total: order.total,
     currency: order.currency,
     items: order.items.map((item) => ({

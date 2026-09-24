@@ -122,6 +122,7 @@ test("creates an order with server prices, delivery and snapshots", async () => 
     total: 12590,
     currency: "RUB",
     deliveryZoneId: "base",
+    deliveryTimeSurcharge: 0,
     items: [
       {
         productId: "rose-101",
@@ -134,6 +135,64 @@ test("creates an order with server prices, delivery and snapshots", async () => 
       },
     ],
   });
+});
+
+test("exact 16:25 is stored separately and priced server-side; duplicate request replays", async () => {
+  const handler = createHandler();
+  const body = {
+    ...VALID_BODY,
+    deliveryMode: "exact",
+    deliveryInterval: null,
+    deliveryExactTime: "16:25",
+    deliveryTimeSurcharge: 1,
+  };
+  const first = await handler(request(body, "checkout-exact-1625"));
+  expect(first.status).toBe(201);
+  expect((await first.json()).order).toMatchObject({
+    deliveryCost: 1790,
+    baseDeliveryCost: 790,
+    deliveryTimeSurcharge: 1000,
+    deliveryMode: "exact",
+    deliveryInterval: null,
+    deliveryExactTime: "16:25",
+    total: 13590,
+  });
+  const replay = await handler(request(body, "checkout-exact-1625"));
+  expect(replay.status).toBe(200);
+  expect((await replay.json()).replayed).toBe(true);
+  const changed = await handler(request({ ...body, deliveryExactTime: "16:30" }, "checkout-exact-1625"));
+  expect(changed.status).toBe(409);
+});
+
+test("legacy interval order remains valid with zero surcharge", async () => {
+  const response = await createHandler()(request(VALID_BODY, "checkout-legacy-interval"));
+  expect(response.status).toBe(201);
+  const body = await response.json();
+  expect(body.order.deliveryCost).toBe(790);
+  expect(body.order.deliveryTimeSurcharge).toBe(0);
+  expect(body.order.deliveryMode).toBe("interval");
+  expect(body.order.deliveryInterval).toBe("12:00–15:00");
+  expect(body.order.deliveryExactTime).toBeNull();
+});
+
+test("exact mode rejects a simultaneous interval and accepts a date twelve months ahead", async () => {
+  const handler = createHandler();
+  const contradictory = await handler(request({
+    ...VALID_BODY, deliveryMode: "exact", deliveryExactTime: "16:25",
+  }, "checkout-exact-invalid"));
+  expect(contradictory.status).toBe(400);
+  expect((await contradictory.json()).error.details.field).toBe("deliveryInterval");
+
+  const future = await handler(request({
+    ...VALID_BODY, deliveryDate: "2027-08-02",
+  }, "checkout-future-12-months"));
+  expect(future.status).toBe(201);
+
+  const past = await handler(request({
+    ...VALID_BODY, deliveryDate: "2026-08-01",
+  }, "checkout-past-date"));
+  expect(past.status).toBe(400);
+  expect((await past.json()).error.details.field).toBe("deliveryDate");
 });
 
 test("replays the same idempotent request and rejects a changed payload", async () => {
@@ -257,5 +316,24 @@ test("admin order metadata migration is additive and keeps payment separate", as
   expect(sql).toContain("payment_status");
   expect(sql).toContain("cancellation_reason");
   expect(sql).toContain("DEFAULT 'PENDING'");
+  expect(sql).not.toMatch(/^\s*(?:DROP|TRUNCATE|DELETE)\s/gim);
+});
+
+test("exact-delivery migration preserves legacy rows and enforces exclusive time fields", async () => {
+  const sql = await readFile(
+    join(process.cwd(), "migrations", "20260924_001_add_exact_delivery_time.sql"),
+    "utf8",
+  );
+  expect(sql).toContain("delivery_mode TEXT NOT NULL DEFAULT 'interval'");
+  expect(sql).toContain("delivery_exact_time TIME");
+  expect(sql).toContain("delivery_time_surcharge BIGINT NOT NULL DEFAULT 0");
+  expect(sql).toContain("ALTER COLUMN delivery_interval DROP NOT NULL");
+  expect(sql).toContain("delivery_interval IS NULL");
+  expect(sql).toContain("ADD COLUMN IF NOT EXISTS delivery_mode TEXT,");
+  expect(sql).toContain("ALTER COLUMN delivery_mode DROP DEFAULT");
+  expect(sql).toContain("ALTER COLUMN delivery_mode DROP NOT NULL");
+  expect(sql).toContain("SET delivery_mode = NULL");
+  expect(sql).toContain("SET delivery_mode = 'interval'");
+  expect(sql).toContain("delivery_mode IS NULL AND delivery_interval IS NULL");
   expect(sql).not.toMatch(/^\s*(?:DROP|TRUNCATE|DELETE)\s/gim);
 });

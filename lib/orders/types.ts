@@ -22,6 +22,7 @@ export const ORDER_STATUSES = [
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export type OrderProductSource = "catalog_products" | "admin_bouquets";
+export type DeliveryMode = "interval" | "exact";
 
 export type CreateOrderItemInput = {
   productId: string;
@@ -38,7 +39,9 @@ export type CreateOrderInput = {
   deliveryLatitude: number;
   deliveryLongitude: number;
   deliveryDate: string;
-  deliveryInterval: string;
+  deliveryInterval?: string | null;
+  deliveryMode?: DeliveryMode;
+  deliveryExactTime?: string | null;
   paymentMethod: OrderPaymentMethod;
   customerComment: string;
   items: CreateOrderItemInput[];
@@ -84,7 +87,10 @@ export type NewOrderRecord = {
   deliveryLongitude: number;
   deliveryZoneId: string;
   deliveryDate: string;
-  deliveryInterval: string;
+  deliveryInterval: string | null;
+  deliveryMode: DeliveryMode;
+  deliveryExactTime: string | null;
+  deliveryTimeSurcharge: number;
   paymentMethod: OrderPaymentMethod;
   paymentStatus: "PENDING";
   cancellationReason: null;

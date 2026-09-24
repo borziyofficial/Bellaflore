@@ -22,6 +22,9 @@ const ORDER: StoredOrderRecord = {
   deliveryZoneId: "base",
   deliveryDate: "2026-08-30",
   deliveryInterval: "12:00–15:00",
+  deliveryMode: "interval",
+  deliveryExactTime: null,
+  deliveryTimeSurcharge: 0,
   paymentMethod: "cashOnDelivery",
   paymentStatus: "PENDING",
   cancellationReason: null,
@@ -49,7 +52,11 @@ const ORDER: StoredOrderRecord = {
 };
 
 class MemoryAdminOrderRepository implements AdminOrderRepository {
-  private record: StoredOrderRecord | null = { ...ORDER };
+  private record: StoredOrderRecord | null;
+
+  constructor(order: StoredOrderRecord = ORDER) {
+    this.record = { ...order };
+  }
 
   async listRecent(options?: { status?: OrderStatus; limit?: number }) {
     if (!this.record) {
@@ -129,6 +136,27 @@ test("admin orders list is protected and returns production order details", asyn
     total: 6690,
     items: [{ productId: "rose-101", size: "M", quantity: 1 }],
   });
+});
+
+test("admin shows exact time and surcharge without a fake interval", async () => {
+  const repository = new MemoryAdminOrderRepository({
+    ...ORDER,
+    deliveryMode: "exact",
+    deliveryInterval: null,
+    deliveryExactTime: "16:25",
+    deliveryTimeSurcharge: 1000,
+    deliveryCost: 1790,
+    total: 7690,
+  });
+  const handler = createAdminOrdersListGetHandler({ repository, authorize: () => true });
+  const response = await handler(request("https://example.test/api/admin/orders"));
+  expect(response.status).toBe(200);
+  const payload = await response.json();
+  expect(payload.orders[0].delivery).toMatchObject({
+    mode: "exact", exactTime: "16:25", interval: null, timeSurcharge: 1000,
+  });
+  expect(payload.orders[0].baseDeliveryCost).toBe(790);
+  expect(payload.orders[0].deliveryCost).toBe(1790);
 });
 
 test("admin order detail and status update are protected and persisted", async () => {

@@ -11,6 +11,7 @@ import type {
   DraftOrderItem,
   UpdateOrderDraftInput,
 } from "@/lib/orders/draftTypes";
+import { resolveDraftDeliveryTime } from "@/lib/orders/draftTypes";
 
 type OrderDraftRow = {
   id: string;
@@ -24,6 +25,9 @@ type OrderDraftRow = {
   delivery_zone_id: string | null;
   delivery_date: string | null;
   delivery_interval: string | null;
+  delivery_mode: OrderDraft["deliveryMode"];
+  delivery_exact_time: string | null;
+  delivery_time_surcharge: string | number;
   payment_method: string | null;
   customer_comment: string | null;
   items: unknown;
@@ -74,7 +78,11 @@ function mapDraftRow(row: OrderDraftRow): OrderDraft {
     deliveryLongitude: row.delivery_longitude || undefined,
     deliveryZoneId: row.delivery_zone_id || undefined,
     deliveryDate: row.delivery_date || undefined,
-    deliveryInterval: row.delivery_interval || undefined,
+    deliveryInterval: row.delivery_interval ?? null,
+    deliveryMode: row.delivery_mode ??
+      (row.delivery_interval ? "interval" : row.delivery_exact_time ? "exact" : null),
+    deliveryExactTime: row.delivery_exact_time?.slice(0, 5) ?? null,
+    deliveryTimeSurcharge: Number(row.delivery_time_surcharge ?? 0),
     paymentMethod: (row.payment_method as any) || undefined,
     items: Array.isArray(parsedItems)
       ? (parsedItems as DraftOrderItem[])
@@ -155,7 +163,8 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
         INSERT INTO order_drafts (
           id, customer_name, customer_phone, recipient_name, recipient_phone,
           delivery_address, delivery_latitude, delivery_longitude, delivery_zone_id,
-          delivery_date, delivery_interval, payment_method, customer_comment,
+          delivery_date, delivery_interval, delivery_mode, delivery_exact_time,
+          delivery_time_surcharge, payment_method, customer_comment,
           items, conversation_state, status, converted_to_order_id,
           created_at, updated_at
         ) VALUES (
@@ -170,6 +179,9 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
           ${draft.deliveryZoneId || null},
           ${draft.deliveryDate || null},
           ${draft.deliveryInterval || null},
+          ${draft.deliveryMode},
+          ${draft.deliveryExactTime || null},
+          ${draft.deliveryTimeSurcharge ?? 0},
           ${draft.paymentMethod || null},
           ${draft.customerComment || null},
           ${sql.json(draft.items)},
@@ -227,6 +239,13 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
         ? nextDeliveryZoneId
         : nextDeliveryZoneId ?? currentDraft.deliveryZoneId ?? null;
 
+      const {
+        deliveryMode,
+        deliveryInterval,
+        deliveryExactTime,
+        deliveryTimeSurcharge,
+      } = resolveDraftDeliveryTime(currentDraft, updates);
+
       const rows = await sql<OrderDraftRow[]>`
         UPDATE order_drafts
         SET
@@ -239,7 +258,10 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
           delivery_longitude = ${resolvedDeliveryLongitude},
           delivery_zone_id = ${resolvedDeliveryZoneId},
           delivery_date = COALESCE(${updates.deliveryDate || null}, delivery_date),
-          delivery_interval = COALESCE(${updates.deliveryInterval || null}, delivery_interval),
+          delivery_interval = ${deliveryInterval},
+          delivery_mode = ${deliveryMode},
+          delivery_exact_time = ${deliveryExactTime},
+          delivery_time_surcharge = ${deliveryTimeSurcharge},
           payment_method = COALESCE(${updates.paymentMethod || null}, payment_method),
           customer_comment = COALESCE(${updates.customerComment || null}, customer_comment),
           items = COALESCE(
