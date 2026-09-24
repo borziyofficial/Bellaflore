@@ -792,13 +792,15 @@ export default function HomePageClient({
 
     const hash = window.location.hash.replace(/^#/, "");
     const shouldOpenCatalog =
-      window.location.pathname === "/catalog" ||
-      hash === "catalog" ||
-      SCROLL_SECTION_IDS.includes(
-        hash as (typeof SCROLL_SECTION_IDS)[number],
-      );
+      window.location.pathname === "/catalog" || hash === "catalog";
 
     if (shouldOpenCatalog) {
+      // Normalize legacy /#catalog links to the real catalog route without
+      // reloading the page. This keeps Safari history/state simpler.
+      if (window.location.pathname !== "/catalog") {
+        window.history.replaceState({}, "", "/catalog");
+      }
+
       queueMicrotask(() => {
         setPublicAppView("catalog");
         setCatalogFocusNonce((current) => current + 1);
@@ -813,10 +815,7 @@ export default function HomePageClient({
       setPublicAppView(
         nextProductId ||
           window.location.pathname === "/catalog" ||
-          nextHash === "catalog" ||
-          SCROLL_SECTION_IDS.includes(
-            nextHash as (typeof SCROLL_SECTION_IDS)[number],
-          )
+          nextHash === "catalog"
           ? "catalog"
           : "home",
       );
@@ -1797,7 +1796,7 @@ export default function HomePageClient({
   };
 
   useEffect(() => {
-    if (publicAppView !== "catalog" || typeof window === "undefined") {
+    if (publicAppView !== "home" || typeof window === "undefined") {
       return;
     }
 
@@ -1832,11 +1831,14 @@ export default function HomePageClient({
         sectionId as (typeof SCROLL_SECTION_IDS)[number],
       )
     ) {
-      setPublicAppView("catalog");
-      if (typeof window !== "undefined" && window.location.pathname !== "/catalog") {
-        window.history.pushState({}, "", `/catalog#${sectionId}`);
-      } else if (typeof window !== "undefined") {
-        window.history.replaceState({}, "", `/catalog#${sectionId}`);
+      setPublicAppView("home");
+      if (typeof window !== "undefined") {
+        const nextUrl = `/#${sectionId}`;
+        if (window.location.pathname !== "/" || window.location.hash !== `#${sectionId}`) {
+          window.history.pushState({}, "", nextUrl);
+        } else {
+          window.history.replaceState({}, "", nextUrl);
+        }
       }
       scrollToHomeSection(sectionId);
       return;
@@ -2423,7 +2425,9 @@ export default function HomePageClient({
 
           Назначение (RU): Hero на весь экран с брендовым изображением и основным призывом к действию.
           ================================================== */}
-      <HeroSection onOrderBouquet={handleHeroOrderBouquet} />
+      {publicAppView === "home" ? (
+        <HeroSection onOrderBouquet={handleHeroOrderBouquet} />
+      ) : null}
 
       {publicAppView === "home" ? (
         <VisualStoriesSection
@@ -2461,26 +2465,29 @@ export default function HomePageClient({
           onProductOpen={openProductExperience}
         />
       ) : null}
-      <AboutSection />
       {publicAppView === "home" ? (
-        <SeasonalSection block={homepageBlocks?.seasonal} />
+        <>
+          <AboutSection />
+          <SeasonalSection block={homepageBlocks?.seasonal} />
+          <DeliverySection />
+          <ReviewsSection
+            averageReviewRating={averageReviewRating}
+            averageReviewRatingLabel={averageReviewRatingLabel}
+            reviewsCount={reviewsCount}
+            reviewForm={reviewForm}
+            reviewFormMessage={reviewFormMessage}
+            reviews={reviews}
+            renderRatingStars={renderRatingStars}
+            handleReviewSubmit={handleReviewSubmit}
+            handleReviewFieldChange={handleReviewFieldChange}
+          />
+          <CtaBandSection
+            block={homepageBlocks?.ctaBand}
+            onOrderBouquet={handleHeroOrderBouquet}
+          />
+          <ContactSection />
+        </>
       ) : null}
-      <DeliverySection />
-      <ReviewsSection
-        averageReviewRating={averageReviewRating}
-        averageReviewRatingLabel={averageReviewRatingLabel}
-        reviewsCount={reviewsCount}
-        reviewForm={reviewForm}
-        reviewFormMessage={reviewFormMessage}
-        reviews={reviews}
-        renderRatingStars={renderRatingStars}
-        handleReviewSubmit={handleReviewSubmit}
-        handleReviewFieldChange={handleReviewFieldChange}
-      />
-      {publicAppView === "home" ? (
-        <CtaBandSection block={homepageBlocks?.ctaBand} onOrderBouquet={handleHeroOrderBouquet} />
-      ) : null}
-      <ContactSection />
 
       <AiFlorist
         bouquets={bouquets}
