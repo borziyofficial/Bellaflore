@@ -88,10 +88,11 @@ export async function GET(request: Request) {
     );
   }
 
+  // Yandex HTTP Referer restrictions must use a stable allowed domain.
+  // VERCEL_URL changes between Preview deployments and causes HTTP 403.
   const clientReferer =
-    request.headers.get("referer")?.trim() ||
-    request.headers.get("origin")?.trim() ||
-    requestUrl.origin;
+    process.env.YANDEX_GEOCODER_HTTP_REFERER?.trim() ||
+    "https://bellaflore.ru/";
 
   const yandexUrl = new URL("https://geocode-maps.yandex.ru/v1/");
   yandexUrl.searchParams.set("apikey", apiKey);
