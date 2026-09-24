@@ -60,6 +60,104 @@ function validatePositivePrice(value: unknown): number | null {
 // TOOL: search_products
 // Real catalog search with price edge case handling
 // ==================================================
+const SEARCH_STOP_WORDS = new Set([
+  "букет",
+  "букеты",
+  "цветок",
+  "цветы",
+  "цветов",
+  "мне",
+  "нужен",
+  "нужны",
+  "хочу",
+  "покажи",
+  "подбери",
+  "примерно",
+]);
+
+function normalizeSearchToken(rawToken: string): string {
+  let token = rawToken
+    .toLowerCase()
+    .replace(/ё/g, "е")
+    .replace(/[^a-zа-я0-9]+/gi, "");
+
+  if (!token || SEARCH_STOP_WORDS.has(token)) {
+    return "";
+  }
+
+  // Lightweight Russian morphology normalization for catalog retrieval.
+  // Examples:
+  // красные/красных/красными -> красн
+  // розы/розами -> роз
+  // корзина/корзины -> корзин
+  const suffixes = [
+    "иями", "ями", "ами", "ыми", "ими",
+    "ого", "ему", "ому", "ыми", "ими",
+    "ая", "яя", "ое", "ее", "ые", "ие",
+    "ый", "ий", "ой", "ую", "юю",
+    "ов", "ев", "ей", "ам", "ям", "ах", "ях",
+    "а", "я", "ы", "и", "у", "ю", "е", "о",
+  ];
+
+  for (const suffix of suffixes) {
+    if (token.endsWith(suffix) && token.length - suffix.length >= 3) {
+      token = token.slice(0, -suffix.length);
+      break;
+    }
+  }
+
+  return token;
+}
+
+function tokenizeSearchText(value: string): string[] {
+  return [
+    ...new Set(
+      value
+        .toLowerCase()
+        .replace(/ё/g, "е")
+        .split(/[^a-zа-я0-9]+/gi)
+        .map(normalizeSearchToken)
+        .filter((token) => token.length >= 3),
+    ),
+  ];
+}
+
+function searchTokenMatches(candidateToken: string, requestedToken: string): boolean {
+  if (candidateToken === requestedToken) {
+    return true;
+  }
+
+  // Allow close Russian word forms after lightweight stemming, but avoid
+  // very short-prefix matches that would produce noisy recommendations.
+  const shorter = candidateToken.length <= requestedToken.length
+    ? candidateToken
+    : requestedToken;
+  const longer = candidateToken.length > requestedToken.length
+    ? candidateToken
+    : requestedToken;
+
+  return shorter.length >= 4 && longer.startsWith(shorter);
+}
+
+function productSearchText(product: CatalogProduct): string {
+  return [
+    product.title,
+    product.description,
+    product.flowerType,
+    product.category,
+    ...(product.tags || []),
+    ...(product.searchTerms || []),
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+// ==================================================
+// TOOL: search_products
+// Semantic-ish catalog search with lightweight Russian morphology.
+// Returns exact matches when possible; otherwise only close partial
+// alternatives and explicitly marks them as partial for the AI.
+// ==================================================
 async function searchProducts(params: {
   query?: unknown;
   maxPrice?: unknown;
@@ -80,87 +178,144 @@ async function searchProducts(params: {
 
     const { products } = catalogResult;
     const query = validateString(params.query) || "";
-    
-    // Handle price edges: Infinity becomes no limit, non-finite becomes 0
-    let maxPrice = 1_000_000; // default reasonable max
+    const category = validateString(params.category) || "";
+    const flowerType = validateString(params.flowerType) || "";
+
+    let maxPrice = 1_000_000;
     let minPrice = 0;
-    
+
     if (params.maxPrice !== undefined && params.maxPrice !== null) {
       const parsed = validatePrice(params.maxPrice);
       if (parsed !== null) maxPrice = parsed;
     }
-    
+
     if (params.minPrice !== undefined && params.minPrice !== null) {
       const parsed = validatePrice(params.minPrice);
       if (parsed !== null) minPrice = parsed;
     }
 
-    const category = validateString(params.category);
-    const flowerType = validateString(params.flowerType);
+    if (minPrice > maxPrice) {
+      [minPrice, maxPrice] = [maxPrice, minPrice];
+    }
+
     const limit = Math.min(Math.max(1, Number(params.limit) || 5), 20);
 
-    const lowerQuery = query.toLowerCase();
+    // Treat query/category/flowerType as semantic constraints over all
+    // searchable product metadata. This is intentionally not a literal
+    // phrase search: Russian morphology and word order must not hide
+    // products that are actually relevant.
+    const requestedTerms = tokenizeSearchText(
+      [query, category, flowerType].filter(Boolean).join(" "),
+    );
 
-    let filtered = products.filter((product: CatalogProduct) => {
-      // Price filter
-      if (product.priceRub < minPrice || product.priceRub > maxPrice) {
-        return false;
+    const targetPrice =
+      minPrice > 0 && maxPrice < 1_000_000
+        ? (minPrice + maxPrice) / 2
+        : maxPrice < 1_000_000
+          ? maxPrice
+          : minPrice > 0
+            ? minPrice
+            : null;
+
+    const scored = products
+      .filter(
+        (product: CatalogProduct) =>
+          product.priceRub >= minPrice && product.priceRub <= maxPrice,
+      )
+      .map((product: CatalogProduct) => {
+        const candidateTokens = tokenizeSearchText(productSearchText(product));
+        const matchedTerms = requestedTerms.filter((requestedToken) =>
+          candidateTokens.some((candidateToken) =>
+            searchTokenMatches(candidateToken, requestedToken),
+          ),
+        );
+        const missingTerms = requestedTerms.filter(
+          (requestedToken) => !matchedTerms.includes(requestedToken),
+        );
+
+        const titleTokens = tokenizeSearchText(product.title || "");
+        const titleMatchCount = matchedTerms.filter((requestedToken) =>
+          titleTokens.some((titleToken) =>
+            searchTokenMatches(titleToken, requestedToken),
+          ),
+        ).length;
+
+        return {
+          product,
+          matchedTerms,
+          missingTerms,
+          semanticScore: matchedTerms.length * 10 + titleMatchCount * 4,
+        };
+      });
+
+    const exactMatches =
+      requestedTerms.length === 0
+        ? scored
+        : scored.filter((entry) => entry.missingTerms.length === 0);
+
+    const minimumPartialMatches =
+      requestedTerms.length <= 1
+        ? 1
+        : Math.ceil(requestedTerms.length * 0.6);
+
+    const partialMatches =
+      requestedTerms.length === 0 || exactMatches.length > 0
+        ? []
+        : scored.filter(
+            (entry) => entry.matchedTerms.length >= minimumPartialMatches,
+          );
+
+    const matchMode =
+      requestedTerms.length === 0
+        ? "all"
+        : exactMatches.length > 0
+          ? "exact"
+          : partialMatches.length > 0
+            ? "partial"
+            : "none";
+
+    const selected =
+      matchMode === "exact" || matchMode === "all"
+        ? exactMatches
+        : matchMode === "partial"
+          ? partialMatches
+          : [];
+
+    selected.sort((a, b) => {
+      if (b.semanticScore !== a.semanticScore) {
+        return b.semanticScore - a.semanticScore;
       }
 
-      // Text search
-      if (lowerQuery) {
-        const searchText = [
-          product.title,
-          product.description,
-          product.flowerType,
-          product.category,
-          ...(product.tags || []),
-          ...(product.searchTerms || []),
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-
-        if (!searchText.includes(lowerQuery)) {
-          return false;
-        }
+      const popularityDiff =
+        (b.product.isPopular ? 1 : 0) - (a.product.isPopular ? 1 : 0);
+      if (popularityDiff !== 0) {
+        return popularityDiff;
       }
 
-      // Category filter
-      if (category && product.category) {
-        if (!product.category.toLowerCase().includes(category.toLowerCase())) {
-          return false;
-        }
+      if (targetPrice !== null) {
+        return (
+          Math.abs(a.product.priceRub - targetPrice) -
+          Math.abs(b.product.priceRub - targetPrice)
+        );
       }
 
-      // Flower type filter
-      if (flowerType && product.flowerType) {
-        if (!product.flowerType.toLowerCase().includes(flowerType.toLowerCase())) {
-          return false;
-        }
-      }
-
-      return true;
+      return a.product.priceRub - b.product.priceRub;
     });
 
-    // Sort by popularity/price relevance
-    filtered.sort((a: CatalogProduct, b: CatalogProduct) => {
-      const scoreA = (a.isPopular ? 10 : 0) - Math.abs((a.priceRub || 0) - (maxPrice + minPrice) / 2) / 100;
-      const scoreB = (b.isPopular ? 10 : 0) - Math.abs((b.priceRub || 0) - (maxPrice + minPrice) / 2) / 100;
-      return scoreB - scoreA;
-    });
-
-    const results = filtered.slice(0, limit).map((p: CatalogProduct) => ({
-      id: p.id,
-      slug: p.slug || p.id,
-      title: p.title,
-      description: p.description,
-      priceRub: p.priceRub,
-      flowerType: p.flowerType,
-      category: p.category,
-      tags: p.tags,
-      image: p.src,
-      availability: p.availability,
+    const results = selected.slice(0, limit).map((entry) => ({
+      id: entry.product.id,
+      slug: entry.product.slug || entry.product.id,
+      title: entry.product.title,
+      description: entry.product.description,
+      priceRub: entry.product.priceRub,
+      flowerType: entry.product.flowerType,
+      category: entry.product.category,
+      tags: entry.product.tags,
+      image: entry.product.src,
+      availability: entry.product.availability,
+      matchQuality: matchMode,
+      matchedTerms: entry.matchedTerms,
+      missingTerms: entry.missingTerms,
     }));
 
     return {
@@ -168,7 +323,13 @@ async function searchProducts(params: {
       data: {
         products: results,
         count: results.length,
-        totalAvailable: filtered.length,
+        totalAvailable: selected.length,
+        matchMode,
+        requestedTerms,
+        budget: {
+          minPrice: minPrice > 0 ? minPrice : null,
+          maxPrice: maxPrice < 1_000_000 ? maxPrice : null,
+        },
       },
     };
   } catch (error) {
