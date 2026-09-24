@@ -56,6 +56,8 @@ const SAFE_DIRECT_MODEL = "gpt-5.6-sol";
 // Tool definitions for Responses API (flat format, not nested)
 const TOOL_DEFINITIONS = [
   {
+    type: "function",
+    strict: false,
     name: "search_products",
     description: "Search for products in the catalog",
     parameters: {
@@ -69,6 +71,8 @@ const TOOL_DEFINITIONS = [
     },
   },
   {
+    type: "function",
+    strict: false,
     name: "get_product",
     description: "Get detailed product info",
     parameters: {
@@ -80,6 +84,8 @@ const TOOL_DEFINITIONS = [
     },
   },
   {
+    type: "function",
+    strict: false,
     name: "update_draft",
     description: "Update order draft with collected data",
     parameters: {
@@ -114,6 +120,8 @@ const TOOL_DEFINITIONS = [
     },
   },
   {
+    type: "function",
+    strict: false,
     name: "validate_address",
     description: "Validate delivery address and get coordinates",
     parameters: {
@@ -125,6 +133,8 @@ const TOOL_DEFINITIONS = [
     },
   },
   {
+    type: "function",
+    strict: false,
     name: "calculate_delivery",
     description: "Calculate delivery cost and zone",
     parameters: {
@@ -137,6 +147,8 @@ const TOOL_DEFINITIONS = [
     },
   },
   {
+    type: "function",
+    strict: false,
     name: "get_draft_summary",
     description: "Get current draft summary with all collected data",
     parameters: {
@@ -148,6 +160,8 @@ const TOOL_DEFINITIONS = [
     },
   },
   {
+    type: "function",
+    strict: false,
     name: "validate_product_availability",
     description: "Check if selected products are available",
     parameters: {
@@ -303,49 +317,32 @@ export async function POST(request: Request) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 28_000);
 
-    // Build input array for Responses API
-    // Input is an array of items with type: "text" | "function_call_output"
-    const inputItems: any[] = [];
+    // Responses API: send conversation messages as message inputs.
+    const conversationInput = messages.map((msg) => ({
+      role: msg.role === "assistant" ? "assistant" : "user",
+      content:
+        typeof msg.content === "string"
+          ? msg.content
+          : JSON.stringify(msg.content),
+    }));
 
-    // Add system instructions as first item
-    inputItems.push({
-      type: "text",
-      text: systemPrompt,
-    });
-
-    // Add conversation messages
-    for (const msg of messages) {
-      if (msg.role === "user") {
-        inputItems.push({
-          type: "text",
-          text: typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content),
-        });
-      } else if (msg.role === "assistant") {
-        // In Responses API, we don't resend assistant messages in the same way
-        // They will be part of the previous response flow or handled differently
-        // For now, skip them as Responses API handles message history differently
-      } else if (msg.role === "tool" && (msg as any).tool_call_id) {
-        // Function call output from previous iteration
-        inputItems.push({
-          type: "function_call_output",
-          call_id: (msg as any).tool_call_id,
-          output: msg.content,
-        });
-      }
-    }
-
-    // Tool calling loop for Responses API
+    let nextInput: any[] = conversationInput;
+    let previousResponseId: string | undefined;
     let toolCallCount = 0;
-    let finalReply = "";
     const recommendedProductIds: string[] = [];
 
     for (toolCallCount = 0; toolCallCount < MAX_TOOL_CALLS; toolCallCount++) {
-      // Call Responses API endpoint
-      const requestPayload = {
+      const requestPayload: Record<string, any> = {
         model: SAFE_DIRECT_MODEL,
-        input: inputItems,
+        instructions: systemPrompt,
+        input: nextInput,
         tools: TOOL_DEFINITIONS,
+        tool_choice: "auto",
       };
+
+      if (previousResponseId) {
+        requestPayload.previous_response_id = previousResponseId;
+      }
 
       const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
@@ -363,13 +360,16 @@ export async function POST(request: Request) {
         let errorDetails = "Unknown error";
         try {
           const errorJson = JSON.parse(errorText);
-          errorDetails = `${errorJson.error?.type || "unknown"}: ${errorJson.error?.message || ""}`;
+          const type = errorJson.error?.type || "unknown";
+          const code = errorJson.error?.code || "unknown";
+          const message = errorJson.error?.message || "";
+          errorDetails = `${type} [${code}]: ${message}`;
         } catch {
-          errorDetails = errorText.slice(0, 200);
+          errorDetails = errorText.slice(0, 300);
         }
         console.error("[ai-florist] Responses API error", {
           status: response.status,
-          error: errorDetails.slice(0, 500)
+          error: errorDetails.slice(0, 700),
         });
         return Response.json({
           reply: "Ошибка при обработке запроса.",
@@ -380,9 +380,9 @@ export async function POST(request: Request) {
       }
 
       const responseData = (await response.json()) as any;
-      const output = responseData.output;
+      const output = Array.isArray(responseData.output) ? responseData.output : [];
 
-      if (!Array.isArray(output) || output.length === 0) {
+      if (!responseData.id || output.length === 0) {
         clearTimeout(timeout);
         console.error("[ai-florist] Invalid response format");
         return Response.json({
@@ -393,94 +393,116 @@ export async function POST(request: Request) {
         } satisfies FloristReply);
       }
 
-      // Process output items
-      let hasToolCalls = false;
-      const toolCallsToExecute: Array<{ call_id: string; name: string; arguments: any }> = [];
+      const toolCallsToExecute: Array<{
+        call_id: string;
+        name: string;
+        arguments: Record<string, any>;
+      }> = [];
+      const textParts: string[] = [];
 
       for (const item of output) {
-        if (item.type === "text") {
-          finalReply = item.text || "";
-        } else if (item.type === "function_call") {
-          hasToolCalls = true;
+        if (item?.type === "message" && Array.isArray(item.content)) {
+          for (const contentItem of item.content) {
+            if (
+              contentItem?.type === "output_text" &&
+              typeof contentItem.text === "string"
+            ) {
+              textParts.push(contentItem.text);
+            }
+          }
+        } else if (item?.type === "function_call") {
+          let args: Record<string, any> = {};
+          if (typeof item.arguments === "string") {
+            try {
+              args = JSON.parse(item.arguments);
+            } catch {
+              args = {};
+            }
+          } else if (item.arguments && typeof item.arguments === "object") {
+            args = item.arguments;
+          }
+
           toolCallsToExecute.push({
             call_id: item.call_id,
             name: item.name,
-            arguments: typeof item.arguments === "string"
-              ? JSON.parse(item.arguments)
-              : item.arguments,
+            arguments: args,
           });
         }
       }
 
-      // If no tool calls, we have the final response
-      if (!hasToolCalls) {
+      if (toolCallsToExecute.length === 0) {
         clearTimeout(timeout);
-
-        // Extract product IDs from output if any
-        for (const item of output) {
-          if (item.type === "text") {
-            // Try to extract product IDs from tool results that were returned
-            try {
-              // This is a simplified extraction; real implementation might be more sophisticated
-              const productIdPattern = /product[_-]?\d+|id:?\s*["\']?([a-zA-Z0-9\-]+)["\']?/gi;
-              // Note: This is basic; rely on explicit tool results instead
-            } catch {
-              // Skip extraction errors
-            }
-          }
-        }
-
         return Response.json({
-          reply: finalReply || "Я готов помочь подобрать букет.",
+          reply: textParts.join("\n").trim() || "Я готов помочь подобрать букет.",
           recommendedProductIds: [...new Set(recommendedProductIds)].slice(0, 3),
           mode: "ai",
-          modelUsed: SAFE_DIRECT_MODEL,
+          modelUsed:
+            typeof responseData.model === "string"
+              ? responseData.model
+              : SAFE_DIRECT_MODEL,
         } satisfies FloristReply);
       }
 
-      // Execute tool calls
+      const functionOutputs: any[] = [];
+
       for (const toolCall of toolCallsToExecute) {
         try {
-          const toolArgs = toolCall.arguments;
+          const toolArgs = { ...toolCall.arguments };
 
-          // Enforce draftId from request body for draft operations
-          if (toolCall.name === "update_draft" || toolCall.name === "get_draft_summary") {
+          if (
+            toolCall.name === "update_draft" ||
+            toolCall.name === "get_draft_summary"
+          ) {
             if (!body.draftId) {
-              throw new Error(`Tool ${toolCall.name} requires draftId in request body`);
+              throw new Error(
+                `Tool ${toolCall.name} requires draftId in request body`,
+              );
             }
             toolArgs.draftId = body.draftId;
           }
 
           const toolResult = await executeTool(toolCall.name, toolArgs);
 
-          // Parse and extract product IDs if this is a search or product result
           try {
             const toolResultJson = JSON.parse(toolResult);
-            if (toolResultJson?.data?.products && Array.isArray(toolResultJson.data.products)) {
-              recommendedProductIds.push(...toolResultJson.data.products.map((p: any) => p.id));
+            if (
+              toolResultJson?.data?.products &&
+              Array.isArray(toolResultJson.data.products)
+            ) {
+              recommendedProductIds.push(
+                ...toolResultJson.data.products.map((p: any) => p.id),
+              );
             }
-            if (toolResultJson?.data?.id && typeof toolResultJson.data.id === "string") {
+            if (
+              toolResultJson?.data?.id &&
+              typeof toolResultJson.data.id === "string"
+            ) {
               recommendedProductIds.push(toolResultJson.data.id);
             }
           } catch {
-            // Ignore parsing errors
+            // Ignore product-id extraction errors.
           }
 
-          // Add function_call_output item to input for next iteration
-          inputItems.push({
+          functionOutputs.push({
             type: "function_call_output",
             call_id: toolCall.call_id,
             output: toolResult,
           });
         } catch (toolError) {
           console.error("[ai-florist] tool execution error:", toolError);
-          inputItems.push({
+          functionOutputs.push({
             type: "function_call_output",
             call_id: toolCall.call_id,
-            output: JSON.stringify({ status: "error", message: "Tool execution failed" }),
+            output: JSON.stringify({
+              status: "error",
+              message: "Tool execution failed",
+            }),
           });
         }
       }
+
+      previousResponseId = responseData.id;
+      nextInput = functionOutputs;
     }
 
     clearTimeout(timeout);
