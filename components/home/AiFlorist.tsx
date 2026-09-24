@@ -5,6 +5,24 @@ import { ProductImageWithFallback } from "@/components/product/ProductImageWithF
 import type { CatalogProduct } from "@/data/catalogProducts";
 import styles from "@/components/home/AiFlorist.module.css";
 
+
+// Функция парсинга markdown: **text** → <strong>text</strong>
+// Безопасно парсит без dangerouslySetInnerHTML
+function renderMarkdownMessage(text: string): React.ReactNode {
+  if (!text) return text;
+
+  // Простой парсинг **text** через split
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const boldText = part.slice(2, -2);
+      return <strong key={idx}>{boldText}</strong>;
+    }
+    return part;
+  });
+}
+
 type AiFloristProps = {
   bouquets: CatalogProduct[];
   formatPrice: (priceRub: number) => string;
@@ -524,6 +542,32 @@ export function AiFlorist({
     };
   }, [open]);
 
+
+
+  // Управление scroll body при открытии modal на мобиле
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const isMobile = window.innerWidth <= 640;
+    if (!isMobile) return;
+
+    if (open) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
+  }, [open]);
+
   const ensureDraftId = async (): Promise<string | null> => {
     if (draftId) {
       return draftId;
@@ -795,7 +839,7 @@ export function AiFlorist({
                         : styles.assistantBubble
                     }
                   >
-                    {message.content}
+                    {renderMarkdownMessage(message.content)}
                   </div>
 
                   {recommended.length > 0 ? (

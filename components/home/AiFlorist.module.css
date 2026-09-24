@@ -481,3 +481,43 @@
     animation: none;
   }
 }
+
+/* ===== FULLSCREEN MOBILE MODE ===== */
+@media (max-width: 640px) {
+  /* Fullscreen modal на мобиле при открытии */
+  .root[style*="display"] .panel,
+  .root:has(.panel) .panel {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none !important;
+    max-height: none !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .root:has(.panel) .launcher {
+    display: none !important;
+  }
+
+  .chatBody {
+    max-height: calc(100dvh - 140px) !important;
+  }
+
+  .panelHeader {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .composer {
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    max-height: 70px;
+  }
+}

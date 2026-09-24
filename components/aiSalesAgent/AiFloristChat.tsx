@@ -3,6 +3,20 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import styles from "./AiFloristChat.module.css";
 
+
+// Функция парсинга markdown: **text** → <strong>text</strong>
+function renderMarkdownMessage(text: string): React.ReactNode {
+  if (!text) return text;
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const boldText = part.slice(2, -2);
+      return <strong key={idx}>{boldText}</strong>;
+    }
+    return part;
+  });
+}
+
 type ConversationTurn = {
   turn: number;
   timestamp: string;
@@ -301,7 +315,7 @@ export const AiFloristChat = forwardRef<any, AiFloristChatProps>(
             >
               {message.role === "assistant" && <div className={styles.avatar}>🌸</div>}
               <div className={styles.content}>
-                <p className={styles.text}>{message.content}</p>
+                <p className={styles.text}>{renderMarkdownMessage(message.content)}</p>
                 {message.recommendedProducts && (
                   <div className={styles.products}>
                     {message.recommendedProducts.map((product) => (
