@@ -164,6 +164,9 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
     try {
       const sql = getOrdersSqlClient();
 
+      const currentDraft = await this.findById(draftId);
+      if (!currentDraft) return null;
+
       const nextDeliveryAddress = updates.deliveryAddress?.trim() || null;
       const nextDeliveryLatitude =
         typeof updates.deliveryLatitude === "number" &&
@@ -177,6 +180,22 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
           : null;
       const nextDeliveryZoneId = updates.deliveryZoneId?.trim() || null;
 
+      const addressChanged =
+        nextDeliveryAddress !== null &&
+        nextDeliveryAddress !== currentDraft.deliveryAddress;
+
+      const resolvedDeliveryLatitude = addressChanged
+        ? nextDeliveryLatitude
+        : nextDeliveryLatitude ?? currentDraft.deliveryLatitude ?? null;
+
+      const resolvedDeliveryLongitude = addressChanged
+        ? nextDeliveryLongitude
+        : nextDeliveryLongitude ?? currentDraft.deliveryLongitude ?? null;
+
+      const resolvedDeliveryZoneId = addressChanged
+        ? nextDeliveryZoneId
+        : nextDeliveryZoneId ?? currentDraft.deliveryZoneId ?? null;
+
       const rows = await sql<OrderDraftRow[]>`
         UPDATE order_drafts
         SET
@@ -185,24 +204,9 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
           recipient_name = COALESCE(${updates.recipientName || null}, recipient_name),
           recipient_phone = COALESCE(${updates.recipientPhone || null}, recipient_phone),
           delivery_address = COALESCE(${nextDeliveryAddress}, delivery_address),
-          delivery_latitude = CASE
-            WHEN ${nextDeliveryAddress} IS NOT NULL
-              AND ${nextDeliveryAddress} IS DISTINCT FROM delivery_address
-            THEN ${nextDeliveryLatitude}
-            ELSE COALESCE(${nextDeliveryLatitude}, delivery_latitude)
-          END,
-          delivery_longitude = CASE
-            WHEN ${nextDeliveryAddress} IS NOT NULL
-              AND ${nextDeliveryAddress} IS DISTINCT FROM delivery_address
-            THEN ${nextDeliveryLongitude}
-            ELSE COALESCE(${nextDeliveryLongitude}, delivery_longitude)
-          END,
-          delivery_zone_id = CASE
-            WHEN ${nextDeliveryAddress} IS NOT NULL
-              AND ${nextDeliveryAddress} IS DISTINCT FROM delivery_address
-            THEN ${nextDeliveryZoneId}
-            ELSE COALESCE(${nextDeliveryZoneId}, delivery_zone_id)
-          END,
+          delivery_latitude = ${resolvedDeliveryLatitude},
+          delivery_longitude = ${resolvedDeliveryLongitude},
+          delivery_zone_id = ${resolvedDeliveryZoneId},
           delivery_date = COALESCE(${updates.deliveryDate || null}, delivery_date),
           delivery_interval = COALESCE(${updates.deliveryInterval || null}, delivery_interval),
           payment_method = COALESCE(${updates.paymentMethod || null}, payment_method),
