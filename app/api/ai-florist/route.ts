@@ -269,6 +269,9 @@ type VerifiedCatalogProduct = {
   id: string;
   title: string;
   priceRub: number;
+  matchQuality?: "exact" | "partial" | "all" | "none";
+  matchedTerms?: string[];
+  missingTerms?: string[];
 };
 
 function parseBudgetAmount(raw: string, useThousands: boolean): number | undefined {
@@ -352,17 +355,46 @@ function looksLikeNoProductsReply(reply: string): boolean {
 
 async function verifyBudgetCatalogBeforeNoResults(
   messages: FloristMessage[],
+  lastSearchArgs?: Record<string, any> | null,
 ): Promise<{
   products: VerifiedCatalogProduct[];
   exactRangeEmpty: boolean;
+  semanticPartial: boolean;
   range: BudgetRange;
 } | null> {
-  const range = inferBudgetRange(messages);
-  if (!range || (!range.minPrice && !range.maxPrice)) {
+  const inferredRange = inferBudgetRange(messages);
+  const range: BudgetRange = {
+    minPrice:
+      typeof lastSearchArgs?.minPrice === "number"
+        ? lastSearchArgs.minPrice
+        : inferredRange?.minPrice,
+    maxPrice:
+      typeof lastSearchArgs?.maxPrice === "number"
+        ? lastSearchArgs.maxPrice
+        : inferredRange?.maxPrice,
+  };
+
+  if (!range.minPrice && !range.maxPrice) {
     return null;
   }
 
+  // Preserve the model's actual semantic constraints. The previous safety
+  // net incorrectly dropped query/category/flowerType and could recommend
+  // unrelated products merely because they fit the price.
+  const semanticArgs = {
+    ...(typeof lastSearchArgs?.query === "string" && lastSearchArgs.query.trim()
+      ? { query: lastSearchArgs.query.trim() }
+      : {}),
+    ...(typeof lastSearchArgs?.category === "string" && lastSearchArgs.category.trim()
+      ? { category: lastSearchArgs.category.trim() }
+      : {}),
+    ...(typeof lastSearchArgs?.flowerType === "string" && lastSearchArgs.flowerType.trim()
+      ? { flowerType: lastSearchArgs.flowerType.trim() }
+      : {}),
+  };
+
   const primaryResultText = await executeTool("search_products", {
+    ...semanticArgs,
     ...(range.minPrice ? { minPrice: range.minPrice } : {}),
     ...(range.maxPrice ? { maxPrice: range.maxPrice } : {}),
     limit: 5,
@@ -373,17 +405,22 @@ async function verifyBudgetCatalogBeforeNoResults(
     const primaryProducts = Array.isArray(primaryResult?.data?.products)
       ? (primaryResult.data.products as VerifiedCatalogProduct[])
       : [];
+    const primaryMatchMode = primaryResult?.data?.matchMode;
 
     if (primaryProducts.length > 0) {
       return {
         products: primaryProducts,
         exactRangeEmpty: false,
+        semanticPartial: primaryMatchMode === "partial",
         range,
       };
     }
 
+    // If the user's requested range is empty, try cheaper products while
+    // KEEPING the same semantic request. We may relax price, never meaning.
     if (range.minPrice && range.maxPrice) {
       const cheaperResultText = await executeTool("search_products", {
+        ...semanticArgs,
         maxPrice: range.maxPrice,
         limit: 5,
       });
@@ -391,11 +428,13 @@ async function verifyBudgetCatalogBeforeNoResults(
       const cheaperProducts = Array.isArray(cheaperResult?.data?.products)
         ? (cheaperResult.data.products as VerifiedCatalogProduct[])
         : [];
+      const cheaperMatchMode = cheaperResult?.data?.matchMode;
 
       if (cheaperProducts.length > 0) {
         return {
           products: cheaperProducts,
           exactRangeEmpty: true,
+          semanticPartial: cheaperMatchMode === "partial",
           range,
         };
       }
@@ -411,6 +450,7 @@ function formatVerifiedProductsReply(
   verification: {
     products: VerifiedCatalogProduct[];
     exactRangeEmpty: boolean;
+    semanticPartial: boolean;
     range: BudgetRange;
   },
 ): string {
@@ -419,11 +459,19 @@ function formatVerifiedProductsReply(
     .map((product) => `${product.title} — ${product.priceRub.toLocaleString("ru-RU")} ₽`)
     .join("; ");
 
-  if (verification.exactRangeEmpty && verification.range.minPrice && verification.range.maxPrice) {
-    return `В диапазоне ${verification.range.minPrice.toLocaleString("ru-RU")}–${verification.range.maxPrice.toLocaleString("ru-RU")} ₽ сейчас нет подходящих вариантов, но есть дешевле: ${options}. Показать один из них?`;
+  if (verification.semanticPartial) {
+    return `Точного совпадения с вашим запросом сейчас не нашёл. Ближайшие реальные варианты: ${options}. Показать подробнее или сохранить ключевое условие и поискать другой вариант?`;
   }
 
-  return `Нашёл реальные варианты в вашем бюджете: ${options}. Какой показать подробнее?`;
+  if (
+    verification.exactRangeEmpty &&
+    verification.range.minPrice &&
+    verification.range.maxPrice
+  ) {
+    return `В диапазоне ${verification.range.minPrice.toLocaleString("ru-RU")}–${verification.range.maxPrice.toLocaleString("ru-RU")} ₽ точного варианта сейчас нет, но есть подходящие дешевле: ${options}. Показать один из них?`;
+  }
+
+  return `Нашёл реальные варианты по вашему запросу: ${options}. Какой показать подробнее?`;
 }
 
 export async function POST(request: Request) {
@@ -503,8 +551,11 @@ export async function POST(request: Request) {
    - "до 7000" => только maxPrice=7000.
    - "от 6000" => только minPrice=6000.
 8. Поле query используй ТОЛЬКО для реального названия цветка/товара/категории. Не передавай туда "знакомому", "маме", "без повода", "на день рождения" и подобные слова.
-9. Если в приблизительном диапазоне (например 6000–7000) ничего не найдено, не говори "до 7000 ничего нет". Скажи честно, что нет именно В ЭТОМ ДИАПАЗОНЕ, затем сделай второй search_products до верхней границы без minPrice и без лишнего query и предложи реальные более дешёвые варианты, если они есть.
-10. Никогда не утверждай, что "до X ничего нет", если не выполнялся поиск от 0 до X без дополнительных текстовых фильтров.`;
+9. Если в приблизительном диапазоне (например 6000–7000) ничего не найдено, не говори "до 7000 ничего нет". Скажи честно, что нет именно В ЭТОМ ДИАПАЗОНЕ, затем сделай второй search_products до верхней границы без minPrice, СОХРАНИВ требования к цветку/цвету/форме композиции.
+10. Никогда не утверждай, что "до X ничего нет", если не выполнялся поиск от 0 до X с сохранением смысловых требований клиента.
+11. Для товарных требований передавай в query ключевые свойства вместе: например "корзина красные розы". Русские формы и порядок слов обработает поиск.
+12. Если search_products возвращает matchMode="partial", это НЕ точное совпадение. Честно скажи, что точного варианта нет, и представь товары только как ближайшие альтернативы.
+13. Не предлагай клиенту повышать бюджет, пока не проверены релевантные варианты в его бюджете и дешевле.`;
 
   try {
     const controller = new AbortController();
@@ -523,6 +574,8 @@ export async function POST(request: Request) {
     let previousResponseId: string | undefined;
     let toolCallCount = 0;
     const recommendedProductIds: string[] = [];
+    let lastSearchArgs: Record<string, any> | null = null;
+    let lastSearchResult: any = null;
 
     for (toolCallCount = 0; toolCallCount < MAX_TOOL_CALLS; toolCallCount++) {
       const requestPayload: Record<string, any> = {
@@ -638,7 +691,40 @@ export async function POST(request: Request) {
           finalRecommendedProductIds.length === 0 &&
           looksLikeNoProductsReply(finalReply)
         ) {
-          const verification = await verifyBudgetCatalogBeforeNoResults(messages);
+          // First trust any real products already returned by the latest
+          // catalog search. If the model ignored them, surface them instead
+          // of allowing a false "nothing available" response.
+          const searchedProducts = Array.isArray(lastSearchResult?.data?.products)
+            ? (lastSearchResult.data.products as VerifiedCatalogProduct[])
+            : [];
+
+          if (searchedProducts.length > 0) {
+            const verification = {
+              products: searchedProducts,
+              exactRangeEmpty: false,
+              semanticPartial: lastSearchResult?.data?.matchMode === "partial",
+              range: inferBudgetRange(messages) ?? {},
+            };
+
+            finalRecommendedProductIds = searchedProducts
+              .slice(0, 3)
+              .map((product) => product.id);
+
+            return Response.json({
+              reply: formatVerifiedProductsReply(verification),
+              recommendedProductIds: finalRecommendedProductIds,
+              mode: "ai",
+              modelUsed:
+                typeof responseData.model === "string"
+                  ? responseData.model
+                  : SAFE_DIRECT_MODEL,
+            } satisfies FloristReply);
+          }
+
+          const verification = await verifyBudgetCatalogBeforeNoResults(
+            messages,
+            lastSearchArgs,
+          );
           if (verification?.products.length) {
             finalRecommendedProductIds = verification.products
               .slice(0, 3)
@@ -689,6 +775,11 @@ export async function POST(request: Request) {
 
           try {
             const toolResultJson = JSON.parse(toolResult);
+
+            if (toolCall.name === "search_products") {
+              lastSearchArgs = { ...toolArgs };
+              lastSearchResult = toolResultJson;
+            }
             if (
               toolResultJson?.data?.products &&
               Array.isArray(toolResultJson.data.products)
