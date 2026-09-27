@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import type postgres from "postgres";
 import { getOrdersSqlClient } from "@/lib/orders/postgresClient";
 import { OrderError } from "@/lib/orders/errors";
+import { decodeDraftJson } from "@/lib/orders/draftJson";
 import type {
   OrderDraft,
   OrderDraftConversationState,
@@ -26,8 +27,8 @@ type OrderDraftRow = {
   delivery_interval: string | null;
   payment_method: string | null;
   customer_comment: string | null;
-  items: DraftOrderItem[];
-  conversation_state: OrderDraftConversationState;
+  items: unknown;
+  conversation_state: unknown;
   status: "active" | "abandoned" | "converted";
   converted_to_order_id: string | null;
   created_at: Date | string;
@@ -40,6 +41,8 @@ function isoDate(value: Date | string): string {
 }
 
 function mapDraftRow(row: OrderDraftRow): OrderDraft {
+  const items = decodeDraftJson(row.items, []);
+  const conversationState = decodeDraftJson(row.conversation_state, { turns: [] });
   return {
     id: row.id,
     customerName: row.customer_name || undefined,
@@ -54,8 +57,13 @@ function mapDraftRow(row: OrderDraftRow): OrderDraft {
     deliveryDate: row.delivery_date || undefined,
     deliveryInterval: row.delivery_interval || undefined,
     paymentMethod: (row.payment_method as any) || undefined,
-    items: Array.isArray(row.items) ? row.items : [],
-    conversationState: row.conversation_state || { turns: [] },
+    items: Array.isArray(items) ? (items as DraftOrderItem[]) : [],
+    conversationState:
+      conversationState &&
+      typeof conversationState === "object" &&
+      Array.isArray((conversationState as OrderDraftConversationState).turns)
+        ? (conversationState as OrderDraftConversationState)
+        : { turns: [] },
     status: row.status,
     convertedToOrderId: row.converted_to_order_id || undefined,
     createdAt: isoDate(row.created_at),
@@ -138,8 +146,8 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
           ${draft.deliveryInterval || null},
           ${draft.paymentMethod || null},
           ${draft.customerComment || null},
-          ${JSON.stringify(draft.items)},
-          ${JSON.stringify(draft.conversationState)},
+          ${sql.json(draft.items)},
+          ${sql.json(draft.conversationState)},
           ${draft.status},
           ${draft.convertedToOrderId || null},
           NOW(),
@@ -175,9 +183,9 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
           delivery_interval = COALESCE(${updates.deliveryInterval || null}, delivery_interval),
           payment_method = COALESCE(${updates.paymentMethod || null}, payment_method),
           customer_comment = COALESCE(${updates.customerComment || null}, customer_comment),
-          items = COALESCE(${updates.items ? JSON.stringify(updates.items) : null}, items),
+          items = COALESCE(${updates.items ? sql.json(updates.items) : null}, items),
           conversation_state = COALESCE(
-            ${updates.conversationState ? JSON.stringify(updates.conversationState) : null},
+            ${updates.conversationState ? sql.json(updates.conversationState) : null},
             conversation_state
           ),
           updated_at = NOW()
