@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import styles from "./AiFloristChat.module.css";
+import { processMarkdown } from "./markdownToJsx";
 
 type ConversationTurn = {
   turn: number;
@@ -301,7 +302,7 @@ export const AiFloristChat = forwardRef<any, AiFloristChatProps>(
             >
               {message.role === "assistant" && <div className={styles.avatar}>🌸</div>}
               <div className={styles.content}>
-                <p className={styles.text}>{message.content}</p>
+                <p className={styles.text}>{processMarkdown(message.content)}</p>
                 {message.recommendedProducts && (
                   <div className={styles.products}>
                     {message.recommendedProducts.map((product) => (

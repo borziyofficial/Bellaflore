@@ -658,12 +658,20 @@ async function finalizeOrderFromDraft(params: {
     }
 
     // === STRICT VALIDATION: Trim and validate all string fields ===
-    const customerName = draft.customerName?.trim();
-    const customerPhone = draft.customerPhone?.trim();
-    const recipientName = draft.recipientName?.trim();
-    const deliveryAddress = draft.deliveryAddress?.trim();
-    const deliveryDate = draft.deliveryDate?.trim();
-    const deliveryInterval = draft.deliveryInterval?.trim();
+    // Convert Date objects to strings before trimming
+    const toTrimString = (value: any): string | undefined => {
+      if (value instanceof Date) {
+        return value.toISOString().slice(0, 10);
+      }
+      return typeof value === "string" ? value.trim() : undefined;
+    };
+
+    const customerName = toTrimString(draft.customerName);
+    const customerPhone = toTrimString(draft.customerPhone);
+    const recipientName = toTrimString(draft.recipientName);
+    const deliveryAddress = toTrimString(draft.deliveryAddress);
+    const deliveryDate = toTrimString(draft.deliveryDate);
+    const deliveryInterval = toTrimString(draft.deliveryInterval);
 
     // Validate draft is complete with all required fields
     if (!customerName || !customerPhone ||
@@ -762,7 +770,7 @@ async function finalizeOrderFromDraft(params: {
       customerName,
       customerPhone,
       recipientName,
-      recipientPhone: draft.recipientPhone?.trim() || customerPhone,
+      recipientPhone: toTrimString(draft.recipientPhone) || customerPhone,
       deliveryAddress,
       deliveryLatitude: lat,
       deliveryLongitude: lon,
