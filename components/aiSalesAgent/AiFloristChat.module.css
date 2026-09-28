@@ -306,3 +306,89 @@
 .summaryButton:active {
   transform: translateY(1px);
 }
+
+/* Extra small mobile support (390px - iPhone SE/small phones) */
+@media (max-width: 480px) {
+  .container {
+    border-radius: 0;
+    height: 100vh;
+  }
+
+  .header {
+    padding: 12px 16px;
+  }
+
+  .title {
+    font-size: 16px;
+    margin: 0 0 4px 0;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    margin: 0;
+  }
+
+  .message {
+    gap: 8px;
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+
+  .content {
+    max-width: 90%;
+  }
+
+  .text {
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .productCard {
+    padding: 10px;
+    border-left-width: 2px;
+    font-size: 13px;
+  }
+
+  .productTitle {
+    font-size: 13px;
+    margin: 0 0 2px 0;
+  }
+
+  .productPrice {
+    font-size: 13px;
+    margin: 0;
+  }
+
+  .inputForm {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 12px;
+  }
+
+  .input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+
+  .sendButton {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .summaryButton {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .messagesContainer {
+    padding: 12px;
+    gap: 8px;
+  }
+}
