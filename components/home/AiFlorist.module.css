@@ -424,11 +424,13 @@
 
   .panel {
     right: max(10px, env(safe-area-inset-right));
-    bottom: calc(112px + env(safe-area-inset-bottom));
+    bottom: max(10px, env(safe-area-inset-bottom));
     left: max(10px, env(safe-area-inset-left));
+    top: auto;
     width: auto;
     max-width: none;
-    max-height: min(66dvh, 590px);
+    height: calc(100dvh - 60px - env(safe-area-inset-bottom) - env(safe-area-inset-top));
+    max-height: none;
     border-radius: 22px;
   }
 

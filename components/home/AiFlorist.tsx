@@ -30,6 +30,11 @@ type ApiReply = {
   message?: string;
 };
 
+type OrderDraftReply = {
+  id?: string;
+  error?: string;
+};
+
 const QUICK_PROMPTS = [
   "Букет для жены",
   "Маме на день рождения",
@@ -270,12 +275,42 @@ function storeChat(messages: ChatMessage[]) {
 // this threshold so the panel doesn't jitter its position for those.
 const KEYBOARD_INSET_THRESHOLD_PX = 80;
 
+
+function processMarkdownSimple(text: string): (string | React.ReactNode)[] {
+  const parts: (string | React.ReactNode)[] = [];
+  let lastIndex = 0;
+  const regex = /\*\*(.+?)\*\*|\*(.+?)\*/g;
+
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[1]) {
+      parts.push(React.createElement('strong', { key: `strong-${match.index}` }, match[1]));
+    } else if (match[2]) {
+      parts.push(React.createElement('em', { key: `em-${match.index}` }, match[2]));
+    }
+
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : [text];
+}
+
 export function AiFlorist({
   bouquets,
   formatPrice,
   onProductOpen,
 }: AiFloristProps) {
   const [open, setOpen] = useState(false);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const draftInitializedRef = useRef(false);
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -318,6 +353,30 @@ export function AiFlorist({
         .toLowerCase(),
     [messages],
   );
+
+
+  useEffect(() => {
+    if (draftInitializedRef.current) return;
+    draftInitializedRef.current = true;
+
+    const initDraft = async () => {
+      try {
+        const response = await fetch('/api/order-drafts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'create' }),
+        });
+        const data = (await response.json()) as OrderDraftReply;
+        if (data.id) {
+          setDraftId(data.id);
+        }
+      } catch {
+        // Draft creation failed
+      }
+    };
+
+    void initDraft();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -513,6 +572,7 @@ export function AiFlorist({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          draftId: draftId || undefined,
           messages: nextMessages.map(({ role, content }) => ({ role, content })),
           candidates: candidates.map((product) => ({
             id: product.id,
@@ -562,13 +622,27 @@ export function AiFlorist({
     }
   };
 
-  const reset = () => {
+  const reset = async () => {
     setMessages([INITIAL_MESSAGE]);
     setInput("");
     try {
       window.sessionStorage.removeItem(CHAT_STORAGE_KEY);
     } catch {
       // Ignore storage limitations.
+    }
+
+    try {
+      const response = await fetch('/api/order-drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create' }),
+      });
+      const data = (await response.json()) as OrderDraftReply;
+      if (data.id) {
+        setDraftId(data.id);
+      }
+    } catch {
+      // Draft creation failed
     }
   };
 
@@ -713,7 +787,9 @@ export function AiFlorist({
                         : styles.assistantBubble
                     }
                   >
-                    {message.content}
+                    {message.role === "assistant"
+                      ? processMarkdownSimple(message.content)
+                      : message.content}
                   </div>
 
                   {recommended.length > 0 ? (
