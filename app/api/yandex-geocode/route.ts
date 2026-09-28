@@ -73,11 +73,16 @@ export async function GET(request: Request) {
   }
 
   const apiKey = getYandexGeocoderApiKey();
+  const keySource = process.env.YANDEX_GEOCODER_API_KEY?.trim()
+    ? "YANDEX_GEOCODER_API_KEY"
+    : process.env.NEXT_PUBLIC_YANDEX_GEOCODER_API_KEY?.trim()
+      ? "NEXT_PUBLIC_YANDEX_GEOCODER_API_KEY"
+      : "maps_compatibility";
   if (!apiKey) {
     const fallbackResults = uri ? [] : await fetchFallbackGeocodeResults(geocode);
     if (fallbackResults.length > 0) {
       return Response.json(
-        { results: fallbackResults, provider: "fallback" },
+        { results: fallbackResults, provider: "fallback", fallbackReason: "missing_yandex_key", yandexKeyConfigured: false },
         noStoreResponseInit(),
       );
     }
@@ -122,10 +127,16 @@ export async function GET(request: Request) {
     const payload = (await response.json().catch(() => ({}))) as YandexGeocoderResponse;
 
     if (!response.ok) {
+      const yandexError = (payload.error ?? payload.message ?? `Yandex Geocoder HTTP ${response.status}.`)
+        .replaceAll(apiKey, "[REDACTED]");
+      const yandexMessage = payload.message?.replaceAll(apiKey, "[REDACTED]");
       const fallbackResults = uri ? [] : await fetchFallbackGeocodeResults(geocode);
       if (fallbackResults.length > 0) {
         return Response.json(
-          { results: fallbackResults, provider: "fallback" },
+          {
+            results: fallbackResults, provider: "fallback", fallbackReason: "yandex_http_error",
+            yandexStatus: response.status, yandexError, yandexMessage, yandexKeyConfigured: true, yandexKeySource: keySource,
+          },
           noStoreResponseInit(),
         );
       }
@@ -133,11 +144,11 @@ export async function GET(request: Request) {
       return Response.json(
         {
           results: [],
-          error:
-            payload.error ??
-            payload.message ??
-            `Yandex Geocoder HTTP ${response.status}.`,
+          error: yandexError,
+          yandexMessage,
           yandexStatus: response.status,
+          yandexKeyConfigured: true,
+          yandexKeySource: keySource,
         },
         { status: response.status },
       );
@@ -148,14 +159,17 @@ export async function GET(request: Request) {
       const fallbackResults = await fetchFallbackGeocodeResults(geocode);
       if (fallbackResults.length > 0) {
         return Response.json(
-          { results: fallbackResults, provider: "fallback" },
+          {
+            results: fallbackResults, provider: "fallback", fallbackReason: "no_yandex_results",
+            yandexStatus: response.status, yandexKeyConfigured: true, yandexKeySource: keySource,
+          },
           noStoreResponseInit(),
         );
       }
     }
 
     return Response.json(
-      { results },
+      { results, provider: "yandex", yandexStatus: response.status, yandexKeyConfigured: true, yandexKeySource: keySource },
       {
         headers: {
           "Cache-Control": "no-store",

@@ -253,7 +253,7 @@ async function getProduct(params: {
 // ==================================================
 async function validateAddress(params: {
   address?: unknown;
-}): Promise<ToolResponse> {
+}, request: Request): Promise<ToolResponse> {
   try {
     const address = validateString(params.address);
     if (!address) {
@@ -264,13 +264,15 @@ async function validateAddress(params: {
     }
 
     // Call the existing Yandex geocode API route
-    const geocodeUrl = new URL(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/yandex-geocode`);
+    const origin = new URL(request.url).origin;
+    const geocodeUrl = new URL("/api/yandex-geocode", origin);
     geocodeUrl.searchParams.set("geocode", address);
 
     const response = await fetch(geocodeUrl.toString(), {
       headers: {
         Accept: "application/json",
-        Referer: "http://localhost:3000/ai-consultant",
+        Referer: new URL("/ai-consultant", origin).toString(),
+        Origin: origin,
       },
       cache: "no-store",
       signal: AbortSignal.timeout(6000),
@@ -284,6 +286,9 @@ async function validateAddress(params: {
     }
 
     const result = (await response.json()) as {
+      provider?: string;
+      fallbackReason?: string;
+      yandexStatus?: number;
       results?: Array<{
         formattedAddress?: string;
         latitude?: number;
@@ -291,6 +296,19 @@ async function validateAddress(params: {
         precision?: string;
       }>;
     };
+
+    if (result.provider === "fallback") {
+      return {
+        status: "error",
+        message: "Yandex не подтвердил адрес. Повторите проверку позже.",
+        data: {
+          provider: "fallback",
+          fallbackReason: result.fallbackReason,
+          yandexStatus: result.yandexStatus,
+          validated: false,
+        },
+      };
+    }
 
     if (!result.results || result.results.length === 0) {
       return {
@@ -303,7 +321,7 @@ async function validateAddress(params: {
     const latitude = first.latitude;
     const longitude = first.longitude;
 
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || (latitude === 0 && longitude === 0)) {
       return {
         status: "error",
         message: "Не удалось определить координаты адреса.",
@@ -317,6 +335,7 @@ async function validateAddress(params: {
         latitude,
         longitude,
         precision: first.precision,
+        provider: "yandex",
         validated: true,
       },
     };
@@ -835,7 +854,7 @@ export async function POST(request: Request) {
         result = await getProduct(params);
         break;
       case "validate_address":
-        result = await validateAddress(params);
+        result = await validateAddress(params, request);
         break;
       case "calculate_delivery":
         result = await calculateDelivery(params);
