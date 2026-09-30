@@ -19,6 +19,7 @@ import {
   canSubmitCheckoutWithDeliveryPrice,
 } from "@/components/deliveryZones/deliveryPriceEngine";
 import {
+  DeliveryConfidenceCheckoutHint,
   formatDeliveryConfidencePriceLabel,
 } from "@/components/deliveryConfidence/DeliveryConfidenceCheckoutHint";
 import type { DeliveryConfidenceResult } from "@/components/deliveryConfidence/deliveryConfidenceTypes";
@@ -529,7 +530,7 @@ export function CheckoutSection({
   const handleSubmitTouchEnd = (event: ReactTouchEvent<HTMLButtonElement>) => {
     setSubmitAttempted(true);
 
-    if (!isFormReady || checkoutSubmitInProgress) {
+    if (!canSubmitOrder) {
       return;
     }
 
@@ -981,6 +982,11 @@ export function CheckoutSection({
                   <strong>{formatPrice(checkoutGrandTotalPrice)}</strong>
                 </div>
               </div>
+
+              <DeliveryConfidenceCheckoutHint
+                confidence={deliveryConfidenceResult}
+                formatPrice={formatPrice}
+              />
 
               {deliveryPriceResult.status === "outside_delivery_area" ? (
                 <p
