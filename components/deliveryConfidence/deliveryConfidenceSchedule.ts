@@ -8,7 +8,11 @@
 // Назначение (RU):
 // Рабочие часы, дедлайны и доступность интервалов для уверенности доставки.
 // ==================================================
-import { deliveryIntervals } from "@/components/checkout/deliveryIntervals";
+import {
+  deliveryIntervals,
+  getMoscowDateValue,
+  getMoscowTimeMinutes,
+} from "@/components/checkout/deliveryIntervals";
 import type {
   DeliveryConfidenceScheduleInput,
   DeliveryConfidenceScheduleResult,
@@ -30,13 +34,6 @@ import type { DeliveryZoneId } from "@/components/deliveryZones/deliveryZoneType
 // Назначение (RU):
 // Приватные вспомогательные функции модуля.
 // ==================================================
-function formatDateInputValue(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
 
 
 // ==================================================
@@ -119,8 +116,8 @@ function findNearestAvailableInterval(
   now: Date,
   deliveryDate: string,
 ): string | null {
-  const todayDateValue = formatDateInputValue(now);
-  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+  const todayDateValue = getMoscowDateValue(now);
+  const currentTimeMinutes = getMoscowTimeMinutes(now);
   const isToday = deliveryDate === todayDateValue;
 
   const candidates = deliveryIntervals.filter((interval) => {
@@ -195,9 +192,9 @@ export function resolveDeliveryConfidenceSchedule(
   const workingStartMinutes = parseTimeToMinutes(rules.workingHours.startTime);
   const workingEndMinutes = parseTimeToMinutes(rules.workingHours.endTime);
   const cutoffMinutes = parseTimeToMinutes(sameDayCutoffTime);
-  const todayDateValue = formatDateInputValue(now);
+  const todayDateValue = getMoscowDateValue(now);
   const isToday = scheduleInput.deliveryDate === todayDateValue;
-  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+  const currentTimeMinutes = getMoscowTimeMinutes(now);
 
   const scheduleBase: DeliveryConfidenceScheduleResult = {
     zoneEstimatedDeliveryLabel: zoneEta?.label ?? null,
