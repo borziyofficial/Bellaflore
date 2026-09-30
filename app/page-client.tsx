@@ -26,7 +26,11 @@ import {
   getDeliveryValidationUnavailableMessage,
   resolveDeliveryValidationForCheckout,
 } from "@/components/deliveryValidation/deliveryValidationEngine";
-import { getAvailableDeliveryIntervals } from "@/components/checkout/deliveryIntervals";
+import {
+  getAvailableDeliveryIntervals,
+  getMoscowDateOffsetValue,
+  getMoscowDateValue,
+} from "@/components/checkout/deliveryIntervals";
 import { buildCheckoutOrderPayload } from "@/components/checkout/buildCheckoutOrderPayload";
 import { bootstrapCrmFromLogisticsAndLifecycle } from "@/components/crmCore/crmCoreEngine";
 import { persistOrderIntelligenceFromCheckout } from "@/components/orderIntelligence/checkoutOrderBridge";
@@ -259,20 +263,7 @@ const initialReviews: BellafloreReview[] = []
 // listAdminReviews) still lists them unchanged for moderation/dev use.
 const HIDDEN_STOREFRONT_REVIEW_NAMES = new Set<string>(["Тестовый Пользователь"])
 
-function formatDateInputValue(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
 
-  return `${year}-${month}-${day}`;
-}
-
-function addCalendarDays(date: Date, days: number) {
-  const nextDate = new Date(date);
-  nextDate.setDate(nextDate.getDate() + days);
-
-  return nextDate;
-}
 
 const TELEGRAM_USERNAME = "borziy_Sadikhov";
 void TELEGRAM_USERNAME;
@@ -1379,10 +1370,8 @@ export default function HomePageClient({
   const hasDraftOrder = Boolean(latestOrder) || cartItemCount > 0;
 
   const checkoutNow = checkoutAvailabilityNow;
-  const todayDateValue = formatDateInputValue(checkoutNow);
-  const tomorrowDateValue = formatDateInputValue(
-    addCalendarDays(checkoutNow, 1),
-  );
+  const todayDateValue = getMoscowDateValue(checkoutNow);
+  const tomorrowDateValue = getMoscowDateOffsetValue(checkoutNow, 1);
   const todayAvailableDeliveryIntervals = getAvailableDeliveryIntervals(
     todayDateValue,
     checkoutNow,
