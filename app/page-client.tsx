@@ -270,6 +270,8 @@ void TELEGRAM_USERNAME;
 const LOCAL_ORDERS_STORAGE_KEY = "bellaflore-dev-orders";
 const LOCAL_FAVORITES_STORAGE_KEY = "bellaflore-favorite-bouquets";
 const LOCAL_CART_STORAGE_KEY = "bellaflore-cart";
+const MAX_CART_ITEM_QUANTITY = 20;
+const MAX_CART_TOTAL_QUANTITY = 50;
 
 function resolveProfileCourierStatus(status: BellafloreOrderStatus): string {
   if (status === "COURIER_ASSIGNED") {
@@ -395,7 +397,7 @@ function readStoredCartItems(catalog: CatalogProduct[]): CartItem[] {
       return [
         {
           bouquetId: item.bouquetId,
-          quantity: Math.min(Math.floor(item.quantity), 99),
+          quantity: Math.min(Math.floor(item.quantity), MAX_CART_ITEM_QUANTITY),
           sizeId,
           priceRub: selectedVariant.priceRub,
         },
@@ -1424,13 +1426,21 @@ export default function HomePageClient({
     }
 
     setCartItems((currentItems) => {
+      const currentTotalQuantity = currentItems.reduce(
+        (total, item) => total + item.quantity,
+        0,
+      );
       const existingItem = currentItems.find(
         (item) => item.bouquetId === bouquetId && item.sizeId === selection.sizeId,
       );
 
-      setBottomNavAction("Букет добавлен в корзину");
+      if (currentTotalQuantity >= MAX_CART_TOTAL_QUANTITY) {
+        setBottomNavAction(`Максимум ${MAX_CART_TOTAL_QUANTITY} товаров в заказе`);
+        return currentItems;
+      }
 
       if (!existingItem) {
+        setBottomNavAction("Букет добавлен в корзину");
         return [
           ...currentItems,
           {
@@ -1442,6 +1452,12 @@ export default function HomePageClient({
         ];
       }
 
+      if (existingItem.quantity >= MAX_CART_ITEM_QUANTITY) {
+        setBottomNavAction(`Максимум ${MAX_CART_ITEM_QUANTITY} шт. этого букета`);
+        return currentItems;
+      }
+
+      setBottomNavAction("Букет добавлен в корзину");
       return currentItems.map((item) =>
         item.bouquetId === bouquetId && item.sizeId === selection.sizeId
           ? { ...item, quantity: item.quantity + 1, priceRub: selection.priceRub }
@@ -1482,13 +1498,26 @@ export default function HomePageClient({
     bouquetId: string,
     sizeId: ProductSizeId,
   ) => {
-    setCartItems((currentItems) =>
-      currentItems.map((item) =>
-        item.bouquetId === bouquetId && item.sizeId === sizeId
-          ? { ...item, quantity: Math.min(item.quantity + 1, 99) }
-          : item,
-      ),
-    );
+    setCartItems((currentItems) => {
+      const currentTotalQuantity = currentItems.reduce(
+        (total, item) => total + item.quantity,
+        0,
+      );
+      return currentItems.map((item) => {
+        if (item.bouquetId !== bouquetId || item.sizeId !== sizeId) {
+          return item;
+        }
+
+        if (
+          item.quantity >= MAX_CART_ITEM_QUANTITY ||
+          currentTotalQuantity >= MAX_CART_TOTAL_QUANTITY
+        ) {
+          return item;
+        }
+
+        return { ...item, quantity: item.quantity + 1 };
+      });
+    });
     setBottomNavAction("Количество обновлено");
   };
 
