@@ -15,6 +15,8 @@ import { loadPublishedStorefrontCatalog } from "@/lib/catalogDb/publicStorefront
 import { mergePublicStorefrontCatalog } from "@/components/catalog/publicCatalogMerge";
 import HomePageClient from "./page-client";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "BellaFlore — Премиум букеты с доставкой в Москве",
   description: "Свежие цветы, авторские композиции и AI-консультант. Доставка в Москву и МО.",
@@ -32,7 +34,6 @@ export default async function HomePage(): Promise<React.ReactNode> {
     catalogResult.status === "success" ? "ready" : ("error" as const);
 
   if (catalogResult.status !== "success" && catalogResult.status !== "error") {
-    // Unconfigured case (should only happen in development)
     console.warn(
       "[HOME_PAGE] Catalog not configured:",
       catalogResult.error,
@@ -46,7 +47,6 @@ export default async function HomePage(): Promise<React.ReactNode> {
     );
   }
 
-  // Merge any additional computed catalog data (if needed by client)
   const mergedCatalog = initialProducts.length > 0
     ? mergePublicStorefrontCatalog(initialProducts)
     : [];
