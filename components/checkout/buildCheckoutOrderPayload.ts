@@ -137,6 +137,15 @@ export function buildCheckoutOrderPayload(
     return null;
   }
 
+  if (
+    deliveryConfidenceResult?.engineEnabled &&
+    (deliveryConfidenceResult.status !== "ready" ||
+      !deliveryConfidenceResult.sameDayDeliveryAvailable ||
+      !deliveryConfidenceResult.selectedIntervalWithinWorkingHours)
+  ) {
+    return null;
+  }
+
   return {
     items: cartBouquets.map((cartItem) => ({
       bouquetId: cartItem.bouquet.id,
