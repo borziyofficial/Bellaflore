@@ -84,6 +84,16 @@ function getMoscowDateValue(now: Date): string {
   return `${values.year}-${values.month}-${values.day}`;
 }
 
+function getMoscowTimeMinutes(now: Date): number {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Moscow",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return Number(values.hour ?? 0) * 60 + Number(values.minute ?? 0);
+}
 function readDeliveryDate(value: unknown, now: Date): string {
   const date = readRequiredString(value, "deliveryDate", 10, 10);
   if (!DATE_PATTERN.test(date)) {
@@ -200,6 +210,18 @@ export function parseCreateOrderInput(value: unknown, now = new Date()): CreateO
     throw invalidField("deliveryInterval", "Выберите существующий интервал доставки.");
   }
 
+  const deliveryDate = readDeliveryDate(value.deliveryDate, now);
+  if (
+    deliveryDate === getMoscowDateValue(now) &&
+    getMoscowTimeMinutes(now) >= 18 * 60
+  ) {
+    throw new OrderError(
+      "SAME_DAY_CUTOFF_REACHED",
+      "Доставка сегодня недоступна после 18:00 по Москве. Выберите завтра или другую дату.",
+      422,
+    );
+  }
+
   return {
     customerName: readRequiredString(value.customerName, "customerName", 2, 120),
     customerPhone: readPhone(value.customerPhone, "customerPhone"),
@@ -223,7 +245,7 @@ export function parseCreateOrderInput(value: unknown, now = new Date()): CreateO
       -180,
       180,
     ),
-    deliveryDate: readDeliveryDate(value.deliveryDate, now),
+    deliveryDate,
     deliveryInterval,
     paymentMethod: paymentMethod as OrderPaymentMethod,
     customerComment: readOptionalString(value.customerComment, "customerComment", 1000),
