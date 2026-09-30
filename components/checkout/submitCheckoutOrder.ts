@@ -171,8 +171,17 @@ function getOrderApiErrorMessage(status: number, code?: string): string {
   if (status === 409) {
     return "Данные заказа изменились во время повторной попытки. Проверьте корзину и повторите оформление.";
   }
-  if (status === 422) {
+  if (status === 422 && code === "MINIMUM_ORDER_NOT_MET") {
+    return "Минимальная сумма заказа — 1 500 ₽.";
+  }
+  if (status === 422 && code === "SAME_DAY_CUTOFF_REACHED") {
+    return "Доставка сегодня уже недоступна после 18:00 по Москве. Выберите завтра.";
+  }
+  if (status === 422 && code === "DELIVERY_OUTSIDE_AREA") {
     return "Доставка по выбранному адресу недоступна. Проверьте адрес.";
+  }
+  if (status === 422) {
+    return "Проверьте адрес, дату и параметры доставки.";
   }
   if (status === 503) {
     return "Сервис оформления временно недоступен. Попробуйте ещё раз через несколько минут.";
