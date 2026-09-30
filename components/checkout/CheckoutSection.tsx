@@ -267,10 +267,17 @@ export function CheckoutSection({
     (!canSubmitDeliveryPrice || !canSubmitDeliveryValidation) &&
     deliveryPriceResult.status !== "outside_delivery_area" &&
     deliveryValidationResult.status !== "OUTSIDE_DELIVERY_AREA";
+  const canSubmitDeliveryConfidence =
+    !deliveryConfidenceResult.engineEnabled ||
+    (deliveryConfidenceResult.status === "ready" &&
+      deliveryConfidenceResult.sameDayDeliveryAvailable &&
+      deliveryConfidenceResult.selectedIntervalWithinWorkingHours);
+
   const canSubmitOrder =
     isFormReady &&
     canSubmitDeliveryPrice &&
     canSubmitDeliveryValidation &&
+    canSubmitDeliveryConfidence &&
     !checkoutSubmitInProgress;
 
   const markFieldTouched = (field: CheckoutValidatedField) => {
@@ -512,7 +519,7 @@ export function CheckoutSection({
   const handleSubmitClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
     setSubmitAttempted(true);
 
-    if (!isFormReady || checkoutSubmitInProgress) {
+    if (!canSubmitOrder) {
       return;
     }
 
