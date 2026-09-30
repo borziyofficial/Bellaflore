@@ -29,12 +29,33 @@ export const deliveryIntervals: DeliveryInterval[] = [
 //
 // Назначение (RU): Приватные вспомогательные функции модуля.
 // ==================================================
-function formatDateInputValue(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+export function getMoscowDateValue(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Moscow",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
 
-  return `${year}-${month}-${day}`;
+export function getMoscowTimeMinutes(date: Date): number {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Moscow",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return Number(values.hour ?? 0) * 60 + Number(values.minute ?? 0);
+}
+
+export function getMoscowDateOffsetValue(date: Date, days: number): string {
+  const baseDate = getMoscowDateValue(date);
+  const shifted = new Date(`${baseDate}T00:00:00Z`);
+  shifted.setUTCDate(shifted.getUTCDate() + days);
+  return shifted.toISOString().slice(0, 10);
 }
 
 
@@ -54,13 +75,13 @@ export function getAvailableDeliveryIntervals(
     return [];
   }
 
-  const todayDateValue = formatDateInputValue(now);
+  const todayDateValue = getMoscowDateValue(now);
 
   if (deliveryDate !== todayDateValue) {
     return deliveryIntervals;
   }
 
-  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+  const currentTimeMinutes = getMoscowTimeMinutes(now);
 
   return deliveryIntervals.filter(
     (interval) => interval.endMinutes > currentTimeMinutes,
