@@ -94,9 +94,19 @@ export function createOrderService(dependencies: OrderServiceDependencies) {
       });
 
       const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+      const MINIMUM_ORDER_AMOUNT_RUB = 1500;
+      if (subtotal < MINIMUM_ORDER_AMOUNT_RUB) {
+        throw new OrderError(
+          "MINIMUM_ORDER_NOT_MET",
+          `Минимальная сумма заказа — ${MINIMUM_ORDER_AMOUNT_RUB.toLocaleString("ru-RU")} ₽.`,
+          422,
+        );
+      }
+
       const delivery = await calculateServerDeliveryPrice(
         input.deliveryLatitude,
         input.deliveryLongitude,
+        subtotal,
       );
       const total = subtotal + delivery.cost;
       if (![subtotal, total].every(Number.isSafeInteger)) {
