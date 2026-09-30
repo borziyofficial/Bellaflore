@@ -6,6 +6,9 @@ export type ServerDeliveryPrice = {
   cost: number;
 };
 
+const DEFAULT_FREE_DELIVERY_FROM_RUB = 15000;
+const FREE_DELIVERY_EXCLUDED_ZONES = new Set(["38km", "48km"]);
+
 // Loaded lazily (not a static top-level import) for two reasons: (1) it
 // keeps this module's own module-graph free of the real `postgres` driver
 // and the "server-only" guard for callers that never need DB access at
@@ -30,6 +33,7 @@ async function hydrateDeliveryZonesCatalogSafely(): Promise<void> {
 export async function calculateServerDeliveryPrice(
   latitude: number,
   longitude: number,
+  subtotalRub = 0,
 ): Promise<ServerDeliveryPrice> {
   // Picks up admin-saved zones (Admin -> Delivery zones) before pricing, so
   // an order is always priced against the zones an administrator actually
@@ -44,5 +48,12 @@ export async function calculateServerDeliveryPrice(
       422,
     );
   }
-  return { zoneId: zone.zoneId, cost: zone.priceRub };
+  const freeDelivery =
+    subtotalRub >= DEFAULT_FREE_DELIVERY_FROM_RUB &&
+    !FREE_DELIVERY_EXCLUDED_ZONES.has(zone.zoneId);
+
+  return {
+    zoneId: zone.zoneId,
+    cost: freeDelivery ? 0 : zone.priceRub,
+  };
 }
