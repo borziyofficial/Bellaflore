@@ -380,6 +380,7 @@ export function CheckoutSection({
     address: string;
     suggestionAddress: string | null;
     addressTouched: boolean;
+    mapVisible: boolean;
   } | null>(null);
 
   const handleExpandedMapOpen = () => {
@@ -387,6 +388,7 @@ export function CheckoutSection({
       address: checkoutForm.address,
       suggestionAddress: selectedSuggestionAddressRef.current,
       addressTouched: touchedFields.has("address"),
+      mapVisible,
     };
     // MAP DUPLICATE SHOW/HIDE STATE FIX: the inline preview map and the
     // expanded modal map are two independent DeliveryZoneMap instances,
@@ -402,9 +404,16 @@ export function CheckoutSection({
   };
 
   const handleExpandedMapConfirm = () => {
+    const baseline = expandedMapBaselineRef.current;
     expandedMapBaselineRef.current = null;
     markFieldTouched("address");
     setExpandedMapOpen(false);
+    // Restore the inline preview only if it was visible before opening the
+    // modal. This keeps Cancel/Confirm from unexpectedly changing the
+    // customer's map visibility preference.
+    if (baseline?.mapVisible) {
+      setMapVisible(true);
+    }
   };
 
   const handleExpandedMapCancel = () => {
@@ -421,6 +430,7 @@ export function CheckoutSection({
     }
 
     selectedSuggestionAddressRef.current = baseline.suggestionAddress;
+    setMapVisible(baseline.mapVisible);
 
     if (!baseline.addressTouched) {
       setTouchedFields((current) => {
