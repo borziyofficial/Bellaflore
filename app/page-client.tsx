@@ -798,7 +798,13 @@ export default function HomePageClient({
       // Normalize legacy /#catalog links to the real catalog route without
       // reloading the page. This keeps Safari history/state simpler.
       if (window.location.pathname !== "/catalog") {
-        window.history.replaceState({}, "", "/catalog");
+        // Preserve deep-link query parameters such as ?q=..., ?category=...,
+        // and ?product=... when normalizing legacy /#catalog URLs.
+        window.history.replaceState(
+          {},
+          "",
+          `/catalog${window.location.search}`,
+        );
       }
 
       queueMicrotask(() => {
