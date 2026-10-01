@@ -9,9 +9,8 @@
 
 import type { MetadataRoute } from "next";
 
-import { absoluteUrl, seoLandingPages } from "./seo";
+import { absoluteUrl } from "./seo";
 import { listPublishedCatalogProducts } from "@/lib/catalogDb";
-import { seoCollections } from "@/lib/catalogSeoCollections";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let productEntries: MetadataRoute.Sitemap = [];
@@ -36,17 +35,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     ...productEntries,
-    ...seoCollections.map((collection) => ({
-      url: absoluteUrl(`/collections/${collection.id}`),
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    })),
-    ...seoLandingPages.map((page) => ({
-      url: absoluteUrl(`/${page.slug}`),
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    })),
   ];
 }
