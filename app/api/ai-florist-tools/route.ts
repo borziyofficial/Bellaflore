@@ -50,12 +50,6 @@ function validatePrice(value: unknown): number | null {
   return Math.round(num);
 }
 
-function validatePositivePrice(value: unknown): number | null {
-  const price = validatePrice(value);
-  if (price === null || price <= 0) return null;
-  return price;
-}
-
 // ==================================================
 // TOOL: search_products
 // Real catalog search with price edge case handling
@@ -569,7 +563,7 @@ async function updateDraft(params: {
     }
 
     const updates: UpdateOrderDraftInput = {
-      conversationState: params.conversationState as any,
+      conversationState: params.conversationState as UpdateOrderDraftInput["conversationState"],
       customerName: validateString(params.customerName),
       customerPhone: validatePhone(params.customerPhone),
       recipientName: validateString(params.recipientName),
@@ -737,7 +731,9 @@ async function validateProductAvailability(params: {
       };
     }
 
-    const results = productIds.map((id: any) => {
+    const results = productIds
+      .filter((id): id is string => typeof id === "string")
+      .map((id) => {
       const product = products.find((p: CatalogProduct) => p.id === id);
       return {
         id,
@@ -751,7 +747,7 @@ async function validateProductAvailability(params: {
       };
     });
 
-    const allAvailable = results.every((r: any) => r.available);
+    const allAvailable = results.every((r) => r.available);
 
     return {
       status: "ok",
@@ -876,11 +872,12 @@ async function finalizeOrderFromDraft(params: {
 
     // Validate product availability before finalizing
     const productIds = Array.isArray(draft.items)
-      ? draft.items.map((item: any) => item.id || item.productId)
+      ? draft.items.map((item) => item.productId)
       : [];
 
     const availCheck = await validateProductAvailability({ productIds });
-    if (availCheck.status !== "ok" || !(availCheck.data as any).allAvailable) {
+    const availData = availCheck.data as { allAvailable?: boolean } | undefined;
+    if (availCheck.status !== "ok" || availData?.allAvailable !== true) {
       return {
         status: "error",
         message: "Некоторые товары недоступны. Пожалуйста, выберите другие.",
@@ -912,7 +909,7 @@ async function finalizeOrderFromDraft(params: {
       deliveryInterval,
       paymentMethod: draft.paymentMethod || "cardTransfer",
       customerComment: draft.customerComment?.trim() || "",
-      items: draft.items.map((item: any) => ({
+      items: draft.items.map((item) => ({
         productId: item.productId,
         size: item.size || "M",
         quantity: Math.max(1, parseInt(String(item.quantity || 1))),
