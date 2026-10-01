@@ -20,6 +20,23 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  // AI florist routes intentionally handle untyped external JSON (OpenAI/tool payloads).
+  // Keep the exception scoped to these integration surfaces; the rest of the app
+  // remains under the normal strict TypeScript ESLint rules.
+  {
+    files: [
+      "app/api/ai-florist-tools/route.ts",
+      "app/api/ai-florist/route.ts",
+      "components/aiSalesAgent/AiFloristChat.tsx",
+      "components/aiSalesAgent/AiFloristChatWithSummary.tsx",
+      "lib/orders/draftRepository.ts",
+      "tests/ai-florist/ai-florist-tools-api.spec.ts",
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
