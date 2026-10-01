@@ -23,11 +23,15 @@ type Message = {
   }>;
 };
 
+export type AiFloristChatHandle = {
+  focusInput: () => void;
+};
+
 interface AiFloristChatProps {
   onShowSummary?: (draftId: string) => void;
 }
 
-export const AiFloristChat = forwardRef<any, AiFloristChatProps>(
+export const AiFloristChat = forwardRef<AiFloristChatHandle, AiFloristChatProps>(
   function AiFloristChat({ onShowSummary }, ref) {
     const [messages, setMessages] = useState<Message[]>([
       {
@@ -180,8 +184,11 @@ export const AiFloristChat = forwardRef<any, AiFloristChatProps>(
                     const size =
                       Array.isArray(result.data.sizes)
                         ? result.data.sizes.find(
-                            (item: any) =>
-                              item &&
+                            (item: unknown): item is { label: string } =>
+                              typeof item === "object" &&
+                              item !== null &&
+                              "label" in item &&
+                              typeof item.label === "string" &&
                               ["S", "M", "L", "XL"].includes(item.label),
                           )?.label
                         : undefined;
@@ -196,7 +203,7 @@ export const AiFloristChat = forwardRef<any, AiFloristChatProps>(
                     return null;
                   }
                 }),
-              ).then((products) => products.filter((p): p is any => p !== null))
+              ).then((products) => products.filter((p): p is NonNullable<typeof p> => p !== null))
             : undefined,
         };
 
