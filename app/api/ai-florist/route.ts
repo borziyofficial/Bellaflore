@@ -1,10 +1,18 @@
 "use server";
 
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
+type JsonObject = { [key: string]: JsonValue };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 type FloristMessage = {
   role: "user" | "assistant" | "tool";
-  content: string | any[];
+  content: string | JsonValue[];
   tool_call_id?: string;
-  tool_calls?: any[];
+  tool_calls?: JsonValue[];
 };
 
 type FloristCandidate = {
@@ -235,7 +243,7 @@ function consumeRequestQuota(request: Request): Response | null {
   return null;
 }
 
-async function executeTool(toolName: string, toolInput: Record<string, any>): Promise<string> {
+async function executeTool(toolName: string, toolInput: Record<string, unknown>): Promise<string> {
   try {
     const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
 
@@ -355,7 +363,7 @@ function looksLikeNoProductsReply(reply: string): boolean {
 
 async function verifyBudgetCatalogBeforeNoResults(
   messages: FloristMessage[],
-  lastSearchArgs?: Record<string, any> | null,
+  lastSearchArgs?: Record<string, unknown> | null,
 ): Promise<{
   products: VerifiedCatalogProduct[];
   exactRangeEmpty: boolean;
@@ -570,15 +578,15 @@ export async function POST(request: Request) {
           : JSON.stringify(msg.content),
     }));
 
-    let nextInput: any[] = conversationInput;
+    let nextInput: unknown[] = conversationInput;
     let previousResponseId: string | undefined;
     let toolCallCount = 0;
     const recommendedProductIds: string[] = [];
-    let lastSearchArgs: Record<string, any> | null = null;
-    let lastSearchResult: any = null;
+    let lastSearchArgs: Record<string, unknown> | null = null;
+    let lastSearchResult: unknown = null;
 
     for (toolCallCount = 0; toolCallCount < MAX_TOOL_CALLS; toolCallCount++) {
-      const requestPayload: Record<string, any> = {
+      const requestPayload: Record<string, unknown> = {
         model: SAFE_DIRECT_MODEL,
         instructions: systemPrompt,
         input: nextInput,
@@ -625,10 +633,10 @@ export async function POST(request: Request) {
         } satisfies FloristReply);
       }
 
-      const responseData = (await response.json()) as any;
+      const responseData = (await response.json()) as Record<string, unknown>;
       const output = Array.isArray(responseData.output) ? responseData.output : [];
 
-      if (!responseData.id || output.length === 0) {
+      if (typeof responseData.id !== "string" || output.length === 0) {
         clearTimeout(timeout);
         console.error("[ai-florist] Invalid response format");
         return Response.json({
@@ -642,29 +650,32 @@ export async function POST(request: Request) {
       const toolCallsToExecute: Array<{
         call_id: string;
         name: string;
-        arguments: Record<string, any>;
+        arguments: Record<string, unknown>;
       }> = [];
       const textParts: string[] = [];
 
-      for (const item of output) {
-        if (item?.type === "message" && Array.isArray(item.content)) {
-          for (const contentItem of item.content) {
+      for (const rawItem of output) {
+        const item = isRecord(rawItem) ? rawItem : {};
+        if (item.type === "message" && Array.isArray(item.content)) {
+          for (const rawContentItem of item.content) {
+            const contentItem = isRecord(rawContentItem) ? rawContentItem : {};
             if (
-              contentItem?.type === "output_text" &&
+              contentItem.type === "output_text" &&
               typeof contentItem.text === "string"
             ) {
               textParts.push(contentItem.text);
             }
           }
-        } else if (item?.type === "function_call") {
-          let args: Record<string, any> = {};
+        } else if (item.type === "function_call") {
+          let args: Record<string, unknown> = {};
           if (typeof item.arguments === "string") {
             try {
-              args = JSON.parse(item.arguments);
+              const parsed = JSON.parse(item.arguments);
+              if (isRecord(parsed)) args = parsed;
             } catch {
               args = {};
             }
-          } else if (item.arguments && typeof item.arguments === "object") {
+          } else if (isRecord(item.arguments)) {
             args = item.arguments;
           }
 
@@ -753,7 +764,7 @@ export async function POST(request: Request) {
         } satisfies FloristReply);
       }
 
-      const functionOutputs: any[] = [];
+      const functionOutputs: Array<{ type: "function_call_output"; call_id: string; output: string }> = [];
 
       for (const toolCall of toolCallsToExecute) {
         try {
@@ -785,7 +796,9 @@ export async function POST(request: Request) {
               Array.isArray(toolResultJson.data.products)
             ) {
               recommendedProductIds.push(
-                ...toolResultJson.data.products.map((p: any) => p.id),
+                ...toolResultJson.data.products
+                  .filter((p: unknown): p is { id: string } => isRecord(p) && typeof p.id === "string")
+                  .map((p) => p.id),
               );
             }
             if (
