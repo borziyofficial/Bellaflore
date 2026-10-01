@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { AiFloristChat } from "./AiFloristChat";
+import { AiFloristChat, type AiFloristChatHandle } from "./AiFloristChat";
 import { OrderDraftSummary } from "./OrderDraftSummary";
 import styles from "./AiFloristChatWithSummary.module.css";
 
@@ -61,7 +61,7 @@ export function AiFloristChatWithSummary({
   const [isConfirming, setIsConfirming] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<OrderConfirmationResult | null>(null);
   const [confirmationError, setConfirmationError] = useState<string | null>(null);
-  const chatRef = useRef<any>(null);
+  const chatRef = useRef<AiFloristChatHandle | null>(null);
 
   const loadDraftSummary = async (draftId: string) => {
     setIsLoadingSummary(true);
