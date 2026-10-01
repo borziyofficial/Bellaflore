@@ -50,10 +50,12 @@ type OrderConfirmationResult = {
 interface AiFloristChatWithSummaryProps {
   draftId?: string;
   onOrderConfirmed?: (draftId: string) => void;
+  onExit?: () => void;
 }
 
 export function AiFloristChatWithSummary({
   onOrderConfirmed,
+  onExit,
 }: AiFloristChatWithSummaryProps) {
   const [showSummary, setShowSummary] = useState(false);
   const [draftData, setDraftData] = useState<OrderDraftData | null>(null);
@@ -190,6 +192,7 @@ export function AiFloristChatWithSummary({
         <AiFloristChat
           ref={chatRef}
           onShowSummary={handleShowSummary}
+          onExit={onExit}
         />
       </div>
 
