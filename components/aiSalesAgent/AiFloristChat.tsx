@@ -29,10 +29,12 @@ export type AiFloristChatHandle = {
 
 interface AiFloristChatProps {
   onShowSummary?: (draftId: string) => void;
+  onExit?: () => void;
+  storageKey?: string;
 }
 
 export const AiFloristChat = forwardRef<AiFloristChatHandle, AiFloristChatProps>(
-  function AiFloristChat({ onShowSummary }, ref) {
+  function AiFloristChat({ onShowSummary, onExit, storageKey = "bellaflore.ai-florist.draft" }, ref) {
     const [messages, setMessages] = useState<Message[]>([
       {
         id: "initial",
@@ -47,6 +49,7 @@ export const AiFloristChat = forwardRef<AiFloristChatHandle, AiFloristChatProps>
     const [draftId, setDraftId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [conversationState, setConversationState] = useState<{ turns: ConversationTurn[] }>({ turns: [] });
+    const [initialized, setInitialized] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -57,30 +60,54 @@ export const AiFloristChat = forwardRef<AiFloristChatHandle, AiFloristChatProps>
       },
     }));
 
-    // Initialize draft on mount
+    // Restore an active draft before creating a new one so closing/reopening
+    // the AI never discards bouquet, budget, address, coordinates or dialogue.
     useEffect(() => {
+      let cancelled = false;
       const initializeDraft = async () => {
         try {
+          const storedId = window.localStorage.getItem(storageKey);
+          if (storedId) {
+            const response = await fetch(`/api/order-drafts?id=${encodeURIComponent(storedId)}`, { cache: "no-store" });
+            if (response.ok) {
+              const draft = await response.json();
+              if (!cancelled && draft?.id === storedId && draft?.status === "active") {
+                setDraftId(storedId);
+                const turns = Array.isArray(draft.conversationState?.turns)
+                  ? (draft.conversationState.turns as ConversationTurn[]) : [];
+                setConversationState({ turns });
+                const restored: Message[] = [];
+                for (const turn of turns) {
+                  if (typeof turn.userMessage === "string") restored.push({ id: `restored-user-${turn.turn}`, role: "user", content: turn.userMessage });
+                  if (typeof turn.aiReply === "string" && turn.aiReply.trim()) restored.push({ id: `restored-ai-${turn.turn}`, role: "assistant", content: turn.aiReply });
+                }
+                if (restored.length) setMessages(restored);
+                setInitialized(true);
+                return;
+              }
+            }
+            window.localStorage.removeItem(storageKey);
+          }
           const response = await fetch("/api/order-drafts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "create" }),
           });
-
-          if (!response.ok) {
-            throw new Error("Failed to create draft");
-          }
-
+          if (!response.ok) throw new Error("Failed to create draft");
           const draft = await response.json();
-          setDraftId(draft.id);
+          if (!cancelled) {
+            setDraftId(draft.id);
+            window.localStorage.setItem(storageKey, draft.id);
+            setInitialized(true);
+          }
         } catch (err) {
           console.error("Failed to initialize draft:", err);
-          setError("Не удалось инициализировать сеанс");
+          if (!cancelled) { setError("Не удалось инициализировать сеанс"); setInitialized(true); }
         }
       };
-
-      initializeDraft();
-    }, []);
+      void initializeDraft();
+      return () => { cancelled = true; };
+    }, [storageKey]);
 
     const scrollToBottom = () => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -92,7 +119,7 @@ export const AiFloristChat = forwardRef<AiFloristChatHandle, AiFloristChatProps>
 
     const handleSendMessage = async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!input.trim() || loading || !draftId) return;
+      if (!input.trim() || loading || !draftId || !initialized) return;
 
       // Add user message
       const userMessage: Message = {
@@ -158,6 +185,7 @@ export const AiFloristChat = forwardRef<AiFloristChatHandle, AiFloristChatProps>
         }
 
         const data = await response.json();
+        window.localStorage.setItem(storageKey, draftId);
 
         // Fetch product details for recommended products
         const assistantMessage: Message = {
@@ -281,6 +309,7 @@ export const AiFloristChat = forwardRef<AiFloristChatHandle, AiFloristChatProps>
         }
 
         setError(null);
+        window.localStorage.setItem(storageKey, draftId);
         setInput(
           `Выбираю "${product.title}" (${product.priceRub.toLocaleString("ru-RU")} ₽)`,
         );
@@ -293,7 +322,8 @@ export const AiFloristChat = forwardRef<AiFloristChatHandle, AiFloristChatProps>
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2 className={styles.title}>🌸 AI-консультант BellaFlore</h2>
+          <button type="button" className={styles.aiExitButton} onClick={onExit} aria-label="Вернуться">🌸</button>
+          <h2 className={styles.title}>AI-консультант BellaFlore</h2>
           <p className={styles.subtitle}>Подберу для вас идеальный букет</p>
           {draftId && <p className={styles.draftId}>ID сеанса: {draftId.slice(0, 8)}...</p>}
         </div>
