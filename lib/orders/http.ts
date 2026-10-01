@@ -2,6 +2,7 @@ import { OrderError } from "@/lib/orders/errors";
 import type { OrderService } from "@/lib/orders/service";
 import type { StoredOrderRecord } from "@/lib/orders/types";
 import { parseCreateOrderInput, parseIdempotencyKey } from "@/lib/orders/validation";
+import { consumeOrderLookupRateLimit } from "@/lib/orderLookupRateLimit";
 
 type OrdersPostDependencies = {
   service: OrderService;
@@ -68,6 +69,20 @@ export function createOrdersLookupGetHandler(
   dependencies: OrdersLookupGetDependencies,
 ) {
   return async function GET(request: Request): Promise<Response> {
+    const rateLimit = consumeOrderLookupRateLimit(request);
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: { code: "RATE_LIMITED", message: "Слишком много запросов. Повторите позже." } },
+        {
+          status: 429,
+          headers: {
+            "Cache-Control": "no-store",
+            "Retry-After": String(rateLimit.retryAfterSeconds),
+          },
+        },
+      );
+    }
+
     try {
       const url = new URL(request.url);
       const orderNumberRaw = url.searchParams.get("orderNumber")?.trim() ?? "";
@@ -82,6 +97,14 @@ export function createOrdersLookupGetHandler(
       }
 
       if (orderNumberRaw) {
+        if (!phoneRaw) {
+          throw new OrderError(
+            "ORDER_PHONE_REQUIRED",
+            "Для просмотра заказа укажите номер телефона, использованный при оформлении.",
+            400,
+          );
+        }
+
         const order = await dependencies.service.findByOrderNumber(
           orderNumberRaw,
           phoneRaw || undefined,
