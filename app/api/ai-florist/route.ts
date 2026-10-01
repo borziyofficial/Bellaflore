@@ -705,15 +705,22 @@ export async function POST(request: Request) {
           // First trust any real products already returned by the latest
           // catalog search. If the model ignored them, surface them instead
           // of allowing a false "nothing available" response.
-          const searchedProducts = Array.isArray(lastSearchResult?.data?.products)
-            ? (lastSearchResult.data.products as VerifiedCatalogProduct[])
+          const lastSearchRecord = isRecord(lastSearchResult)
+            ? lastSearchResult
+            : null;
+          const lastSearchData =
+            lastSearchRecord && isRecord(lastSearchRecord.data)
+              ? lastSearchRecord.data
+              : null;
+          const searchedProducts = Array.isArray(lastSearchData?.products)
+            ? (lastSearchData.products as VerifiedCatalogProduct[])
             : [];
 
           if (searchedProducts.length > 0) {
             const verification = {
               products: searchedProducts,
               exactRangeEmpty: false,
-              semanticPartial: lastSearchResult?.data?.matchMode === "partial",
+              semanticPartial: lastSearchData?.matchMode === "partial",
               range: inferBudgetRange(messages) ?? {},
             };
 
