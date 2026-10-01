@@ -680,8 +680,8 @@ export async function POST(request: Request) {
           }
 
           toolCallsToExecute.push({
-            call_id: item.call_id,
-            name: item.name,
+            call_id: typeof item.call_id === "string" ? item.call_id : "",
+            name: typeof item.name === "string" ? item.name : "",
             arguments: args,
           });
         }
@@ -782,30 +782,30 @@ export async function POST(request: Request) {
             toolArgs.draftId = body.draftId;
           }
 
+          if (!toolCall.call_id || !toolCall.name) {
+            throw new Error("Invalid function call returned by the model");
+          }
+
           const toolResult = await executeTool(toolCall.name, toolArgs);
 
           try {
-            const toolResultJson = JSON.parse(toolResult);
+            const parsedToolResult: unknown = JSON.parse(toolResult);
+            const toolResultJson = isRecord(parsedToolResult) ? parsedToolResult : {};
+            const toolData = isRecord(toolResultJson.data) ? toolResultJson.data : {};
 
             if (toolCall.name === "search_products") {
               lastSearchArgs = { ...toolArgs };
               lastSearchResult = toolResultJson;
             }
-            if (
-              toolResultJson?.data?.products &&
-              Array.isArray(toolResultJson.data.products)
-            ) {
+            if (Array.isArray(toolData.products)) {
               recommendedProductIds.push(
-                ...toolResultJson.data.products
+                ...toolData.products
                   .filter((p: unknown): p is { id: string } => isRecord(p) && typeof p.id === "string")
                   .map((p) => p.id),
               );
             }
-            if (
-              toolResultJson?.data?.id &&
-              typeof toolResultJson.data.id === "string"
-            ) {
-              recommendedProductIds.push(toolResultJson.data.id);
+            if (typeof toolData.id === "string") {
+              recommendedProductIds.push(toolData.id);
             }
           } catch {
             // Ignore product-id extraction errors.
