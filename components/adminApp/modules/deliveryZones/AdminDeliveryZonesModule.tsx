@@ -17,7 +17,7 @@
 // ==================================================
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminModuleHeader, AdminPanel } from "@/components/adminApp/shared/AdminModuleUi";
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
 import styles from "@/components/adminApp/modules/deliveryZones/AdminDeliveryZonesModule.module.css";
@@ -350,13 +350,11 @@ export function AdminDeliveryZonesModule({
     }
   }, []);
 
-  useMemo(() => {
+  useEffect(() => {
     if (!initialZones) {
       void loadZones();
     }
-    // Runs once on mount only — `loadZones` is stable (useCallback, no deps).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialZones, loadZones]);
 
   const baseZone = zones?.find((zone) => zone.isBaseZone) ?? null;
   const sortedZones = useMemo(
