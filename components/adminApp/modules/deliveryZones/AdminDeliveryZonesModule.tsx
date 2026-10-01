@@ -186,7 +186,7 @@ function ZoneMetaCard({
     } finally {
       setSaving(false);
     }
-  }, [draft, onSaved, row.zoneId]);
+  }, [allRows, draft, onSaved, row.isBaseZone, row.zoneId]);
 
   return (
     <li className={styles.zoneCard}>
@@ -351,9 +351,15 @@ export function AdminDeliveryZonesModule({
   }, []);
 
   useEffect(() => {
-    if (!initialZones) {
-      void loadZones();
+    if (initialZones) {
+      return;
     }
+
+    const timeoutId = window.setTimeout(() => {
+      void loadZones();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [initialZones, loadZones]);
 
   const baseZone = zones?.find((zone) => zone.isBaseZone) ?? null;
