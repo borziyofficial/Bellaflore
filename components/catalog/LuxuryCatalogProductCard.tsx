@@ -11,6 +11,8 @@ import {
   getProductSizeVariant,
 } from "@/components/product/productExperienceCatalog";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
+import { getProductComposition, resolveRequirementQuantity } from "@/components/inventoryIntelligence/productCompositionCatalog";
+import { INVENTORY_STOCK_CATALOG_SEED } from "@/components/inventoryIntelligence/inventoryStockCatalog";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import {
   useMemo,
@@ -75,6 +77,42 @@ export function LuxuryCatalogProductCard({
   }
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
+
+  const compositionText = useMemo(() => {
+    const definition = getProductComposition(product.id);
+    if (!definition) {
+      return product.description?.trim() || "";
+    }
+
+    const stockTitles = new Map(
+      INVENTORY_STOCK_CATALOG_SEED.map((item) => [item.id, item.title]),
+    );
+    const genitiveTitles: Record<string, string> = {
+      red_rose: "красных роз",
+      white_rose: "белых роз",
+      peony: "пионов",
+      hydrangea: "гортензий",
+      eustoma: "эустом",
+      eucalyptus: "эвкалипта",
+    };
+
+    const parts = definition.requirements
+      .map((requirement) => {
+        const quantity = resolveRequirementQuantity(
+          requirement,
+          selectedVariant.sizeId,
+        );
+        if (!quantity) return null;
+        const title =
+          genitiveTitles[requirement.stockItemId] ??
+          stockTitles.get(requirement.stockItemId) ??
+          requirement.stockItemId;
+        return `${quantity} ${title}`;
+      })
+      .filter((part): part is string => Boolean(part));
+
+    return parts.length > 0 ? parts.join(", ") : product.description?.trim() || "";
+  }, [product, selectedVariant.sizeId]);
 
   const handleActionTouchStart = (event: TouchEvent<HTMLButtonElement>) => {
     const touch = event.touches[0];
@@ -268,7 +306,7 @@ export function LuxuryCatalogProductCard({
               className={styles.inlineDetails}
               onClick={(event) => event.stopPropagation()}
             >
-              {product.description?.trim() || "Состав уточняется по текущему каталогу."}
+              {compositionText || "Состав уточняется по текущему каталогу."}
             </div>
           ) : null}
 
