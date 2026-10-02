@@ -102,7 +102,10 @@ export function MyOrderLookupSection({
 
     try {
       if (searchMode === "orderNumber") {
-        const order = await lookupOrderByNumber(trimmed, phoneValue);
+        const normalizedOrderNumber = /^BF-?\d+$/i.test(trimmed)
+          ? `BF-${trimmed.replace(/^BF-?/i, "")}`
+          : trimmed.toUpperCase();
+        const order = await lookupOrderByNumber(normalizedOrderNumber, phoneValue);
         setResults([mapLookupOrderToPassport(order)]);
       } else {
         const orders = await lookupOrdersByPhone(trimmed);
@@ -164,7 +167,7 @@ export function MyOrderLookupSection({
               type={searchMode === "phone" ? "tel" : "text"}
               className={styles.input}
               placeholder={
-                searchMode === "phone" ? "+7 999 000-00-00" : "BF-001"
+                searchMode === "phone" ? "+7 999 000-00-00" : "BF-1"
               }
               value={queryValue}
               onChange={(event) => setQueryValue(event.target.value)}
