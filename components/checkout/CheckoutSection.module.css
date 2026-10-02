@@ -928,6 +928,31 @@
   margin-bottom: 12px;
 }
 
+.checkoutCustomDateField {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--color-text-secondary, #746f68);
+  font-size: 11px;
+}
+
+.checkoutCustomDateField input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 10px;
+  border: 1px solid rgba(201, 162, 75, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 253, 249, 0.88);
+  color: var(--color-text-primary, #2a2521);
+  font: inherit;
+  color-scheme: light;
+}
+
+.checkoutCustomDateField input:focus-visible {
+  outline: 2px solid rgba(201, 162, 75, 0.42);
+  outline-offset: 2px;
+}
+
 .checkoutDeliveryDateButtons {
   display: grid;
   grid-template-columns: 1fr 1fr;
