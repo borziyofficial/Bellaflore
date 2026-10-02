@@ -17,7 +17,7 @@
 // ==================================================
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminModuleHeader, AdminPanel } from "@/components/adminApp/shared/AdminModuleUi";
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
 import styles from "@/components/adminApp/modules/deliveryZones/AdminDeliveryZonesModule.module.css";
@@ -186,7 +186,7 @@ function ZoneMetaCard({
     } finally {
       setSaving(false);
     }
-  }, [draft, onSaved, row.zoneId]);
+  }, [allRows, draft, onSaved, row.isBaseZone, row.zoneId]);
 
   return (
     <li className={styles.zoneCard}>
@@ -350,13 +350,17 @@ export function AdminDeliveryZonesModule({
     }
   }, []);
 
-  useMemo(() => {
-    if (!initialZones) {
-      void loadZones();
+  useEffect(() => {
+    if (initialZones) {
+      return;
     }
-    // Runs once on mount only — `loadZones` is stable (useCallback, no deps).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    const timeoutId = window.setTimeout(() => {
+      void loadZones();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [initialZones, loadZones]);
 
   const baseZone = zones?.find((zone) => zone.isBaseZone) ?? null;
   const sortedZones = useMemo(

@@ -20,7 +20,11 @@ function getSqlClient() {
   }
 
   if (!sqlClient) {
-    sqlClient = postgres(databaseUrl, { max: 5 });
+    sqlClient = postgres(databaseUrl, {
+      max: 5,
+      connect_timeout: 8,
+      idle_timeout: 20,
+    });
   }
 
   return sqlClient;

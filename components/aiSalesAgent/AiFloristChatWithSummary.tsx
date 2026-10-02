@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { AiFloristChat } from "./AiFloristChat";
+import { AiFloristChat, type AiFloristChatHandle } from "./AiFloristChat";
 import { OrderDraftSummary } from "./OrderDraftSummary";
 import styles from "./AiFloristChatWithSummary.module.css";
 
@@ -50,10 +50,12 @@ type OrderConfirmationResult = {
 interface AiFloristChatWithSummaryProps {
   draftId?: string;
   onOrderConfirmed?: (draftId: string) => void;
+  onExit?: () => void;
 }
 
 export function AiFloristChatWithSummary({
   onOrderConfirmed,
+  onExit,
 }: AiFloristChatWithSummaryProps) {
   const [showSummary, setShowSummary] = useState(false);
   const [draftData, setDraftData] = useState<OrderDraftData | null>(null);
@@ -61,7 +63,7 @@ export function AiFloristChatWithSummary({
   const [isConfirming, setIsConfirming] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<OrderConfirmationResult | null>(null);
   const [confirmationError, setConfirmationError] = useState<string | null>(null);
-  const chatRef = useRef<any>(null);
+  const chatRef = useRef<AiFloristChatHandle | null>(null);
 
   const loadDraftSummary = async (draftId: string) => {
     setIsLoadingSummary(true);
@@ -190,6 +192,7 @@ export function AiFloristChatWithSummary({
         <AiFloristChat
           ref={chatRef}
           onShowSummary={handleShowSummary}
+          onExit={onExit}
         />
       </div>
 

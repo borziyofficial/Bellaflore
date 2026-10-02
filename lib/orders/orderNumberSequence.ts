@@ -1,80 +1,87 @@
 // ==================================================
 // SECTION: ORDERS
-// РАЗДЕЛ: Последовательный публичный номер заказа
+// РАЗДЕЛ: Месячный последовательный публичный номер заказа
 //
-// Purpose (EN): Assigns short sequential public order numbers (BF-001,
-// BF-002, ...) using a native Postgres SEQUENCE, so numbering is atomic and
-// safe under concurrent order creation, strictly increasing, and never
-// reused (Postgres sequences never roll back on a failed/rolled-back
-// transaction). The sequence is self-provisioned the first time it's used
-// (CREATE SEQUENCE IF NOT EXISTS), the same non-destructive, additive
-// pattern already used elsewhere in this project for admin-config tables
-// (see lib/heroBannerDb.ts, lib/promoBannerDb.ts) — no manual migration
-// file to run, and nothing about the existing `orders` table changes.
-//
-// If the sequence can't be provisioned/read for any reason, order creation
-// must never fail because of it: callers fall back to the previous
-// date+id-based format so checkout keeps working.
-//
-// Назначение (RU): Присваивает короткий последовательный публичный номер
-// заказа (BF-001, BF-002, ...) через нативную последовательность (SEQUENCE)
-// Postgres — это атомарно и безопасно при параллельном создании заказов,
-// строго возрастает и никогда не переиспользуется (последовательности
-// Postgres не откатываются при неудачной транзакции). Последовательность
-// создаётся сама при первом использовании (CREATE SEQUENCE IF NOT EXISTS) —
-// тот же неразрушающий, аддитивный паттерн, что уже используется в проекте
-// для админ-настроек (см. lib/heroBannerDb.ts, lib/promoBannerDb.ts) —
-// отдельный файл миграции не нужен, таблица `orders` не меняется.
-//
-// Если по какой-то причине последовательность недоступна, создание заказа
-// не должно падать: вызывающий код возвращается к прежнему формату номера
-// на основе даты и id.
+// Public numbers are BF-1, BF-2, ... and reset at the start of each
+// Moscow calendar month. Allocation is atomic in PostgreSQL and safe under
+// concurrent order creation.
 // ==================================================
 import type postgres from "postgres";
 
-export const ORDER_NUMBER_SEQUENCE_NAME = "orders_public_number_seq";
-const ORDER_NUMBER_MIN_DIGITS = 3;
+export const ORDER_NUMBER_COUNTER_TABLE = "orders_public_number_counters";
 const ORDER_NUMBER_PREFIX = "BF-";
+const MOSCOW_TIME_ZONE = "Europe/Moscow";
 
-let sequenceReady: Promise<void> | null = null;
+let counterTableReady: Promise<void> | null = null;
 
-/** Idempotent — safe to call before every order creation. */
-async function ensureOrderNumberSequence(
+function moscowMonthStart(value: Date | string): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("Invalid order creation date");
+  }
+
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: MOSCOW_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-01`;
+}
+
+async function ensureOrderNumberCounterTable(
   sql: postgres.Sql | postgres.TransactionSql,
 ): Promise<void> {
-  if (!sequenceReady) {
-    // ORDER_NUMBER_SEQUENCE_NAME is a fixed internal constant (not user
-    // input), so it is safe to inline directly as SQL text here — DDL
-    // statements like CREATE SEQUENCE cannot take the object name as a
-    // bound parameter.
-    sequenceReady = sql.unsafe(
-      `CREATE SEQUENCE IF NOT EXISTS ${ORDER_NUMBER_SEQUENCE_NAME} START WITH 1 INCREMENT BY 1`,
+  if (!counterTableReady) {
+    counterTableReady = sql.unsafe(
+      `CREATE TABLE IF NOT EXISTS ${ORDER_NUMBER_COUNTER_TABLE} (
+        month_start date PRIMARY KEY,
+        next_value bigint NOT NULL CHECK (next_value >= 1)
+      )`,
     ).then(() => undefined);
   }
-  await sequenceReady;
+  await counterTableReady;
 }
 
 export function formatOrderPublicNumber(sequenceValue: number | bigint): string {
-  const digits = sequenceValue.toString();
-  const padded = digits.padStart(ORDER_NUMBER_MIN_DIGITS, "0");
-  return `${ORDER_NUMBER_PREFIX}${padded}`;
+  const value = BigInt(sequenceValue);
+  if (value < BigInt(1)) {
+    throw new Error("Order number sequence must start at 1");
+  }
+  return `${ORDER_NUMBER_PREFIX}${value.toString()}`;
 }
 
 /**
- * Returns the next sequential public order number (e.g. "BF-001"). Meant to
- * be called once per order, inside the same DB transaction as the order
- * INSERT. Throws on failure — callers should catch and fall back.
+ * Atomically allocates the next public number for the Moscow calendar month
+ * containing the order's creation timestamp.
+ *
+ * The counter stores the next free value. The first allocation inserts 2 and
+ * returns 1; later allocations increment the row and return the previous
+ * value. PostgreSQL's unique primary key + ON CONFLICT update serializes
+ * concurrent allocations for the same month.
  */
 export async function nextOrderPublicNumber(
   sql: postgres.Sql | postgres.TransactionSql,
+  createdAt: Date | string = new Date(),
 ): Promise<string> {
-  await ensureOrderNumberSequence(sql);
+  await ensureOrderNumberCounterTable(sql);
+  const monthStart = moscowMonthStart(createdAt);
+
   const rows = await sql.unsafe<{ value: string }[]>(
-    `SELECT nextval('${ORDER_NUMBER_SEQUENCE_NAME}')::text AS value`,
+    `INSERT INTO ${ORDER_NUMBER_COUNTER_TABLE} (month_start, next_value)
+     SELECT '${monthStart}'::date, COUNT(*) + 2
+     FROM orders
+     WHERE created_at >= '${monthStart}'::date
+       AND created_at < ('${monthStart}'::date + INTERVAL '1 month')
+     ON CONFLICT (month_start)
+     DO UPDATE SET next_value = ${ORDER_NUMBER_COUNTER_TABLE}.next_value + 1
+     RETURNING (next_value - 1)::text AS value`,
   );
+
   const raw = rows[0]?.value;
   if (!raw) {
-    throw new Error("orders_public_number_seq: nextval returned no row");
+    throw new Error("orders_public_number_counters: allocation returned no row");
   }
+
   return formatOrderPublicNumber(BigInt(raw));
 }

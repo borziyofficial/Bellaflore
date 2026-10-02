@@ -1,7 +1,6 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import type postgres from "postgres";
 import { getOrdersSqlClient } from "@/lib/orders/postgresClient";
 import { OrderError } from "@/lib/orders/errors";
 import type {
@@ -11,6 +10,7 @@ import type {
   DraftOrderItem,
   UpdateOrderDraftInput,
 } from "@/lib/orders/draftTypes";
+import type { OrderPaymentMethod } from "@/lib/orders/types";
 
 type OrderDraftRow = {
   id: string;
@@ -53,7 +53,7 @@ function mapDraftRow(row: OrderDraftRow): OrderDraft {
     deliveryZoneId: row.delivery_zone_id || undefined,
     deliveryDate: row.delivery_date || undefined,
     deliveryInterval: row.delivery_interval || undefined,
-    paymentMethod: (row.payment_method as any) || undefined,
+    paymentMethod: (row.payment_method as OrderPaymentMethod) || undefined,
     items: Array.isArray(row.items) ? row.items : [],
     conversationState: row.conversation_state || { turns: [] },
     status: row.status,

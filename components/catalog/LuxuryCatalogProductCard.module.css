@@ -209,6 +209,19 @@
   -webkit-line-clamp: 2;
 }
 
+.inlineDetails {
+  margin-top: 2px;
+  padding: 7px 9px;
+  border: 1px solid rgba(201, 162, 75, 0.24);
+  border-radius: 8px;
+  background: rgba(201, 162, 75, 0.06);
+  color: rgba(42, 37, 33, 0.72);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  line-height: 1.35;
+  animation: catalogCardDetailsReveal 160ms ease-out;
+}
+
 .detailsButton {
   align-self: flex-start;
   min-height: 12px;

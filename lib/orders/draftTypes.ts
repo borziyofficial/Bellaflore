@@ -1,4 +1,4 @@
-import type { CreateOrderItemInput, OrderPaymentMethod } from "@/lib/orders/types";
+import type { OrderPaymentMethod } from "@/lib/orders/types";
 
 export type ConversationStateTurn = {
   turn: number;

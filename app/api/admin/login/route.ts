@@ -13,6 +13,13 @@ import {
   createAdminSessionToken,
 } from "@/lib/adminApiAuth";
 import { getAdminProfile, verifyStoredPassword } from "@/lib/adminProfileDb";
+import {
+  ADMIN_LOGIN_RATE_LIMIT_MESSAGE,
+  clearAdminLoginFailures,
+  getClientKey,
+  isAdminLoginRateLimited,
+  recordAdminLoginFailure,
+} from "@/lib/adminLoginRateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +49,14 @@ export async function POST(request: Request) {
 
   const normalizedUsername = body.username.trim();
   const normalizedPassword = body.password.trim();
+  const loginKey = getClientKey(request, normalizedUsername);
+
+  if (isAdminLoginRateLimited(loginKey)) {
+    return Response.json(
+      { message: ADMIN_LOGIN_RATE_LIMIT_MESSAGE },
+      { status: 429, headers: { "Retry-After": "600", "Cache-Control": "no-store" } },
+    );
+  }
 
   const profile = await getAdminProfile().catch(() => null);
   const adminUsername = process.env.ADMIN_USERNAME?.trim();
@@ -76,11 +91,14 @@ export async function POST(request: Request) {
   }
 
   if (!user) {
+    recordAdminLoginFailure(loginKey);
     return Response.json(
       { message: "Неверные учётные данные администратора." },
-      { status: 401 },
+      { status: 401, headers: { "Cache-Control": "no-store" } },
     );
   }
+
+  clearAdminLoginFailures(loginKey);
 
   // Apply display-name/email overrides from the Profile section even when
   // the env password path matched (password unchanged, but name/email set).

@@ -333,7 +333,7 @@ export class PostgresOrderRepository implements OrderRepository {
         // of numbering.
         let publicNumber = order.publicNumber;
         try {
-          publicNumber = await nextOrderPublicNumber(transaction);
+          publicNumber = await nextOrderPublicNumber(transaction, order.createdAt);
         } catch (sequenceError) {
           if (!publicNumber) {
             throw sequenceError;

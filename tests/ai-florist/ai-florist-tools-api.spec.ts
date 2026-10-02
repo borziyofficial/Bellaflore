@@ -23,7 +23,7 @@ test.describe("AI Florist Tools API", () => {
     expect(Array.isArray(data.data.products)).toBeTruthy();
     
     // Each product should have required fields
-    data.data.products.forEach((product: any) => {
+    data.data.products.forEach((product: { id: string; title: string; priceRub: number }) => {
       expect(product).toHaveProperty("id");
       expect(product).toHaveProperty("title");
       expect(product).toHaveProperty("priceRub");
@@ -226,7 +226,7 @@ test.describe("AI Florist Tools API", () => {
     });
 
     const searchData = await searchResp.json();
-    const productIds = searchData.data.products.map((p: any) => p.id);
+    const productIds = searchData.data.products.map((p: { id: string }) => p.id);
 
     if (productIds.length === 0) {
       test.skip();

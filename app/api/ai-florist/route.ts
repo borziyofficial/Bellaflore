@@ -1,10 +1,18 @@
 "use server";
 
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
+type JsonObject = { [key: string]: JsonValue };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 type FloristMessage = {
   role: "user" | "assistant" | "tool";
-  content: string | any[];
+  content: string | JsonValue[];
   tool_call_id?: string;
-  tool_calls?: any[];
+  tool_calls?: JsonValue[];
 };
 
 type FloristCandidate = {
@@ -235,7 +243,7 @@ function consumeRequestQuota(request: Request): Response | null {
   return null;
 }
 
-async function executeTool(toolName: string, toolInput: Record<string, any>): Promise<string> {
+async function executeTool(toolName: string, toolInput: Record<string, unknown>): Promise<string> {
   try {
     const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
 
@@ -355,7 +363,7 @@ function looksLikeNoProductsReply(reply: string): boolean {
 
 async function verifyBudgetCatalogBeforeNoResults(
   messages: FloristMessage[],
-  lastSearchArgs?: Record<string, any> | null,
+  lastSearchArgs?: Record<string, unknown> | null,
 ): Promise<{
   products: VerifiedCatalogProduct[];
   exactRangeEmpty: boolean;
@@ -543,6 +551,11 @@ export async function POST(request: Request) {
 1. Собирай постепенно: имя, телефон, адрес, дату, выбор букетов.
 2. Используй update_draft чтобы сохранять собранные данные.
 3. Никогда не выдумывай цены или товары.
+3a. Если draftId уже существует, считай текущий черновик источником истины: НЕ начинай заказ заново и НЕ проси повторно уже собранные данные.
+3b. После ошибки validate_address сохраняй весь существующий контекст заказа. Проси только исправить адрес, дать индекс или выбрать точку на карте.
+3c. Ошибка адреса никогда не означает, что нужно заново спрашивать получателя, букет или бюджет.
+3d. Если пользователь дал новый адрес/индекс после ошибки, продолжай с текущего этапа заказа.
+3e. Если пользователь выбрал точку на карте, координаты точки являются authoritative для расчёта доставки; не заменяй их выдуманными координатами.
 4. Рекомендуй только товары из search_products результатов.
 5. Если адрес не валиден, не подставляй координаты 0,0 — попроси уточнить адрес.
 6. НЕ вызывай finalize_order_from_draft — это вызывает пользователь кнопкой Confirm.
@@ -557,6 +570,33 @@ export async function POST(request: Request) {
 12. Если search_products возвращает matchMode="partial", это НЕ точное совпадение. Честно скажи, что точного варианта нет, и представь товары только как ближайшие альтернативы.
 13. Не предлагай клиенту повышать бюджет, пока не проверены релевантные варианты в его бюджете и дешевле.`;
 
+  let systemPromptWithDraft = systemPrompt;
+  if (body.draftId) {
+    try {
+      const draftResult = JSON.parse(
+        await executeTool("get_draft_summary", { draftId: body.draftId }),
+      ) as { status?: string; data?: Record<string, unknown> };
+      if (draftResult.status === "ok" && draftResult.data) {
+        const draft = draftResult.data;
+        systemPromptWithDraft += `\n\nТЕКУЩИЙ ЧЕРНОВИК ЗАКАЗА (источник истины):\n${JSON.stringify({
+          customerName: draft.customerName,
+          customerPhone: draft.customerPhone,
+          recipientName: draft.recipientName,
+          recipientPhone: draft.recipientPhone,
+          deliveryAddress: draft.deliveryAddress,
+          deliveryLatitude: draft.deliveryLatitude,
+          deliveryLongitude: draft.deliveryLongitude,
+          deliveryZoneId: draft.deliveryZoneId,
+          deliveryDate: draft.deliveryDate,
+          deliveryInterval: draft.deliveryInterval,
+          items: draft.items,
+        })}\nНе сбрасывай эти данные. Заполняй только отсутствующие или явно изменённые пользователем поля.`;
+      }
+    } catch (error) {
+      console.warn("[ai-florist] draft context unavailable:", error);
+    }
+  }
+
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 28_000);
@@ -570,17 +610,17 @@ export async function POST(request: Request) {
           : JSON.stringify(msg.content),
     }));
 
-    let nextInput: any[] = conversationInput;
+    let nextInput: unknown[] = conversationInput;
     let previousResponseId: string | undefined;
     let toolCallCount = 0;
     const recommendedProductIds: string[] = [];
-    let lastSearchArgs: Record<string, any> | null = null;
-    let lastSearchResult: any = null;
+    let lastSearchArgs: Record<string, unknown> | null = null;
+    let lastSearchResult: unknown = null;
 
     for (toolCallCount = 0; toolCallCount < MAX_TOOL_CALLS; toolCallCount++) {
-      const requestPayload: Record<string, any> = {
+      const requestPayload: Record<string, unknown> = {
         model: SAFE_DIRECT_MODEL,
-        instructions: systemPrompt,
+        instructions: systemPromptWithDraft,
         input: nextInput,
         tools: TOOL_DEFINITIONS,
         tool_choice: "auto",
@@ -625,10 +665,10 @@ export async function POST(request: Request) {
         } satisfies FloristReply);
       }
 
-      const responseData = (await response.json()) as any;
+      const responseData = (await response.json()) as Record<string, unknown>;
       const output = Array.isArray(responseData.output) ? responseData.output : [];
 
-      if (!responseData.id || output.length === 0) {
+      if (typeof responseData.id !== "string" || output.length === 0) {
         clearTimeout(timeout);
         console.error("[ai-florist] Invalid response format");
         return Response.json({
@@ -642,35 +682,38 @@ export async function POST(request: Request) {
       const toolCallsToExecute: Array<{
         call_id: string;
         name: string;
-        arguments: Record<string, any>;
+        arguments: Record<string, unknown>;
       }> = [];
       const textParts: string[] = [];
 
-      for (const item of output) {
-        if (item?.type === "message" && Array.isArray(item.content)) {
-          for (const contentItem of item.content) {
+      for (const rawItem of output) {
+        const item = isRecord(rawItem) ? rawItem : {};
+        if (item.type === "message" && Array.isArray(item.content)) {
+          for (const rawContentItem of item.content) {
+            const contentItem = isRecord(rawContentItem) ? rawContentItem : {};
             if (
-              contentItem?.type === "output_text" &&
+              contentItem.type === "output_text" &&
               typeof contentItem.text === "string"
             ) {
               textParts.push(contentItem.text);
             }
           }
-        } else if (item?.type === "function_call") {
-          let args: Record<string, any> = {};
+        } else if (item.type === "function_call") {
+          let args: Record<string, unknown> = {};
           if (typeof item.arguments === "string") {
             try {
-              args = JSON.parse(item.arguments);
+              const parsed = JSON.parse(item.arguments);
+              if (isRecord(parsed)) args = parsed;
             } catch {
               args = {};
             }
-          } else if (item.arguments && typeof item.arguments === "object") {
+          } else if (isRecord(item.arguments)) {
             args = item.arguments;
           }
 
           toolCallsToExecute.push({
-            call_id: item.call_id,
-            name: item.name,
+            call_id: typeof item.call_id === "string" ? item.call_id : "",
+            name: typeof item.name === "string" ? item.name : "",
             arguments: args,
           });
         }
@@ -694,15 +737,22 @@ export async function POST(request: Request) {
           // First trust any real products already returned by the latest
           // catalog search. If the model ignored them, surface them instead
           // of allowing a false "nothing available" response.
-          const searchedProducts = Array.isArray(lastSearchResult?.data?.products)
-            ? (lastSearchResult.data.products as VerifiedCatalogProduct[])
+          const lastSearchRecord = isRecord(lastSearchResult)
+            ? lastSearchResult
+            : null;
+          const lastSearchData =
+            lastSearchRecord && isRecord(lastSearchRecord.data)
+              ? lastSearchRecord.data
+              : null;
+          const searchedProducts = Array.isArray(lastSearchData?.products)
+            ? (lastSearchData.products as VerifiedCatalogProduct[])
             : [];
 
           if (searchedProducts.length > 0) {
             const verification = {
               products: searchedProducts,
               exactRangeEmpty: false,
-              semanticPartial: lastSearchResult?.data?.matchMode === "partial",
+              semanticPartial: lastSearchData?.matchMode === "partial",
               range: inferBudgetRange(messages) ?? {},
             };
 
@@ -753,7 +803,7 @@ export async function POST(request: Request) {
         } satisfies FloristReply);
       }
 
-      const functionOutputs: any[] = [];
+      const functionOutputs: Array<{ type: "function_call_output"; call_id: string; output: string }> = [];
 
       for (const toolCall of toolCallsToExecute) {
         try {
@@ -771,28 +821,30 @@ export async function POST(request: Request) {
             toolArgs.draftId = body.draftId;
           }
 
+          if (!toolCall.call_id || !toolCall.name) {
+            throw new Error("Invalid function call returned by the model");
+          }
+
           const toolResult = await executeTool(toolCall.name, toolArgs);
 
           try {
-            const toolResultJson = JSON.parse(toolResult);
+            const parsedToolResult: unknown = JSON.parse(toolResult);
+            const toolResultJson = isRecord(parsedToolResult) ? parsedToolResult : {};
+            const toolData = isRecord(toolResultJson.data) ? toolResultJson.data : {};
 
             if (toolCall.name === "search_products") {
               lastSearchArgs = { ...toolArgs };
               lastSearchResult = toolResultJson;
             }
-            if (
-              toolResultJson?.data?.products &&
-              Array.isArray(toolResultJson.data.products)
-            ) {
+            if (Array.isArray(toolData.products)) {
               recommendedProductIds.push(
-                ...toolResultJson.data.products.map((p: any) => p.id),
+                ...toolData.products
+                  .filter((p: unknown): p is { id: string } => isRecord(p) && typeof p.id === "string")
+                  .map((p) => p.id),
               );
             }
-            if (
-              toolResultJson?.data?.id &&
-              typeof toolResultJson.data.id === "string"
-            ) {
-              recommendedProductIds.push(toolResultJson.data.id);
+            if (typeof toolData.id === "string") {
+              recommendedProductIds.push(toolData.id);
             }
           } catch {
             // Ignore product-id extraction errors.

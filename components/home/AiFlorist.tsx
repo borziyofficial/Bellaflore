@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
 import type { CatalogProduct } from "@/data/catalogProducts";
@@ -275,6 +276,7 @@ export function AiFlorist({
   formatPrice,
   onProductOpen,
 }: AiFloristProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
@@ -831,7 +833,7 @@ export function AiFlorist({
         onPointerCancel={finishLauncherDrag}
         onClick={() => {
           if (suppressClickRef.current) return;
-          setOpen((current) => !current);
+          router.push("/ai-consultant");
         }}
         aria-label={
           open ? "Закрыть AI-флориста" : "Открыть AI-флориста BellaFlore"
