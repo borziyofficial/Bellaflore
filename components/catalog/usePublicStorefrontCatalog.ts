@@ -13,7 +13,7 @@ import { catalogProducts as SEED_CATALOG } from "@/data/catalogProducts";
 const INITIAL_STOREFRONT_CATALOG =
   process.env.NODE_ENV === "production" ? [] : SEED_CATALOG;
 
-const STOREFRONT_CACHE_KEY = "bellaflore:storefront-catalog:v1";
+const STOREFRONT_CACHE_KEY = "bellaflore:storefront-catalog:v2";
 const STOREFRONT_CACHE_MAX_AGE_MS = 15 * 60 * 1000;
 
 type CachedStorefrontCatalog = {
