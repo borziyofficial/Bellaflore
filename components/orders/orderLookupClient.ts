@@ -193,12 +193,16 @@ async function fetchLookup(
   }
 
   if (!response.ok) {
+    const serverMessage =
+      isRecord(data) && isRecord(data.error) && typeof data.error.message === "string"
+        ? data.error.message
+        : null;
     if (response.status === 404) {
       throw new OrderLookupError(GENERIC_NOT_FOUND_MESSAGE, "NOT_FOUND");
     }
     if (response.status === 400) {
       throw new OrderLookupError(
-        "Проверьте правильность введённых данных.",
+        serverMessage ?? "Проверьте правильность введённых данных.",
         "INVALID_REQUEST",
       );
     }
