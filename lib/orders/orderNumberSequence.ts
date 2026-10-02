@@ -45,7 +45,7 @@ async function ensureOrderNumberCounterTable(
 
 export function formatOrderPublicNumber(sequenceValue: number | bigint): string {
   const value = BigInt(sequenceValue);
-  if (value < 1n) {
+  if (value < BigInt(1)) {
     throw new Error("Order number sequence must start at 1");
   }
   return `${ORDER_NUMBER_PREFIX}${value.toString()}`;
