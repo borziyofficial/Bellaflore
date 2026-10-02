@@ -69,7 +69,10 @@ export async function nextOrderPublicNumber(
 
   const rows = await sql.unsafe<{ value: string }[]>(
     `INSERT INTO ${ORDER_NUMBER_COUNTER_TABLE} (month_start, next_value)
-     VALUES ('${monthStart}', 2)
+     SELECT '${monthStart}'::date, COUNT(*) + 2
+     FROM orders
+     WHERE created_at >= '${monthStart}'::date
+       AND created_at < ('${monthStart}'::date + INTERVAL '1 month')
      ON CONFLICT (month_start)
      DO UPDATE SET next_value = ${ORDER_NUMBER_COUNTER_TABLE}.next_value + 1
      RETURNING (next_value - 1)::text AS value`,
