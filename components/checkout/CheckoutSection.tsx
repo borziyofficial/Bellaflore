@@ -232,6 +232,8 @@ export function CheckoutSection({
   void todayDateValue;
   void handleCustomDeliveryDateChange;
 
+  void tomorrowDateValue;
+
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [touchedFields, setTouchedFields] = useState<Set<CheckoutValidatedField>>(
     () => new Set(),
