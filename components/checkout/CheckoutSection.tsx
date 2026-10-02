@@ -735,6 +735,19 @@ export function CheckoutSection({
                         Завтра
                       </button>
                     </div>
+
+                    <label className={checkoutSectionStyles.checkoutCustomDateField}>
+                      <span>Или выберите дату</span>
+                      <input
+                        type="date"
+                        min={todayDateValue}
+                        value={checkoutForm.deliveryDate}
+                        onChange={(event) =>
+                          handleCustomDeliveryDateChange(event.target.value)
+                        }
+                        aria-label="Дата доставки"
+                      />
+                    </label>
                   </div>
 
                   {availableDeliveryIntervals.length > 0 ? (
