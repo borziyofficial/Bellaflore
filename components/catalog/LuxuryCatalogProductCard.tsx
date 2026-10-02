@@ -61,6 +61,7 @@ export function LuxuryCatalogProductCard({
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
     experienceData.defaultSizeId,
   );
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [trackedProductId, setTrackedProductId] = useState(product.id);
   const actionGestureRef = useRef({
     startX: 0,
@@ -243,15 +244,33 @@ export function LuxuryCatalogProductCard({
             <button
               type="button"
               className={styles.detailsButton}
-              onClick={openProduct}
+              onClick={(event) => {
+                if (shouldSuppressActionClick(event)) {
+                  return;
+                }
+                event.stopPropagation();
+                setDetailsOpen((current) => !current);
+              }}
               onTouchStart={handleActionTouchStart}
               onTouchMove={handleActionTouchMove}
               onTouchEnd={handleActionTouchEnd}
-              aria-label={`Подробнее о ${product.title}`}
+              aria-expanded={detailsOpen}
+              aria-controls={`catalog-details-${product.id}`}
+              aria-label={`${detailsOpen ? "Скрыть" : "Показать"} состав ${product.title}`}
             >
-              Подробнее ↓
+              {detailsOpen ? "Скрыть ↑" : "Подробнее ↓"}
             </button>
           </div>
+
+          {detailsOpen ? (
+            <div
+              id={`catalog-details-${product.id}`}
+              className={styles.inlineDetails}
+              onClick={(event) => event.stopPropagation()}
+            >
+              {product.description?.trim() || "Состав уточняется по текущему каталогу."}
+            </div>
+          ) : null}
 
           <div className={styles.actionRow}>
             <button
