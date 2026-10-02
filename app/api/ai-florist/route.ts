@@ -570,6 +570,33 @@ export async function POST(request: Request) {
 12. Если search_products возвращает matchMode="partial", это НЕ точное совпадение. Честно скажи, что точного варианта нет, и представь товары только как ближайшие альтернативы.
 13. Не предлагай клиенту повышать бюджет, пока не проверены релевантные варианты в его бюджете и дешевле.`;
 
+  let systemPromptWithDraft = systemPrompt;
+  if (body.draftId) {
+    try {
+      const draftResult = JSON.parse(
+        await executeTool("get_draft_summary", { draftId: body.draftId }),
+      ) as { status?: string; data?: Record<string, unknown> };
+      if (draftResult.status === "ok" && draftResult.data) {
+        const draft = draftResult.data;
+        systemPromptWithDraft += `\n\nТЕКУЩИЙ ЧЕРНОВИК ЗАКАЗА (источник истины):\n${JSON.stringify({
+          customerName: draft.customerName,
+          customerPhone: draft.customerPhone,
+          recipientName: draft.recipientName,
+          recipientPhone: draft.recipientPhone,
+          deliveryAddress: draft.deliveryAddress,
+          deliveryLatitude: draft.deliveryLatitude,
+          deliveryLongitude: draft.deliveryLongitude,
+          deliveryZoneId: draft.deliveryZoneId,
+          deliveryDate: draft.deliveryDate,
+          deliveryInterval: draft.deliveryInterval,
+          items: draft.items,
+        })}\nНе сбрасывай эти данные. Заполняй только отсутствующие или явно изменённые пользователем поля.`;
+      }
+    } catch (error) {
+      console.warn("[ai-florist] draft context unavailable:", error);
+    }
+  }
+
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 28_000);
@@ -593,7 +620,7 @@ export async function POST(request: Request) {
     for (toolCallCount = 0; toolCallCount < MAX_TOOL_CALLS; toolCallCount++) {
       const requestPayload: Record<string, unknown> = {
         model: SAFE_DIRECT_MODEL,
-        instructions: systemPrompt,
+        instructions: systemPromptWithDraft,
         input: nextInput,
         tools: TOOL_DEFINITIONS,
         tool_choice: "auto",
