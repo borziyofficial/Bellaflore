@@ -423,17 +423,17 @@
   }
 
   .panel {
-    right: max(10px, env(safe-area-inset-right));
-    bottom: calc(112px + env(safe-area-inset-bottom));
-    left: max(10px, env(safe-area-inset-left));
+    right: max(14px, env(safe-area-inset-right));
+    bottom: calc(104px + env(safe-area-inset-bottom));
+    left: max(14px, env(safe-area-inset-left));
     width: auto;
     max-width: none;
-    max-height: min(66dvh, 590px);
-    border-radius: 22px;
+    max-height: min(50dvh, 560px);
+    border-radius: 20px;
   }
 
   .panelHeader {
-    padding: 10px 12px 9px;
+    padding: 9px 11px 8px;
   }
 
   .identity strong {
@@ -469,7 +469,7 @@
   }
 
   .chatBody {
-    padding: 14px;
+    padding: 11px;
   }
 }
 
