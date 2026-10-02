@@ -41,6 +41,7 @@ export function MyOrderLookupSection({
 }: MyOrderLookupSectionProps) {
   const [searchMode, setSearchMode] = useState<SearchMode>("orderNumber");
   const [queryValue, setQueryValue] = useState("");
+  const [phoneValue, setPhoneValue] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "found" | "notFound" | "error">(
     initialOrderNumber ? "loading" : "idle",
   );
@@ -101,7 +102,7 @@ export function MyOrderLookupSection({
 
     try {
       if (searchMode === "orderNumber") {
-        const order = await lookupOrderByNumber(trimmed);
+        const order = await lookupOrderByNumber(trimmed, phoneValue);
         setResults([mapLookupOrderToPassport(order)]);
       } else {
         const orders = await lookupOrdersByPhone(trimmed);
@@ -163,7 +164,7 @@ export function MyOrderLookupSection({
               type={searchMode === "phone" ? "tel" : "text"}
               className={styles.input}
               placeholder={
-                searchMode === "phone" ? "+7 999 000-00-00" : "BF-20260803-XXXXXXXXXX"
+                searchMode === "phone" ? "+7 999 000-00-00" : "BF-001"
               }
               value={queryValue}
               onChange={(event) => setQueryValue(event.target.value)}
@@ -171,6 +172,17 @@ export function MyOrderLookupSection({
                 searchMode === "phone" ? "Номер телефона" : "Номер заказа"
               }
             />
+            {searchMode === "orderNumber" ? (
+              <input
+                type="tel"
+                className={styles.input}
+                placeholder="+7 999 000-00-00"
+                value={phoneValue}
+                onChange={(event) => setPhoneValue(event.target.value)}
+                aria-label="Номер телефона для подтверждения заказа"
+                autoComplete="tel"
+              />
+            ) : null}
             <button
               type="submit"
               className={styles.searchButton}
