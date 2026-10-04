@@ -41,7 +41,7 @@ class MemoryRepository implements OrderRepository {
     if (existing) {
       return { order: existing, replayed: true };
     }
-    const publicNumber = `BF-${String(this.nextSequenceValue++).padStart(3, "0")}`;
+    const publicNumber = `BF-${this.nextSequenceValue++}`;
     const stored: StoredOrderRecord = { ...order, publicNumber };
     this.records.set(order.idempotencyKey, stored);
     return { order: stored, replayed: false };
@@ -216,9 +216,9 @@ test("public order numbers are short, sequential, and never reused", async () =>
   const secondNumber = (await second.json()).order.orderNumber as string;
   const thirdNumber = (await third.json()).order.orderNumber as string;
 
-  expect(firstNumber).toBe("BF-001");
-  expect(secondNumber).toBe("BF-002");
-  expect(thirdNumber).toBe("BF-003");
+  expect(firstNumber).toBe("BF-1");
+  expect(secondNumber).toBe("BF-2");
+  expect(thirdNumber).toBe("BF-3");
 
   // Never reused: a replay of an already-used idempotency key must return
   // the SAME stored number, not mint a new one.
@@ -231,7 +231,9 @@ test("order number sequence is self-provisioned and never alters existing order 
     join(process.cwd(), "lib", "orders", "orderNumberSequence.ts"),
     "utf8",
   );
-  expect(source).toContain("CREATE SEQUENCE IF NOT EXISTS");
+  expect(source).toContain("CREATE TABLE IF NOT EXISTS");
+  expect(source).toContain("orders_public_number_counters");
+  expect(source).toContain("ON CONFLICT (month_start)");
   expect(source).not.toMatch(/^\s*(?:DROP|TRUNCATE|DELETE|ALTER\s+TABLE)\s/gim);
 });
 
