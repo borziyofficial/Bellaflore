@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-const baseURL = process.env.BASE_URL?.trim() || "http://localhost:3000";
-const useLocalServer = !process.env.BASE_URL?.trim();
+const baseURL =
+  process.env.BASE_URL?.trim() || "https://sandbox.bellaflore.ru";
 
 export default defineConfig({
   testDir: "./tests/orders",
@@ -13,12 +13,4 @@ export default defineConfig({
   use: {
     baseURL,
   },
-  webServer: useLocalServer
-    ? {
-        command: "npm run start",
-        url: baseURL,
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
-      }
-    : undefined,
 });
