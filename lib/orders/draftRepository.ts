@@ -1,7 +1,6 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import postgres from "postgres";
 import { getOrdersSqlClient } from "@/lib/orders/postgresClient";
 import { OrderError } from "@/lib/orders/errors";
 import type {
@@ -12,63 +11,6 @@ import type {
   UpdateOrderDraftInput,
 } from "@/lib/orders/draftTypes";
 import type { OrderPaymentMethod } from "@/lib/orders/types";
-
-let draftSchemaReady: Promise<void> | null = null;
-
-async function ensureDraftSchema(sql: ReturnType<typeof postgres>): Promise<void> {
-  await sql`
-    CREATE TABLE IF NOT EXISTS order_drafts (
-      id UUID PRIMARY KEY,
-      customer_name TEXT,
-      customer_phone TEXT,
-      recipient_name TEXT,
-      recipient_phone TEXT,
-      delivery_address TEXT,
-      delivery_latitude NUMERIC(10, 8),
-      delivery_longitude NUMERIC(10, 8),
-      delivery_zone_id TEXT,
-      delivery_date DATE,
-      delivery_interval TEXT,
-      payment_method TEXT,
-      customer_comment TEXT DEFAULT '',
-      items JSONB NOT NULL DEFAULT '[]'::jsonb,
-      conversation_state JSONB NOT NULL DEFAULT '{"turns": []}'::jsonb,
-      status TEXT NOT NULL DEFAULT 'active'
-        CHECK (status IN ('active', 'abandoned', 'converted')),
-      converted_to_order_id UUID,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      abandoned_at TIMESTAMPTZ
-    )
-  `;
-
-  await sql`
-    CREATE INDEX IF NOT EXISTS idx_order_drafts_customer_phone
-      ON order_drafts(customer_phone) WHERE customer_phone IS NOT NULL
-  `;
-
-  await sql`
-    CREATE INDEX IF NOT EXISTS idx_order_drafts_status_created_at
-      ON order_drafts(status, created_at DESC)
-  `;
-
-  await sql`
-    CREATE INDEX IF NOT EXISTS idx_order_drafts_active
-      ON order_drafts(created_at DESC) WHERE status = 'active'
-  `;
-}
-
-async function getReadyDraftSql(): Promise<ReturnType<typeof postgres>> {
-  const sql = getOrdersSqlClient();
-  if (!draftSchemaReady) {
-    draftSchemaReady = ensureDraftSchema(sql).catch((error) => {
-      draftSchemaReady = null;
-      throw error;
-    });
-  }
-  await draftSchemaReady;
-  return sql;
-}
 
 type OrderDraftRow = {
   id: string;
@@ -142,7 +84,7 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
   async findById(draftId: string): Promise<OrderDraft | null> {
     if (!draftId?.trim()) return null;
     try {
-      const sql = await getReadyDraftSql();
+      const sql = getOrdersSqlClient();
       const rows = await sql<OrderDraftRow[]>`
         SELECT * FROM order_drafts WHERE id = ${draftId} LIMIT 1
       `;
@@ -157,7 +99,7 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
     if (!phone?.trim()) return [];
     const safeLimit = Math.min(Math.max(limit, 1), 100);
     try {
-      const sql = await getReadyDraftSql();
+      const sql = getOrdersSqlClient();
       const rows = await sql<OrderDraftRow[]>`
         SELECT * FROM order_drafts
         WHERE customer_phone = ${phone}
@@ -174,7 +116,7 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
   async create(draft: Omit<OrderDraft, "id" | "createdAt" | "updatedAt">): Promise<OrderDraft> {
     const draftId = randomUUID();
     try {
-      const sql = await getReadyDraftSql();
+      const sql = getOrdersSqlClient();
       const rows = await sql<OrderDraftRow[]>`
         INSERT INTO order_drafts (
           id, customer_name, customer_phone, recipient_name, recipient_phone,
@@ -217,7 +159,7 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
   async update(draftId: string, updates: UpdateOrderDraftInput): Promise<OrderDraft | null> {
     if (!draftId?.trim()) return null;
     try {
-      const sql = await getReadyDraftSql();
+      const sql = getOrdersSqlClient();
       const rows = await sql<OrderDraftRow[]>`
         UPDATE order_drafts
         SET
@@ -252,7 +194,7 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
   async delete(draftId: string): Promise<boolean> {
     if (!draftId?.trim()) return false;
     try {
-      const sql = await getReadyDraftSql();
+      const sql = getOrdersSqlClient();
       const rows = await sql<{ id: string }[]>`
         DELETE FROM order_drafts WHERE id = ${draftId} RETURNING id
       `;
@@ -266,7 +208,7 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
   async markAsConverted(draftId: string, orderId: string): Promise<OrderDraft | null> {
     if (!draftId?.trim() || !orderId?.trim()) return null;
     try {
-      const sql = await getReadyDraftSql();
+      const sql = getOrdersSqlClient();
       const rows = await sql<OrderDraftRow[]>`
         UPDATE order_drafts
         SET status = 'converted', converted_to_order_id = ${orderId}, updated_at = NOW()
@@ -283,7 +225,7 @@ export class PostgresOrderDraftRepository implements OrderDraftRepository {
   async markAsAbandoned(draftId: string): Promise<OrderDraft | null> {
     if (!draftId?.trim()) return null;
     try {
-      const sql = await getReadyDraftSql();
+      const sql = getOrdersSqlClient();
       const rows = await sql<OrderDraftRow[]>`
         UPDATE order_drafts
         SET status = 'abandoned', abandoned_at = NOW(), updated_at = NOW()
