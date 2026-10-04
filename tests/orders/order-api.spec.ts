@@ -114,7 +114,7 @@ test("creates an order with server prices, delivery and snapshots", async () => 
   expect(response.status).toBe(201);
   const payload = await response.json();
   expect(payload.replayed).toBe(false);
-  expect(payload.order.orderNumber).toBe("BF-001");
+  expect(payload.order.orderNumber).toBe("BF-1");
   expect(payload.order).toMatchObject({
     status: "NEW",
     subtotal: 11800,
