@@ -14,7 +14,7 @@
 import { expect, test } from "@playwright/test";
 
 // Use the production/staging domain if available
-const BASE_URL = process.env.BASE_URL?.trim() || "http://localhost:3000";
+const BASE_URL = process.env.BASE_URL?.trim() || "https://sandbox.bellaflore.ru";
 
 test.describe("Order Draft Persistence (Phase 2)", () => {
   test("should create a draft and persist data across requests", async ({
