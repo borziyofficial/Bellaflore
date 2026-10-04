@@ -18,7 +18,7 @@ let draftSchemaReady: Promise<void> | null = null;
 async function ensureDraftSchema(sql: ReturnType<typeof postgres>): Promise<void> {
   await sql`
     CREATE TABLE IF NOT EXISTS order_drafts (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      id UUID PRIMARY KEY,
       customer_name TEXT,
       customer_phone TEXT,
       recipient_name TEXT,
