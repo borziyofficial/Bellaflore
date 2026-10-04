@@ -33,6 +33,7 @@ export type SearchableBouquet = {
   stemCount?: number;
   tags?: string[];
   searchTerms?: string[];
+  catalogNumber?: string;
 };
 
 export type FlowerKeywordGroup = {
@@ -464,6 +465,7 @@ function buildBouquetCorpus(bouquet: SearchableBouquet) {
       bouquet.description,
       bouquet.category,
       bouquet.flowerType,
+      bouquet.catalogNumber,
       stemCountText,
       ...(bouquet.tags ?? []),
       ...(bouquet.searchTerms ?? []),
