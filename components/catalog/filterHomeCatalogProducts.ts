@@ -36,6 +36,7 @@ function productHaystack(product: CatalogProduct): string {
       product.category,
       product.flowerType,
       product.composition,
+      product.catalogNumber,
       product.seoTitle,
       product.seoDescription,
       ...(product.tags ?? []),
@@ -44,6 +45,20 @@ function productHaystack(product: CatalogProduct): string {
       .filter(Boolean)
       .join(" "),
   );
+}
+
+function matchesCatalogNumber(product: CatalogProduct, searchQuery: string): boolean {
+  const queryMatch = searchQuery.trim().match(/^bf[\s-]*0*(\d+)$/i);
+  if (!queryMatch?.[1] || !product.catalogNumber) {
+    return false;
+  }
+
+  const productMatch = product.catalogNumber.match(/^(?:bf[\s-]*)?0*(\d+)$/i);
+  if (!productMatch?.[1]) {
+    return false;
+  }
+
+  return Number(productMatch[1]) === Number(queryMatch[1]);
 }
 
 function productCategoryEquals(
@@ -123,6 +138,10 @@ function matchesSearch(product: CatalogProduct, searchQuery: string): boolean {
   const normalizedQuery = normalizeSearchText(searchQuery);
 
   if (!normalizedQuery) {
+    return true;
+  }
+
+  if (matchesCatalogNumber(product, normalizedQuery)) {
     return true;
   }
 
