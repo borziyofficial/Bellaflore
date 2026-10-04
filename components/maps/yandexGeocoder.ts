@@ -144,9 +144,22 @@ export async function geocodeAddressYandex(
     });
   }
 
-  const geocodeQuery = normalizeAddressForYandexGeocoding(normalizedAddress);
+  const qualifiedQuery = normalizeAddressForYandexGeocoding(normalizedAddress);
+  const candidates = [
+    normalizedAddress,
+    qualifiedQuery,
+    `Московская область, ${normalizedAddress}`,
+  ].filter((query, index, all) => query && all.indexOf(query) === index);
 
-  return geocodeYandexQuery(normalizedAddress, geocodeQuery);
+  for (const query of candidates) {
+    const result = await geocodeYandexQuery(normalizedAddress, query);
+
+    if (result.status === "found") {
+      return result;
+    }
+  }
+
+  return geocodeYandexQuery(normalizedAddress, candidates.at(-1) ?? normalizedAddress);
 }
 
 export async function geocodeAddressYandexFromValue(
