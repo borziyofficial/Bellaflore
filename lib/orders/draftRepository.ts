@@ -1,6 +1,7 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
+import postgres from "postgres";
 import { getOrdersSqlClient } from "@/lib/orders/postgresClient";
 import { OrderError } from "@/lib/orders/errors";
 import type {
@@ -58,7 +59,7 @@ async function ensureDraftSchema(sql: ReturnType<typeof postgres>): Promise<void
 }
 
 async function getReadyDraftSql(): Promise<ReturnType<typeof postgres>> {
-  const sql = await getReadyDraftSql();
+  const sql = getOrdersSqlClient();
   if (!draftSchemaReady) {
     draftSchemaReady = ensureDraftSchema(sql).catch((error) => {
       draftSchemaReady = null;
