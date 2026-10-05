@@ -58,7 +58,11 @@ function matchesCatalogNumber(product: CatalogProduct, searchQuery: string): boo
     return false;
   }
 
-  return Number(productMatch[1]) === Number(queryMatch[1]);
+  // Live catalog search must work while the customer is typing:
+  // BF-1 -> BF-1, BF-10 ... BF-19, BF-100 ... BF-199.
+  // Once the customer continues typing (e.g. BF-129), the same prefix
+  // behavior narrows the list immediately and does not require Enter.
+  return productMatch[1].startsWith(queryMatch[1]);
 }
 
 function productCategoryEquals(
