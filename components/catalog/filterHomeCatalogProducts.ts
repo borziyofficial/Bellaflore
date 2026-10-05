@@ -47,22 +47,32 @@ function productHaystack(product: CatalogProduct): string {
   );
 }
 
+function getCatalogNumberDigits(value: string): string | null {
+  const match = value.trim().match(/^(?:bf[\s-]*)?0*(\d+)$/i);
+  return match?.[1] ?? null;
+}
+
+function isCatalogNumberQuery(searchQuery: string): boolean {
+  return /^(?:bf[\s-]*)?\d+$/i.test(searchQuery.trim());
+}
+
 function matchesCatalogNumber(product: CatalogProduct, searchQuery: string): boolean {
-  const queryMatch = searchQuery.trim().match(/^bf[\s-]*0*(\d+)$/i);
-  if (!queryMatch?.[1] || !product.catalogNumber) {
+  const queryDigits = getCatalogNumberDigits(searchQuery);
+  const productDigits = product.catalogNumber
+    ? getCatalogNumberDigits(product.catalogNumber)
+    : null;
+
+  if (!queryDigits || !productDigits) {
     return false;
   }
 
-  const productMatch = product.catalogNumber.match(/^(?:bf[\s-]*)?0*(\d+)$/i);
-  if (!productMatch?.[1]) {
-    return false;
-  }
-
-  // Live catalog search must work while the customer is typing:
-  // BF-1 -> BF-1, BF-10 ... BF-19, BF-100 ... BF-199.
-  // Once the customer continues typing (e.g. BF-129), the same prefix
-  // behavior narrows the list immediately and does not require Enter.
-  return productMatch[1].startsWith(queryMatch[1]);
+  // Article search accepts both forms:
+  //   66 / 066
+  //   BF-66 / BF-066 / BF66
+  // and remains live while the customer is typing:
+  //   1 -> BF-001, BF-010, BF-011, ...
+  //   66 -> BF-066, BF-066x...
+  return productDigits.startsWith(queryDigits);
 }
 
 function productCategoryEquals(
@@ -145,8 +155,11 @@ function matchesSearch(product: CatalogProduct, searchQuery: string): boolean {
     return true;
   }
 
-  if (matchesCatalogNumber(product, normalizedQuery)) {
-    return true;
+  // A numeric/BF query is an article lookup, not a generic text query.
+  // Keep it scoped to catalog numbers so "66" does not accidentally match
+  // a bouquet whose description happens to contain the number 66.
+  if (isCatalogNumberQuery(normalizedQuery)) {
+    return matchesCatalogNumber(product, normalizedQuery);
   }
 
   const haystack = productHaystack(product);
