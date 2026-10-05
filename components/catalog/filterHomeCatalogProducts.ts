@@ -71,7 +71,7 @@ function matchesCatalogNumber(product: CatalogProduct, searchQuery: string): boo
   //   BF-66 / BF-066 / BF66
   // and remains live while the customer is typing:
   //   1 -> BF-001, BF-010, BF-011, ...
-  //   66 -> BF-066, BF-066x...
+  //   66 -> BF-066
   return productDigits.startsWith(queryDigits);
 }
 
