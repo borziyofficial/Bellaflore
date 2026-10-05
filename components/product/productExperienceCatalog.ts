@@ -105,25 +105,6 @@ function buildSizeVariants(product: CatalogProduct): ProductSizeVariant[] {
   });
 }
 
-function buildReviews(product: CatalogProductBase) {
-  return [
-    {
-      id: `${product.id}-review-1`,
-      author: "Анна",
-      rating: 5,
-      text: `«${product.title} выглядел ещё лучше, чем на фото. Доставили аккуратно и вовремя.»`,
-      dateLabel: "2 дня назад",
-    },
-    {
-      id: `${product.id}-review-2`,
-      author: "Михаил",
-      rating: 5,
-      text: "Отличное качество цветов и упаковки. Заказываем не первый раз.",
-      dateLabel: "1 неделю назад",
-    },
-  ];
-}
-
 function buildExperienceData(product: CatalogProduct): ProductExperienceData {
   const details = getProductDetailFields(product);
 
@@ -146,7 +127,7 @@ function buildExperienceData(product: CatalogProduct): ProductExperienceData {
     isNew: details.isNew,
     freshnessGuarantee:
       "Гарантия свежести 48 часов. Если букет не оправдает ожиданий — свяжитесь с нами, мы оперативно решим вопрос.",
-    reviews: buildReviews(product),
+    reviews: [],
   };
 }
 
