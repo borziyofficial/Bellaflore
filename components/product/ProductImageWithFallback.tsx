@@ -8,7 +8,6 @@
 // ==================================================
 "use client";
 
-import { BrandLogo } from "@/components/brand/BrandLogo";
 import { ProtectedProductImage } from "@/components/images/ProtectedProductImage";
 import { shouldUseUnoptimizedImage } from "@/components/images/imageLoadUtils";
 import styles from "@/components/product/ProductImageWithFallback.module.css";
@@ -43,7 +42,12 @@ export function ProductImageWithFallback({
         aria-label={alt}
         role="img"
       >
-        <BrandLogo variant="panel" className={styles.logo} />
+        <img
+          src="/images/placeholder-bouquet.svg"
+          alt=""
+          className={styles.logo}
+          aria-hidden="true"
+        />
       </div>
     );
   }
