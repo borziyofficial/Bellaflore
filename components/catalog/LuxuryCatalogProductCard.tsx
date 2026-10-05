@@ -6,6 +6,7 @@
 
 import styles from "@/components/catalog/LuxuryCatalogProductCard.module.css";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
+import { useProductRatings } from "@/components/product/useProductRatings";
 import {
   getProductExperienceData,
   getProductSizeVariant,
@@ -64,6 +65,7 @@ export function LuxuryCatalogProductCard({
     experienceData.defaultSizeId,
   );
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const { average: ratingAverage, count: ratingCount } = useProductRatings(product.id);
   const [trackedProductId, setTrackedProductId] = useState(product.id);
   const actionGestureRef = useRef({
     startX: 0,
@@ -312,18 +314,17 @@ export function LuxuryCatalogProductCard({
                     Артикул: {product.catalogNumber}
                   </span>
                 ) : null}
-                <span
-                  className={styles.inlineDetailsRating}
-                  aria-label="Рейтинг 5 из 5"
-                  title="Рейтинг 5 из 5"
-                >
-                  {"★".repeat(
-                    Math.round(
-                      experienceData.reviews.reduce((sum, review) => sum + review.rating, 0) /
-                        Math.max(experienceData.reviews.length, 1),
-                    ),
-                  )}
-                </span>
+                {ratingCount > 0 ? (
+                  <span
+                    className={styles.inlineDetailsRating}
+                    aria-label={`Рейтинг ${ratingAverage.toFixed(1)} из 5, ${ratingCount} отзывов`}
+                    title={`Рейтинг ${ratingAverage.toFixed(1)} из 5, ${ratingCount} отзывов`}
+                  >
+                    {"★".repeat(Math.max(0, Math.min(5, Math.round(ratingAverage))))}
+                    {"☆".repeat(Math.max(0, 5 - Math.round(ratingAverage)))}
+                    {ratingAverage.toFixed(1)} ({ratingCount})
+                  </span>
+                ) : null}
               </div>
               <div className={styles.inlineDetailsComposition}>
                 {compositionText || "Состав уточняется по текущему каталогу."}
