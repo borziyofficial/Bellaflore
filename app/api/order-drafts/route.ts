@@ -11,7 +11,7 @@
 // Черновики сохраняют состояние разговора, собранные данные и выбранные товары.
 // ==================================================
 import { PostgresOrderDraftRepository } from "@/lib/orders/draftRepository";
-import type { OrderDraft, UpdateOrderDraftInput, OrderDraftConversationState } from "@/lib/orders/draftTypes";
+import type { OrderDraft, UpdateOrderDraftInput } from "@/lib/orders/draftTypes";
 
 const draftRepository = new PostgresOrderDraftRepository();
 

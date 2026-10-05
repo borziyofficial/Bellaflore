@@ -14,7 +14,7 @@
 import { expect, test } from "@playwright/test";
 
 // Use the production/staging domain if available
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.BASE_URL?.trim() || "http://127.0.0.1:3000";
 
 test.describe("Order Draft Persistence (Phase 2)", () => {
   test("should create a draft and persist data across requests", async ({
@@ -137,10 +137,12 @@ test.describe("Order Draft Persistence (Phase 2)", () => {
 
     expect(getResponse.ok()).toBeTruthy();
     const drafts = await getResponse.json();
-    expect(Array.isArray(drafts)).toBeTruthy();
-    expect(drafts.length).toBeGreaterThan(0);
+    expect(Array.isArray(drafts.drafts)).toBeTruthy();
+    expect(drafts.drafts.length).toBeGreaterThan(0);
 
-    const found = drafts.find((d: { id: string; customerPhone?: string }) => d.id === draftId);
+    const found = drafts.drafts.find(
+      (d: { id: string; customerPhone?: string }) => d.id === draftId,
+    );
     expect(found).toBeDefined();
     expect(found.customerPhone).toBe(phone);
 

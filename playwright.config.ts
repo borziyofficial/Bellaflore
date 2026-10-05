@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = process.env.SMOKE_BASE_URL?.trim() || "https://sandbox.bellaflore.ru";
+const baseURL = process.env.SMOKE_BASE_URL?.trim() || "http://127.0.0.1:3000";
 
 export default defineConfig({
   testDir: "./tests/smoke",
@@ -14,6 +14,12 @@ export default defineConfig({
   expect: {
     timeout: 12_000,
   },
+  webServer: {
+    command: "npm run dev -- --hostname 127.0.0.1",
+    url: "http://127.0.0.1:3000",
+    reuseExistingServer: true,
+    timeout: 120_000,
+  },
   use: {
     baseURL,
     locale: "ru-RU",
@@ -26,6 +32,10 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "mobile-chrome",
+      use: { ...devices["iPhone 13"] },
     },
   ],
 });

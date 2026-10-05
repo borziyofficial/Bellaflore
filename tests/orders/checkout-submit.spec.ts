@@ -195,12 +195,12 @@ test("shows a Russian network error and keeps the request retryable", async () =
 });
 
 test("checkout saves the server order before clearing the form and notifying Telegram", async () => {
-  const source = await readFile(join(process.cwd(), "app", "page.tsx"), "utf8");
+  const source = await readFile(join(process.cwd(), "app", "page-client.tsx"), "utf8");
   const saveOrderAt = source.indexOf("await submitCheckoutOrder(");
   const clearCartAt = source.indexOf("setCartItems([]);", saveOrderAt);
   const notifyTelegramAt = source.indexOf(
     "await submitCheckoutOrderToTelegram(",
-    saveOrderAt,
+    clearCartAt,
   );
 
   expect(saveOrderAt).toBeGreaterThan(-1);
