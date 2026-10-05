@@ -306,7 +306,28 @@ export function LuxuryCatalogProductCard({
               className={styles.inlineDetails}
               onClick={(event) => event.stopPropagation()}
             >
-              {compositionText || "Состав уточняется по текущему каталогу."}
+              <div className={styles.inlineDetailsMeta}>
+                {product.catalogNumber ? (
+                  <span className={styles.inlineDetailsArticle}>
+                    Артикул: {product.catalogNumber}
+                  </span>
+                ) : null}
+                <span
+                  className={styles.inlineDetailsRating}
+                  aria-label="Рейтинг 5 из 5"
+                  title="Рейтинг 5 из 5"
+                >
+                  {"★".repeat(
+                    Math.round(
+                      experienceData.reviews.reduce((sum, review) => sum + review.rating, 0) /
+                        Math.max(experienceData.reviews.length, 1),
+                    ),
+                  )}
+                </span>
+              </div>
+              <div className={styles.inlineDetailsComposition}>
+                {compositionText || "Состав уточняется по текущему каталогу."}
+              </div>
             </div>
           ) : null}
 
