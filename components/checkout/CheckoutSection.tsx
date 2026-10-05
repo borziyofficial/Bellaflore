@@ -23,7 +23,10 @@ import {
   formatDeliveryConfidencePriceLabel,
 } from "@/components/deliveryConfidence/DeliveryConfidenceCheckoutHint";
 import type { DeliveryConfidenceResult } from "@/components/deliveryConfidence/deliveryConfidenceTypes";
-import { canSubmitCheckoutWithDeliveryValidation } from "@/components/deliveryValidation/deliveryValidationEngine";
+import {
+  canSubmitCheckoutWithDeliveryValidation,
+  getDeliveryValidationUnavailableMessage,
+} from "@/components/deliveryValidation/deliveryValidationEngine";
 import type { DeliveryValidationResult } from "@/components/deliveryValidation/deliveryValidationTypes";
 import type { DeliveryPriceResult } from "@/components/deliveryZones/deliveryPriceTypes";
 import { getDeliveryPriceUnavailableMessage } from "@/components/deliveryZones/deliveryPriceTypes";
@@ -267,9 +270,15 @@ export function CheckoutSection({
   );
   const deliveryZoneNeedsAttention =
     checkoutForm.address.trim().length > 0 &&
-    (!canSubmitDeliveryPrice || !canSubmitDeliveryValidation) &&
+    (realDeliveryZoneResult.status === "unknown" ||
+      realDeliveryZoneResult.status === "error") &&
     deliveryPriceResult.status !== "outside_delivery_area" &&
     deliveryValidationResult.status !== "OUTSIDE_DELIVERY_AREA";
+
+  const deliveryValidationAddressMessage =
+    !deliveryZoneNeedsAttention && !canSubmitDeliveryValidation
+      ? getDeliveryValidationUnavailableMessage(deliveryValidationResult)
+      : null;
   const canSubmitDeliveryConfidence =
     !deliveryConfidenceResult.engineEnabled ||
     (deliveryConfidenceResult.status === "ready" &&
@@ -806,6 +815,13 @@ export function CheckoutSection({
                       >
                         {deliveryZoneUnavailableMessage}
                       </span>
+                    ) : deliveryValidationAddressMessage ? (
+                      <span
+                        className={checkoutSectionStyles.checkoutError}
+                        role="alert"
+                      >
+                        {deliveryValidationAddressMessage}
+                      </span>
                     ) : null}
                   </label>
 
@@ -1016,6 +1032,13 @@ export function CheckoutSection({
                   role="alert"
                 >
                   {deliveryZoneUnavailableMessage}
+                </p>
+              ) : deliveryValidationAddressMessage ? (
+                <p
+                  className="checkout-delivery-alert checkout-delivery-alert-error"
+                  role="alert"
+                >
+                  {deliveryValidationAddressMessage}
                 </p>
               ) : deliveryPriceResult.status === "unknown" ? (
                 <p className="checkout-delivery-alert" role="status">
