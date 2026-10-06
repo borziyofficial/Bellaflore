@@ -119,7 +119,9 @@ test("checkout remains scrollable, operable and valid at the target viewport", a
   expect(layoutMetrics.verticalScrollContainerClasses).toEqual([
     "checkout-v3-body",
   ]);
-  expect(layoutMetrics.footerPosition).toBe("static");
+  expect(layoutMetrics.footerPosition).toBe(
+    page.viewportSize()?.width === 390 ? "sticky" : "static",
+  );
   expect(layoutMetrics.flowBottom).not.toBeNull();
   expect(layoutMetrics.footerTop).not.toBeNull();
   expect(layoutMetrics.flowBottom!).toBeLessThanOrEqual(
