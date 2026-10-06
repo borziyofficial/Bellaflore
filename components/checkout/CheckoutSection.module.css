@@ -1313,3 +1313,31 @@
   .checkoutGlassStepTrigger{min-height:68px!important;padding:14px 16px!important}
   .checkoutGlassStepBodyInner{padding:4px 16px 20px!important}
 }
+
+/* FINAL CHECKOUT VISUAL SYSTEM */
+.checkoutV3Card,.checkoutV3Layout,.checkoutV3Scroll{font-family:var(--font-sans,Manrope,sans-serif)!important}
+.checkoutV3BlockTitle{color:#241f1c!important;font-family:var(--font-serif,"Playfair Display",serif)!important;font-weight:400!important}
+.checkoutFlatBlock{border-color:#ded5cb!important;background:#fbf9f6!important}
+.checkoutGlassStep{border:1px solid #ded5cb!important;border-radius:14px!important;background:#fbf9f6!important;box-shadow:none!important}
+.checkoutGlassStepTrigger{min-height:68px!important;background:#fbf9f6!important;color:#241f1c!important;border:0!important;border-radius:14px!important}
+.checkoutGlassStepTitle{color:#241f1c!important;font-family:var(--font-serif,"Playfair Display",serif)!important;font-weight:400!important;font-size:18px!important}
+.checkoutGlassStepSummary{color:#756960!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.checkoutGlassStepIcon{border-color:#d2c6bc!important;background:#fffdfa!important;color:#8f2030!important;box-shadow:none!important}
+.checkoutField span{color:#3f3732!important;font-family:var(--font-sans,Manrope,sans-serif)!important;font-weight:700!important}
+.checkoutField input,.checkoutField textarea,.checkoutFlatSelector,.checkoutFlatSelectWrap{border:1px solid #d2c6bc!important;border-radius:10px!important;background:#fffdfa!important;color:#241f1c!important;box-shadow:none!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.checkoutField input:focus,.checkoutField textarea:focus,.checkoutFlatSelector:focus-visible,.checkoutFlatSelectWrap:focus-within{border-color:#8f2030!important;box-shadow:0 0 0 3px rgba(143,32,48,.10)!important}
+.checkoutOption,.checkoutPaymentOption{border:1px solid #ded5cb!important;border-radius:12px!important;background:#fffdfa!important;box-shadow:none!important}
+.checkoutOption input,.checkoutPaymentOption input{accent-color:#8f2030!important}
+.checkoutPaymentOption:has(input:checked){border-color:#8f2030!important;background:rgba(143,32,48,.06)!important}
+.checkoutDeliveryDatePicker{gap:10px!important}
+.checkoutDeliveryDateButtons{gap:8px!important}
+.checkoutDeliveryDateButton{min-height:46px!important;border:1px solid #d2c6bc!important;border-radius:10px!important;background:#fffdfa!important;color:#5f554f!important;font-family:var(--font-sans,Manrope,sans-serif)!important;box-shadow:none!important}
+.checkoutDeliveryDateButtonActive{border-color:#8f2030!important;background:#8f2030!important;color:#fff!important;box-shadow:none!important}
+.checkoutCustomDateField{color:#756960!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.checkoutCustomDateField input{border-color:#d2c6bc!important;border-radius:10px!important;background:#fffdfa!important;color:#241f1c!important;box-shadow:none!important}
+.checkoutMapWrap{border:1px solid #ded5cb!important;border-radius:14px!important;overflow:hidden!important}
+.checkoutMapToggle,.checkoutMapOpenButton,.checkoutMapExpandButton{border:1px solid #d2c6bc!important;border-radius:10px!important;background:#fffdfa!important;color:#8f2030!important;box-shadow:none!important}
+.checkoutV3StickyFooter{background:#fbf9f6!important;border-top:1px solid #ded5cb!important;box-shadow:0 -8px 24px rgba(36,31,28,.05)!important}
+.checkoutV3SummaryRow,.checkoutV3SummaryTotal{font-family:var(--font-sans,Manrope,sans-serif)!important;color:#241f1c!important}
+.checkoutSubmitButton{min-height:54px!important;border-radius:10px!important;background:#8f2030!important;color:#fff!important;font-family:var(--font-sans,Manrope,sans-serif)!important;font-weight:700!important;box-shadow:none!important}
+.checkoutSubmitButton:hover{background:#731a27!important}
