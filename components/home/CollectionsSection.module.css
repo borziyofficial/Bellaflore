@@ -1063,3 +1063,19 @@
   .section:not(.homeShowcase) .gridAll,
   .section:not(.homeShowcase) .gridCategory { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 10px; }
 }
+
+
+/* =========================================================
+   BELLA FLORE FINAL CLEAN CATALOG — no gold / no glass
+   ========================================================= */
+.section:not(.homeShowcase){background:#f5f0e9!important;color:#241f1c!important}
+.section:not(.homeShowcase)::before{display:none!important}
+.section:not(.homeShowcase) .searchField input{border:1px solid #d8cec3!important;border-radius:12px!important;background:#fbf9f6!important;box-shadow:none!important;backdrop-filter:none!important}
+.section:not(.homeShowcase) .searchClear{background:#8f2030!important;color:#fff!important}
+.section:not(.homeShowcase) .categoryChip{border:1px solid #d8cec3!important;background:#fbf9f6!important;color:#5f554f!important;box-shadow:none!important}
+.section:not(.homeShowcase) .categoryChipActive{border-color:#8f2030!important;background:#8f2030!important;color:#fff!important}
+.section:not(.homeShowcase) .priceField input,.section:not(.homeShowcase) .sortField select{border:1px solid #d8cec3!important;border-radius:10px!important;background:#fbf9f6!important;box-shadow:none!important}
+.section:not(.homeShowcase) .priceReset{border:1px solid #8f2030!important;background:transparent!important;color:#8f2030!important}
+.section:not(.homeShowcase) .grid,.section:not(.homeShowcase) .gridAll,.section:not(.homeShowcase) .gridCategory{gap:24px 18px!important}
+.section:not(.homeShowcase) .emptyState,.section:not(.homeShowcase) .loadingCard{border:1px solid #ded5cb!important;border-radius:14px!important;background:#fbf9f6!important;box-shadow:none!important}
+.fullCatalogButton{border-color:#8f2030!important;border-radius:10px!important;background:#8f2030!important;color:#fff!important;box-shadow:none!important}
