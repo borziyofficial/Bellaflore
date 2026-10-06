@@ -63,7 +63,7 @@
   border-color: rgba(80, 70, 60, 0.34);
   box-shadow:
     0 10px 28px rgba(17, 17, 17, 0.09),
-    0 0 0 1px rgba(201, 162, 75, 0.22),
+    0 0 0 1px rgba(143,32,48,0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.98);
 }
 
@@ -85,7 +85,7 @@
 }
 
 .checkoutGlassStepTrigger:focus-visible {
-  outline: 2px solid #c9a24b;
+  outline: 2px solid #8f2030;
   outline-offset: 2px;
 }
 
@@ -321,8 +321,8 @@
 
 .checkoutField input:focus,
 .checkoutField textarea:focus {
-  border-color: #c9a24b;
-  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
+  border-color: #8f2030;
+  box-shadow: 0 0 0 3px rgba(143,32,48,0.10);
 }
 
 .checkoutField input:disabled,
@@ -351,10 +351,10 @@
 .checkoutMapToggle {
   min-height: 44px;
   padding: 0 16px;
-  border: 1px solid rgba(201, 162, 75, 0.32);
+  border: 1px solid rgba(143,32,48,0.14);
   border-radius: var(--bf-button-radius, 999px);
   background: rgba(201, 162, 75, 0.1);
-  color: #6a4f14;
+  color: #8f2030;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   font-weight: 700;
@@ -364,7 +364,7 @@
 
 .checkoutMapToggle:active {
   transform: scale(0.99);
-  background: rgba(201, 162, 75, 0.18);
+  background: rgba(143,32,48,0.08);
 }
 
 .checkoutSubmitRow {
@@ -376,7 +376,7 @@
   min-height: 50px;
   border: 0;
   border-radius: var(--bf-button-radius, 999px);
-  background: var(--color-gold, #c9a24b);
+  background: var(--color-cherry, #8f2030);
   color: #ffffff;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 16px;
@@ -414,8 +414,8 @@
 
 .checkoutFlatSelector:focus-visible {
   outline: none;
-  border-color: #c9a24b;
-  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
+  border-color: #8f2030;
+  box-shadow: 0 0 0 3px rgba(143,32,48,0.10);
 }
 
 .checkoutFlatSelector span:first-child,
@@ -495,8 +495,8 @@
 }
 
 .checkoutFlatSelectWrap:focus-within {
-  border-color: #c9a24b;
-  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
+  border-color: #8f2030;
+  box-shadow: 0 0 0 3px rgba(143,32,48,0.10);
 }
 
 .checkoutFlatMuted {
@@ -589,8 +589,8 @@
 .checkoutMapToggle:hover,
 .checkoutMapToggle:focus-visible {
   outline: none;
-  border-color: #c9a24b;
-  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
+  border-color: #8f2030;
+  box-shadow: 0 0 0 3px rgba(143,32,48,0.10);
 }
 
 .checkoutSmartOptions {
@@ -666,16 +666,16 @@
 }
 
 .checkoutPaymentOption:has(input:checked) {
-  border-color: #c9a24b;
-  background: rgba(201, 162, 75, 0.14);
-  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.2);
+  border-color: #8f2030;
+  background: rgba(143,32,48,0.06);
+  box-shadow: 0 0 0 3px rgba(143,32,48,0.08);
 }
 
 .checkoutPaymentOption input {
   width: 16px;
   height: 16px;
   margin: 0;
-  accent-color: #c9a24b;
+  accent-color: #8f2030;
 }
 
 :global(.checkout-v3-sheet) :global(.checkout-delivery-alert) {
@@ -749,8 +749,8 @@
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 input:focus),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 textarea:focus),
 :global(html[data-theme="dark-luxury"] .checkout-section-v3 select:focus) {
-  border-color: #c9a24b !important;
-  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25) !important;
+  border-color: #8f2030 !important;
+  box-shadow: 0 0 0 3px rgba(143,32,48,0.10) !important;
   outline: none !important;
 }
 
@@ -787,11 +787,11 @@
   width: 36px;
   height: 36px;
   padding: 0;
-  background: linear-gradient(135deg, rgba(201, 162, 75, 0.1), rgba(201, 162, 75, 0.05));
-  border: 1px solid rgba(201, 162, 75, 0.2);
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.1), rgba(143,32,48,0.03));
+  border: 1px solid rgba(143,32,48,0.08);
   border-radius: 6px;
   cursor: pointer;
-  color: #c9a24b;
+  color: #8f2030;
   font-size: 14px;
   font-weight: 500;
   line-height: 1;
@@ -800,9 +800,9 @@
 }
 
 .checkoutMapExpandButton:hover {
-  background: linear-gradient(135deg, rgba(201, 162, 75, 0.15), rgba(201, 162, 75, 0.1));
+  background: linear-gradient(135deg, rgba(143,32,48,0.08), rgba(201, 162, 75, 0.1));
   border-color: rgba(201, 162, 75, 0.4);
-  color: #d4b15f;
+  color: #a52b3c;
 }
 
 .checkoutMapExpandButton:active {
@@ -841,10 +841,10 @@
   min-height: 46px;
   margin-top: 10px;
   padding: 10px 16px;
-  border: 1px solid rgba(201, 162, 75, 0.45);
+  border: 1px solid rgba(143,32,48,0.20);
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(201, 162, 75, 0.14), rgba(201, 162, 75, 0.06));
-  color: #6a4f14;
+  background: linear-gradient(135deg, rgba(143,32,48,0.06), rgba(143,32,48,0.03));
+  color: #8f2030;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   font-weight: 700;
@@ -855,7 +855,7 @@
 }
 
 .checkoutMapOpenButton:hover {
-  background: linear-gradient(135deg, rgba(201, 162, 75, 0.2), rgba(201, 162, 75, 0.1));
+  background: linear-gradient(135deg, rgba(143,32,48,0.08), rgba(201, 162, 75, 0.1));
 }
 
 .checkoutMapOpenButton:active {
@@ -882,7 +882,7 @@
   align-items: start;
   gap: 10px;
   padding: 11px 12px;
-  border: 1px solid rgba(201, 162, 75, 0.2);
+  border: 1px solid rgba(143,32,48,0.08);
   border-radius: 12px;
   background: rgba(255, 250, 241, 0.72);
   cursor: pointer;
@@ -892,7 +892,7 @@
   width: 18px;
   height: 18px;
   margin: 2px 0 0;
-  accent-color: var(--color-gold, #c9a24b);
+  accent-color: var(--color-cherry, #8f2030);
 }
 
 .checkoutOption > span {
@@ -913,7 +913,7 @@
 }
 
 .checkoutOption small a {
-  color: #9d7627;
+  color: #8f2030;
   font-weight: 700;
   text-decoration: underline;
   text-decoration-color: rgba(157, 118, 39, 0.35);
@@ -940,7 +940,7 @@
   width: 100%;
   min-height: 42px;
   padding: 0 10px;
-  border: 1px solid rgba(201, 162, 75, 0.28);
+  border: 1px solid rgba(143,32,48,0.12);
   border-radius: 10px;
   background: rgba(255, 253, 249, 0.88);
   color: var(--color-text-primary, #2a2521);
@@ -949,7 +949,7 @@
 }
 
 .checkoutCustomDateField input:focus-visible {
-  outline: 2px solid rgba(201, 162, 75, 0.42);
+  outline: 2px solid rgba(143,32,48,0.16);
   outline-offset: 2px;
 }
 
@@ -962,10 +962,10 @@
 .checkoutDeliveryDateButton {
   min-height: 44px;
   padding: 10px 12px;
-  border: 1px solid rgba(201, 162, 75, 0.35);
+  border: 1px solid rgba(143,32,48,0.16);
   border-radius: 8px;
-  background: linear-gradient(135deg, rgba(201, 162, 75, 0.08), rgba(201, 162, 75, 0.03));
-  color: #6a4f14;
+  background: linear-gradient(135deg, rgba(143,32,48,0.04), rgba(201, 162, 75, 0.03));
+  color: #8f2030;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   font-weight: 600;
@@ -977,7 +977,7 @@
 }
 
 .checkoutDeliveryDateButton:hover {
-  background: linear-gradient(135deg, rgba(201, 162, 75, 0.15), rgba(201, 162, 75, 0.08));
+  background: linear-gradient(135deg, rgba(143,32,48,0.08), rgba(143,32,48,0.04));
   border-color: rgba(201, 162, 75, 0.5);
 }
 
@@ -986,30 +986,30 @@
 }
 
 .checkoutDeliveryDateButtonActive {
-  background: linear-gradient(135deg, rgba(201, 162, 75, 0.3), rgba(201, 162, 75, 0.15));
+  background: linear-gradient(135deg, rgba(201, 162, 75, 0.3), rgba(143,32,48,0.08));
   border-color: rgba(201, 162, 75, 0.8);
-  color: #5a3e09;
+  color: #731a27;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(201, 162, 75, 0.15);
+  box-shadow: 0 2px 8px rgba(143,32,48,0.08);
 }
 
 @media (prefers-color-scheme: dark) {
   .checkoutDeliveryDateButton {
-    background: linear-gradient(135deg, rgba(201, 162, 75, 0.12), rgba(201, 162, 75, 0.05));
+    background: linear-gradient(135deg, rgba(143,32,48,0.06), rgba(143,32,48,0.03));
     color: #d4af7f;
     border-color: rgba(201, 162, 75, 0.4);
   }
 
   .checkoutDeliveryDateButton:hover {
-    background: linear-gradient(135deg, rgba(201, 162, 75, 0.18), rgba(201, 162, 75, 0.1));
+    background: linear-gradient(135deg, rgba(143,32,48,0.08), rgba(201, 162, 75, 0.1));
     border-color: rgba(201, 162, 75, 0.6);
   }
 
   .checkoutDeliveryDateButtonActive {
-    background: linear-gradient(135deg, rgba(201, 162, 75, 0.35), rgba(201, 162, 75, 0.2));
+    background: linear-gradient(135deg, rgba(143,32,48,0.16), rgba(143,32,48,0.08));
     border-color: rgba(201, 162, 75, 0.9);
-    color: #e8c690;
-    box-shadow: 0 2px 8px rgba(201, 162, 75, 0.2);
+    color: #f3d8dc;
+    box-shadow: 0 2px 8px rgba(143,32,48,0.08);
   }
 }
 
