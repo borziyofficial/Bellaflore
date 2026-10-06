@@ -1024,3 +1024,96 @@
     padding: 8px 10px;
   }
 }
+
+
+
+/* ==================================================
+   BELLA FLORE FINAL CHECKOUT — A1 EDITORIAL
+   ================================================== */
+:global(.checkout-v3-sheet) {
+  background: #f8f4ef !important;
+  border: 1px solid #d9cec4 !important;
+  color: #241f1c !important;
+  border-radius: 22px !important;
+}
+:global(.checkout-v3-sheet .checkout-v3-eyebrow) {
+  color: #8f2030 !important;
+  letter-spacing: .18em !important;
+  font-family: var(--font-sans, Manrope, sans-serif) !important;
+}
+:global(.checkout-v3-sheet h2) {
+  color: #241f1c !important;
+  font-family: var(--font-serif, "Playfair Display", serif) !important;
+  font-weight: 400 !important;
+}
+.checkoutV3BlockTitle {
+  color: #241f1c;
+  font-family: var(--font-serif, "Playfair Display", serif);
+  font-weight: 400;
+}
+.checkoutFlatBlock {
+  border-bottom-color: #ded5cb;
+}
+.checkoutField span { color: #4d433d !important; font-family: var(--font-sans, Manrope, sans-serif); }
+.checkoutField input,
+.checkoutField textarea,
+.checkoutFlatSelector,
+.checkoutFlatSelectWrap {
+  border-color: #d2c6bc;
+  border-radius: 10px;
+  background: #fffdfa !important;
+  box-shadow: none;
+}
+.checkoutField input:focus,
+.checkoutField textarea:focus,
+.checkoutFlatSelector:focus-visible,
+.checkoutFlatSelectWrap:focus-within {
+  border-color: #8f2030;
+  box-shadow: 0 0 0 3px rgba(143,32,48,.1);
+}
+.checkoutOption {
+  border-color: #ded5cb;
+  border-radius: 10px;
+  background: #fffdfa;
+}
+.checkoutOption input { accent-color: #8f2030; }
+.checkoutPaymentOption {
+  border-color: #d2c6bc;
+  border-radius: 10px;
+  background: #fffdfa;
+}
+.checkoutPaymentOption:has(input:checked) {
+  border-color: #8f2030;
+  background: rgba(143,32,48,.06);
+  box-shadow: 0 0 0 3px rgba(143,32,48,.08);
+}
+.checkoutSubmitButton {
+  min-height: 54px;
+  border-radius: 10px;
+  background: #8f2030;
+  font-family: var(--font-sans, Manrope, sans-serif);
+  box-shadow: none;
+}
+.checkoutSubmitButton:hover { background: #a52b3c; }
+.checkoutMapToggle,
+.checkoutMapOpenButton {
+  border-color: #d2c6bc;
+  border-radius: 10px;
+  background: #fffdfa;
+  color: #8f2030;
+}
+.checkoutDeliveryDateButton {
+  border-color: #d2c6bc;
+  border-radius: 10px;
+  background: #fffdfa;
+  color: #6b5d55;
+}
+.checkoutDeliveryDateButtonActive {
+  border-color: #8f2030;
+  background: rgba(143,32,48,.08);
+  color: #8f2030;
+  box-shadow: none;
+}
+@media (max-width: 640px) {
+  :global(.checkout-v3-sheet) { border-radius: 20px 20px 0 0 !important; }
+}
