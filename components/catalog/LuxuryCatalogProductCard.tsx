@@ -12,8 +12,6 @@ import {
   getProductSizeVariant,
 } from "@/components/product/productExperienceCatalog";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
-import { getProductComposition, resolveRequirementQuantity } from "@/components/inventoryIntelligence/productCompositionCatalog";
-import { INVENTORY_STOCK_CATALOG_SEED } from "@/components/inventoryIntelligence/inventoryStockCatalog";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import {
   useMemo,
@@ -64,7 +62,6 @@ export function LuxuryCatalogProductCard({
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
     experienceData.defaultSizeId,
   );
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const { average: ratingAverage, count: ratingCount } = useProductRatings(product.id);
   const [trackedProductId, setTrackedProductId] = useState(product.id);
   const actionGestureRef = useRef({
@@ -79,42 +76,6 @@ export function LuxuryCatalogProductCard({
   }
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
-
-  const compositionText = useMemo(() => {
-    const definition = getProductComposition(product.id);
-    if (!definition) {
-      return product.description?.trim() || "";
-    }
-
-    const stockTitles = new Map(
-      INVENTORY_STOCK_CATALOG_SEED.map((item) => [item.id, item.title]),
-    );
-    const genitiveTitles: Record<string, string> = {
-      red_rose: "красных роз",
-      white_rose: "белых роз",
-      peony: "пионов",
-      hydrangea: "гортензий",
-      eustoma: "эустом",
-      eucalyptus: "эвкалипта",
-    };
-
-    const parts = definition.requirements
-      .map((requirement) => {
-        const quantity = resolveRequirementQuantity(
-          requirement,
-          selectedVariant.sizeId,
-        );
-        if (!quantity) return null;
-        const title =
-          genitiveTitles[requirement.stockItemId] ??
-          stockTitles.get(requirement.stockItemId) ??
-          requirement.stockItemId;
-        return `${quantity} ${title}`;
-      })
-      .filter((part): part is string => Boolean(part));
-
-    return parts.length > 0 ? parts.join(", ") : product.description?.trim() || "";
-  }, [product, selectedVariant.sizeId]);
 
   const handleActionTouchStart = (event: TouchEvent<HTMLButtonElement>) => {
     const touch = event.touches[0];
@@ -281,56 +242,7 @@ export function LuxuryCatalogProductCard({
 
           <div className={styles.priceRow}>
             <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
-            <button
-              type="button"
-              className={styles.detailsButton}
-              onClick={(event) => {
-                if (shouldSuppressActionClick(event)) {
-                  return;
-                }
-                event.stopPropagation();
-                setDetailsOpen((current) => !current);
-              }}
-              onTouchStart={handleActionTouchStart}
-              onTouchMove={handleActionTouchMove}
-              onTouchEnd={handleActionTouchEnd}
-              aria-expanded={detailsOpen}
-              aria-controls={`catalog-details-${product.id}`}
-              aria-label={`${detailsOpen ? "Скрыть" : "Показать"} состав ${product.title}`}
-            >
-              {detailsOpen ? "Скрыть ↑" : "Подробнее ↓"}
-            </button>
           </div>
-
-          {detailsOpen ? (
-            <div
-              id={`catalog-details-${product.id}`}
-              className={styles.inlineDetails}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className={styles.inlineDetailsMeta}>
-                {product.catalogNumber ? (
-                  <span className={styles.inlineDetailsArticle}>
-                    Артикул: {product.catalogNumber}
-                  </span>
-                ) : null}
-                {ratingCount > 0 ? (
-                  <span
-                    className={styles.inlineDetailsRating}
-                    aria-label={`Рейтинг ${ratingAverage.toFixed(1)} из 5, ${ratingCount} отзывов`}
-                    title={`Рейтинг ${ratingAverage.toFixed(1)} из 5, ${ratingCount} отзывов`}
-                  >
-                    {"★".repeat(Math.max(0, Math.min(5, Math.round(ratingAverage))))}
-                    {"☆".repeat(Math.max(0, 5 - Math.round(ratingAverage)))}
-                    {ratingAverage.toFixed(1)} ({ratingCount})
-                  </span>
-                ) : null}
-              </div>
-              <div className={styles.inlineDetailsComposition}>
-                {compositionText || "Состав уточняется по текущему каталогу."}
-              </div>
-            </div>
-          ) : null}
 
           <div className={styles.actionRow}>
             <button
