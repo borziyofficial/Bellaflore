@@ -614,7 +614,7 @@ export function CheckoutSection({
               <div className={checkoutSectionStyles.checkoutGlassFlow}>
                 <CheckoutGlassStep
                   id="recipient"
-                  title="Заказчик и получатель"
+                  title="Получатель"
                   summary={recipientSummary}
                   isOpen={openStep === "recipient"}
                   onToggle={toggleCheckoutStep}
