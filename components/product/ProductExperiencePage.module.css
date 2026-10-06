@@ -49,7 +49,7 @@
   padding: 7px 12px;
   border-radius: 999px;
   background: var(--bg-secondary, #fffdf9);
-  color: var(--gold-light, #f5d98c);
+  color: var(--gold-light, #d9b6bb);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   letter-spacing: 0.04em;
@@ -89,7 +89,7 @@
   border: 1px solid rgba(201, 162, 75, 0.38);
   border-radius: 999px;
   background: rgba(201, 162, 75, 0.12);
-  color: var(--gold-dark, #9d7627);
+  color: var(--gold-dark, #7a1827);
   font: 700 12px/1 var(--font-body, Inter, sans-serif);
   letter-spacing: 0.02em;
 }
@@ -122,7 +122,7 @@
 }
 
 .reviewShortcutStarActive {
-  color: var(--color-gold, #c9a24b);
+  color: var(--color-gold, #8f2030);
 }
 
 .reviewShortcutStar:active {
@@ -160,7 +160,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--gold-light, #f5d98c);
+  color: var(--gold-light, #d9b6bb);
   font: 600 13px/1 var(--font-body, Inter, sans-serif);
   cursor: pointer;
 }
@@ -214,7 +214,7 @@
 }
 
 .sizePickerButton strong {
-  color: var(--gold-light, #f5d98c);
+  color: var(--gold-light, #d9b6bb);
   font-variant-numeric: tabular-nums;
 }
 
