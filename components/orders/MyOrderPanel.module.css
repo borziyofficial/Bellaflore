@@ -101,3 +101,10 @@
     padding-bottom: 18px;
   }
 }
+\n/* BELLA FLORE FINAL MY ORDER — cherry editorial */
+.overlay{background:rgba(36,31,28,.34)!important}
+.sheet,.expanded{border-color:#ded5cb!important;background:#fbf9f6!important;box-shadow:0 18px 48px rgba(36,31,28,.12)!important}
+.eyebrow{color:#8f2030!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.title{color:#241f1c!important;font-family:var(--font-serif,"Playfair Display",serif)!important;font-weight:400!important}
+.close{color:#8f2030!important}
+.closeGlyph{border-color:#d2c6bc!important;background:#fffdfa!important;color:#8f2030!important}
