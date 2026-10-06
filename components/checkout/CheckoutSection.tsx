@@ -654,6 +654,28 @@ export function CheckoutSection({
                     {renderFieldError("phone")}
                   </label>
 
+                  <fieldset className={checkoutSectionStyles.checkoutContactGroup}>
+                    <legend>Способ связи</legend>
+                    <div className={checkoutSectionStyles.checkoutContactStrip}>
+                      {([
+                        ["telegram", "Telegram"],
+                        ["whatsapp", "WhatsApp"],
+                        ["call", "Звонок"],
+                      ] as const).map(([method, label]) => (
+                        <label key={method} className={checkoutSectionStyles.checkoutPaymentOption}>
+                          <input
+                            type="radio"
+                            name="checkout-contact-method"
+                            value={method}
+                            checked={checkoutForm.contactMethod === method}
+                            onChange={() => handleCheckoutFieldChange("contactMethod", method)}
+                          />
+                          <span>{label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+
                   <label className={checkoutSectionStyles.checkoutOption}>
                     <input
                       type="checkbox"
