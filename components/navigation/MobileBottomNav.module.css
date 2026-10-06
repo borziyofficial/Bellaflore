@@ -249,3 +249,9 @@
     font-size: 10px;
   }
 }
+\n/* BELLA FLORE FINAL BOTTOM NAV — cherry editorial */
+@media(max-width:768px){
+  .nav{border-top-color:#ded5cb!important;background:#fbf9f6!important}
+  .item:hover,.item:focus-visible,.itemContact:hover,.itemContact:focus-visible,.itemActive,.itemActive svg,.itemActive .label{color:#8f2030!important}
+  .orderBadge,.favoriteBadge{background:#8f2030!important}
+}
