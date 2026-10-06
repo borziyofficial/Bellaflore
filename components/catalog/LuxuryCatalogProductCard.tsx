@@ -340,9 +340,9 @@ export function LuxuryCatalogProductCard({
               onTouchStart={handleActionTouchStart}
               onTouchMove={handleActionTouchMove}
               onTouchEnd={handleActionTouchEnd}
-              aria-label={`Купить ${product.title}`}
+              aria-label={`Купить сейчас — ${product.title}`}
             >
-              Купить
+              Купить сейчас
             </button>
           </div>
         </div>
