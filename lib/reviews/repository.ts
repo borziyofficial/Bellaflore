@@ -155,6 +155,32 @@ export async function listApprovedReviews(
   return rows.map(mapReview);
 }
 
+export async function getApprovedReviewSummary(productId: string | null = null): Promise<{
+  average: number;
+  count: number;
+}> {
+  await ensureReviewsSchema();
+  const sql = getReviewsSqlClient();
+  const rows = productId
+    ? await sql<Array<{ average: string | number | null; count: string | number }>>`
+        SELECT AVG(rating) AS average, COUNT(*) AS count
+        FROM storefront_reviews
+        WHERE status = 'approved' AND product_id = ${productId}
+      `
+    : await sql<Array<{ average: string | number | null; count: string | number }>>`
+        SELECT AVG(rating) AS average, COUNT(*) AS count
+        FROM storefront_reviews
+        WHERE status = 'approved'
+      `;
+
+  const count = Number(rows[0]?.count ?? 0);
+  const average = count > 0 ? Number(rows[0]?.average ?? 0) : 0;
+  return {
+    average: Number.isFinite(average) ? Math.round(average * 10) / 10 : 0,
+    count,
+  };
+}
+
 export async function listAdminReviews(limit = 200): Promise<ReviewRecord[]> {
   await ensureReviewsSchema();
   const sql = getReviewsSqlClient();

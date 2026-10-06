@@ -1,15 +1,15 @@
 .shell {
-  --admin-bg: #eee4d6;
-  --admin-bg-soft: #f6efe5;
+  --admin-bg: #f2ece6;
+  --admin-bg-soft: #fbf9f6;
   --admin-surface: rgba(255, 253, 249, 0.96);
   --admin-surface-elevated: #ffffff;
   --admin-ink: #2f2a24;
   --admin-muted: #75695c;
   --admin-soft: #9a8c7b;
-  --admin-gold: #8a6b3d;
-  --admin-gold-strong: #6f4f21;
-  --admin-border: rgba(138, 107, 61, 0.18);
-  --admin-border-strong: rgba(138, 107, 61, 0.34);
+  --admin-gold: #8f2030;
+  --admin-gold-strong: #7a1827;
+  --admin-border: rgba(143,32,48,0.14);
+  --admin-border-strong: rgba(143,32,48,0.14);
   --admin-shadow: 0 20px 60px rgba(71, 55, 34, 0.13);
 
   min-height: 100vh;
@@ -20,8 +20,8 @@
     max(8px, env(safe-area-inset-bottom))
     max(8px, env(safe-area-inset-left));
   background:
-    radial-gradient(circle at 18% 0%, rgba(184, 149, 106, 0.2), transparent 34%),
-    linear-gradient(180deg, #f6efe5 0%, #eadfce 100%);
+    radial-gradient(circle at 18% 0%, rgba(143,32,48,0.08), transparent 34%),
+    linear-gradient(180deg, #fbf9f6 0%, #f3eee8 100%);
   color: var(--admin-ink);
   font-family:
     Inter,
@@ -44,7 +44,7 @@
   border: 1px solid var(--admin-border);
   border-radius: 28px;
   background:
-    radial-gradient(circle at 50% -10%, rgba(184, 149, 106, 0.11), transparent 34%),
+    radial-gradient(circle at 50% -10%, rgba(143,32,48,0.08), transparent 34%),
     var(--admin-bg-soft);
   box-shadow:
     var(--admin-shadow),
@@ -71,8 +71,8 @@
   padding: 14px 14px 11px;
   border-bottom: 1px solid var(--admin-border);
   background: rgba(255, 252, 247, 0.88);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .mobileMenuButton {
@@ -80,7 +80,7 @@
   width: 38px;
   height: 38px;
   padding: 0;
-  border: 1px solid rgba(215, 180, 106, 0.25);
+  border: 1px solid rgba(143,32,48,0.10);
   border-radius: 12px;
   background: var(--admin-surface);
   color: var(--admin-gold-strong);
@@ -95,7 +95,7 @@
   z-index: 180;
   display: flex;
   background: rgba(0, 0, 0, 0.68);
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
 }
 
 .mobileMenu {
@@ -104,7 +104,7 @@
   overflow: auto;
   padding: max(18px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
   border-right: 1px solid var(--admin-border-strong);
-  background: #fffaf2;
+  background: #fffdfa;
   box-shadow: 24px 0 70px rgba(71, 55, 34, 0.22);
 }
 
@@ -121,7 +121,7 @@
 .mobileMenuNav { display: grid; gap: 5px; }
 .mobileMenuNav a { display: grid; gap: 3px; padding: 11px 12px; border: 1px solid transparent; border-radius: 13px; color: var(--admin-ink); text-decoration: none; }
 .mobileMenuNav a span { color: var(--admin-muted); font-size: 11px; }
-.mobileMenuNav a.mobileMenuLinkActive { border-color: rgba(241, 209, 139, .28); background: rgba(215, 180, 106, .1); color: var(--admin-gold-strong); }
+.mobileMenuNav a.mobileMenuLinkActive { border-color: rgba(143,32,48,.14); background: rgba(143,32,48,.06); color: var(--admin-gold-strong); }
 
 .topBarMain {
   min-width: 0;
@@ -173,7 +173,7 @@
   min-height: 38px;
   margin: 0;
   padding: 0 14px;
-  border: 1px solid rgba(215, 180, 106, 0.22);
+  border: 1px solid rgba(143,32,48,0.10);
   border-radius: 999px;
   background: var(--admin-surface);
   color: var(--admin-ink);
@@ -205,8 +205,8 @@
   padding: 9px 9px calc(9px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--admin-border);
   background: rgba(255, 252, 247, 0.92);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .tabItem {
@@ -231,12 +231,12 @@
 }
 
 .tabItemActive {
-  border-color: rgba(241, 209, 139, 0.32);
+  border-color: rgba(143,32,48,0.12);
   background:
-    radial-gradient(circle at 50% 0%, rgba(241, 209, 139, 0.26), transparent 56%),
-    rgba(215, 180, 106, 0.13);
+    radial-gradient(circle at 50% 0%, rgba(143,32,48,0.12), transparent 56%),
+    rgba(143,32,48,0.10);
   box-shadow:
-    0 10px 24px rgba(215, 180, 106, 0.13),
+    0 10px 24px rgba(143,32,48,0.10),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   color: var(--admin-gold-strong);
 }
@@ -251,7 +251,7 @@
 
 .tabItemActive .tabDot {
   opacity: 1;
-  box-shadow: 0 0 16px rgba(215, 180, 106, 0.62);
+  box-shadow: 0 0 16px rgba(143,32,48,0.10);
 }
 
 .tabLabel {
@@ -277,7 +277,7 @@
   height: 38px;
   display: inline-grid;
   place-items: center;
-  border: 1px solid rgba(215, 180, 106, 0.36);
+  border: 1px solid rgba(143,32,48,0.10);
   border-radius: 12px;
   background: linear-gradient(145deg, #f3e7d4, #fff);
   color: var(--admin-gold-strong);
@@ -329,12 +329,12 @@
 
 .sidebarLink:hover {
   color: var(--admin-ink);
-  background: rgba(138, 107, 61, 0.07);
+  background: rgba(143,32,48,0.14);
 }
 
 .sidebarLinkActive {
-  border-color: rgba(241, 209, 139, 0.24);
-  background: rgba(215, 180, 106, 0.1);
+  border-color: rgba(143,32,48,0.12);
+  background: rgba(143,32,48,0.10);
   color: var(--admin-gold-strong);
 }
 

@@ -27,7 +27,7 @@ async function openCheckout(page: Page) {
   }, CHECKOUT_ADDRESS);
 
   await page.goto("/");
-  const buyButton = page.getByRole("button", { name: "Купить Red Luxury" });
+  const buyButton = page.getByRole("button", { name: /^Купить сейчас — Red Luxury$/ });
   await expect(buyButton).toBeVisible();
   await buyButton.click();
 
@@ -67,9 +67,7 @@ test("checkout remains scrollable, operable and valid at the target viewport", a
 }) => {
   const dialog = await openCheckout(page);
   const footer = dialog.getByLabel("Итог");
-  const submitButton = dialog.getByRole("button", { name: "Оформить заказ" });
-
-  await expect(submitButton).toBeDisabled();
+  const submitButton = page.getByRole("button", { name: "Оформить заказ" });
 
   for (const stepName of CHECKOUT_STEP_NAMES) {
     const trigger = dialog.getByRole("button", {
@@ -121,7 +119,9 @@ test("checkout remains scrollable, operable and valid at the target viewport", a
   expect(layoutMetrics.verticalScrollContainerClasses).toEqual([
     "checkout-v3-body",
   ]);
-  expect(layoutMetrics.footerPosition).toBe("static");
+  expect(layoutMetrics.footerPosition).toBe(
+    page.viewportSize()?.width === 390 ? "sticky" : "static",
+  );
   expect(layoutMetrics.flowBottom).not.toBeNull();
   expect(layoutMetrics.footerTop).not.toBeNull();
   expect(layoutMetrics.flowBottom!).toBeLessThanOrEqual(
@@ -149,5 +149,19 @@ test("checkout remains scrollable, operable and valid at the target viewport", a
   await addressInput.fill(CHECKOUT_ADDRESS);
   await addressInput.press("Tab");
 
+  const deliveryTrigger = dialog.getByRole("button", { name: /^Доставка/ });
+  if ((await deliveryTrigger.getAttribute("aria-expanded")) !== "true") {
+    await deliveryTrigger.click();
+  }
+  await deliveryTrigger.scrollIntoViewIfNeeded();
+  await dialog.getByRole("button", { name: "Завтра" }).click();
+  const intervalSelect = dialog.getByRole("combobox", { name: "Интервал доставки" });
+  await expect(intervalSelect).toBeVisible();
+  await intervalSelect.selectOption({ index: 1 });
+
+  const legalCheckbox = dialog.getByRole("checkbox", { name: /Согласие с условиями заказа/ });
+  await legalCheckbox.check();
+
+  await expect(submitButton).toBeVisible();
   await expect(submitButton).toBeEnabled();
 });

@@ -24,7 +24,7 @@
 }
 
 .selectionPrice {
-  color: var(--gold-light, #f5d98c);
+  color: var(--gold-light, #d9b6bb);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: clamp(24px, 4.5vw, 30px);
   font-weight: 700;
@@ -55,7 +55,7 @@
   border: 0;
   background: var(
     --bf-gold-gradient,
-    var(--color-gold, #c9a24b)
+    var(--color-gold, #8f2030)
   );
   color: #ffffff;
   box-shadow: 0 8px 20px rgba(201, 162, 75, 0.22);
@@ -101,3 +101,16 @@
     transform: none;
   }
 }
+
+
+/* =========================================================
+   BELLA FLORE FINAL CLEAN BUY PANEL
+   ========================================================= */
+.panel{gap:14px!important;padding:18px!important;border:1px solid #ded5cb!important;border-radius:14px!important;background:#fbf9f6!important;box-shadow:none!important}
+.selectionLabel{color:#6f625b!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.selectionPrice{color:#8f2030!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.buyButton{border:0!important;border-radius:10px!important;background:#8f2030!important;color:#fff!important;box-shadow:none!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.buyButton:hover{background:#a52b3c!important;transform:none!important}
+.favoriteButton{border:1px solid #d2c6bc!important;border-radius:10px!important;background:#fbf9f6!important;color:#241f1c!important}
+.favoriteButtonActive{border-color:#8f2030!important;background:rgba(143,32,48,.07)!important;color:#8f2030!important}
+.deliveryNote{color:#6f625b!important;font-family:var(--font-sans,Manrope,sans-serif)!important}

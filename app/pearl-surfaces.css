@@ -39,9 +39,9 @@ Purpose (EN): Surface tiers, radius, shadow tokens, and opt-in foundation classe
   --border-active: rgba(186, 184, 180, 0.48);
 
   /* --- Glass (backdrop recipes) --- */
-  --glass-light: blur(16px) saturate(1.04);
-  --glass-medium: blur(24px) saturate(1.05);
-  --glass-heavy: blur(32px) saturate(1.04);
+  --glass-light: none;
+  --glass-medium: none;
+  --glass-heavy: none;
 
   /* --- Surface composition helpers --- */
   --surface-glass-fill: linear-gradient(

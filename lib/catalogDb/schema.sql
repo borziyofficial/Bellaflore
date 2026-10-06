@@ -45,6 +45,40 @@ ALTER TABLE catalog_products ADD COLUMN IF NOT EXISTS occasion TEXT NOT NULL DEF
 ALTER TABLE catalog_products ADD COLUMN IF NOT EXISTS images JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE catalog_products ADD COLUMN IF NOT EXISTS is_promotion BOOLEAN NOT NULL DEFAULT FALSE;
 
+ALTER TABLE catalog_products ADD COLUMN IF NOT EXISTS catalog_number TEXT;
+CREATE SEQUENCE IF NOT EXISTS catalog_product_number_seq;
+
+WITH numbered AS (
+  SELECT id, ROW_NUMBER() OVER (ORDER BY created_at ASC, id ASC) AS number_value
+  FROM catalog_products
+  WHERE catalog_number IS NULL OR BTRIM(catalog_number) = ''
+)
+UPDATE catalog_products AS p
+SET catalog_number = CONCAT('BF-', LPAD(numbered.number_value::TEXT, 3, '0'))
+FROM numbered
+WHERE p.id = numbered.id;
+
+SELECT setval(
+  'catalog_product_number_seq',
+  GREATEST(
+    COALESCE((
+      SELECT MAX((SUBSTRING(catalog_number FROM '^BF-([0-9]+)$'))::BIGINT)
+      FROM catalog_products
+      WHERE catalog_number ~ '^BF-[0-9]+$'
+    ), 0),
+    1
+  ),
+  COALESCE((
+    SELECT MAX((SUBSTRING(catalog_number FROM '^BF-([0-9]+)$'))::BIGINT) > 0
+    FROM catalog_products
+    WHERE catalog_number ~ '^BF-[0-9]+$'
+  ), FALSE)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_catalog_products_catalog_number
+  ON catalog_products(catalog_number)
+  WHERE catalog_number IS NOT NULL;
+
 CREATE INDEX IF NOT EXISTS idx_catalog_products_status ON catalog_products(status);
 CREATE INDEX IF NOT EXISTS idx_catalog_products_slug ON catalog_products(slug);
 

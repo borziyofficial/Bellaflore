@@ -6,9 +6,12 @@
 //
 // Назначение (RU): Определения типов для checkout.
 // ==================================================
+export type CheckoutContactMethod = "telegram" | "whatsapp" | "call";
+
 export type CheckoutForm = {
   name: string;
   phone: string;
+  contactMethod: CheckoutContactMethod;
   recipientIsCustomer: boolean;
   recipientName: string;
   recipientPhone: string;
@@ -61,6 +64,7 @@ export type CheckoutOrderPayloadItem = {
 export type CheckoutOrderPayload = {
   items: CheckoutOrderPayloadItem[];
   customerName: string;
+  contactMethod: CheckoutContactMethod;
   phone: string;
   recipientName: string;
   recipientPhone: string;

@@ -23,13 +23,12 @@ Purpose (EN): Input layout, color, and focus tokens plus opt-in foundation class
   --input-text-color: var(--text-strong);
   --input-border: var(--border);
   --input-border-hover: rgba(186, 184, 180, 0.52);
-  --input-border-focus: rgba(186, 184, 180, 0.62);
+  --input-border-focus: rgba(143,32,48,.55);
   --input-bg: var(--surface-glass);
 
   /* --- Elevation & motion --- */
-  --input-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.72);
-  --input-shadow-focus: var(--shadow-card), 0 0 0 2px var(--surface),
-    0 0 0 4px rgba(186, 184, 180, 0.42);
+  --input-shadow: none;
+  --input-shadow-focus: 0 0 0 3px rgba(143,32,48,.10);
   --input-transition: border-color 0.2s ease, box-shadow 0.2s ease,
     background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
 

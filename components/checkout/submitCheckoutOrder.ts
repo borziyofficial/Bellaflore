@@ -200,6 +200,12 @@ export function mapCheckoutPaymentMethod(
 
 function buildPremiumOrderComment(payload: CheckoutOrderPayload): string {
   const parts: string[] = [];
+  const contactMethodLabels: Record<CheckoutOrderPayload["contactMethod"], string> = {
+    telegram: "Telegram",
+    whatsapp: "WhatsApp",
+    call: "Звонок",
+  };
+  parts.push(`Способ связи: ${contactMethodLabels[payload.contactMethod]}`);
   if (payload.comment.trim()) parts.push(payload.comment.trim());
   if (payload.cardMessage.trim()) parts.push(`Открытка: ${payload.cardMessage.trim()}`);
   if (payload.anonymousDelivery) parts.push("Анонимная доставка");

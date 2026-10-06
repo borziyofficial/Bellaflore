@@ -1,7 +1,7 @@
 /* BellaFlore mobile bottom navigation — PHASE V2 simplified flat design */
 .nav {
   display: none;
-  --nav-gold: #c4aa7a;
+  --nav-gold: #8f2030;
   --nav-text: #2a2521;
   --nav-text-muted: #8b8680;
 }
@@ -248,4 +248,11 @@
   .compact .labelContact {
     font-size: 10px;
   }
+}
+
+/* BELLA FLORE FINAL BOTTOM NAV — cherry editorial */
+@media(max-width:768px){
+  .nav{border-top-color:#ded5cb!important;background:#fbf9f6!important}
+  .item:hover,.item:focus-visible,.itemContact:hover,.itemContact:focus-visible,.itemActive,.itemActive svg,.itemActive .label{color:#8f2030!important}
+  .orderBadge,.favoriteBadge{background:#8f2030!important}
 }

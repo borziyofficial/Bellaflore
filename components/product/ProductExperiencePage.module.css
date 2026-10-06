@@ -49,7 +49,7 @@
   padding: 7px 12px;
   border-radius: 999px;
   background: var(--bg-secondary, #fffdf9);
-  color: var(--gold-light, #f5d98c);
+  color: var(--gold-light, #d9b6bb);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   letter-spacing: 0.04em;
@@ -89,7 +89,7 @@
   border: 1px solid rgba(201, 162, 75, 0.38);
   border-radius: 999px;
   background: rgba(201, 162, 75, 0.12);
-  color: var(--gold-dark, #9d7627);
+  color: var(--gold-dark, #7a1827);
   font: 700 12px/1 var(--font-body, Inter, sans-serif);
   letter-spacing: 0.02em;
 }
@@ -122,7 +122,7 @@
 }
 
 .reviewShortcutStarActive {
-  color: var(--color-gold, #c9a24b);
+  color: var(--color-gold, #8f2030);
 }
 
 .reviewShortcutStar:active {
@@ -160,7 +160,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--gold-light, #f5d98c);
+  color: var(--gold-light, #d9b6bb);
   font: 600 13px/1 var(--font-body, Inter, sans-serif);
   cursor: pointer;
 }
@@ -214,7 +214,7 @@
 }
 
 .sizePickerButton strong {
-  color: var(--gold-light, #f5d98c);
+  color: var(--gold-light, #d9b6bb);
   font-variant-numeric: tabular-nums;
 }
 
@@ -263,3 +263,66 @@
     transition: none;
   }
 }
+
+
+
+/* ==================================================
+   BELLA FLORE FINAL PRODUCT PAGE — A1 EDITORIAL
+   ================================================== */
+.overlay { background: #f5f0e9; }
+.page { background: #f5f0e9; }
+.topBar { max-width: 1180px; margin: 0 auto 18px; }
+.backButton {
+  border: 1px solid #d2c6bc;
+  border-radius: 10px;
+  background: #fbf9f6;
+  color: #241f1c;
+  font-family: var(--font-sans, Manrope, sans-serif);
+  box-shadow: none;
+}
+.badge {
+  border-radius: 999px;
+  background: #8f2030;
+  color: #fff;
+  box-shadow: none;
+  font-family: var(--font-sans, Manrope, sans-serif);
+}
+.content { max-width: 1180px; grid-template-columns: minmax(0,1.1fr) minmax(340px,.9fr); align-items: start; gap: 36px; }
+.heroCopy { align-content: start; padding-top: 18px; }
+.category { color: #8f6d55; font-family: var(--font-sans, Manrope, sans-serif); }
+.catalogNumber { display: none; }
+.title { color: #241f1c; font-family: var(--font-serif, "Playfair Display", serif); font-weight: 400; font-size: clamp(38px,5vw,68px); }
+.lead { color: #6b5d55; font-family: var(--font-sans, Manrope, sans-serif); }
+.price { color: #8f2030; font-family: var(--font-sans, Manrope, sans-serif); }
+.sizePickerButton {
+  border-color: #d2c6bc;
+  border-radius: 10px;
+  background: #fbf9f6;
+  color: #241f1c;
+  box-shadow: none;
+}
+.sizePickerButton strong { color: #8f2030; }
+.sectionTitle { color: #241f1c; font-family: var(--font-serif, "Playfair Display", serif); font-weight: 400; }
+@media (max-width: 768px) {
+  .content { grid-template-columns: 1fr; gap: 18px; }
+  .title { font-size: clamp(34px, 11vw, 48px); }
+}
+
+
+/* =========================================================
+   BELLA FLORE FINAL CLEAN PRODUCT — no legacy gold/glass
+   ========================================================= */
+.overlay{background:#f5f0e9!important}
+.page{background:#f5f0e9!important}
+.backButton{border-color:#d2c6bc!important;border-radius:10px!important;background:#fbf9f6!important;color:#241f1c!important;box-shadow:none!important}
+.badge{background:#8f2030!important;color:#fff!important;box-shadow:none!important}
+.category{color:#8f6d55!important}
+.reviewShortcutStar{color:#cbbeb4!important}
+.reviewShortcutStarActive{color:#8f2030!important}
+.title{color:#241f1c!important;font-family:var(--font-serif,"Playfair Display",serif)!important;font-weight:400!important}
+.lead{color:#6b5d55!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.readMore{color:#8f2030!important}
+.price{color:#8f2030!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.sizePickerButton{border-color:#d2c6bc!important;border-radius:10px!important;background:#fbf9f6!important;color:#241f1c!important;box-shadow:none!important}
+.sizePickerButton strong{color:#8f2030!important}
+.sectionTitle{color:#241f1c!important;font-family:var(--font-serif,"Playfair Display",serif)!important;font-weight:400!important}

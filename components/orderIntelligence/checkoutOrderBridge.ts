@@ -131,6 +131,7 @@ export function getExampleOrderPayload(): Order {
         },
       ],
       customerName: "Анна Иванова",
+      contactMethod: "telegram",
       phone: "+7 900 123-45-67",
       recipientName: "Анна Иванова",
       recipientPhone: "+7 900 123-45-67",

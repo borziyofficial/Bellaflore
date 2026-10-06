@@ -128,13 +128,6 @@ export async function postgresListCatalogProducts(): Promise<StoredCatalogProduc
 
   await ensureSchema();
   const rows = await sql<CatalogRow[]>`
-    WITH published_with_number AS (
-      SELECT
-        *,
-        CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0')) as catalog_number
-      FROM catalog_products
-      WHERE status = 'published'
-    )
     SELECT 
       id,
       slug,
@@ -172,7 +165,8 @@ export async function postgresListCatalogProducts(): Promise<StoredCatalogProduc
       created_at,
       updated_at,
       catalog_number
-    FROM published_with_number
+    FROM catalog_products
+    WHERE status = 'published'
     ORDER BY created_at ASC
   `;
   return rows.map(rowToProduct);
@@ -188,13 +182,6 @@ export async function postgresGetCatalogProductById(
 
   await ensureSchema();
   const rows = await sql<CatalogRow[]>`
-    WITH published_with_number AS (
-      SELECT
-        id,
-        CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0')) as catalog_number
-      FROM catalog_products
-      WHERE status = 'published'
-    )
     SELECT 
       p.id,
       p.slug,
@@ -231,9 +218,8 @@ export async function postgresGetCatalogProductById(
       p.is_promotion,
       p.created_at,
       p.updated_at,
-      COALESCE(published_with_number.catalog_number, '') as catalog_number
+      p.catalog_number
     FROM catalog_products p
-    LEFT JOIN published_with_number ON published_with_number.id = p.id
     WHERE p.id = ${id}
     LIMIT 1
   `;
@@ -250,13 +236,6 @@ export async function postgresGetCatalogProductBySlug(
 
   await ensureSchema();
   const rows = await sql<CatalogRow[]>`
-    WITH published_with_number AS (
-      SELECT
-        id,
-        CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0')) as catalog_number
-      FROM catalog_products
-      WHERE status = 'published'
-    )
     SELECT 
       p.id,
       p.slug,
@@ -293,9 +272,8 @@ export async function postgresGetCatalogProductBySlug(
       p.is_promotion,
       p.created_at,
       p.updated_at,
-      COALESCE(published_with_number.catalog_number, '') as catalog_number
+      p.catalog_number
     FROM catalog_products p
-    LEFT JOIN published_with_number ON published_with_number.id = p.id
     WHERE p.slug = ${slug} OR p.seo_slug = ${slug}
     LIMIT 1
   `;
@@ -320,7 +298,7 @@ export async function postgresUpsertCatalogProduct(
       color_palette, occasion, image_url, gallery_images, images,
       seo_title, seo_description, seo_h1, seo_slug, seo_image_alt, seo_keywords,
       seo_faq, open_graph_title, open_graph_description, schema_product_json_ld,
-      is_featured, is_new, is_bestseller, is_promotion, created_at, updated_at
+      is_featured, is_new, is_bestseller, is_promotion, catalog_number, created_at, updated_at
     ) VALUES (
       ${product.id}, ${product.slug}, ${product.title}, ${product.category},
       ${product.status}, ${product.shortDescription}, ${product.fullDescription},
@@ -332,6 +310,7 @@ export async function postgresUpsertCatalogProduct(
       ${product.seoImageAlt}, ${sql.json(jsonb.seoKeywords)}, ${sql.json(jsonb.seoFaq)},
       ${product.openGraphTitle}, ${product.openGraphDescription}, ${sql.json(jsonb.schemaProductJsonLd as postgres.JSONValue)},
       ${product.isFeatured}, ${product.isNew}, ${product.isBestseller}, ${product.isPromotion},
+      COALESCE(${product.catalogNumber ?? null}, CONCAT('BF-', LPAD(nextval('catalog_product_number_seq')::TEXT, 3, '0'))),
       NOW(), NOW()
     )
     ON CONFLICT (id) DO UPDATE SET

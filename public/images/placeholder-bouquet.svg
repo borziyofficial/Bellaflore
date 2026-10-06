@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">Изображение букета</title>
+  <desc id="desc">Нейтральный плейсхолдер букета BellaFlore</desc>
+  <rect width="800" height="800" fill="#f3f0ea"/>
+  <path d="M400 650c-70-110-125-205-125-285 0-70 55-125 125-125s125 55 125 125c0 80-55 175-125 285Z" fill="#e8e2d8"/>
+  <path d="M330 360c-25-95-5-160 70-205M400 390c15-115 55-175 105-205M370 400c-55-90-105-125-155-135" fill="none" stroke="#c9c0b2" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="280" cy="250" r="46" fill="#ddd5ca"/>
+  <circle cx="505" cy="205" r="48" fill="#ddd5ca"/>
+  <circle cx="400" cy="180" r="55" fill="#e1d9cf"/>
+  <path d="M310 545h180" stroke="#c9c0b2" stroke-width="8" stroke-linecap="round"/>
+</svg>

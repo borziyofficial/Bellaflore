@@ -11,8 +11,6 @@ import {
   getProductSizeVariant,
 } from "@/components/product/productExperienceCatalog";
 import type { ProductSizeId } from "@/components/product/productExperienceTypes";
-import { getProductComposition, resolveRequirementQuantity } from "@/components/inventoryIntelligence/productCompositionCatalog";
-import { INVENTORY_STOCK_CATALOG_SEED } from "@/components/inventoryIntelligence/inventoryStockCatalog";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import {
   useMemo,
@@ -39,15 +37,9 @@ type LuxuryCatalogProductCardProps = {
   onProductOpen?: (productId: string) => void;
 };
 
-// Compact commerce card: photo, name, price + "Подробнее ↓" (opens the full
-// product page), and an always-visible "Купить" primary action. The old
-// circular ↗ button and the hide-until-expanded accordion (category /
-// catalog number / rating / description / size picker gated behind an
-// in-place "expand" toggle) were removed — Buy was invisible by default on
-// every breakpoint before this change, which is the defect this rewrite
-// fixes. Full details (rating, description, size selection) remain one tap
-// away via "Подробнее" / the product page, so nothing is lost — it just no
-// longer hides the primary Buy action.
+// Compact commerce card: photo, name, price, favorite, and an always-visible
+// primary "Купить сейчас" action. Full product details live on the product page.
+
 export function LuxuryCatalogProductCard({
   product,
   formatPrice,
@@ -63,7 +55,6 @@ export function LuxuryCatalogProductCard({
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
     experienceData.defaultSizeId,
   );
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const [trackedProductId, setTrackedProductId] = useState(product.id);
   const actionGestureRef = useRef({
     startX: 0,
@@ -77,42 +68,6 @@ export function LuxuryCatalogProductCard({
   }
 
   const selectedVariant = getProductSizeVariant(experienceData, selectedSizeId);
-
-  const compositionText = useMemo(() => {
-    const definition = getProductComposition(product.id);
-    if (!definition) {
-      return product.description?.trim() || "";
-    }
-
-    const stockTitles = new Map(
-      INVENTORY_STOCK_CATALOG_SEED.map((item) => [item.id, item.title]),
-    );
-    const genitiveTitles: Record<string, string> = {
-      red_rose: "красных роз",
-      white_rose: "белых роз",
-      peony: "пионов",
-      hydrangea: "гортензий",
-      eustoma: "эустом",
-      eucalyptus: "эвкалипта",
-    };
-
-    const parts = definition.requirements
-      .map((requirement) => {
-        const quantity = resolveRequirementQuantity(
-          requirement,
-          selectedVariant.sizeId,
-        );
-        if (!quantity) return null;
-        const title =
-          genitiveTitles[requirement.stockItemId] ??
-          stockTitles.get(requirement.stockItemId) ??
-          requirement.stockItemId;
-        return `${quantity} ${title}`;
-      })
-      .filter((part): part is string => Boolean(part));
-
-    return parts.length > 0 ? parts.join(", ") : product.description?.trim() || "";
-  }, [product, selectedVariant.sizeId]);
 
   const handleActionTouchStart = (event: TouchEvent<HTMLButtonElement>) => {
     const touch = event.touches[0];
@@ -279,57 +234,7 @@ export function LuxuryCatalogProductCard({
 
           <div className={styles.priceRow}>
             <p className={styles.price}>{formatPrice(selectedVariant.priceRub)}</p>
-            <button
-              type="button"
-              className={styles.detailsButton}
-              onClick={(event) => {
-                if (shouldSuppressActionClick(event)) {
-                  return;
-                }
-                event.stopPropagation();
-                setDetailsOpen((current) => !current);
-              }}
-              onTouchStart={handleActionTouchStart}
-              onTouchMove={handleActionTouchMove}
-              onTouchEnd={handleActionTouchEnd}
-              aria-expanded={detailsOpen}
-              aria-controls={`catalog-details-${product.id}`}
-              aria-label={`${detailsOpen ? "Скрыть" : "Показать"} состав ${product.title}`}
-            >
-              {detailsOpen ? "Скрыть ↑" : "Подробнее ↓"}
-            </button>
           </div>
-
-          {detailsOpen ? (
-            <div
-              id={`catalog-details-${product.id}`}
-              className={styles.inlineDetails}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className={styles.inlineDetailsMeta}>
-                {product.catalogNumber ? (
-                  <span className={styles.inlineDetailsArticle}>
-                    Артикул: {product.catalogNumber}
-                  </span>
-                ) : null}
-                <span
-                  className={styles.inlineDetailsRating}
-                  aria-label="Рейтинг 5 из 5"
-                  title="Рейтинг 5 из 5"
-                >
-                  {"★".repeat(
-                    Math.round(
-                      experienceData.reviews.reduce((sum, review) => sum + review.rating, 0) /
-                        Math.max(experienceData.reviews.length, 1),
-                    ),
-                  )}
-                </span>
-              </div>
-              <div className={styles.inlineDetailsComposition}>
-                {compositionText || "Состав уточняется по текущему каталогу."}
-              </div>
-            </div>
-          ) : null}
 
           <div className={styles.actionRow}>
             <button
@@ -339,9 +244,9 @@ export function LuxuryCatalogProductCard({
               onTouchStart={handleActionTouchStart}
               onTouchMove={handleActionTouchMove}
               onTouchEnd={handleActionTouchEnd}
-              aria-label={`Купить ${product.title}`}
+              aria-label={`Купить сейчас — ${product.title}`}
             >
-              Купить
+              Купить сейчас
             </button>
           </div>
         </div>

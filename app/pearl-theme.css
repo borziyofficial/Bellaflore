@@ -33,11 +33,11 @@ Purpose (EN): Visual design tokens and main-UI button styling. Checkout selector
   --text-readable-meta: var(--text-secondary);
   --text-readable-accent: var(--text-accent);
 
-  --button-bg: linear-gradient(180deg, #f2f1ef 0%, #e6e4e1 100%);
-  --button-bg-hover: linear-gradient(180deg, #f7f6f4 0%, #ebe9e6 100%);
-  --button-text: var(--text-strong);
-  --shadow-soft: 0 8px 24px rgba(45, 44, 42, 0.06);
-  --shadow-card: 0 16px 40px rgba(45, 44, 42, 0.08);
+  --button-bg: #8f2030;
+  --button-bg-hover: #7a1827;
+  --button-text: #ffffff;
+  --shadow-soft: none;
+  --shadow-card: 0 8px 24px rgba(36,31,28,.05);
 
   --bf-bg: var(--background);
   --bf-surface: var(--surface);
@@ -62,10 +62,10 @@ Purpose (EN): Visual design tokens and main-UI button styling. Checkout selector
   --champagne-border: var(--border);
   --champagne-shadow: var(--shadow-card);
   --champagne-shadow-soft: var(--shadow-soft);
-  --champagne-gold: var(--text-label);
-  --champagne-gold-hover: var(--text-strong);
-  --bf-gold-accent: var(--text-label);
-  --bf-champagne: var(--text-label);
+  --champagne-gold: #8f2030;
+  --champagne-gold-hover: #7a1827;
+  --bf-gold-accent: #8f2030;
+  --bf-champagne: #8f2030;
   --glass-surface: var(--surface-glass);
   --glass-border: var(--border);
   --glass-gold-line: rgba(186, 184, 180, 0.24);
@@ -92,8 +92,8 @@ Purpose (EN): Visual design tokens and main-UI button styling. Checkout selector
     --bf-text: var(--text-contact-body);
     --champagne-text: var(--text-contact-body);
     --champagne-muted: var(--text-contact-label);
-    --bf-champagne: var(--text-label);
-    --champagne-gold: var(--text-label);
+    --bf-champagne: #8f2030;
+    --champagne-gold: #8f2030;
   }
 }
 

@@ -17,9 +17,9 @@ html[data-theme="dark-luxury"] {
   --color-background: #f7f5f1;
   --color-surface: #fffdf9;
   --color-surface-secondary: #f1ede6;
-  --color-gold: #c9a24b;
-  --color-gold-hover: #b58d37;
-  --color-gold-light: #e8d9b5;
+  --color-gold: #8f2030;
+  --color-gold-hover: #7a1827;
+  --color-gold-light: #d9b6bb;
   --color-text-primary: #1e1b18;
   --color-text-secondary: #746f68;
   --color-border: rgba(54, 45, 35, 0.12);
@@ -40,11 +40,7 @@ html[data-theme="dark-luxury"] {
   --font-ui: var(--font-body);
 
   /* Unified gold CTA */
-  --bf-gold-gradient: linear-gradient(
-    180deg,
-    var(--color-gold) 0%,
-    var(--color-gold-hover) 100%
-  );
+  --bf-gold-gradient: #8f2030;
   --bf-button-radius: 14px;
   --bf-button-height: 52px;
   --bf-card-radius: 16px;
@@ -53,7 +49,7 @@ html[data-theme="dark-luxury"] {
   /* Remap Pearl / UI system tokens */
   --background: var(--bg-primary);
   --surface: var(--bg-secondary);
-  --surface-glass: rgba(255, 253, 249, 0.88);
+  --surface-glass: #fffdf9;
   --border: var(--color-border);
 
   --text-strong: var(--color-text-primary);
@@ -97,18 +93,18 @@ html[data-theme="dark-luxury"] {
   --champagne-gold: var(--color-gold);
   --champagne-gold-hover: var(--color-gold-hover);
 
-  --glass-surface: rgba(255, 253, 249, 0.88);
+  --glass-surface: #fffdf9;
   --glass-border: var(--color-border);
   --glass-surface-strong: var(--bg-secondary);
 
-  --bf-brand-gold-1: var(--color-gold);
-  --bf-brand-gold-2: var(--color-gold);
-  --bf-brand-gold-3: var(--color-gold-hover);
-  --bf-brand-gold-4: var(--color-gold-hover);
-  --bf-brand-gold-5: var(--color-gold-hover);
+  --bf-brand-gold-1: #8f2030;
+  --bf-brand-gold-2: #8f2030;
+  --bf-brand-gold-3: #7a1827;
+  --bf-brand-gold-4: #7a1827;
+  --bf-brand-gold-5: #7a1827;
 
-  --button-bg: var(--color-gold);
-  --button-bg-hover: var(--color-gold-hover);
+  --button-bg: #8f2030;
+  --button-bg-hover: #7a1827;
   --button-text: #ffffff;
 
   color-scheme: light;
