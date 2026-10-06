@@ -263,3 +263,47 @@
     transition: none;
   }
 }
+
+
+
+/* ==================================================
+   BELLA FLORE FINAL PRODUCT PAGE — A1 EDITORIAL
+   ================================================== */
+.overlay { background: #f5f0e9; }
+.page { background: #f5f0e9; }
+.topBar { max-width: 1180px; margin: 0 auto 18px; }
+.backButton {
+  border: 1px solid #d2c6bc;
+  border-radius: 10px;
+  background: #fbf9f6;
+  color: #241f1c;
+  font-family: var(--font-sans, Manrope, sans-serif);
+  box-shadow: none;
+}
+.badge {
+  border-radius: 999px;
+  background: #8f2030;
+  color: #fff;
+  box-shadow: none;
+  font-family: var(--font-sans, Manrope, sans-serif);
+}
+.content { max-width: 1180px; grid-template-columns: minmax(0,1.1fr) minmax(340px,.9fr); align-items: start; gap: 36px; }
+.heroCopy { align-content: start; padding-top: 18px; }
+.category { color: #8f6d55; font-family: var(--font-sans, Manrope, sans-serif); }
+.catalogNumber { display: none; }
+.title { color: #241f1c; font-family: var(--font-serif, "Playfair Display", serif); font-weight: 400; font-size: clamp(38px,5vw,68px); }
+.lead { color: #6b5d55; font-family: var(--font-sans, Manrope, sans-serif); }
+.price { color: #8f2030; font-family: var(--font-sans, Manrope, sans-serif); }
+.sizePickerButton {
+  border-color: #d2c6bc;
+  border-radius: 10px;
+  background: #fbf9f6;
+  color: #241f1c;
+  box-shadow: none;
+}
+.sizePickerButton strong { color: #8f2030; }
+.sectionTitle { color: #241f1c; font-family: var(--font-serif, "Playfair Display", serif); font-weight: 400; }
+@media (max-width: 768px) {
+  .content { grid-template-columns: 1fr; gap: 18px; }
+  .title { font-size: clamp(34px, 11vw, 48px); }
+}
