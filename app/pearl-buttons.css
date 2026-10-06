@@ -30,8 +30,8 @@ Purpose (EN): Button layout, color, and motion tokens plus storefront migration 
   --button-transition: transform 0.2s ease, box-shadow 0.2s ease,
     background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
     opacity 0.2s ease;
-  --button-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.78);
-  --button-shadow-hover: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  --button-shadow: none;
+  --button-shadow-hover: 0 8px 24px rgba(36,31,28,.05);
   --button-shadow-pressed: inset 0 2px 4px rgba(45, 44, 42, 0.08);
   --button-border: var(--border);
 
