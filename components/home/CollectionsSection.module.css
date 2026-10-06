@@ -90,7 +90,7 @@
   border: 0;
   border-radius: 999px;
   background: rgba(201, 162, 75, 0.14);
-  color: var(--gold-hover, #b58d37);
+  color: var(--gold-hover, #8f2030);
   cursor: pointer;
 }
 
@@ -149,9 +149,9 @@
 }
 
 .categoryChipActive {
-  border-color: var(--color-gold, #c9a24b);
+  border-color: var(--color-gold, #8f2030);
   background: rgba(201, 162, 75, 0.14);
-  color: var(--color-gold-hover, #b58d37);
+  color: var(--color-gold-hover, #8f2030);
 }
 
 .priceTools {
@@ -214,7 +214,7 @@
   border: 0;
   border-radius: var(--bf-button-radius, 999px);
   background: rgba(201, 162, 75, 0.14);
-  color: var(--color-gold-hover, #b58d37);
+  color: var(--color-gold-hover, #8f2030);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   font-weight: 700;
@@ -428,7 +428,7 @@
   padding: 11px 18px;
   border: 0;
   border-radius: var(--bf-button-radius, 999px);
-  background: var(--bf-gold-gradient, var(--color-gold, #c9a24b));
+  background: var(--bf-gold-gradient, var(--color-gold, #8f2030));
   color: #ffffff;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
@@ -561,7 +561,7 @@
 .homeEyebrow {
   display: inline-block;
   margin-bottom: 10px;
-  color: var(--color-gold-hover, #b58d37);
+  color: var(--color-gold-hover, #8f2030);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 11px;
   font-weight: 800;
@@ -581,7 +581,7 @@
 }
 
 .homeCategoryHeading span {
-  color: var(--color-gold-hover, #b58d37);
+  color: var(--color-gold-hover, #8f2030);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 10px;
   font-weight: 800;
@@ -769,7 +769,7 @@
   background: rgba(253, 251, 249, 0.78);
   color: var(--color-text-primary, #2a2521);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(14px);
+  backdrop-filter: none;
 }
 
 .section:not(.homeShowcase) .searchIcon {
