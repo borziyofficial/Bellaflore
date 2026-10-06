@@ -10,11 +10,11 @@
   --bf-ui-text: #3d3126;
   --bf-ui-text-muted: rgba(61, 49, 38, 0.62);
   --bf-ui-border: rgba(232, 220, 220, 0.76);
-  --bf-ui-gold-1: #c9a962;
-  --bf-ui-gold-2: #b8924f;
-  --bf-ui-gold-3: #a67c3a;
-  --bf-ui-gold-glow: rgba(201, 169, 98, 0.22);
-  --bf-ui-gold-glow-strong: rgba(201, 169, 98, 0.34);
+  --bf-ui-gold-1: #8f2030;
+  --bf-ui-gold-2: #8f2030;
+  --bf-ui-gold-3: #7a1827;
+  --bf-ui-gold-glow: rgba(143,32,48,.08);
+  --bf-ui-gold-glow-strong: rgba(143,32,48,.14);
   --bf-ui-hero-overlay: linear-gradient(
     180deg,
     rgba(255, 249, 250, 0.08) 0%,
