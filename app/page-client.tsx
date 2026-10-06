@@ -512,6 +512,7 @@ export default function HomePageClient({
   const [checkoutForm, setCheckoutForm] = useState<CheckoutForm>({
     name: "",
     phone: "",
+    contactMethod: "telegram",
     recipientIsCustomer: true,
     recipientName: "",
     recipientPhone: "",
@@ -2300,6 +2301,7 @@ export default function HomePageClient({
       setCheckoutForm({
         name: "",
         phone: "",
+        contactMethod: "telegram",
         recipientIsCustomer: true,
         recipientName: "",
         recipientPhone: "",
