@@ -156,6 +156,7 @@ export function buildCheckoutOrderPayload(
       quantity: cartItem.quantity,
     })),
     customerName: checkoutForm.name.trim(),
+    contactMethod: checkoutForm.contactMethod,
     phone: checkoutForm.phone.trim(),
     recipientName: checkoutForm.recipientIsCustomer
       ? checkoutForm.name.trim()
