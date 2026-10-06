@@ -13,14 +13,14 @@
   --color-ivory: #f7f3ed;
   --color-ivory-alt: #faf7f2;
   --color-cream: #f2ece4;
-  --color-champagne: #c4aa7a;
+  --color-champagne: #8f2030;
   --color-warm-stone: #d8cec3;
   --color-soft-blush: #e5d0cb;
   --color-muted-blush: #d9bbb8;
   --color-muted-beige: #ede4db;
-  --color-bronze-subtle: #9b7c50;
-  --color-gold-accent: #c4aa7a;
-  --color-gold-subtle: #a88a5a;
+  --color-bronze-subtle: #7a6260;
+  --color-gold-accent: #8f2030;
+  --color-gold-subtle: #a63a48;
 
   /* Text hierarchy - Charcoal tones */
   --color-text-primary: #2a2521;
@@ -36,9 +36,9 @@
   --color-surface-soft: #f5f1ed;
 
   /* Borders & Dividers - Warm subtle tones */
-  --color-border-primary: rgba(196, 170, 122, 0.18);
-  --color-border-subtle: rgba(196, 170, 122, 0.1);
-  --color-border-warm: rgba(152, 124, 80, 0.15);
+  --color-border-primary: rgba(143, 32, 48, 0.14);
+  --color-border-subtle: rgba(143, 32, 48, 0.08);
+  --color-border-warm: rgba(143, 32, 48, 0.18);
 
   /* Legacy mappings (for compatibility) */
   --bf-bg: var(--color-ivory);
@@ -63,10 +63,10 @@
   /* ========================
      SHADOWS & ELEVATIONS
      ======================== */
-  --shadow-soft: 0 8px 24px rgba(42, 37, 33, 0.04);
-  --shadow-medium: 0 16px 40px rgba(42, 37, 33, 0.06);
-  --shadow-strong: 0 24px 56px rgba(42, 37, 33, 0.08);
-  --shadow-deep: 0 32px 72px rgba(42, 37, 33, 0.1);
+  --shadow-soft: none;
+  --shadow-medium: 0 8px 24px rgba(36, 31, 28, 0.05);
+  --shadow-strong: 0 12px 32px rgba(36, 31, 28, 0.06);
+  --shadow-deep: 0 18px 48px rgba(36, 31, 28, 0.08);
 
   --bf-shadow: var(--shadow-medium);
   --bf-shadow-soft: var(--shadow-soft);
@@ -76,12 +76,12 @@
   /* ========================
      GLASS & TRANSLUCENT
      ======================== */
-  --glass-blur: blur(24px) saturate(1.02);
+  --glass-blur: none;
   --glass-surface: rgba(253, 251, 249, 0.88);
   --glass-surface-strong: rgba(253, 251, 249, 0.94);
-  --glass-border: var(--color-border-primary);
-  --glass-shadow: 0 14px 36px rgba(42, 37, 33, 0.05), inset 0 1px 0 rgba(255, 253, 251, 0.9);
-  --glass-shadow-deep: 0 18px 48px rgba(42, 37, 33, 0.07), inset 0 1px 0 rgba(255, 253, 251, 0.92);
+  --glass-border: rgba(143, 32, 48, 0.12);
+  --glass-shadow: none;
+  --glass-shadow-deep: none;
 
   /* Legacy glass tokens - Updated for muted palette */
   --luxury-glass: rgba(253, 251, 249, 0.9);
@@ -90,8 +90,8 @@
   --luxury-glass-dark-strong: rgba(253, 251, 249, 0.92);
   --luxury-glass-border: var(--color-border-primary);
   --luxury-glass-shadow: var(--shadow-soft);
-  --glass-gold-line: rgba(196, 170, 122, 0.24);
-  --glass-gold-glow: rgba(229, 208, 203, 0.2);
+  --glass-gold-line: rgba(143, 32, 48, 0.12);
+  --glass-gold-glow: rgba(143, 32, 48, 0.08);
 
   /* ========================
      TYPOGRAPHY SCALE
@@ -170,10 +170,10 @@
   --champagne-card: var(--color-surface-primary);
   --champagne-text: var(--color-text-secondary);
   --champagne-muted: var(--color-text-tertiary);
-  --champagne-gold: var(--color-gold-accent);
-  --champagne-gold-hover: var(--color-muted-blush);
-  --champagne-border: var(--color-border-primary);
-  --champagne-border-soft: var(--color-border-subtle);
+  --champagne-gold: #8f2030;
+  --champagne-gold-hover: #8f2030;
+  --champagne-border: rgba(143, 32, 48, 0.14);
+  --champagne-border-soft: rgba(143, 32, 48, 0.08);
   --rose-accent: var(--color-muted-blush);
   --soft-rose-accent: var(--color-soft-blush);
   --soft-rose-border: var(--color-border-primary);
@@ -414,8 +414,8 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--color-gold-accent);
-  box-shadow: 0 0 0 3px rgba(235, 169, 79, 0.1);
+  border-color: #8f2030;
+  box-shadow: 0 0 0 3px rgba(143, 32, 48, 0.08);
 }
 
 input::placeholder,
@@ -447,12 +447,12 @@ textarea::placeholder {
 }
 
 .surface-glass {
-  background: var(--glass-surface);
+  background: var(--color-surface-primary);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: var(--glass-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 
 /* ========================
@@ -568,13 +568,13 @@ textarea::placeholder {
   box-sizing: border-box;
   border-radius: 999px;
   background:
-    linear-gradient(180deg, var(--glass-surface-strong), rgba(253, 251, 247, 0.34) 52%, rgba(234, 214, 214, 0.22)),
+    linear-gradient(180deg, var(--color-surface-primary), rgba(253, 251, 247, 0.34) 52%, rgba(234, 214, 214, 0.22)),
     linear-gradient(90deg, rgba(255, 252, 244, 0.32), transparent 34%, rgba(234, 214, 214, 0.16)),
-    var(--glass-surface);
+    var(--color-surface-primary);
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transition:
     backdrop-filter 0.4s ease,
     background 0.4s ease,
@@ -583,11 +583,11 @@ textarea::placeholder {
 }
 
 .navbar.scrolled {
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   background:
     linear-gradient(180deg, rgba(253, 251, 247, 0.56), rgba(253, 251, 247, 0.38) 52%, rgba(234, 214, 214, 0.24)),
-    var(--glass-surface);
+    var(--color-surface-primary);
   padding: 8px 18px;
   box-shadow:
     0 16px 44px rgba(61, 49, 38, 0.12),
@@ -649,8 +649,8 @@ textarea::placeholder {
   padding: 10px 18px;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   color: #3d3126;
   font-size: 12px;
   letter-spacing: 1.5px;
@@ -1924,12 +1924,12 @@ button {
   border: 1px solid var(--glass-border);
   border-radius: 28px;
   background:
-    linear-gradient(180deg, var(--glass-surface-strong), rgba(250, 247, 242, 0.42)),
-    var(--glass-surface);
-  box-shadow: var(--glass-shadow);
+    linear-gradient(180deg, var(--color-surface-primary), rgba(250, 247, 242, 0.42)),
+    var(--color-surface-primary);
+  box-shadow: none;
   padding: 24px;
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .checkout-summary-embedded {
@@ -1950,11 +1950,11 @@ button {
   border: 1px solid var(--glass-border);
   border-radius: 22px;
   background:
-    linear-gradient(180deg, var(--glass-surface), rgba(255, 255, 255, 0.24)),
+    linear-gradient(180deg, var(--color-surface-primary), rgba(255, 255, 255, 0.24)),
     rgba(255, 255, 255, 0.22);
-  box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .checkout-card-header {
@@ -2137,11 +2137,11 @@ button {
   border: 1px solid var(--glass-border);
   border-radius: 28px;
   background:
-    linear-gradient(180deg, var(--glass-surface-strong), rgba(250, 247, 242, 0.42)),
-    var(--glass-surface);
-  box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
+    linear-gradient(180deg, var(--color-surface-primary), rgba(250, 247, 242, 0.42)),
+    var(--color-surface-primary);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .temporary-order-card div {
@@ -4310,12 +4310,12 @@ button {
     border-radius: 999px;
     background:
       radial-gradient(circle at 50% -22%, rgba(253, 251, 247, 0.18), transparent 42%),
-      linear-gradient(180deg, var(--glass-surface), rgba(253, 251, 247, 0.16) 54%, rgba(234, 214, 214, 0.1)),
+      linear-gradient(180deg, var(--color-surface-primary), rgba(253, 251, 247, 0.16) 54%, rgba(234, 214, 214, 0.1)),
       linear-gradient(90deg, rgba(253, 251, 247, 0.06), transparent 30%, transparent 70%, rgba(234, 214, 214, 0.05)),
       rgba(253, 251, 247, 0.08);
-    box-shadow: var(--glass-shadow);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     pointer-events: none;
   }
 
@@ -4796,8 +4796,8 @@ button {
     rgba(17, 14, 12, 0.7);
   box-shadow: var(--glass-shadow-deep);
   padding: 12px;
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .favorites-panel {
@@ -4891,8 +4891,8 @@ button {
     0 18px 48px rgba(9, 8, 7, 0.2),
     0 0 18px rgba(218, 184, 126, 0.055),
     inset 0 1px 0 rgba(255, 244, 220, 0.12);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   transform: none;
 }
 
@@ -11666,7 +11666,7 @@ a.hero-order-link {
 
 .mobile-bottom-nav-item-active svg {
   stroke: #c9932f;
-  fill: rgba(235, 169, 79, 0.1);
+  fill: rgba(143, 32, 48, 0.08);
 }
 
 .mobile-bottom-nav-primary {
