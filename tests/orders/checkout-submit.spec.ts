@@ -26,6 +26,7 @@ const CHECKOUT_PAYLOAD: CheckoutOrderPayload = {
     },
   ],
   customerName: "Анна",
+  contactMethod: "telegram",
   phone: "+7 999 111-22-33",
   recipientName: "Мария",
   recipientPhone: "+7 999 222-33-44",
