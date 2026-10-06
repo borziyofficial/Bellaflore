@@ -495,6 +495,7 @@ export default function HomePageClient({
   const [favoritesPanelOpen, setFavoritesPanelOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartRestored, setCartRestored] = useState(false);
+  const cartTouchedRef = useRef(false);
   const [checkoutPanelOpen, setCheckoutPanelOpen] = useState(false);
   const [myOrderPanelOpen, setMyOrderPanelOpen] = useState(false);
   const [closingBottomNavPanel, setClosingBottomNavPanel] =
@@ -677,7 +678,9 @@ export default function HomePageClient({
     }
 
     const restoreTimer = window.setTimeout(() => {
-      setCartItems(readStoredCartItems(bouquets));
+      if (!cartTouchedRef.current) {
+        setCartItems(readStoredCartItems(bouquets));
+      }
       setCartRestored(true);
     }, 0);
 
@@ -1426,6 +1429,7 @@ export default function HomePageClient({
       return;
     }
 
+    cartTouchedRef.current = true;
     setCartItems((currentItems) => {
       const currentTotalQuantity = currentItems.reduce(
         (total, item) => total + item.quantity,
@@ -1468,6 +1472,7 @@ export default function HomePageClient({
   };
 
   const removeBouquetFromCart = (bouquetId: string, sizeId: ProductSizeId) => {
+    cartTouchedRef.current = true;
     setCartItems((currentItems) =>
       currentItems.filter(
         (item) => item.bouquetId !== bouquetId || item.sizeId !== sizeId,
@@ -1479,6 +1484,7 @@ export default function HomePageClient({
     bouquetId: string,
     sizeId: ProductSizeId,
   ) => {
+    cartTouchedRef.current = true;
     setCartItems((currentItems) =>
       currentItems.flatMap((item) => {
         if (item.bouquetId !== bouquetId || item.sizeId !== sizeId) {
@@ -1499,6 +1505,7 @@ export default function HomePageClient({
     bouquetId: string,
     sizeId: ProductSizeId,
   ) => {
+    cartTouchedRef.current = true;
     setCartItems((currentItems) => {
       const currentTotalQuantity = currentItems.reduce(
         (total, item) => total + item.quantity,
@@ -1633,6 +1640,7 @@ export default function HomePageClient({
   void handleCartIncreaseTouchEnd;
 
   const updateCheckoutPrimarySize = (sizeId: ProductSizeId) => {
+    cartTouchedRef.current = true;
     const primaryItem = cartItems[0];
     if (!primaryItem) {
       return;
@@ -1780,6 +1788,7 @@ export default function HomePageClient({
       return;
     }
 
+    cartTouchedRef.current = true;
     setCartItems([
       {
         bouquetId,
