@@ -37,16 +37,7 @@ type LuxuryCatalogProductCardProps = {
   onProductOpen?: (productId: string) => void;
 };
 
-// Compact commerce card: photo, name, price + "Подробнее ↓" (opens the full
-// product page), and an always-visible "Купить" primary action. The old
-// circular ↗ button and the hide-until-expanded accordion (category /
-// catalog number / rating / description / size picker gated behind an
-// in-place "expand" toggle) were removed — Buy was invisible by default on
-// every breakpoint before this change, which is the defect this rewrite
-// fixes. Full details (rating, description, size selection) remain one tap
-// away via "Подробнее" / the product page, so nothing is lost — it just no
-// longer hides the primary Buy action.
-export function LuxuryCatalogProductCard({
+// Compact commerce card: photo, name, price, favorite, and an always-visible\n// primary "Купить сейчас" action. Full product details live on the product page.\n\nexport function LuxuryCatalogProductCard({
   product,
   formatPrice,
   isFavorite,
