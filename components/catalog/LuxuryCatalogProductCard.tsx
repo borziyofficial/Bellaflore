@@ -6,7 +6,6 @@
 
 import styles from "@/components/catalog/LuxuryCatalogProductCard.module.css";
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
-import { useProductRatings } from "@/components/product/useProductRatings";
 import {
   getProductExperienceData,
   getProductSizeVariant,
@@ -62,7 +61,6 @@ export function LuxuryCatalogProductCard({
   const [selectedSizeId, setSelectedSizeId] = useState<ProductSizeId>(
     experienceData.defaultSizeId,
   );
-  const { average: ratingAverage, count: ratingCount } = useProductRatings(product.id);
   const [trackedProductId, setTrackedProductId] = useState(product.id);
   const actionGestureRef = useRef({
     startX: 0,
