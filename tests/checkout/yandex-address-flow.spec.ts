@@ -96,5 +96,14 @@ test("checkout Yandex address selection waits for 3 chars and resolves coordinat
   await expect(
     dialog.getByRole("button", { name: /(?:Показать на карте|Скрыть карту)/ }),
   ).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Оформить заказ" })).toBeEnabled();
+  const deliveryTrigger = dialog.getByRole("button", { name: /^Доставка/ });
+  if ((await deliveryTrigger.getAttribute("aria-expanded")) !== "true") {
+    await deliveryTrigger.click();
+  }
+  await dialog.getByRole("button", { name: "Завтра" }).click();
+  const intervalSelect = dialog.getByRole("combobox", { name: "Интервал доставки" });
+  await expect(intervalSelect).toBeVisible();
+  await intervalSelect.selectOption({ index: 1 });
+  await dialog.getByRole("checkbox", { name: /Согласие с условиями заказа/ }).check();
+  await expect(page.getByRole("button", { name: "Оформить заказ" })).toBeEnabled();
 });
