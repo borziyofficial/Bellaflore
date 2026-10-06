@@ -37,7 +37,10 @@ type LuxuryCatalogProductCardProps = {
   onProductOpen?: (productId: string) => void;
 };
 
-// Compact commerce card: photo, name, price, favorite, and an always-visible\n// primary "Купить сейчас" action. Full product details live on the product page.\n\nexport function LuxuryCatalogProductCard({
+// Compact commerce card: photo, name, price, favorite, and an always-visible
+// primary "Купить сейчас" action. Full product details live on the product page.
+
+export function LuxuryCatalogProductCard({
   product,
   formatPrice,
   isFavorite,
