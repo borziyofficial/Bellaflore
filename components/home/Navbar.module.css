@@ -180,3 +180,8 @@
     transition: none;
   }
 }
+\n/* BELLA FLORE FINAL NAV — cherry editorial */
+.logo{color:#8f2030!important;background:none!important;-webkit-text-fill-color:#8f2030!important;filter:none!important}
+.iconButton:hover{color:#8f2030!important;background:rgba(143,32,48,.06)!important}
+.mobileMenu{--menu-gold:#8f2030;--menu-gold-line:#ded5cb;}
+.mobileMenuLink:hover,.mobileMenuLink:active{background:rgba(143,32,48,.06)!important;color:#8f2030!important}
