@@ -24,7 +24,7 @@
 }
 
 .selectionPrice {
-  color: var(--gold-light, #f5d98c);
+  color: var(--gold-light, #d9b6bb);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: clamp(24px, 4.5vw, 30px);
   font-weight: 700;
@@ -55,7 +55,7 @@
   border: 0;
   background: var(
     --bf-gold-gradient,
-    var(--color-gold, #c9a24b)
+    var(--color-gold, #8f2030)
   );
   color: #ffffff;
   box-shadow: 0 8px 20px rgba(201, 162, 75, 0.22);
