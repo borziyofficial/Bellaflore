@@ -1079,3 +1079,17 @@
 .section:not(.homeShowcase) .grid,.section:not(.homeShowcase) .gridAll,.section:not(.homeShowcase) .gridCategory{gap:24px 18px!important}
 .section:not(.homeShowcase) .emptyState,.section:not(.homeShowcase) .loadingCard{border:1px solid #ded5cb!important;border-radius:14px!important;background:#fbf9f6!important;box-shadow:none!important}
 .fullCatalogButton{border-color:#8f2030!important;border-radius:10px!important;background:#8f2030!important;color:#fff!important;box-shadow:none!important}
+
+/* FINAL CHERRY EDITORIAL CATALOG */
+.section:not(.homeShowcase){background:#f6f1eb!important;color:#241f1c!important}
+.section:not(.homeShowcase) .header h2{color:#241f1c!important;font-family:var(--font-serif,"Playfair Display",serif)!important;font-weight:400!important}
+.section:not(.homeShowcase) .subtitle{color:#756960!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.section:not(.homeShowcase) .catalogEyebrow{color:#8f2030!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.section:not(.homeShowcase) .catalogEyebrow::after{background:#8f2030!important}
+.section:not(.homeShowcase) .toolbar,.section:not(.homeShowcase) .priceTools{background:#fbf9f6!important;border-color:#ddd2c8!important;box-shadow:none!important;backdrop-filter:none!important}
+.section:not(.homeShowcase) .searchField input,.section:not(.homeShowcase) .priceField input,.section:not(.homeShowcase) .sortField select{background:#fffdfa!important;border-color:#d6cbc1!important;color:#241f1c!important;box-shadow:none!important;backdrop-filter:none!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.section:not(.homeShowcase) .searchIcon{color:#8f2030!important}
+.section:not(.homeShowcase) .categoryChip{border-color:#d6cbc1!important;background:#fffdfa!important;color:#5f554f!important;box-shadow:none!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.section:not(.homeShowcase) .categoryChipActive{border-color:#8f2030!important;background:#8f2030!important;color:#fff!important;box-shadow:none!important}
+.section:not(.homeShowcase) .priceField span,.section:not(.homeShowcase) .sortField span{color:#756960!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
+.section:not(.homeShowcase) .priceReset{border-color:#8f2030!important;color:#8f2030!important;background:#fffdfa!important}
