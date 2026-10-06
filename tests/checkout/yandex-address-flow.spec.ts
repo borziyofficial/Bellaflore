@@ -8,7 +8,7 @@ const RESOLVED_LONGITUDE = 37.679539;
 
 async function openCheckout(page: Page) {
   await page.goto("/");
-  const buyButton = page.getByRole("button", { name: "Купить Red Luxury" });
+  const buyButton = page.getByRole("button", { name: /^Купить сейчас — Red Luxury$/ });
   await expect(buyButton).toBeVisible();
   await buyButton.click();
 
