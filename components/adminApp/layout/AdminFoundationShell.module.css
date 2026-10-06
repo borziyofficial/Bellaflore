@@ -121,7 +121,7 @@
 .mobileMenuNav { display: grid; gap: 5px; }
 .mobileMenuNav a { display: grid; gap: 3px; padding: 11px 12px; border: 1px solid transparent; border-radius: 13px; color: var(--admin-ink); text-decoration: none; }
 .mobileMenuNav a span { color: var(--admin-muted); font-size: 11px; }
-.mobileMenuNav a.mobileMenuLinkActive { border-color: rgba(241, 209, 139, .28); background: rgba(215, 180, 106, .1); color: var(--admin-gold-strong); }
+.mobileMenuNav a.mobileMenuLinkActive { border-color: rgba(143,32,48,.14); background: rgba(143,32,48,.06); color: var(--admin-gold-strong); }
 
 .topBarMain {
   min-width: 0;
