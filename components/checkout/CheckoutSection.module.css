@@ -1143,3 +1143,173 @@
 .checkoutSubmitButton{min-height:54px!important;border-radius:10px!important;background:#8f2030!important;color:#fff!important;box-shadow:none!important;font-family:var(--font-sans,Manrope,sans-serif)!important}
 .checkoutSubmitButton:hover{background:#a52b3c!important}
 .checkoutAnonymousInfo,.checkoutPaymentInfo{border-color:#ded5cb!important;border-radius:12px!important;background:#fbf9f6!important}
+
+
+/* =========================================================
+   BELLA FLORE MOBILE CHECKOUT — HARD FINAL OVERRIDE
+   Targets the real rendered classes, not legacy placeholders.
+   ========================================================= */
+:global(.checkout-section-v3){
+  background:#f5f0e9!important;
+  color:#241f1c!important;
+  font-family:var(--font-sans,Manrope,sans-serif)!important;
+}
+:global(.checkout-section-v3 .section-header){
+  padding:24px 18px 18px!important;
+  margin:0!important;
+  background:#f5f0e9!important;
+  text-align:left!important;
+}
+:global(.checkout-section-v3 .section-header span){
+  color:#8f2030!important;
+  font:700 10px/1 var(--font-sans,Manrope,sans-serif)!important;
+  letter-spacing:.2em!important;
+  text-transform:uppercase!important;
+}
+:global(.checkout-section-v3 .section-header h2){
+  margin:10px 0 0!important;
+  color:#241f1c!important;
+  font:400 clamp(38px,11vw,58px)/.95 var(--font-serif,"Playfair Display",serif)!important;
+}
+:global(.checkout-section-v3 .checkout-shell){
+  background:#f5f0e9!important;
+}
+:global(.checkout-section-v3 .checkout-form-card){
+  background:#fbf9f6!important;
+  border:1px solid #d9cec4!important;
+  border-radius:20px!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+}
+.checkoutV3Card{
+  background:#fbf9f6!important;
+  border-color:#d9cec4!important;
+  box-shadow:none!important;
+}
+.checkoutV3Layout,.checkoutV3Scroll,.checkoutGlassFlow{background:transparent!important}
+.checkoutGlassStep{
+  border:0!important;
+  border-bottom:1px solid #ded5cb!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.checkoutGlassStep:last-child{border-bottom:0!important}
+.checkoutGlassStepTrigger{
+  min-height:72px!important;
+  padding:16px 18px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#fbf9f6!important;
+  color:#241f1c!important;
+  box-shadow:none!important;
+}
+.checkoutGlassStepCopy{gap:3px!important}
+.checkoutGlassStepTitle{
+  color:#241f1c!important;
+  font:500 18px/1.15 var(--font-serif,"Playfair Display",serif)!important;
+}
+.checkoutGlassStepSummary{
+  color:#71665f!important;
+  font:500 12px/1.35 var(--font-sans,Manrope,sans-serif)!important;
+}
+.checkoutGlassStepIcon{
+  width:34px!important;
+  height:34px!important;
+  border:1px solid #d2c6bc!important;
+  border-radius:50%!important;
+  background:#fffdfa!important;
+  color:#8f2030!important;
+  font-size:0!important;
+  box-shadow:none!important;
+}
+.checkoutGlassStepIcon::after{
+  content:"+"!important;
+  font:700 19px/1 var(--font-sans,Manrope,sans-serif)!important;
+}
+.checkoutGlassStepOpen .checkoutGlassStepIcon::after{
+  content:"⌃"!important;
+}
+.checkoutGlassStepBody{
+  background:#fbf9f6!important;
+}
+.checkoutGlassStepBodyInner{
+  padding:4px 18px 22px!important;
+}
+.checkoutField{
+  gap:7px!important;
+}
+.checkoutField span{
+  color:#3f3732!important;
+  font:700 12px/1.2 var(--font-sans,Manrope,sans-serif)!important;
+}
+.checkoutField input,.checkoutField textarea,.checkoutFlatSelector,.checkoutFlatSelectWrap{
+  min-height:50px!important;
+  border:1px solid #d2c6bc!important;
+  border-radius:10px!important;
+  background:#fffdfa!important;
+  color:#241f1c!important;
+  box-shadow:none!important;
+  font-family:var(--font-sans,Manrope,sans-serif)!important;
+}
+.checkoutField input::placeholder,.checkoutField textarea::placeholder{
+  color:#9a8e85!important;
+  opacity:1!important;
+}
+.checkoutOption{
+  border:1px solid #e3d8cc!important;
+  border-radius:12px!important;
+  background:#faf6ef!important;
+  box-shadow:none!important;
+}
+.checkoutOption input{accent-color:#8f2030!important}
+.checkoutOption > span{color:#3f3732!important}
+.checkoutFlatMuted{color:#71665f!important}
+.checkoutV3StickyFooter{
+  background:#fbf9f6!important;
+  border-top:1px solid #ded5cb!important;
+  box-shadow:0 -10px 30px rgba(36,31,28,.05)!important;
+}
+.checkoutV3SummaryRow{color:#4d433d!important}
+.checkoutV3SummaryRow strong,.checkoutV3SummaryTotal,.checkoutV3SummaryTotal strong{color:#241f1c!important}
+.checkoutSubmitRow{padding-top:8px!important}
+.checkoutSubmitButton{
+  width:100%!important;
+  min-height:54px!important;
+  border:0!important;
+  border-radius:10px!important;
+  background:#8f2030!important;
+  color:#fff!important;
+  font:700 14px/1 var(--font-sans,Manrope,sans-serif)!important;
+  box-shadow:none!important;
+}
+.checkoutSubmitButton:hover{background:#a52b3c!important}
+.checkoutMapWrap{border:1px solid #ded5cb!important;border-radius:12px!important;overflow:hidden!important}
+.checkoutMapToggle,.checkoutMapOpenButton,.checkoutMapExpandButton{
+  border-color:#d2c6bc!important;
+  border-radius:10px!important;
+  background:#fffdfa!important;
+  color:#8f2030!important;
+  box-shadow:none!important;
+}
+.checkoutMapExpandButton{width:40px!important;height:40px!important}
+.checkoutDeliveryDateButtons{gap:8px!important}
+.checkoutDeliveryDateButton{
+  border:1px solid #d2c6bc!important;
+  border-radius:10px!important;
+  background:#fffdfa!important;
+  color:#5f554f!important;
+  box-shadow:none!important;
+}
+.checkoutDeliveryDateButtonActive{
+  border-color:#8f2030!important;
+  background:#8f2030!important;
+  color:#fff!important;
+  box-shadow:none!important;
+}
+@media(max-width:640px){
+  :global(.checkout-section-v3 .checkout-form-card){border-radius:18px!important}
+  .checkoutV3StickyFooter{position:sticky!important;bottom:0!important}
+  .checkoutGlassStepTrigger{min-height:68px!important;padding:14px 16px!important}
+  .checkoutGlassStepBodyInner{padding:4px 16px 20px!important}
+}
