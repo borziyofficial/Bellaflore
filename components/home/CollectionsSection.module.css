@@ -953,3 +953,113 @@
     gap: 12px 8px;
   }
 }
+
+
+
+/* ==================================================
+   BELLA FLORE FINAL DESIGN — A1 EDITORIAL
+   Visual layer only: no data/behavior changes.
+   ================================================== */
+.section:not(.homeShowcase) {
+  max-width: none;
+  padding: 92px 28px calc(132px + env(safe-area-inset-bottom));
+  background: #f5f0e9;
+  color: #241f1c;
+}
+.section:not(.homeShowcase)::before { display: none; }
+.section:not(.homeShowcase) .header {
+  width: min(100%, 1180px);
+  margin: 0 auto 38px;
+}
+.section:not(.homeShowcase) .catalogEyebrow {
+  color: #8f6d55;
+  font-family: var(--font-sans, Manrope, sans-serif);
+  font-size: 10px;
+  letter-spacing: .2em;
+}
+.section:not(.homeShowcase) .catalogEyebrow::after { background: #bfa68d; }
+.section:not(.homeShowcase) .header h2 {
+  color: #241f1c;
+  font-family: var(--font-serif, "Playfair Display", serif);
+  font-size: clamp(64px, 8vw, 118px);
+  font-weight: 400;
+  line-height: .9;
+}
+.section:not(.homeShowcase) .subtitle {
+  color: #71665f;
+  font-family: var(--font-sans, Manrope, sans-serif);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.section:not(.homeShowcase) .toolbar {
+  width: min(100%, 1180px);
+  margin-bottom: 34px;
+}
+.section:not(.homeShowcase) .searchField input {
+  min-height: 52px;
+  border: 1px solid #d8cec3;
+  border-radius: 12px;
+  background: #fbf9f6;
+  box-shadow: none;
+  font-family: var(--font-sans, Manrope, sans-serif);
+}
+.section:not(.homeShowcase) .categoryRow { gap: 8px; }
+.section:not(.homeShowcase) .categoryChip {
+  min-height: 34px;
+  padding: 7px 14px;
+  border: 1px solid #d8cec3;
+  border-radius: 999px;
+  background: transparent;
+  color: #5f554f;
+  font-family: var(--font-sans, Manrope, sans-serif);
+}
+.section:not(.homeShowcase) .categoryChipActive {
+  border-color: #8f2030;
+  background: #8f2030;
+  color: #fff;
+}
+.section:not(.homeShowcase) .priceTools {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.section:not(.homeShowcase) .priceField input,
+.section:not(.homeShowcase) .sortField select {
+  min-height: 42px;
+  border: 1px solid #d8cec3;
+  border-radius: 10px;
+  background: #fbf9f6;
+  box-shadow: none;
+}
+.section:not(.homeShowcase) .priceReset {
+  min-height: 42px;
+  border: 1px solid #8f2030;
+  border-radius: 10px;
+  background: transparent;
+  color: #8f2030;
+}
+.section:not(.homeShowcase) .grid,
+.section:not(.homeShowcase) .gridAll,
+.section:not(.homeShowcase) .gridCategory {
+  width: min(100%, 1180px);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 18px;
+}
+@media (max-width: 900px) {
+  .section:not(.homeShowcase) .grid,
+  .section:not(.homeShowcase) .gridAll,
+  .section:not(.homeShowcase) .gridCategory { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; }
+}
+@media (max-width: 768px) {
+  .section:not(.homeShowcase) {
+    padding: 62px 16px calc(122px + env(safe-area-inset-bottom));
+  }
+  .section:not(.homeShowcase) .header { margin-bottom: 26px; }
+  .section:not(.homeShowcase) .header h2 { font-size: clamp(54px, 17vw, 78px); }
+  .section:not(.homeShowcase) .subtitle { font-size: 12px; max-width: 280px; }
+  .section:not(.homeShowcase) .toolbar { margin-bottom: 24px; }
+  .section:not(.homeShowcase) .priceTools { gap: 8px; }
+  .section:not(.homeShowcase) .grid,
+  .section:not(.homeShowcase) .gridAll,
+  .section:not(.homeShowcase) .gridCategory { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 10px; }
+}
