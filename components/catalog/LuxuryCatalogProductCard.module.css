@@ -898,3 +898,97 @@
     font-size: 8px;
   }
 }
+
+
+
+/* ==================================================
+   BELLA FLORE FINAL PRODUCT CARD
+   ================================================== */
+.card {
+  padding: 0;
+  gap: 12px;
+  border: 1px solid #ded5cb;
+  border-radius: 14px;
+  background: #fbf9f6;
+  box-shadow: none;
+  overflow: hidden;
+}
+.card:hover,
+.card:focus-visible {
+  border-color: #b9a092;
+  box-shadow: 0 12px 30px rgba(45,32,27,.08);
+  transform: translateY(-1px);
+}
+.mediaWrap { padding: 0; }
+.imageWrap {
+  aspect-ratio: 4 / 5;
+  border-radius: 0;
+  background: #eee7df;
+}
+.favorite {
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(36,31,28,.12);
+  background: rgba(251,249,246,.96);
+  color: #241f1c;
+  box-shadow: none;
+}
+.favoriteActive,
+.favoriteActive svg { color: #8f2030; fill: #8f2030; stroke: #8f2030; }
+.info { padding: 0 14px 15px; }
+.contentBlock { gap: 8px; }
+.category { color: #8f6d55; font-family: var(--font-sans, Manrope, sans-serif); }
+.catalogNumber { display: none; }
+.title {
+  color: #241f1c;
+  font-family: var(--font-serif, "Playfair Display", serif);
+  font-size: 1.18rem;
+  font-weight: 400;
+  line-height: 1.08;
+}
+.priceRow { margin-top: 2px; }
+.price {
+  color: #241f1c;
+  font-family: var(--font-sans, Manrope, sans-serif);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.detailsButton {
+  min-height: 28px;
+  padding: 5px 10px;
+  border: 1px solid #d8cec3;
+  border-radius: 999px;
+  background: transparent;
+  color: #6f625b;
+  font-family: var(--font-sans, Manrope, sans-serif);
+  font-size: 10px;
+}
+.inlineDetails {
+  border: 1px solid #ded5cb;
+  border-radius: 10px;
+  background: #f5f0e9;
+  color: #5f554f;
+}
+.buyButton {
+  min-height: 44px;
+  border-radius: 10px;
+  background: #8f2030;
+  color: #fff;
+  box-shadow: none;
+  font-family: var(--font-sans, Manrope, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+}
+.buyButton:hover { background: #a52b3c; box-shadow: none; }
+@media (max-width: 768px) {
+  .card { border-radius: 12px; gap: 9px; }
+  .imageWrap { aspect-ratio: 4 / 5; }
+  .info { padding: 0 10px 11px; }
+  .title { font-size: 1rem; }
+  .price { font-size: .92rem; }
+  .detailsButton { min-height: 26px; padding: 4px 8px; font-size: 9px; }
+  .buyButton { min-height: 40px; font-size: 11px; }
+  .favorite { top: 9px; right: 9px; width: 34px; height: 34px; }
+}
