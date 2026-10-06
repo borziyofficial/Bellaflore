@@ -9,8 +9,8 @@ html[data-theme="day"] [data-admin-route="true"] {
 html[data-theme="day"] [data-admin-route="true"] input,
 html[data-theme="day"] [data-admin-route="true"] textarea,
 html[data-theme="day"] [data-admin-route="true"] select {
-  background: #fffaf2;
-  border-color: rgba(138, 107, 61, 0.28);
+  background: #fffdfa;
+  border-color: rgba(143,32,48,0.14);
   color: #2f2a24;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
