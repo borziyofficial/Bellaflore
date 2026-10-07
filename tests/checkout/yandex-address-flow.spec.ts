@@ -8,7 +8,7 @@ const RESOLVED_LONGITUDE = 37.679539;
 
 async function openCheckout(page: Page) {
   await page.goto("/");
-  const catalogButton = page.getByRole("button", { name: "Каталог", exact: true }).first();
+  const catalogButton = page.getByRole("link", { name: "Каталог", exact: true }).or(page.getByRole("button", { name: "Каталог", exact: true })).first();
   await expect(catalogButton).toBeVisible();
   await catalogButton.click();
 
@@ -102,5 +102,6 @@ test("checkout Yandex address selection waits for 3 chars and resolves coordinat
   await expect(
     dialog.getByRole("button", { name: /(?:Показать на карте|Скрыть карту)/ }),
   ).toBeVisible();
+  await dialog.getByRole("checkbox", { name: /Согласие с условиями заказа/ }).check();
   await expect(dialog.getByRole("button", { name: "Оформить заказ" })).toBeEnabled();
 });
