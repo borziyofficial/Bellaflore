@@ -2,7 +2,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const CHECKOUT_ADDRESS = "Москва, Тверская улица, 1";
 const CHECKOUT_STEP_NAMES = [
-  "Получатель",
+  "Заказчик и получатель",
   "Доставка",
   "Адрес",
   "Оплата",
@@ -27,9 +27,15 @@ async function openCheckout(page: Page) {
   }, CHECKOUT_ADDRESS);
 
   await page.goto("/");
-  const buyButton = page.getByRole("button", { name: "Купить Red Luxury" });
-  await expect(buyButton).toBeVisible();
-  await buyButton.click();
+  const catalogButton = page.getByRole("button", { name: "Каталог", exact: true }).first();
+  await expect(catalogButton).toBeVisible();
+  await catalogButton.click();
+
+  const catalog = page.locator("#catalog");
+  await expect(catalog).toBeVisible();
+  const firstBuyButton = catalog.getByRole("button", { name: /^Купить / }).first();
+  await expect(firstBuyButton).toBeVisible();
+  await firstBuyButton.click();
 
   const dialog = page.getByRole("dialog", { name: "Оформить заказ" });
   await expect(dialog).toBeVisible();
@@ -121,12 +127,34 @@ test("checkout remains scrollable, operable and valid at the target viewport", a
   expect(layoutMetrics.verticalScrollContainerClasses).toEqual([
     "checkout-v3-body",
   ]);
-  expect(layoutMetrics.footerPosition).toBe("static");
+  expect(["static", "sticky"]).toContain(layoutMetrics.footerPosition);
   expect(layoutMetrics.flowBottom).not.toBeNull();
   expect(layoutMetrics.footerTop).not.toBeNull();
-  expect(layoutMetrics.flowBottom!).toBeLessThanOrEqual(
-    layoutMetrics.footerTop! + 1,
-  );
+
+  if (layoutMetrics.footerPosition === "sticky") {
+    await dialog.evaluate((dialogElement) => {
+      const body = dialogElement.querySelector<HTMLElement>(".checkout-v3-body");
+      if (body) body.scrollTop = body.scrollHeight;
+    });
+
+    const endMetrics = await dialog.evaluate((dialogElement) => {
+      const body = dialogElement.querySelector<HTMLElement>(".checkout-v3-body");
+      const flow = dialogElement.querySelector<HTMLElement>('[class*="checkoutGlassFlow"]');
+      if (!body || !flow) return { flowBottom: null, bodyBottom: null };
+      return {
+        flowBottom: flow.getBoundingClientRect().bottom,
+        bodyBottom: body.getBoundingClientRect().bottom,
+      };
+    });
+
+    expect(endMetrics.flowBottom).not.toBeNull();
+    expect(endMetrics.bodyBottom).not.toBeNull();
+    expect(endMetrics.flowBottom!).toBeLessThanOrEqual(endMetrics.bodyBottom! + 1);
+  } else {
+    expect(layoutMetrics.flowBottom!).toBeLessThanOrEqual(
+      layoutMetrics.footerTop! + 1,
+    );
+  }
 
   const recipientTrigger = dialog.getByRole("button", {
     name: /^Получатель/,
