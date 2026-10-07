@@ -27,7 +27,7 @@ async function openCheckout(page: Page) {
   }, CHECKOUT_ADDRESS);
 
   await page.goto("/");
-  const catalogButton = page.getByRole("button", { name: "Каталог", exact: true }).first();
+  const catalogButton = page.getByRole("link", { name: "Каталог", exact: true }).or(page.getByRole("button", { name: "Каталог", exact: true })).first();
   await expect(catalogButton).toBeVisible();
   await catalogButton.click();
 
@@ -157,7 +157,7 @@ test("checkout remains scrollable, operable and valid at the target viewport", a
   }
 
   const recipientTrigger = dialog.getByRole("button", {
-    name: /^Получатель/,
+    name: /^Заказчик и получатель/,
   });
   if ((await recipientTrigger.getAttribute("aria-expanded")) !== "true") {
     await recipientTrigger.click();
@@ -177,5 +177,6 @@ test("checkout remains scrollable, operable and valid at the target viewport", a
   await addressInput.fill(CHECKOUT_ADDRESS);
   await addressInput.press("Tab");
 
+  await dialog.getByRole("checkbox", { name: /Согласие с условиями заказа/ }).check();
   await expect(submitButton).toBeEnabled();
 });
