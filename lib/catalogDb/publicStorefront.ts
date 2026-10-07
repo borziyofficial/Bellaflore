@@ -47,10 +47,14 @@ export type PublishedStorefrontResult = {
  */
 export async function loadPublishedStorefrontCatalog(): Promise<PublishedStorefrontResult> {
   try {
-    const [products, customCategoryTitleById] = await Promise.all([
-      listPublishedCatalogProducts(),
-      buildCategoryTitleMap(),
-    ]);
+    const products = await listPublishedCatalogProducts();
+    let customCategoryTitleById: Record<string, string> = {};
+    try {
+      customCategoryTitleById = await buildCategoryTitleMap();
+    } catch (error) {
+      // Custom category metadata is optional; it must never take the whole storefront catalog down.
+      logCatalogServerError("load_published_category_titles", error);
+    }
 
     const bouquetProducts = await loadPublishedBouquetProducts();
 
