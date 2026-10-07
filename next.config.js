@@ -22,7 +22,7 @@ module.exports = {
   },
   images: {
     formats: ['image/webp'],
-    qualities: [75, 88],
+    qualities: [75, 88, 92],
     remotePatterns: [
       {
         protocol: 'https',
