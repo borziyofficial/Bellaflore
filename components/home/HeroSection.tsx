@@ -5,7 +5,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useHeroBannerSettings } from "@/components/home/useHeroBannerSettings";
 import styles from "@/components/home/HeroSection.module.css";
 
@@ -75,6 +75,11 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     heroPhotos.findIndex((photo) => photo.isPrimary),
   );
   const [activeIndex, setActiveIndex] = useState(primaryIndex);
+
+  useEffect(() => {
+    setActiveIndex(primaryIndex);
+  }, [primaryIndex, heroPhotos.length]);
+
   const touchStartX = useRef<number | null>(null);
 
   const safeActiveIndex =
