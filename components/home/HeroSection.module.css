@@ -31,7 +31,7 @@
 .artworkImage {
   object-fit: cover;
   object-position: 64% 50%;
-  filter: saturate(0.92) contrast(0.96) brightness(1.03);
+  filter: saturate(1) contrast(1) brightness(1);
   transform: scale(1.015);
 }
 
@@ -39,7 +39,7 @@
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(249, 244, 237, 0.94) 0%, rgba(249, 244, 237, 0.78) 31%, rgba(249, 244, 237, 0.18) 55%, rgba(249, 244, 237, 0.02) 78%),
+    linear-gradient(90deg, rgba(249, 244, 237, 0.62) 0%, rgba(249, 244, 237, 0.42) 31%, rgba(249, 244, 237, 0.10) 55%, rgba(249, 244, 237, 0.015) 78%),
     linear-gradient(180deg, rgba(255, 252, 246, 0.18), transparent 52%, rgba(45, 34, 25, 0.1));
 }
 
@@ -266,7 +266,7 @@
 
   .wash {
     background:
-      linear-gradient(90deg, rgba(249, 244, 237, 0.9) 0%, rgba(249, 244, 237, 0.58) 45%, rgba(249, 244, 237, 0.04) 78%),
+      linear-gradient(90deg, rgba(249, 244, 237, 0.48) 0%, rgba(249, 244, 237, 0.28) 45%, rgba(249, 244, 237, 0.025) 78%),
       linear-gradient(180deg, rgba(255, 252, 246, 0.12), transparent 58%, rgba(45, 34, 25, 0.08));
   }
 
@@ -300,13 +300,13 @@
 
   .artworkImage {
     object-position: 57% 49%;
-    filter: saturate(0.94) contrast(0.98) brightness(1.01);
+    filter: saturate(1) contrast(1) brightness(1);
     transform: scale(1.025);
   }
 
   .wash {
     background:
-      linear-gradient(90deg, rgba(250, 246, 239, 0.88) 0%, rgba(250, 246, 239, 0.56) 35%, rgba(250, 246, 239, 0.08) 68%, transparent 100%),
+      linear-gradient(90deg, rgba(250, 246, 239, 0.46) 0%, rgba(250, 246, 239, 0.25) 35%, rgba(250, 246, 239, 0.035) 68%, transparent 100%),
       linear-gradient(180deg, rgba(255, 252, 247, 0.16) 0%, transparent 54%, rgba(38, 28, 22, 0.1) 100%);
   }
 
