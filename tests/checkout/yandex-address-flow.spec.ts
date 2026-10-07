@@ -8,9 +8,15 @@ const RESOLVED_LONGITUDE = 37.679539;
 
 async function openCheckout(page: Page) {
   await page.goto("/");
-  const buyButton = page.getByRole("button", { name: "Купить Red Luxury" });
-  await expect(buyButton).toBeVisible();
-  await buyButton.click();
+  const catalogButton = page.getByRole("button", { name: "Каталог", exact: true }).first();
+  await expect(catalogButton).toBeVisible();
+  await catalogButton.click();
+
+  const catalog = page.locator("#catalog");
+  await expect(catalog).toBeVisible();
+  const firstBuyButton = catalog.getByRole("button", { name: /^Купить / }).first();
+  await expect(firstBuyButton).toBeVisible();
+  await firstBuyButton.click();
 
   const dialog = page.getByRole("dialog", { name: "Оформить заказ" });
   await expect(dialog).toBeVisible();
@@ -61,7 +67,7 @@ test("checkout Yandex address selection waits for 3 chars and resolves coordinat
   });
 
   const dialog = await openCheckout(page);
-  const recipientTrigger = dialog.getByRole("button", { name: /^Получатель/ });
+  const recipientTrigger = dialog.getByRole("button", { name: /^Заказчик и получатель/ });
   if ((await recipientTrigger.getAttribute("aria-expanded")) !== "true") {
     await recipientTrigger.click();
   }
