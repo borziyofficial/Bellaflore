@@ -5,6 +5,7 @@
 "use client";
 
 import Image from "next/image";
+import { useMemo, useRef, useState } from "react";
 import { useHeroBannerSettings } from "@/components/home/useHeroBannerSettings";
 import styles from "@/components/home/HeroSection.module.css";
 
@@ -52,6 +53,41 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
   const buttonLink = banner?.buttonLink?.trim() || "";
   const isExternalLink = !isCatalogHeroLink(buttonLink);
 
+  const photos = useMemo(
+    () =>
+      (banner?.photos ?? [])
+        .filter((photo) => photo.isEnabled && photo.imageUrl.trim())
+        .sort((left, right) => left.sortOrder - right.sortOrder),
+    [banner?.photos],
+  );
+  const fallbackPhoto = {
+    id: "editorial-fallback",
+    imageUrl: banner?.imageUrl?.trim() || EDITORIAL_HERO_URL,
+    mobileImageUrl: "",
+    objectPosition: "64% 50%",
+    isEnabled: true,
+    isPrimary: true,
+    sortOrder: 0,
+  };
+  const heroPhotos = photos.length > 0 ? photos : [fallbackPhoto];
+  const primaryIndex = Math.max(
+    0,
+    heroPhotos.findIndex((photo) => photo.isPrimary),
+  );
+  const [activeIndex, setActiveIndex] = useState(primaryIndex);
+  const touchStartX = useRef<number | null>(null);
+
+  const safeActiveIndex =
+    activeIndex >= 0 && activeIndex < heroPhotos.length ? activeIndex : 0;
+  const activePhoto = heroPhotos[safeActiveIndex] ?? heroPhotos[0];
+
+  const goToPhoto = (direction: -1 | 1) => {
+    if (heroPhotos.length <= 1) return;
+    setActiveIndex(
+      (current) => (current + direction + heroPhotos.length) % heroPhotos.length,
+    );
+  };
+
   const primaryAction = isExternalLink ? (
     <a href={buttonLink} className={styles.primaryAction}>
       {buttonText}
@@ -66,15 +102,30 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
 
   return (
     <main id="home" className={`hero ${styles.hero}`}>
-      <div className={styles.artwork} aria-hidden="true">
+      <div
+        className={styles.artwork}
+        aria-label={heroPhotos.length > 1 ? "Фотографии Hero, можно листать свайпом" : undefined}
+        onTouchStart={(event) => {
+          touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+        }}
+        onTouchEnd={(event) => {
+          const startX = touchStartX.current;
+          touchStartX.current = null;
+          const endX = event.changedTouches[0]?.clientX ?? null;
+          if (startX === null || endX === null || Math.abs(endX - startX) < 45) return;
+          goToPhoto(endX < startX ? 1 : -1);
+        }}
+      >
         <Image
-          src={EDITORIAL_HERO_URL}
+          key={activePhoto.id}
+          src={activePhoto.mobileImageUrl || activePhoto.imageUrl}
           alt=""
           fill
-          preload
+          preload={safeActiveIndex === 0}
           quality={92}
           sizes="100vw"
           className={styles.artworkImage}
+          style={{ objectPosition: activePhoto.objectPosition || "50% 50%" }}
         />
       </div>
 
@@ -97,7 +148,10 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
         </aside>
 
         <div className={styles.sceneFooter} aria-hidden="true">
-          <span>01 <i>/</i> 01</span>
+          <span>
+            {String(safeActiveIndex + 1).padStart(2, "0")} <i>/</i>{" "}
+            {String(heroPhotos.length).padStart(2, "0")}
+          </span>
           <p>{tagline}</p>
         </div>
       </div>
