@@ -38,3 +38,9 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Checkout E2E
+        run: npx playwright test --config=playwright.checkout.config.ts
