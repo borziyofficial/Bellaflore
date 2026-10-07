@@ -124,9 +124,31 @@ test("checkout remains scrollable, operable and valid at the target viewport", a
   expect(layoutMetrics.footerPosition).toBe("static");
   expect(layoutMetrics.flowBottom).not.toBeNull();
   expect(layoutMetrics.footerTop).not.toBeNull();
-  expect(layoutMetrics.flowBottom!).toBeLessThanOrEqual(
-    layoutMetrics.footerTop! + 1,
-  );
+  if (layoutMetrics.footerPosition === "sticky") {
+    // The mobile summary is intentionally sticky. It may overlap the
+    // currently visible portion of the form; the invariant is that the
+    // checkout body can scroll to the end without clipping the form.
+    await dialog.evaluate((dialogElement) => {
+      const body = dialogElement.querySelector<HTMLElement>(".checkout-v3-body");
+      if (body) body.scrollTop = body.scrollHeight;
+    });
+    const endMetrics = await dialog.evaluate((dialogElement) => {
+      const body = dialogElement.querySelector<HTMLElement>(".checkout-v3-body");
+      const flow = dialogElement.querySelector<HTMLElement>('[class*="checkoutGlassFlow"]');
+      if (!body || !flow) return { flowBottom: null, bodyBottom: null };
+      return {
+        flowBottom: flow.getBoundingClientRect().bottom,
+        bodyBottom: body.getBoundingClientRect().bottom,
+      };
+    });
+    expect(endMetrics.flowBottom).not.toBeNull();
+    expect(endMetrics.bodyBottom).not.toBeNull();
+    expect(endMetrics.flowBottom!).toBeLessThanOrEqual(endMetrics.bodyBottom! + 1);
+  } else {
+    expect(layoutMetrics.flowBottom!).toBeLessThanOrEqual(
+      layoutMetrics.footerTop! + 1,
+    );
+  }
 
   const recipientTrigger = dialog.getByRole("button", {
     name: /^Получатель/,
