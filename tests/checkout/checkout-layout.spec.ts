@@ -27,7 +27,13 @@ async function openCheckout(page: Page) {
   }, CHECKOUT_ADDRESS);
 
   await page.goto("/");
-  const catalogButton = page.getByRole("link", { name: "Каталог", exact: true }).or(page.getByRole("button", { name: "Каталог", exact: true })).first();
+  const menuButton = page.getByRole("button", { name: "Открыть информационное меню" });
+  await expect(menuButton).toBeVisible();
+  await menuButton.click();
+
+  const catalogButton = page
+    .getByRole("navigation", { name: "Мобильное меню" })
+    .getByRole("link", { name: "Каталог", exact: true });
   await expect(catalogButton).toBeVisible();
   await catalogButton.click();
 
