@@ -5,7 +5,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useHeroBannerSettings } from "@/components/home/useHeroBannerSettings";
 import styles from "@/components/home/HeroSection.module.css";
 
@@ -74,23 +74,19 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
     0,
     heroPhotos.findIndex((photo) => photo.isPrimary),
   );
-  const [activeIndex, setActiveIndex] = useState(primaryIndex);
-
-  useEffect(() => {
-    setActiveIndex(primaryIndex);
-  }, [primaryIndex, heroPhotos.length]);
+  const [activePhotoId, setActivePhotoId] = useState<string | null>(null);
+  const resolvedActiveIndex = heroPhotos.findIndex((photo) => photo.id === activePhotoId);
+  const safeActiveIndex =
+    resolvedActiveIndex >= 0 ? resolvedActiveIndex : primaryIndex;
 
   const touchStartX = useRef<number | null>(null);
 
-  const safeActiveIndex =
-    activeIndex >= 0 && activeIndex < heroPhotos.length ? activeIndex : 0;
   const activePhoto = heroPhotos[safeActiveIndex] ?? heroPhotos[0];
 
   const goToPhoto = (direction: -1 | 1) => {
     if (heroPhotos.length <= 1) return;
-    setActiveIndex(
-      (current) => (current + direction + heroPhotos.length) % heroPhotos.length,
-    );
+    const nextIndex = (safeActiveIndex + direction + heroPhotos.length) % heroPhotos.length;
+    setActivePhotoId(heroPhotos[nextIndex]?.id ?? null);
   };
 
   const primaryAction = isExternalLink ? (
