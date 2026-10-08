@@ -1,14 +1,18 @@
-/**
- * Font configuration with system fallback stack
- * Removed Google Fonts dependency to ensure build works without network access
- * Uses system fonts with premium fallback stack for editorial and UI
- */
+import { Cormorant_Garamond, Manrope } from "next/font/google";
 
-// Placeholder objects for compatibility - actual fonts loaded via CSS
-export const playfairDisplay = {
-  variable: "--font-playfair",
-};
+export const cormorant = Cormorant_Garamond({
+  subsets: ["latin", "cyrillic"],
+  weight: ["500", "600", "700"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
 
-export const inter = {
-  variable: "--font-inter",
-};
+export const manrope = Manrope({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+
+export const playfairDisplay = cormorant;
+export const inter = manrope;

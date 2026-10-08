@@ -67,7 +67,7 @@
   font-family: var(--font-brand, "Playfair Display", serif);
   font-size: 1.05rem;
   font-weight: 600;
-  color: var(--gold-light, #f5d98c);
+  color: var(--color-text-primary, #2a2521);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -78,7 +78,7 @@
   height: 34px;
   margin: 0;
   padding: 0;
-  border: 1px solid rgba(201, 162, 75, 0.28);
+  border: 1px solid rgba(161, 47, 58, 0.22);
   border-radius: 999px;
   background: var(--color-surface-secondary, #f1ede6);
   color: var(--gold-light, #f5d98c);
@@ -128,7 +128,7 @@
   min-height: 44px;
   margin: 0;
   padding: 0 14px;
-  border: 1px solid rgba(201, 162, 75, 0.2);
+  border: 1px solid rgba(161, 47, 58, 0.16);
   border-radius: 13px;
   background: var(--color-surface, #fffdf9);
   color: var(--text-light, #1e1b18);
@@ -147,10 +147,10 @@
 }
 
 .optionActive {
-  border-color: rgba(201, 162, 75, 0.62);
-  background: var(--color-gold, #c9a24b);
-  box-shadow: 0 8px 18px rgba(201, 162, 75, 0.2);
-  color: #ffffff;
+  border-color: #a12f3a;
+  background: #a12f3a;
+  box-shadow: none;
+  color: #f6f1ea;
 }
 
 .optionLabel {
@@ -186,11 +186,11 @@
   min-height: 48px;
   margin: 12px 0 0;
   padding: 0 18px;
-  border: 1px solid rgba(181, 141, 55, 0.72);
+  border: 1px solid #a12f3a;
   border-radius: 999px;
-  background: var(--color-gold, #c9a24b);
-  box-shadow: 0 10px 24px rgba(201, 162, 75, 0.22);
-  color: #ffffff;
+  background: #a12f3a;
+  box-shadow: none;
+  color: #f6f1ea;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   font-weight: 750;

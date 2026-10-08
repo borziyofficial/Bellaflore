@@ -201,11 +201,11 @@
   min-height: 48px;
   margin-top: 3px;
   padding: 12px 18px;
-  border: 1px solid var(--color-gold, #c9a24b);
+  border: 1px solid #a12f3a;
   border-radius: 16px;
-  border-color: var(--color-gold, #c9a24b);
-  background: var(--color-gold, #c9a24b);
-  color: #ffffff;
+  border-color: #a12f3a;
+  background: #a12f3a;
+  color: #f6f1ea;
   font: inherit;
   font-size: 13px;
   font-weight: 800;

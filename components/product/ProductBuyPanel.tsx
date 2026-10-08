@@ -13,7 +13,6 @@ import styles from "@/components/product/ProductBuyPanel.module.css";
 type ProductBuyPanelProps = {
   sizeLabel: string;
   priceLabel: string;
-  deliveryNote: string;
   isFavorite: boolean;
   onBuy: () => void;
   onToggleFavorite: () => void;
@@ -22,7 +21,6 @@ type ProductBuyPanelProps = {
 export function ProductBuyPanel({
   sizeLabel,
   priceLabel,
-  deliveryNote,
   isFavorite,
   onBuy,
   onToggleFavorite,
@@ -47,8 +45,6 @@ export function ProductBuyPanel({
           {isFavorite ? "В избранном" : "В избранное"}
         </button>
       </div>
-
-      <p className={styles.deliveryNote}>{deliveryNote}</p>
     </section>
   );
 }

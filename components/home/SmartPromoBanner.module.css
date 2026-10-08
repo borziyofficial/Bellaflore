@@ -128,9 +128,9 @@
   margin-top: 8px;
   padding: 11px 22px;
   border-radius: var(--bf-button-radius, 999px);
-  background: var(--bf-gold-gradient, linear-gradient(180deg, #f5d98c 0%, #d4af37 100%));
-  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.24);
-  color: var(--color-text-primary, #1e1b18);
+  background: #a12f3a;
+  box-shadow: none;
+  color: #f6f1ea;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   font-weight: 750;

@@ -27,7 +27,6 @@ import type {
   CatalogProductBase,
   ProductSizeId,
 } from "@/components/product/productExperienceTypes";
-import type { RealDeliveryZoneResult } from "@/components/deliveryZones/realDeliveryZoneTypes";
 import { useBodyScrollLock } from "@/lib/ui/useBodyScrollLock";
 
 type ProductExperiencePageProps = {
@@ -36,12 +35,6 @@ type ProductExperiencePageProps = {
   formatPrice: (priceRub: number) => string;
   isFavorite: boolean;
   failedImageIds: Set<string>;
-  deliveryAddress: string;
-  zoneResult: RealDeliveryZoneResult;
-  deliveryDate: string;
-  deliveryTime: string;
-  nearestFromConfidence: string | null;
-  checkoutNow: Date;
   onClose: () => void;
   onBuy: (productId: string, sizeId: ProductSizeId, priceRub: number) => void;
   onToggleFavorite: (productId: string) => void;
@@ -58,12 +51,6 @@ export function ProductExperiencePage({
   formatPrice,
   isFavorite,
   failedImageIds,
-  deliveryAddress,
-  zoneResult,
-  deliveryDate,
-  deliveryTime,
-  nearestFromConfidence,
-  checkoutNow,
   onClose,
   onBuy,
   onToggleFavorite,
@@ -212,7 +199,6 @@ export function ProductExperiencePage({
           <ProductBuyPanel
             sizeLabel={selectedSizeLabel}
             priceLabel={priceLabel}
-            deliveryNote={experienceData.deliveryNote}
             isFavorite={isFavorite}
             onBuy={handleBuy}
             onToggleFavorite={handleFavoriteToggle}
@@ -222,15 +208,7 @@ export function ProductExperiencePage({
 
           <div className={styles.sectionBlock}>
             <h2 className={styles.sectionTitle}>О букете</h2>
-            <ProductInformation
-              data={experienceData}
-              deliveryAddress={deliveryAddress}
-              zoneResult={zoneResult}
-              deliveryDate={deliveryDate}
-              deliveryTime={deliveryTime}
-              nearestFromConfidence={nearestFromConfidence}
-              checkoutNow={checkoutNow}
-            />
+            <ProductInformation data={experienceData} />
           </div>
 
           <ProductReviews
@@ -252,7 +230,6 @@ export function ProductExperiencePage({
       <ProductStickyBuyBar
         sizeLabel={selectedSizeLabel}
         priceLabel={priceLabel}
-        deliveryNote={experienceData.deliveryNote}
         isFavorite={isFavorite}
         onToggleFavorite={handleFavoriteToggle}
         onBuy={handleBuy}

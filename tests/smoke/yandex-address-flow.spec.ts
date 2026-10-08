@@ -57,6 +57,10 @@ test.describe("live Yandex address checkout flow", () => {
       .last()
       .click();
 
+    const cart = page.getByRole("dialog", { name: "Корзина" });
+    await expect(cart).toBeVisible();
+    await cart.getByRole("button", { name: "Оформить заказ" }).click();
+
     const checkout = page.locator(".checkout-v3-sheet").first();
     await expect(checkout).toBeVisible();
     await checkout.getByRole("button", { name: /Адрес/ }).click();

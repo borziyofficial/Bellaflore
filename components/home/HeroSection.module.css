@@ -16,8 +16,10 @@
 
 :global(.hero).hero::before,
 :global(.hero).hero::after {
-  display: none;
-  content: none;
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  animation: none !important;
 }
 
 .artwork,
@@ -26,21 +28,29 @@
   inset: 0;
 }
 
-.artwork { z-index: 0; }
+.artwork {
+  z-index: 0;
+  pointer-events: auto;
+  touch-action: pan-y;
+}
 
 .artworkImage {
   object-fit: cover;
   object-position: 64% 50%;
   filter: saturate(1) contrast(1) brightness(1);
   transform: scale(1.015);
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.artworkImageActive {
+  opacity: 1;
 }
 
 .wash {
   z-index: 1;
   pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(249, 244, 237, 0.62) 0%, rgba(249, 244, 237, 0.42) 31%, rgba(249, 244, 237, 0.10) 55%, rgba(249, 244, 237, 0.015) 78%),
-    linear-gradient(180deg, rgba(255, 252, 246, 0.18), transparent 52%, rgba(45, 34, 25, 0.1));
+  background: none;
 }
 
 .orbit,
@@ -48,9 +58,9 @@
   position: absolute;
   z-index: 2;
   pointer-events: none;
-  border: 2px solid rgba(166, 119, 56, 0.62);
+  border: 1px solid rgba(196, 165, 116, 0.55);
   border-left-color: transparent;
-  border-bottom-color: rgba(166, 119, 56, 0.22);
+  border-bottom-color: rgba(196, 165, 116, 0.22);
   border-radius: 50%;
   transform: rotate(17deg);
 }
@@ -77,6 +87,7 @@
   min-height: min(92svh, 880px);
   margin: 0 auto;
   padding: 150px 54px 72px;
+  pointer-events: none;
 }
 
 .content {
@@ -90,8 +101,8 @@
 
 .eyebrow {
   margin: 0 0 24px;
-  color: #765b3e;
-  font-family: var(--font-inter), Arial, sans-serif;
+  color: #a12f3a;
+  font-family: var(--font-body, Manrope, sans-serif);
   font-size: 11px;
   font-weight: 650;
   line-height: 1.4;
@@ -105,15 +116,15 @@
   width: 34px;
   height: 1px;
   margin: 0 12px 3px 0;
-  background: #a77b43;
+  background: #c4a574;
   content: "";
 }
 
 .title {
   max-width: 720px;
   margin: 0;
-  color: #211a16;
-  font-family: var(--font-playfair), "Times New Roman", serif;
+  color: #2a2521;
+  font-family: var(--font-brand, "Cormorant Garamond", Georgia, serif);
   font-size: 82px;
   font-weight: 500;
   letter-spacing: 0;
@@ -126,8 +137,8 @@
 .subtitle {
   max-width: 370px;
   margin: 28px 0 0;
-  color: #564b42;
-  font-family: var(--font-inter), Arial, sans-serif;
+  color: #2a2521;
+  font-family: var(--font-body, Manrope, sans-serif);
   font-size: 14px;
   font-weight: 500;
   line-height: 1.7;
@@ -143,12 +154,12 @@
   gap: 30px;
   min-height: 50px;
   padding: 0 25px;
-  border: 1px solid rgba(133, 93, 47, 0.45);
+  border: 1px solid #a12f3a;
   border-radius: 999px;
-  background: linear-gradient(110deg, rgba(132, 93, 48, 0.92), rgba(190, 151, 99, 0.82));
-  box-shadow: 0 12px 30px rgba(76, 53, 30, 0.16);
-  color: #fffaf2;
-  font-family: var(--font-inter), Arial, sans-serif;
+  background: #a12f3a;
+  box-shadow: none;
+  color: #f6f1ea;
+  font-family: var(--font-body, Manrope, sans-serif);
   font-size: 11px;
   font-weight: 650;
   line-height: 1;
@@ -168,8 +179,9 @@
 
 .primaryAction:hover,
 .primaryAction:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(76, 53, 30, 0.22);
+  background: #6f242c;
+  transform: translateY(-1px);
+  box-shadow: none;
   outline: none;
 }
 
@@ -265,9 +277,7 @@
   .artworkImage { object-position: 57% 48%; }
 
   .wash {
-    background:
-      linear-gradient(90deg, rgba(249, 244, 237, 0.48) 0%, rgba(249, 244, 237, 0.28) 45%, rgba(249, 244, 237, 0.025) 78%),
-      linear-gradient(180deg, rgba(255, 252, 246, 0.12), transparent 58%, rgba(45, 34, 25, 0.08));
+    background: none;
   }
 
   .shell { padding: 122px 28px 62px; }
@@ -305,9 +315,7 @@
   }
 
   .wash {
-    background:
-      linear-gradient(90deg, rgba(250, 246, 239, 0.46) 0%, rgba(250, 246, 239, 0.25) 35%, rgba(250, 246, 239, 0.035) 68%, transparent 100%),
-      linear-gradient(180deg, rgba(255, 252, 247, 0.16) 0%, transparent 54%, rgba(38, 28, 22, 0.1) 100%);
+    background: none;
   }
 
   .shell { padding: 76px 18px 44px; }
@@ -398,5 +406,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primaryAction { transition: none; }
+  .primaryAction,
+  .artworkImage { transition: none; }
 }

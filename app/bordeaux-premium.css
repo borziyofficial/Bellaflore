@@ -1,0 +1,153 @@
+/* Bordeaux Premium — presentation only. Ivory base, bordeaux accent, gold as a hairline. */
+
+html[data-theme="dark-luxury"] {
+  --bf-gold-line: #c4a574;
+}
+
+h1,
+h2,
+h3,
+.hero-title {
+  font-family: var(--font-brand, "Cormorant Garamond", Georgia, serif);
+}
+
+html[data-theme="dark-luxury"] button:focus-visible,
+html[data-theme="dark-luxury"] a:focus-visible,
+html[data-theme="dark-luxury"] input:focus-visible,
+html[data-theme="dark-luxury"] select:focus-visible,
+html[data-theme="dark-luxury"] textarea:focus-visible {
+  outline: 2px solid #a12f3a;
+  outline-offset: 2px;
+}
+
+.buy-button,
+.hero-order-link,
+.checkout-submit-button,
+.luxury-catalog-buy-button,
+.favorites-buy-button,
+.catalog-placeholder-button,
+.my-order-empty-button.buy-button {
+  background: #a12f3a !important;
+  color: #f6f1ea !important;
+  border-color: #a12f3a !important;
+  box-shadow: none;
+}
+
+.buy-button:hover,
+.hero-order-link:hover,
+.checkout-submit-button:hover,
+.luxury-catalog-buy-button:hover,
+.favorites-buy-button:hover {
+  background: #6f242c !important;
+}
+
+.buy-button:disabled,
+.checkout-submit-button:disabled {
+  background: rgba(161, 47, 58, 0.35) !important;
+  color: #f6f1ea !important;
+}
+
+html[data-theme="day"] {
+  --background: #f7f3ed;
+  --surface: #fdfbf9;
+  --text-main: #2a2521;
+  --text-strong: #2a2521;
+  --text-secondary: #746f68;
+  --bf-bg: #f7f3ed;
+  --bf-surface: #fdfbf9;
+  --bf-text: #2a2521;
+  --bf-heading: #2a2521;
+  --bf-pink: #4a1428;
+  --bf-pink-soft: #f3e8ec;
+  --bf-ui-bg: #f7f3ed;
+  --bf-ui-surface: #fdfbf9;
+  --bf-ui-text: #2a2521;
+  --bf-ui-gold-1: #4a1428;
+  --bf-ui-gold-2: #4a1428;
+  --bf-ui-gold-3: #6b243c;
+  --champagne-background: #f7f3ed;
+  --champagne-card: #fdfbf9;
+  --champagne-text: #2a2521;
+  --champagne-gold: #4a1428;
+  --button-bg: #4a1428;
+  --button-bg-hover: #6b243c;
+  --button-text: #f6f1ea;
+  --font-brand: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-body: var(--font-manrope), Manrope, system-ui, sans-serif;
+  --font-sans: var(--font-body);
+}
+
+html[data-theme="day"] body {
+  background: #f7f3ed;
+  color: #2a2521;
+  font-family: var(--font-body, Manrope, sans-serif);
+}
+
+html[data-theme="day"] [data-admin-route="true"] {
+  background: #f7f3ed;
+  color: #2a2521;
+  font-family: var(--font-body, Manrope, sans-serif);
+}
+
+html[data-theme="day"] [data-admin-route="true"] h1,
+html[data-theme="day"] [data-admin-route="true"] h2,
+html[data-theme="day"] [data-admin-route="true"] h3 {
+  font-family: var(--font-brand, "Cormorant Garamond", Georgia, serif);
+}
+
+html[data-theme="dark-luxury"] [class*="checkoutMapToggle"],
+html[data-theme="dark-luxury"] [class*="checkoutMapOpenButton"],
+html[data-theme="dark-luxury"] [class*="checkoutDeliveryDateButton"] {
+  border-color: rgba(161, 47, 58, 0.35) !important;
+  background: transparent !important;
+  color: #a12f3a !important;
+}
+
+html[data-theme="dark-luxury"] [class*="checkoutDeliveryDateButtonActive"],
+html[data-theme="dark-luxury"] [class*="favoriteButtonActive"],
+html[data-theme="dark-luxury"] [class*="iconButtonActive"] {
+  background: #a12f3a !important;
+  color: #f6f1ea !important;
+  border-color: #a12f3a !important;
+}
+
+html[data-theme="day"] [data-admin-route="true"] input,
+html[data-theme="day"] [data-admin-route="true"] textarea,
+html[data-theme="day"] [data-admin-route="true"] select {
+  font-family: var(--font-body, Manrope, sans-serif);
+  background: #fdfbf9;
+  border-color: rgba(161, 47, 58, 0.18);
+  color: #2a2521;
+}
+
+html[data-theme="day"] [data-admin-route="true"] button[type="submit"] {
+  background: #a12f3a;
+  color: #f6f1ea;
+  border-color: #a12f3a;
+}
+
+html[data-theme="dark-luxury"] .hero-title::before {
+  color: #c4a574;
+  -webkit-text-fill-color: #c4a574;
+}
+
+html[data-theme="dark-luxury"] .hero-order-link,
+html[data-theme="dark-luxury"] a.hero-order-link,
+html[data-theme="dark-luxury"] .bouquet-order-link,
+html[data-theme="dark-luxury"] .catalog-v11-chip.is-active,
+html[data-theme="dark-luxury"] .my-order-empty-button.buy-button {
+  background: #a12f3a !important;
+  color: #f6f1ea !important;
+  border-color: #a12f3a !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark-luxury"] .checkout-total-row strong,
+html[data-theme="dark-luxury"] .checkout-grand-total-row strong {
+  color: #a12f3a !important;
+}
+
+html[data-theme="dark-luxury"] .mobile-bottom-nav-item-active,
+html[data-theme="dark-luxury"] .mobile-bottom-nav-item-active .mobile-bottom-nav-label {
+  color: #a12f3a !important;
+}

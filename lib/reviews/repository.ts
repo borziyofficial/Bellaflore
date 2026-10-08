@@ -1,6 +1,8 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import postgres from "postgres";
 import { getDatabaseUrl } from "@/lib/catalogDb/config";
 
@@ -35,8 +37,67 @@ export class ReviewStorageNotConfiguredError extends Error {
   }
 }
 
+const LOCAL_REVIEWS_FILE = join(process.cwd(), ".data", "storefront-reviews.json");
+
 let sqlClient: ReturnType<typeof postgres> | null = null;
 let schemaPromise: Promise<void> | null = null;
+
+function isReviewStatus(value: unknown): value is ReviewStatus {
+  return value === "approved" || value === "pending" || value === "rejected";
+}
+
+function isStoredReview(value: unknown): value is ReviewRecord {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const review = value as Partial<ReviewRecord>;
+  return (
+    typeof review.id === "string" &&
+    typeof review.name === "string" &&
+    typeof review.rating === "number" &&
+    Number.isInteger(review.rating) &&
+    review.rating >= 1 &&
+    review.rating <= 5 &&
+    typeof review.text === "string" &&
+    isReviewStatus(review.status) &&
+    (typeof review.productId === "string" || review.productId === null) &&
+    typeof review.createdAt === "string" &&
+    typeof review.updatedAt === "string"
+  );
+}
+
+async function readLocalReviews(): Promise<ReviewRecord[] | undefined> {
+  if (getDatabaseUrl()) {
+    return undefined;
+  }
+
+  try {
+    const raw = await readFile(LOCAL_REVIEWS_FILE, "utf8");
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) {
+      throw new ReviewStorageNotConfiguredError();
+    }
+
+    return parsed.filter(isStoredReview);
+  } catch (error) {
+    if (error instanceof ReviewStorageNotConfiguredError) {
+      throw error;
+    }
+
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      throw new ReviewStorageNotConfiguredError();
+    }
+
+    throw error;
+  }
+}
+
+function sortByCreatedDesc(reviews: ReviewRecord[]): ReviewRecord[] {
+  return [...reviews].sort((left, right) =>
+    right.createdAt.localeCompare(left.createdAt),
+  );
+}
 
 function getReviewsSqlClient(): ReturnType<typeof postgres> {
   const databaseUrl = getDatabaseUrl();
@@ -134,9 +195,20 @@ export async function listApprovedReviews(
   productId: string | null = null,
   limit = 100,
 ): Promise<ReviewRecord[]> {
+  const safeLimit = Math.min(Math.max(limit, 1), 200);
+  const localReviews = await readLocalReviews();
+  if (localReviews) {
+    return sortByCreatedDesc(
+      localReviews.filter(
+        (review) =>
+          review.status === "approved" &&
+          (productId ? review.productId === productId : true),
+      ),
+    ).slice(0, safeLimit);
+  }
+
   await ensureReviewsSchema();
   const sql = getReviewsSqlClient();
-  const safeLimit = Math.min(Math.max(limit, 1), 200);
   const rows = productId
     ? await sql<ReviewRow[]>`
         SELECT *
@@ -156,9 +228,27 @@ export async function listApprovedReviews(
 }
 
 export async function listAdminReviews(limit = 200): Promise<ReviewRecord[]> {
+  const safeLimit = Math.min(Math.max(limit, 1), 500);
+  const localReviews = await readLocalReviews();
+  if (localReviews) {
+    const statusOrder: Record<ReviewStatus, number> = {
+      pending: 0,
+      approved: 1,
+      rejected: 2,
+    };
+    return [...localReviews]
+      .sort((left, right) => {
+        const statusDiff = statusOrder[left.status] - statusOrder[right.status];
+        if (statusDiff !== 0) {
+          return statusDiff;
+        }
+        return right.createdAt.localeCompare(left.createdAt);
+      })
+      .slice(0, safeLimit);
+  }
+
   await ensureReviewsSchema();
   const sql = getReviewsSqlClient();
-  const safeLimit = Math.min(Math.max(limit, 1), 500);
   const rows = await sql<ReviewRow[]>`
     SELECT *
     FROM storefront_reviews

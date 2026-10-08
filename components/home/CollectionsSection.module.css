@@ -149,9 +149,9 @@
 }
 
 .categoryChipActive {
-  border-color: var(--color-gold, #c9a24b);
-  background: rgba(201, 162, 75, 0.14);
-  color: var(--color-gold-hover, #b58d37);
+  border-color: #a12f3a;
+  background: #a12f3a;
+  color: #f6f1ea;
 }
 
 .priceTools {
@@ -211,10 +211,10 @@
 .priceReset {
   min-height: 34px;
   padding: 7px 12px;
-  border: 0;
+  border: 1px solid #a12f3a;
   border-radius: var(--bf-button-radius, 999px);
-  background: rgba(201, 162, 75, 0.14);
-  color: var(--color-gold-hover, #b58d37);
+  background: transparent;
+  color: #a12f3a;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   font-weight: 700;
@@ -428,8 +428,8 @@
   padding: 11px 18px;
   border: 0;
   border-radius: var(--bf-button-radius, 999px);
-  background: var(--bf-gold-gradient, var(--color-gold, #c9a24b));
-  color: #ffffff;
+  background: #a12f3a;
+  color: #f6f1ea;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 14px;
   font-weight: 600;
@@ -794,9 +794,9 @@
 }
 
 .section:not(.homeShowcase) .categoryChipActive {
-  border-color: rgba(155, 124, 80, 0.4);
-  background: linear-gradient(180deg, rgba(196, 170, 122, 0.26), rgba(196, 170, 122, 0.13));
-  color: var(--color-text-primary, #2a2521);
+  border-color: #a12f3a;
+  background: #a12f3a;
+  color: #f6f1ea;
 }
 
 .section:not(.homeShowcase) .priceTools {
@@ -827,9 +827,9 @@
 
 .section:not(.homeShowcase) .priceReset {
   min-height: 36px;
-  border: 1px solid rgba(155, 124, 80, 0.2);
-  background: rgba(196, 170, 122, 0.12);
-  color: var(--color-bronze-subtle, #9b7c50);
+  border: 1px solid #a12f3a;
+  background: transparent;
+  color: #a12f3a;
 }
 
 .resultsMeta {
@@ -912,13 +912,13 @@
   }
 
   .section:not(.homeShowcase) .priceTools {
-    grid-template-columns: minmax(0, 0.72fr) minmax(0, 0.72fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 7px;
     padding: 8px;
   }
 
   .section:not(.homeShowcase) .sortField {
-    grid-column: auto;
+    grid-column: 1 / -1;
   }
 
   .section:not(.homeShowcase) .priceReset {

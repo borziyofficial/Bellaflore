@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerE
 import { ProductImageWithFallback } from "@/components/product/ProductImageWithFallback";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import styles from "@/components/home/AiFlorist.module.css";
+import { useBodyScrollLock } from "@/lib/ui/useBodyScrollLock";
 
 type AiFloristProps = {
   bouquets: CatalogProduct[];
@@ -137,73 +138,13 @@ function selectCandidates(
     .map((entry) => entry.product);
 }
 
-type ClientFallbackIntent = "greeting" | "service" | "care" | "delivery" | "bouquet";
-
-function classifyClientFallbackIntent(message: string): ClientFallbackIntent {
-  const lower = message.toLowerCase().trim();
-
-  if (
-    /^(привет|здравствуйте|здравствуй|добрый день|добрый вечер|доброе утро|хай|hello|hi)\b/.test(lower) &&
-    lower.length <= 40
-  ) {
-    return "greeting";
-  }
-
-  if (
-    /(относ|подход).{0,18}клиент/.test(lower) ||
-    /как.{0,12}(вы|bellaflore).{0,18}работа/.test(lower) ||
-    /почему.{0,18}(выбрать|вы|bellaflore)/.test(lower)
-  ) {
-    return "service";
-  }
-
-  if (/(уход|поливать|подрезать|хранить букет|дольше|долго.{0,10}сто)/.test(lower)) {
-    return "care";
-  }
-
-  if (/(доставк|курьер)/.test(lower)) {
-    return "delivery";
-  }
-
-  return "bouquet";
-}
-
-function buildFallbackText(message: string): string {
-  const intent = classifyClientFallbackIntent(message);
-  const lower = message.toLowerCase();
-
-  if (intent === "greeting") {
-    return "Здравствуйте! Я AI-флорист BellaFlore. Расскажите, для кого выбираете цветы или какой нужен совет.";
-  }
-  if (intent === "service") {
-    return "В BellaFlore к каждому клиенту подходят внимательно и лично — подбираем букет под повод и вкус и остаёмся на связи. Могу помочь подобрать букет прямо сейчас.";
-  }
-  if (intent === "care") {
-    return "Чтобы букет стоял дольше: подрезайте стебли под углом, меняйте воду каждые 1–2 дня и держите цветы вдали от батарей и солнца.";
-  }
-  if (intent === "delivery") {
-    return "Точную стоимость и время доставки покажу на оформлении заказа по вашему адресу. Если хотите, для начала подберу букет.";
-  }
-
-  const firstMeeting =
-    /перв(ое|ого|ая)?\s+(знакомств|встреч|свидан)|первое знакомство|первая встреча/.test(lower);
-
-  if (firstMeeting) {
-    return "Для первого знакомства лучше лёгкий и ненавязчивый букет: нежные оттенки, аккуратная форма и без слишком торжественной подачи. Если бюджет не принципиален, я начну с красивых вариантов среднего размера.";
-  }
-  if (!/жен|девуш|мам|муж|коллег|началь|себе/.test(lower)) {
-    return "Кому выбираем цветы? Это поможет понять характер букета — романтичный, сдержанный, нежный или более эффектный.";
-  }
-  if (!/день рож|свидан|юбиле|свад|годовщ|спасибо|без повода|просто так|знакомств|встреч/.test(lower)) {
-    return "А какой повод? От этого я точнее подберу форму букета и цветовую гамму.";
-  }
-  return "Назовите примерный бюджет и, если знаете, любимые цвета человека. После этого предложу несколько подходящих композиций.";
-}
+const UNAVAILABLE_REPLY =
+  "Сейчас не получается подобрать букеты из каталога: помощник временно недоступен. Конкретных товаров я не предлагаю — выберите композицию в каталоге.";
 
 function clampLauncherPosition(x: number, y: number) {
-  const size = window.innerWidth <= 640 ? 56 : 58;
+  const size = window.innerWidth <= 768 ? 56 : 58;
   const margin = 10;
-  const reservedBottom = window.innerWidth <= 640 ? 92 : 18;
+  const reservedBottom = window.innerWidth <= 768 ? 92 : 18;
   return {
     x: Math.min(
       Math.max(margin, x),
@@ -217,7 +158,7 @@ function clampLauncherPosition(x: number, y: number) {
 }
 
 function snapLauncherToEdge(position: { x: number; y: number }) {
-  const size = window.innerWidth <= 640 ? 56 : 58;
+  const size = window.innerWidth <= 768 ? 56 : 58;
   const margin = 10;
   const leftDistance = position.x;
   const rightDistance = window.innerWidth - (position.x + size);
@@ -280,13 +221,17 @@ export function AiFlorist({
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [assistantMode, setAssistantMode] = useState<"ai" | "fallback" | null>(null);
-  const [keyboardInset, setKeyboardInset] = useState<{ bottomGap: number; viewportHeight: number } | null>(null);
+  const [keyboardInset, setKeyboardInset] = useState<{
+    offsetTop: number;
+    viewportHeight: number;
+  } | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
   const launcherRef = useRef<HTMLButtonElement | null>(null);
-  const closeTimerRef = useRef<number | null>(null);
-  const composerFocusedRef = useRef(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const wasOpenRef = useRef(false);
   const messageSequenceRef = useRef(1);
   const dragRef = useRef<{
     pointerId: number;
@@ -298,6 +243,16 @@ export function AiFlorist({
   } | null>(null);
   const suppressClickRef = useRef(false);
   const [launcherPosition, setLauncherPosition] = useState<{ x: number; y: number } | null>(null);
+
+  useBodyScrollLock(open);
+
+  useEffect(() => {
+    if (!open) return;
+    document.body.dataset.aiFloristOpen = "true";
+    return () => {
+      delete document.body.dataset.aiFloristOpen;
+    };
+  }, [open]);
 
   const nextMessageId = (prefix: "user" | "assistant") => {
     const sequence = messageSequenceRef.current;
@@ -398,7 +353,10 @@ export function AiFlorist({
       );
       setKeyboardInset(
         bottomGap > KEYBOARD_INSET_THRESHOLD_PX
-          ? { bottomGap, viewportHeight: visualViewport.height }
+          ? {
+              offsetTop: visualViewport.offsetTop,
+              viewportHeight: visualViewport.height,
+            }
           : null,
       );
     };
@@ -428,43 +386,28 @@ export function AiFlorist({
     return () => window.cancelAnimationFrame(frame);
   }, [messages, open, sending, keyboardInset]);
 
-  // ==================================================
-  // SECTION: OPEN / CLOSE UX
-  // РАЗДЕЛ: Открытие и закрытие панели
-  //
-  // Desktop: mouse leaving the panel starts a ~700ms auto-close timer,
-  // cancelled if the pointer returns or if the composer is focused.
-  // Both desktop and mobile: outside click/tap, Escape, the × button and
-  // re-tapping the launcher all close the panel. A touch ending INSIDE
-  // the panel never closes it (the outside-click handler only reacts to
-  // targets outside the panel), and the keyboard opening/closing never
-  // triggers a close on its own.
-  // ==================================================
-  const clearCloseTimer = () => {
-    if (closeTimerRef.current !== null) {
-      window.clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
+  // The workspace stays open until the customer closes it: ×, Escape,
+  // or a click on the backdrop. Leaving the pointer does not close it.
+  useEffect(() => {
+    if (open) {
+      wasOpenRef.current = true;
+      const desktop =
+        window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+        window.innerWidth > 768;
+      const frame = window.requestAnimationFrame(() => {
+        if (desktop) {
+          inputRef.current?.focus();
+        } else {
+          closeButtonRef.current?.focus();
+        }
+      });
+      return () => window.cancelAnimationFrame(frame);
     }
-  };
 
-  useEffect(() => clearCloseTimer, []);
-
-  const handlePanelMouseEnter = () => {
-    clearCloseTimer();
-  };
-
-  const handlePanelMouseLeave = () => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    if (composerFocusedRef.current) return;
-
-    clearCloseTimer();
-    closeTimerRef.current = window.setTimeout(() => {
-      if (!composerFocusedRef.current) {
-        setOpen(false);
-      }
-    }, 700);
-  };
+    if (wasOpenRef.current) {
+      launcherRef.current?.focus();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -530,23 +473,33 @@ export function AiFlorist({
         }),
       });
       const body = (await response.json()) as ApiReply;
-      if (body.mode === "ai" || body.mode === "fallback") {
-        setAssistantMode(body.mode);
+      const unavailable = !response.ok || body.mode === "fallback" || !body.reply;
+
+      if (unavailable) {
+        setAssistantMode("fallback");
+        setMessages((current) => [
+          ...current,
+          {
+            id: nextMessageId("assistant"),
+            role: "assistant",
+            content: UNAVAILABLE_REPLY,
+            recommendedProductIds: [],
+          },
+        ]);
+      } else {
+        setAssistantMode("ai");
+        setMessages((current) => [
+          ...current,
+          {
+            id: nextMessageId("assistant"),
+            role: "assistant",
+            content: body.reply ?? "",
+            recommendedProductIds: Array.isArray(body.recommendedProductIds)
+              ? body.recommendedProductIds
+              : [],
+          },
+        ]);
       }
-
-      const assistantMessage: ChatMessage = {
-        id: nextMessageId("assistant"),
-        role: "assistant",
-        content:
-          response.ok && body.reply
-            ? body.reply
-            : buildFallbackText(text),
-        recommendedProductIds: Array.isArray(body.recommendedProductIds)
-          ? body.recommendedProductIds
-          : [],
-      };
-
-      setMessages((current) => [...current, assistantMessage]);
     } catch {
       setAssistantMode("fallback");
       setMessages((current) => [
@@ -554,7 +507,8 @@ export function AiFlorist({
         {
           id: nextMessageId("assistant"),
           role: "assistant",
-          content: buildFallbackText(text),
+          content: UNAVAILABLE_REPLY,
+          recommendedProductIds: [],
         },
       ]);
     } finally {
@@ -651,21 +605,35 @@ export function AiFlorist({
 
   const panelStyle: CSSProperties | undefined = keyboardInset
     ? {
-        bottom: `${keyboardInset.bottomGap + 8}px`,
-        maxHeight: `${Math.max(240, keyboardInset.viewportHeight - 96)}px`,
+        top: `${keyboardInset.offsetTop}px`,
+        right: "0px",
+        bottom: "auto",
+        left: "0px",
+        width: "100%",
+        height: `${keyboardInset.viewportHeight}px`,
+        maxHeight: `${keyboardInset.viewportHeight}px`,
+        transform: "none",
       }
     : undefined;
 
   return (
     <div className={styles.root} style={rootStyle}>
       {open ? (
+        <div
+          className={styles.backdrop}
+          onPointerDown={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      ) : null}
+
+      {open ? (
         <section
           className={styles.panel}
           style={panelStyle}
+          role="dialog"
+          aria-modal="true"
           aria-label="AI-флорист BellaFlore"
           ref={panelRef}
-          onMouseEnter={handlePanelMouseEnter}
-          onMouseLeave={handlePanelMouseLeave}
         >
           <div className={styles.panelHeader}>
             <div className={styles.identity}>
@@ -674,12 +642,17 @@ export function AiFlorist({
               </span>
               <div>
                 <strong>AI-флорист BellaFlore</strong>
-                <span>Советы флориста · реальные товары</span>
+                <span>
+                  {assistantMode === "fallback"
+                    ? "Подбор из каталога временно недоступен"
+                    : "Советы флориста · реальные товары"}
+                </span>
               </div>
             </div>
             <button
               type="button"
               className={styles.closeButton}
+              ref={closeButtonRef}
               onClick={() => setOpen(false)}
               aria-label="Закрыть AI-флориста"
             >
@@ -785,19 +758,17 @@ export function AiFlorist({
             }}
           >
             <input
+              ref={inputRef}
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onFocus={() => {
-                composerFocusedRef.current = true;
-                clearCloseTimer();
                 window.setTimeout(() => scrollChatToBottom("smooth"), 300);
-              }}
-              onBlur={() => {
-                composerFocusedRef.current = false;
               }}
               placeholder="Напишите: для кого, повод, бюджет…"
               aria-label="Сообщение AI-флористу"
               autoComplete="off"
+              autoCapitalize="sentences"
+              enterKeyHint="send"
             />
             <button
               type="submit"
@@ -814,32 +785,34 @@ export function AiFlorist({
             </button>
             <span>
               {assistantMode === "fallback"
-                ? "Помощник временно работает в упрощённом режиме."
-                : "AI использует только реальные товары BellaFlore."}
+                ? "Конкретные товары сейчас не предлагаю."
+                : assistantMode === "ai"
+                  ? "AI использует только реальные товары BellaFlore."
+                  : "Опишите повод и бюджет."}
             </span>
           </div>
         </section>
       ) : null}
 
-      <button
-        type="button"
-        className={`${styles.launcher} ${open ? styles.launcherOpen : ""}`}
-        ref={launcherRef}
-        onPointerDown={handleLauncherPointerDown}
-        onPointerMove={handleLauncherPointerMove}
-        onPointerUp={finishLauncherDrag}
-        onPointerCancel={finishLauncherDrag}
-        onClick={() => {
-          if (suppressClickRef.current) return;
-          setOpen((current) => !current);
-        }}
-        aria-label={
-          open ? "Закрыть AI-флориста" : "Открыть AI-флориста BellaFlore"
-        }
-        aria-expanded={open}
-      >
-        <span aria-hidden="true">✦</span>
-      </button>
+      {open ? null : (
+        <button
+          type="button"
+          className={styles.launcher}
+          ref={launcherRef}
+          onPointerDown={handleLauncherPointerDown}
+          onPointerMove={handleLauncherPointerMove}
+          onPointerUp={finishLauncherDrag}
+          onPointerCancel={finishLauncherDrag}
+          onClick={() => {
+            if (suppressClickRef.current) return;
+            setOpen(true);
+          }}
+          aria-label="Открыть AI-флориста BellaFlore"
+          aria-expanded={false}
+        >
+          <span aria-hidden="true">✦</span>
+        </button>
+      )}
     </div>
   );
 }

@@ -43,6 +43,57 @@
   gap: 12px;
 }
 
+.checkoutCartLines {
+  padding: 14px 16px;
+  border: 1px solid rgba(80, 70, 60, 0.24);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.99);
+}
+
+.checkoutCartLineList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checkoutCartLine {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.checkoutCartLine + .checkoutCartLine {
+  padding-top: 10px;
+  border-top: 1px solid rgba(196, 165, 116, 0.45);
+}
+
+.checkoutCartLineTitle {
+  min-width: 0;
+  color: #111111;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.checkoutCartLineMeta {
+  color: #444444;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.checkoutCartLineTotal {
+  color: #a12f3a;
+  font-family: var(--font-body, Inter, sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+}
+
 .checkoutGlassStep {
   border: 1px solid rgba(80, 70, 60, 0.24);
   border-radius: 16px;
@@ -376,8 +427,8 @@
   min-height: 50px;
   border: 0;
   border-radius: var(--bf-button-radius, 999px);
-  background: var(--color-gold, #c9a24b);
-  color: #ffffff;
+  background: #a12f3a;
+  color: #f6f1ea;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 16px;
   font-weight: 700;
@@ -386,8 +437,8 @@
 
 .checkoutSubmitButton:disabled {
   cursor: not-allowed;
-  background: var(--color-surface-secondary, #ddd8cc);
-  color: var(--color-text-secondary, #746f68);
+  background: rgba(161, 47, 58, 0.35);
+  color: #f6f1ea;
   font-weight: 700;
   opacity: 1;
   box-shadow: none;
@@ -531,22 +582,22 @@
 .checkoutV3SummaryRow strong {
   font-size: 15px;
   font-weight: 700;
-  color: #111111;
+  color: #a12f3a;
   white-space: nowrap;
 }
 
 .checkoutV3SummaryTotal {
   padding-top: 12px;
-  border-top: 1px solid rgba(80, 70, 60, 0.18);
+  border-top: 1px solid rgba(196, 165, 116, 0.7);
   font-size: 17px;
   font-weight: 700;
-  color: #111111;
+  color: #2a2521;
 }
 
 .checkoutV3SummaryTotal strong {
   font-size: 21px;
   font-weight: 700;
-  color: #111111;
+  color: #a12f3a;
 }
 
 .checkoutPaymentInfo {

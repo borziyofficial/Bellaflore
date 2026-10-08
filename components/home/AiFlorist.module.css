@@ -1,8 +1,13 @@
+:global(body[data-ai-florist-open] .navbar),
+:global(body[data-ai-florist-open] nav[aria-label="Быстрая мобильная навигация"]) {
+  z-index: 2147483000 !important;
+}
+
 .root {
   position: fixed;
   right: max(16px, env(safe-area-inset-right));
   bottom: calc(118px + env(safe-area-inset-bottom));
-  z-index: 2147483008;
+  z-index: 2147483011;
   pointer-events: none;
   touch-action: none;
 }
@@ -49,15 +54,23 @@
   transform: translateY(-1px);
 }
 
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(47, 42, 36, 0.28);
+  pointer-events: auto;
+}
+
 .panel {
   position: fixed;
-  right: max(16px, env(safe-area-inset-right));
-  bottom: calc(118px + env(safe-area-inset-bottom));
+  top: 40px;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  width: min(410px, calc(100vw - 24px));
-  max-width: calc(100vw - 20px);
-  max-height: min(68dvh, 680px);
+  width: min(1040px, calc(100% - 96px));
+  max-width: calc(100% - 96px);
   box-sizing: border-box;
   overflow: hidden;
   border: 1px solid rgba(201, 162, 75, 0.24);
@@ -126,22 +139,37 @@
 .identity div > span {
   color: #7a6f63;
   font-family: var(--font-body, Inter, sans-serif);
-  font-size: 10px;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .closeButton {
-  width: 34px;
-  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  flex: 0 0 44px;
   margin: 0;
   padding: 0;
   border: 0;
   border-radius: 999px;
   background: rgba(54, 45, 35, 0.06);
   color: #564b41;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 300;
   line-height: 1;
   cursor: pointer;
+}
+
+.closeButton:focus-visible,
+.composer input:focus-visible,
+.composer button:focus-visible,
+.launcher:focus-visible {
+  outline: 2px solid #a12f3a;
+  outline-offset: 2px;
 }
 
 .chatBody {
@@ -335,7 +363,7 @@
 
 .composer input {
   min-width: 0;
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 12px;
   border: 1px solid rgba(54, 45, 35, 0.12);
   border-radius: 13px;
@@ -347,19 +375,19 @@
 }
 
 .composer input:focus {
-  border-color: rgba(201, 162, 75, 0.65);
+  border-color: rgba(161, 47, 58, 0.45);
 }
 
 .composer button {
-  min-height: 42px;
+  min-height: 44px;
   margin: 0;
-  padding: 0 13px;
-  border: 1px solid #c9a24b;
+  padding: 0 16px;
+  border: 1px solid #a12f3a;
   border-radius: 13px;
-  background: #c9a24b;
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 850;
+  background: #a12f3a;
+  color: #f6f1ea;
+  font-size: 13px;
+  font-weight: 750;
   cursor: pointer;
 }
 
@@ -382,21 +410,23 @@
 }
 
 .panelFooter button {
+  min-height: 44px;
   margin: 0;
-  padding: 0;
+  padding: 0 4px;
   border: 0;
   border-bottom: 1px solid rgba(181, 141, 55, 0.38);
   border-radius: 0;
   background: transparent;
   color: #a17825;
-  font-size: 9px;
+  font-size: 13px;
   font-weight: 750;
   cursor: pointer;
 }
 
 .panelFooter span {
   color: #9a8d80;
-  font-size: 8px;
+  font-size: 12px;
+  line-height: 1.35;
   text-align: right;
 }
 
@@ -411,7 +441,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .root:not([style]) {
     right: 14px;
     bottom: calc(124px + env(safe-area-inset-bottom));
@@ -422,28 +452,38 @@
     height: 56px;
   }
 
+  .backdrop {
+    display: none;
+  }
+
   .panel {
-    right: max(14px, env(safe-area-inset-right));
-    bottom: calc(104px + env(safe-area-inset-bottom));
-    left: max(14px, env(safe-area-inset-left));
-    width: auto;
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    transform: none;
+    width: 100%;
     max-width: none;
-    max-height: min(50dvh, 560px);
-    border-radius: 20px;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .panelHeader {
-    padding: 9px 11px 8px;
+    padding: 12px 14px;
   }
 
   .identity strong {
-    font-size: 14px;
+    font-size: 17px;
   }
 
   .composer {
-    grid-template-columns: minmax(0, 1fr) 88px;
-    gap: 7px;
-    padding: 9px 10px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 12px 14px;
   }
 
   .composer input {
@@ -454,8 +494,9 @@
   }
 
   .composer button {
-    width: 88px;
-    padding: 0 8px;
+    width: auto;
+    min-width: 112px;
+    padding: 0 14px;
   }
 
   .panelFooter {
@@ -465,7 +506,7 @@
 
   .panelFooter span {
     min-width: 0;
-    max-width: 52%;
+    flex: 1 1 auto;
   }
 
   .chatBody {

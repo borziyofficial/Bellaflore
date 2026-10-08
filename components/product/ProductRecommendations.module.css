@@ -76,8 +76,10 @@
 
 .price {
   margin: 0;
-  color: var(--champagne-muted, var(--bf-muted));
+  color: #a12f3a;
+  font-family: var(--font-body, Manrope, sans-serif);
   font-size: 13px;
+  font-weight: 600;
 }
 
 @keyframes productFadeIn {

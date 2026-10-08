@@ -43,6 +43,10 @@ async function openCheckout(page: Page) {
   await expect(firstBuyButton).toBeVisible();
   await firstBuyButton.click();
 
+  const cart = page.getByRole("dialog", { name: "Корзина" });
+  await expect(cart).toBeVisible();
+  await cart.getByRole("button", { name: "Оформить заказ" }).click();
+
   const dialog = page.getByRole("dialog", { name: "Оформить заказ" });
   await expect(dialog).toBeVisible();
   return dialog;

@@ -21,8 +21,9 @@ import "./bellaflore-ui-system.css";
 import "./dark-luxury-theme.css";
 import "./dark-luxury-overrides.css";
 import "./admin-theme-guard.css";
+import "./bordeaux-premium.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import { inter, playfairDisplay } from "@/lib/fonts";
+import { cormorant, manrope } from "@/lib/fonts";
 import {
   homepageDescription,
   homepageKeywords,
@@ -137,7 +138,7 @@ export default function RootLayout({
       lang="ru"
       suppressHydrationWarning
       data-theme="dark-luxury"
-      className={`${playfairDisplay.variable} ${inter.variable}`}
+      className={`${cormorant.variable} ${manrope.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />

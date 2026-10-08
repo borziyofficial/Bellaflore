@@ -33,6 +33,8 @@ export type AdminHeroBannerSettings = {
   updatedAt: string;
 };
 
+const HERO_PHOTO_LIMIT = 20;
+
 const EMPTY_HERO_SETTINGS: AdminHeroBannerSettings = {
   imageUrl: "",
   photos: [],
@@ -94,6 +96,7 @@ function normalizeHeroPhotos(
     ? photos
         .filter((photo) => photo.imageUrl.trim())
         .sort((left, right) => left.sortOrder - right.sortOrder)
+        .slice(0, HERO_PHOTO_LIMIT)
         .map((photo, index) => ({
           id: photo.id || `hero-photo-${index}`,
           imageUrl: photo.imageUrl.trim(),
@@ -277,7 +280,20 @@ export function AdminHeroBannerPanel({
   const hasUnsavedChanges = serializeHeroSettings(normalizedDraft) !== serializeHeroSettings(settings);
 
   const uploadHeroPhotos = async (files: FileList | null) => {
-    const selectedFiles = Array.from(files ?? []);
+    const remainingSlots = HERO_PHOTO_LIMIT - normalizedDraft.photos.length;
+    if (remainingSlots <= 0) {
+      setNotice({
+        tone: "error",
+        text: "Можно сохранить не больше 20 фотографий Hero.",
+      });
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
+      return;
+    }
+
+    const pickedFiles = Array.from(files ?? []);
+    const selectedFiles = pickedFiles.slice(0, remainingSlots);
     if (selectedFiles.length === 0) {
       return;
     }
@@ -315,10 +331,12 @@ export function AdminHeroBannerPanel({
         }),
       );
       setSelectedPhotoId(uploadedPhotos[0]?.id ?? selectedPhotoId);
+      const trimmed = pickedFiles.length > selectedFiles.length;
       setNotice({
         tone: "success",
-        text:
-          selectedFiles.length === 1
+        text: trimmed
+          ? `Добавлено фото: ${selectedFiles.length}. Лимит — 20 фотографий Hero. Сохраните Hero, чтобы опубликовать изменения.`
+          : selectedFiles.length === 1
             ? `${selectedFiles[0].name} загружен. Сохраните Hero, чтобы опубликовать изменение.`
             : `Загружено фото: ${selectedFiles.length}. Сохраните Hero, чтобы опубликовать изменения.`,
       });
@@ -626,7 +644,7 @@ export function AdminHeroBannerPanel({
                   <div>
                     <strong>Фотографии Hero</strong>
                     <span>
-                      {normalizedDraft.photos.length} всего · {activePhotoCount} активны
+                      {normalizedDraft.photos.length} всего · {activePhotoCount} активны · до {HERO_PHOTO_LIMIT}
                     </span>
                   </div>
                   <label className={styles.uploadButton}>
@@ -636,7 +654,7 @@ export function AdminHeroBannerPanel({
                       type="file"
                       accept="image/*"
                       multiple
-                      disabled={uploading}
+                      disabled={uploading || normalizedDraft.photos.length >= HERO_PHOTO_LIMIT}
                       onChange={(event) => void uploadHeroPhotos(event.target.files)}
                     />
                   </label>

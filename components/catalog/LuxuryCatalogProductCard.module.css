@@ -84,12 +84,12 @@
 }
 
 .favoriteActive {
-  color: #e63946;
+  color: #a12f3a;
 }
 
 .favoriteActive svg {
-  fill: #e63946;
-  stroke: #e63946;
+  fill: #a12f3a;
+  stroke: #a12f3a;
 }
 
 .info {
@@ -157,7 +157,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: rgba(181, 141, 55, 0.22);
+  color: rgba(196, 165, 116, 0.45);
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 17px;
   line-height: 1;
@@ -167,7 +167,7 @@
 }
 
 .ratingStarActive {
-  color: var(--color-gold, #c9a24b);
+  color: #c4a574;
 }
 
 .ratingStar:active {
@@ -302,7 +302,7 @@
   border: 0;
   border-radius: var(--bf-button-radius, 999px);
   background: var(--bf-gold-gradient, var(--color-gold, #c9a24b));
-  color: #ffffff;
+  color: #f6f1ea;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 11px;
   font-weight: 600;
@@ -405,10 +405,10 @@
 }
 
 .sizeOptionActive {
-  border-color: var(--color-gold, #c9a24b);
-  background: var(--color-gold, #c9a24b);
-  color: #ffffff;
-  box-shadow: 0 3px 8px rgba(201, 162, 75, 0.18);
+  border-color: #a12f3a;
+  background: #a12f3a;
+  color: #f6f1ea;
+  box-shadow: none;
 }
 
 @media (max-width: 768px) {
@@ -686,14 +686,14 @@
    button itself for extra contrast against the unselected outline state. */
 .favoriteActive,
 .favoriteActive svg {
-  color: #e63946;
-  fill: #e63946;
-  stroke: #e63946;
+  color: #a12f3a;
+  fill: #a12f3a;
+  stroke: #a12f3a;
 }
 
 .favoriteActive {
-  border-color: rgba(230, 57, 70, 0.4);
-  box-shadow: 0 10px 22px rgba(230, 57, 70, 0.24);
+  border-color: rgba(161, 47, 58, 0.28);
+  box-shadow: 0 10px 22px rgba(161, 47, 58, 0.16);
 }
 
 .info {
@@ -705,7 +705,7 @@
 }
 
 .category {
-  color: rgba(155, 124, 80, 0.76);
+  color: rgba(42, 37, 33, 0.55);
   font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 700;
@@ -715,8 +715,8 @@
 .catalogNumber {
   min-height: 18px;
   padding: 2px 6px;
-  border-color: rgba(155, 124, 80, 0.2);
-  background: rgba(196, 170, 122, 0.1);
+  border-color: rgba(161, 47, 58, 0.16);
+  background: rgba(161, 47, 58, 0.04);
   color: rgba(42, 37, 33, 0.62);
   font-size: 8px;
   font-weight: 700;
@@ -750,10 +750,10 @@
 }
 
 .price {
-  color: var(--color-text-primary, #2a2521);
-  font-family: var(--font-serif);
+  color: #a12f3a;
+  font-family: var(--font-body, Manrope, sans-serif);
   font-size: 1rem;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: 0;
 }
 
@@ -881,6 +881,19 @@
   flex: 0 0 auto;
   overflow: visible;
   white-space: nowrap;
+}
+
+/* A wrapped title is one line taller than a short one. Cards use
+   align-self: start, so that extra line drops the price and the buy
+   button and widens the visual gap under the shorter neighbor.
+   Reserve the second line wherever the column is still narrow enough
+   for a name to wrap. At 1280+ every current title fits on one line,
+   so this does not add space there. */
+@media (max-width: 1159px) {
+  .title {
+    min-height: 2.24em;
+    min-height: 2lh;
+  }
 }
 
 .detailsButton {

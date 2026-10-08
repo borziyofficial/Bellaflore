@@ -612,6 +612,36 @@ export function CheckoutSection({
           <div className={checkoutSectionStyles.checkoutV3Layout}>
             <div className={checkoutSectionStyles.checkoutV3Scroll}>
               <div className={checkoutSectionStyles.checkoutGlassFlow}>
+                <section
+                  className={checkoutSectionStyles.checkoutCartLines}
+                  aria-label="Состав заказа"
+                >
+                  {cartBouquets.length === 0 ? (
+                    <p className={checkoutSectionStyles.checkoutFlatMuted} role="status">
+                      Корзина пуста. Добавьте букет, чтобы оформить заказ.
+                    </p>
+                  ) : (
+                    <ul className={checkoutSectionStyles.checkoutCartLineList}>
+                      {cartBouquets.map((cartItem) => (
+                        <li
+                          key={`${cartItem.bouquet.id}-${cartItem.sizeId}`}
+                          className={checkoutSectionStyles.checkoutCartLine}
+                        >
+                          <span className={checkoutSectionStyles.checkoutCartLineTitle}>
+                            {cartItem.bouquet.title}
+                          </span>
+                          <span className={checkoutSectionStyles.checkoutCartLineMeta}>
+                            Размер {cartItem.sizeLabel} · {cartItem.quantity} ×{" "}
+                            {formatPrice(cartItem.bouquet.priceRub)}
+                          </span>
+                          <strong className={checkoutSectionStyles.checkoutCartLineTotal}>
+                            {formatPrice(cartItem.bouquet.priceRub * cartItem.quantity)}
+                          </strong>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
                 <CheckoutGlassStep
                   id="recipient"
                   title="Заказчик и получатель"
@@ -707,7 +737,10 @@ export function CheckoutSection({
                       </label>
                     </div>
                   ) : null}
-                  {primaryCartItem && checkoutSizeLabel && checkoutSizePrice ? (
+                  {cartBouquets.length === 1 &&
+                  primaryCartItem &&
+                  checkoutSizeLabel &&
+                  checkoutSizePrice ? (
                     <button
                       type="button"
                       className={checkoutSectionStyles.checkoutFlatSelector}
@@ -1096,7 +1129,7 @@ export function CheckoutSection({
           </div>
         </div>
       </div>
-      {primaryCartItem ? (
+      {cartBouquets.length === 1 && primaryCartItem ? (
         <ProductSizePickerSheet
           open={sizeSheetOpen}
           title="Размер"

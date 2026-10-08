@@ -53,7 +53,15 @@ export async function PUT(request: Request) {
       patch.cardSubtitle = body.settings.cardSubtitle.trim();
     if (typeof body.settings.tagline === "string") patch.tagline = body.settings.tagline.trim();
     if (typeof body.settings.imageUrl === "string") patch.imageUrl = body.settings.imageUrl.trim();
-    if (Array.isArray(body.settings.photos)) patch.photos = body.settings.photos;
+    if (Array.isArray(body.settings.photos)) {
+      if (body.settings.photos.length > 20) {
+        return Response.json(
+          { message: "Можно сохранить не больше 20 фотографий Hero." },
+          { status: 400 },
+        );
+      }
+      patch.photos = body.settings.photos;
+    }
     if (typeof body.settings.isEnabled === "boolean") patch.isEnabled = body.settings.isEnabled;
 
     const settings = await updateHeroBannerSettings(patch);

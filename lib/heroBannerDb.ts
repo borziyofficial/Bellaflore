@@ -62,6 +62,7 @@ type HeroBannerRow = {
   updated_at: string | Date;
 };
 
+const HERO_PHOTO_LIMIT = 20;
 const DATA_DIR = join(process.cwd(), ".data");
 const DATA_FILE = join(DATA_DIR, "hero-banner.json");
 
@@ -171,6 +172,7 @@ function normalizeHeroPhotos(
         })
         .filter((photo): photo is HeroBannerPhoto => Boolean(photo))
         .sort((left, right) => left.sortOrder - right.sortOrder)
+        .slice(0, HERO_PHOTO_LIMIT)
         .map((photo, index) => ({ ...photo, sortOrder: index }))
     : [];
 

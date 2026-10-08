@@ -66,13 +66,25 @@ function matchesCatalogNumber(product: CatalogProduct, searchQuery: string): boo
     return false;
   }
 
-  // Article search accepts both forms:
-  //   66 / 066
-  //   BF-66 / BF-066 / BF66
-  // and remains live while the customer is typing:
+  // A finished article (BF-006, bf-006, 006) is that number only.
+  // Stripping zeros must not turn BF-006 into a prefix of BF-060.
+  // A bare in-progress number stays a prefix so typing still works:
   //   1 -> BF-001, BF-010, BF-011, ...
-  //   66 -> BF-066
+  //   66 / 066 / BF-66 / BF-066 -> BF-066
+  if (isExplicitArticleQuery(searchQuery)) {
+    return productDigits === queryDigits;
+  }
+
   return productDigits.startsWith(queryDigits);
+}
+
+function isExplicitArticleQuery(searchQuery: string): boolean {
+  const raw = searchQuery.trim();
+  if (/bf/i.test(raw)) {
+    return true;
+  }
+
+  return /^0+\d+$/.test(raw);
 }
 
 function productCategoryEquals(
@@ -168,8 +180,33 @@ function matchesSearch(product: CatalogProduct, searchQuery: string): boolean {
     return true;
   }
 
+  // A multi-word title must hit every word. OR-ing expanded tokens made
+  // "Кустовые розы" match any bouquet that merely mentions roses.
+  const queryWords = normalizedQuery.split(" ").filter((word) => word.length >= 2);
+  if (queryWords.length > 1) {
+    return queryWords.every((word) => wordMatchesHaystack(word, haystack));
+  }
+
   const tokens = expandSearchTokens(normalizedQuery);
   return tokens.some((token) => token.length >= 2 && haystack.includes(token));
+}
+
+function wordMatchesHaystack(word: string, haystack: string): boolean {
+  if (haystack.includes(word)) {
+    return true;
+  }
+
+  return expandSearchTokens(word).some((token) => {
+    if (token.length < 3) {
+      return false;
+    }
+
+    // Synonym maps can attach a whole phrase ("кустовые розы" -> "роз").
+    // Only stems of this word count, otherwise one word matches every rose.
+    const related =
+      word.includes(token) || token.includes(word) || word.startsWith(token);
+    return related && haystack.includes(token);
+  });
 }
 
 export function getHomeCatalogProductDisplayPrice(product: CatalogProduct): number {

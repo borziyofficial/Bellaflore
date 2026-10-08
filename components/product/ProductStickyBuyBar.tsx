@@ -13,7 +13,6 @@ import styles from "@/components/product/ProductStickyBuyBar.module.css";
 type ProductStickyBuyBarProps = {
   sizeLabel: string;
   priceLabel: string;
-  deliveryNote: string;
   isFavorite: boolean;
   onToggleFavorite: () => void;
   onBuy: () => void;
@@ -22,7 +21,6 @@ type ProductStickyBuyBarProps = {
 export function ProductStickyBuyBar({
   sizeLabel,
   priceLabel,
-  deliveryNote,
   isFavorite,
   onToggleFavorite,
   onBuy,
@@ -34,7 +32,6 @@ export function ProductStickyBuyBar({
           <p className={styles.priceMeta}>
             Размер {sizeLabel} · {priceLabel}
           </p>
-          <p className={styles.deliveryNote}>{deliveryNote}</p>
         </div>
 
         <button

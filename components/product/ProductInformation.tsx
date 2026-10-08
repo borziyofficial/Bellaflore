@@ -5,38 +5,27 @@
 "use client";
 
 import { useState } from "react";
-import { ProductDeliveryPreview } from "@/components/product/ProductDeliveryPreview";
 import type { ProductExperienceData } from "@/components/product/productExperienceTypes";
-import type { RealDeliveryZoneResult } from "@/components/deliveryZones/realDeliveryZoneTypes";
 import styles from "@/components/product/ProductInformation.module.css";
 
 type ProductInformationProps = {
   data: ProductExperienceData;
-  deliveryAddress: string;
-  zoneResult: RealDeliveryZoneResult;
-  deliveryDate: string;
-  deliveryTime: string;
-  nearestFromConfidence: string | null;
-  checkoutNow: Date;
 };
 
 const COMPACT_TEXT_LENGTH = 140;
 
 type CompactCopyProps = {
   children: string;
-  secondary?: string;
 };
 
-function CompactCopy({ children, secondary }: CompactCopyProps) {
+function CompactCopy({ children }: CompactCopyProps) {
   const [expanded, setExpanded] = useState(false);
-  const combinedCopy = secondary ? `${children} ${secondary}` : children;
-  const isLong = combinedCopy.length > COMPACT_TEXT_LENGTH;
+  const isLong = children.length > COMPACT_TEXT_LENGTH;
 
   return (
     <div className={styles.copyBlock}>
       <div className={isLong && !expanded ? styles.copyCollapsed : undefined}>
         <p>{children}</p>
-        {secondary ? <p className={styles.guarantee}>{secondary}</p> : null}
       </div>
       {isLong ? (
         <button
@@ -54,12 +43,6 @@ function CompactCopy({ children, secondary }: CompactCopyProps) {
 
 export function ProductInformation({
   data,
-  deliveryAddress,
-  zoneResult,
-  deliveryDate,
-  deliveryTime,
-  nearestFromConfidence,
-  checkoutNow,
 }: ProductInformationProps) {
   return (
     <div className={styles.information} aria-label="Информация о букете">
@@ -77,24 +60,7 @@ export function ProductInformation({
         <div className={styles.row}>
           <dt>В заказе</dt>
           <dd>
-            <CompactCopy secondary={data.freshnessGuarantee}>
-              {data.whatsIncluded}
-            </CompactCopy>
-          </dd>
-        </div>
-
-        <div className={styles.row}>
-          <dt>Доставка</dt>
-          <dd>
-            <p>{data.deliveryNote}</p>
-            <ProductDeliveryPreview
-              deliveryAddress={deliveryAddress}
-              zoneResult={zoneResult}
-              deliveryDate={deliveryDate}
-              deliveryTime={deliveryTime}
-              nearestFromConfidence={nearestFromConfidence}
-              now={checkoutNow}
-            />
+            <CompactCopy>{data.whatsIncluded}</CompactCopy>
           </dd>
         </div>
       </dl>

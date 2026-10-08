@@ -5,7 +5,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useHeroBannerSettings } from "@/components/home/useHeroBannerSettings";
 import styles from "@/components/home/HeroSection.module.css";
 
@@ -14,6 +14,7 @@ type HeroSectionProps = {
 };
 
 const EDITORIAL_HERO_URL = "/images/hero-editorial-premium.png";
+const HERO_SLIDE_INTERVAL_MS = 2000;
 
 function isCatalogHeroLink(buttonLink: string): boolean {
   const link = buttonLink.trim();
@@ -60,16 +61,21 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
         .sort((left, right) => left.sortOrder - right.sortOrder),
     [banner?.photos],
   );
-  const fallbackPhoto = {
-    id: "editorial-fallback",
-    imageUrl: banner?.imageUrl?.trim() || EDITORIAL_HERO_URL,
-    mobileImageUrl: "",
-    objectPosition: "64% 50%",
-    isEnabled: true,
-    isPrimary: true,
-    sortOrder: 0,
-  };
-  const heroPhotos = photos.length > 0 ? photos : [fallbackPhoto];
+  const fallbackImageUrl = banner?.imageUrl?.trim() || EDITORIAL_HERO_URL;
+  const heroPhotos = useMemo(() => {
+    if (photos.length > 0) return photos;
+    return [
+      {
+        id: "editorial-fallback",
+        imageUrl: fallbackImageUrl,
+        mobileImageUrl: "",
+        objectPosition: "64% 50%",
+        isEnabled: true,
+        isPrimary: true,
+        sortOrder: 0,
+      },
+    ];
+  }, [photos, fallbackImageUrl]);
   const primaryIndex = Math.max(
     0,
     heroPhotos.findIndex((photo) => photo.isPrimary),
@@ -81,13 +87,23 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
 
   const touchStartX = useRef<number | null>(null);
 
-  const activePhoto = heroPhotos[safeActiveIndex] ?? heroPhotos[0];
-
   const goToPhoto = (direction: -1 | 1) => {
     if (heroPhotos.length <= 1) return;
     const nextIndex = (safeActiveIndex + direction + heroPhotos.length) % heroPhotos.length;
     setActivePhotoId(heroPhotos[nextIndex]?.id ?? null);
   };
+
+  useEffect(() => {
+    if (heroPhotos.length <= 1) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const timer = window.setTimeout(() => {
+      const nextIndex = (safeActiveIndex + 1) % heroPhotos.length;
+      setActivePhotoId(heroPhotos[nextIndex]?.id ?? null);
+    }, HERO_SLIDE_INTERVAL_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [heroPhotos, safeActiveIndex]);
 
   const primaryAction = isExternalLink ? (
     <a href={buttonLink} className={styles.primaryAction}>
@@ -117,17 +133,21 @@ export function HeroSection({ onOrderBouquet }: HeroSectionProps) {
           goToPhoto(endX < startX ? 1 : -1);
         }}
       >
-        <Image
-          key={activePhoto.id}
-          src={activePhoto.mobileImageUrl || activePhoto.imageUrl}
-          alt=""
-          fill
-          preload={safeActiveIndex === 0}
-          quality={92}
-          sizes="100vw"
-          className={styles.artworkImage}
-          style={{ objectPosition: activePhoto.objectPosition || "50% 50%" }}
-        />
+        {heroPhotos.map((photo, index) => (
+          <Image
+            key={photo.id}
+            src={photo.mobileImageUrl || photo.imageUrl}
+            alt=""
+            fill
+            preload={index === primaryIndex}
+            quality={92}
+            sizes="100vw"
+            className={`${styles.artworkImage} ${
+              index === safeActiveIndex ? styles.artworkImageActive : ""
+            }`}
+            style={{ objectPosition: photo.objectPosition || "50% 50%" }}
+          />
+        ))}
       </div>
 
       <div className={styles.wash} aria-hidden="true" />

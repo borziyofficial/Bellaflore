@@ -13,10 +13,15 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding:
-    max(10px, env(safe-area-inset-top))
+    calc(80px + env(safe-area-inset-top))
     max(14px, env(safe-area-inset-right))
     calc(96px + env(safe-area-inset-bottom))
     max(14px, env(safe-area-inset-left));
+}
+
+.page button {
+  margin-top: 0;
+  max-width: none;
 }
 
 @media (max-width: 768px) {
@@ -34,9 +39,10 @@
 }
 
 .backButton {
+  width: auto;
   min-height: 42px;
   padding: 0 14px;
-  border: 1px solid rgba(201, 162, 75, 0.28);
+  border: 1px solid rgba(161, 47, 58, 0.22);
   border-radius: 999px;
   background: var(--bg-secondary, #fffdf9);
   color: var(--text-light, #1e1b18);
@@ -173,7 +179,8 @@
 }
 
 .price {
-  color: var(--champagne-text, var(--bf-text));
+  color: #a12f3a;
+  font-family: var(--font-body, Manrope, sans-serif);
   font-size: clamp(26px, 4.8vw, 32px);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -194,7 +201,7 @@
   min-height: 52px;
   width: 100%;
   padding: 0 16px;
-  border: 1px solid rgba(201, 162, 75, 0.25);
+  border: 1px solid rgba(161, 47, 58, 0.2);
   border-radius: 16px;
   background: var(--bg-secondary, #fffdf9);
   color: var(--champagne-text, var(--bf-text));
@@ -219,7 +226,7 @@
 }
 
 .sizePickerButton:hover {
-  border-color: rgba(201, 162, 75, 0.46);
+  border-color: rgba(161, 47, 58, 0.4);
 }
 
 .sizePickerButton:active {

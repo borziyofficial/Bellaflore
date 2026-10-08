@@ -132,7 +132,7 @@
 
 .price {
   margin: 0;
-  color: var(--color-gold-hover, #b58d37);
+  color: #a12f3a;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 12px;
   font-weight: 600;
@@ -172,7 +172,7 @@
     --bf-gold-gradient,
     var(--color-gold, #c9a24b)
   );
-  color: #ffffff;
+  color: #f6f1ea;
 }
 
 .removeButton {
@@ -183,14 +183,14 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #e63946;
+  color: #a12f3a;
 }
 
 .removeButton svg {
   width: 18px;
   height: 18px;
-  fill: #e63946;
-  stroke: #e63946;
+  fill: #a12f3a;
+  stroke: #a12f3a;
 }
 
 .empty {
@@ -216,12 +216,12 @@
 
 .emptyAction {
   min-height: 42px;
-  border: 1px solid rgba(181, 141, 55, 0.72);
+  border: 1px solid #a12f3a;
   border-radius: 999px;
   padding: 0 18px;
-  background: var(--color-gold, #c9a24b);
-  box-shadow: 0 10px 22px rgba(201, 162, 75, 0.2);
-  color: #ffffff;
+  background: #a12f3a;
+  box-shadow: none;
+  color: #f6f1ea;
   font-family: var(--font-body, Inter, sans-serif);
   font-size: 13px;
   font-weight: 700;

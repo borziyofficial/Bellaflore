@@ -49,9 +49,9 @@
   padding: 0 28px;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #c9ac78, #a88a5a);
-  box-shadow: 0 10px 24px rgba(168, 138, 90, 0.28);
-  color: #fffdf9;
+  background: #a12f3a;
+  box-shadow: none;
+  color: #f6f1ea;
   font-family: var(--font-sans);
   font-size: 11.5px;
   font-weight: 700;
@@ -64,8 +64,9 @@
 
 .action:hover,
 .action:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(168, 138, 90, 0.34);
+  background: #6f242c;
+  transform: translateY(-1px);
+  box-shadow: none;
   outline: none;
 }
 

@@ -14,13 +14,14 @@
 
 html[data-theme="dark-luxury"] {
   /* ---- Canonical premium design tokens (spec) ---- */
-  --color-background: #f7f5f1;
-  --color-surface: #fffdf9;
-  --color-surface-secondary: #f1ede6;
-  --color-gold: #c9a24b;
-  --color-gold-hover: #b58d37;
-  --color-gold-light: #e8d9b5;
-  --color-text-primary: #1e1b18;
+  --color-background: #f7f3ed;
+  --color-surface: #fdfbf9;
+  --color-surface-secondary: #f3efe8;
+  --color-gold: #a12f3a;
+  --color-gold-hover: #6f242c;
+  --color-gold-light: #f6f1ea;
+  --bf-gold-line: #c4a574;
+  --color-text-primary: #2a2521;
   --color-text-secondary: #746f68;
   --color-border: rgba(54, 45, 35, 0.12);
   --color-error: #a54848;
@@ -34,17 +35,14 @@ html[data-theme="dark-luxury"] {
   --text-light: var(--color-text-primary);
 
   /* Typography */
-  --font-brand: var(--font-playfair, "Playfair Display", Georgia, serif);
-  --font-body: var(--font-inter, "Inter", system-ui, sans-serif);
+  --font-brand: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-body: var(--font-manrope), Manrope, system-ui, sans-serif;
+  --font-sans: var(--font-body);
   --font-heading: var(--font-brand);
   --font-ui: var(--font-body);
 
   /* Unified gold CTA */
-  --bf-gold-gradient: linear-gradient(
-    180deg,
-    var(--color-gold) 0%,
-    var(--color-gold-hover) 100%
-  );
+  --bf-gold-gradient: var(--color-gold);
   --bf-button-radius: 14px;
   --bf-button-height: 52px;
   --bf-card-radius: 16px;
@@ -109,7 +107,8 @@ html[data-theme="dark-luxury"] {
 
   --button-bg: var(--color-gold);
   --button-bg-hover: var(--color-gold-hover);
-  --button-text: #ffffff;
+  --button-text: #f6f1ea;
+  --button-focus: rgba(161, 47, 58, 0.35);
 
   color-scheme: light;
 }

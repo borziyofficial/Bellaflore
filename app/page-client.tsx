@@ -103,7 +103,16 @@ import type { OrderPassportData } from "@/components/orders/MyOrderPassport";
 import { MyOrderPanel } from "@/components/orders/MyOrderPanel";
 import { getOrdersUrl } from "@/app/orders/orderUtils";
 import { FavoritesPanel } from "@/components/panels/FavoritesPanel";
+import { CartPanel } from "@/components/panels/CartPanel";
 import { BottomNavPanelFrame } from "@/components/panels/BottomNavPanelFrame";
+import {
+  MAX_CART_ITEM_QUANTITY,
+  MAX_CART_TOTAL_QUANTITY,
+  addStorefrontCartLine,
+  decreaseStorefrontCartLine,
+  increaseStorefrontCartLine,
+  removeStorefrontCartLine,
+} from "@/lib/storefront/cartLines";
 import { findPublicStorefrontProduct } from "@/components/catalog/publicCatalogMerge";
 import { usePublicStorefrontCatalog } from "@/components/catalog/usePublicStorefrontCatalog";
 import { ProductExperiencePage } from "@/components/product/ProductExperiencePage";
@@ -126,6 +135,7 @@ import {
 const navigationItems = [
   { href: "#home", label: "Главная" },
   { href: "#catalog", label: "Каталог" },
+  { href: "#cart", label: "Корзина" },
   { href: "#delivery", label: "Доставка" },
   { href: "#reviews", label: "Отзывы" },
   { href: "#about", label: "О Bellaflore" },
@@ -270,8 +280,6 @@ void TELEGRAM_USERNAME;
 const LOCAL_ORDERS_STORAGE_KEY = "bellaflore-dev-orders";
 const LOCAL_FAVORITES_STORAGE_KEY = "bellaflore-favorite-bouquets";
 const LOCAL_CART_STORAGE_KEY = "bellaflore-cart";
-const MAX_CART_ITEM_QUANTITY = 20;
-const MAX_CART_TOTAL_QUANTITY = 50;
 
 function resolveProfileCourierStatus(status: BellafloreOrderStatus): string {
   if (status === "COURIER_ASSIGNED") {
@@ -496,6 +504,7 @@ export default function HomePageClient({
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartRestored, setCartRestored] = useState(false);
   const [checkoutPanelOpen, setCheckoutPanelOpen] = useState(false);
+  const [cartPanelOpen, setCartPanelOpen] = useState(false);
   const [myOrderPanelOpen, setMyOrderPanelOpen] = useState(false);
   const [closingBottomNavPanel, setClosingBottomNavPanel] =
     useState<BottomNavPanelId | null>(null);
@@ -1345,6 +1354,13 @@ export default function HomePageClient({
             ? `${primary.bouquet.title} ×${primary.quantity}`
             : primary.bouquet.title
           : "",
+        items: cartBouquets.map((cartItem) => ({
+          name: cartItem.bouquet.title,
+          sizeLabel: cartItem.sizeLabel,
+          quantity: cartItem.quantity,
+          unitPrice: cartItem.bouquet.priceRub,
+          lineTotal: cartItem.bouquet.priceRub * cartItem.quantity,
+        })),
         productPriceRub: checkoutTotalPrice,
         deliveryPriceRub: deliveryPriceResult.deliveryPriceRub ?? null,
         totalRub: checkoutGrandTotalPrice,
@@ -1426,51 +1442,29 @@ export default function HomePageClient({
     }
 
     setCartItems((currentItems) => {
-      const currentTotalQuantity = currentItems.reduce(
-        (total, item) => total + item.quantity,
-        0,
-      );
-      const existingItem = currentItems.find(
-        (item) => item.bouquetId === bouquetId && item.sizeId === selection.sizeId,
-      );
+      const result = addStorefrontCartLine(currentItems, {
+        bouquetId,
+        sizeId: selection.sizeId,
+        priceRub: selection.priceRub,
+      });
 
-      if (currentTotalQuantity >= MAX_CART_TOTAL_QUANTITY) {
-        setBottomNavAction(`Максимум ${MAX_CART_TOTAL_QUANTITY} товаров в заказе`);
-        return currentItems;
-      }
-
-      if (!existingItem) {
-        setBottomNavAction("Букет добавлен в корзину");
-        return [
-          ...currentItems,
-          {
-            bouquetId,
-            quantity: 1,
-            sizeId: selection.sizeId,
-            priceRub: selection.priceRub,
-          },
-        ];
-      }
-
-      if (existingItem.quantity >= MAX_CART_ITEM_QUANTITY) {
-        setBottomNavAction(`Максимум ${MAX_CART_ITEM_QUANTITY} шт. этого букета`);
-        return currentItems;
+      if (result.status === "item-limit" || result.status === "total-limit") {
+        setBottomNavAction(
+          result.status === "item-limit"
+            ? `Максимум ${MAX_CART_ITEM_QUANTITY} шт. этого букета`
+            : `Максимум ${MAX_CART_TOTAL_QUANTITY} товаров в заказе`,
+        );
+        return result.items;
       }
 
       setBottomNavAction("Букет добавлен в корзину");
-      return currentItems.map((item) =>
-        item.bouquetId === bouquetId && item.sizeId === selection.sizeId
-          ? { ...item, quantity: item.quantity + 1, priceRub: selection.priceRub }
-          : item,
-      );
+      return result.items;
     });
   };
 
   const removeBouquetFromCart = (bouquetId: string, sizeId: ProductSizeId) => {
     setCartItems((currentItems) =>
-      currentItems.filter(
-        (item) => item.bouquetId !== bouquetId || item.sizeId !== sizeId,
-      ),
+      removeStorefrontCartLine(currentItems, bouquetId, sizeId).items,
     );
   };
 
@@ -1478,20 +1472,19 @@ export default function HomePageClient({
     bouquetId: string,
     sizeId: ProductSizeId,
   ) => {
-    setCartItems((currentItems) =>
-      currentItems.flatMap((item) => {
-        if (item.bouquetId !== bouquetId || item.sizeId !== sizeId) {
-          return [item];
-        }
-
-        if (item.quantity <= 1) {
-          return [];
-        }
-
-        return [{ ...item, quantity: item.quantity - 1 }];
-      }),
-    );
-    setBottomNavAction("Количество обновлено");
+    setCartItems((currentItems) => {
+      const result = decreaseStorefrontCartLine(
+        currentItems,
+        bouquetId,
+        sizeId,
+      );
+      setBottomNavAction(
+        result.status === "removed"
+          ? "Букет удалён из корзины"
+          : "Количество обновлено",
+      );
+      return result.items;
+    });
   };
 
   const increaseCartItemQuantity = (
@@ -1499,26 +1492,20 @@ export default function HomePageClient({
     sizeId: ProductSizeId,
   ) => {
     setCartItems((currentItems) => {
-      const currentTotalQuantity = currentItems.reduce(
-        (total, item) => total + item.quantity,
-        0,
+      const result = increaseStorefrontCartLine(
+        currentItems,
+        bouquetId,
+        sizeId,
       );
-      return currentItems.map((item) => {
-        if (item.bouquetId !== bouquetId || item.sizeId !== sizeId) {
-          return item;
-        }
-
-        if (
-          item.quantity >= MAX_CART_ITEM_QUANTITY ||
-          currentTotalQuantity >= MAX_CART_TOTAL_QUANTITY
-        ) {
-          return item;
-        }
-
-        return { ...item, quantity: item.quantity + 1 };
-      });
+      setBottomNavAction(
+        result.status === "item-limit"
+          ? `Максимум ${MAX_CART_ITEM_QUANTITY} шт. этого букета`
+          : result.status === "total-limit"
+            ? `Максимум ${MAX_CART_TOTAL_QUANTITY} товаров в заказе`
+            : "Количество обновлено",
+      );
+      return result.items;
     });
-    setBottomNavAction("Количество обновлено");
   };
 
   const handleCartAddClick = (
@@ -1623,13 +1610,6 @@ export default function HomePageClient({
     lastTouchActionRef.current = event.timeStamp;
     increaseCartItemQuantity(bouquetId, sizeId);
   };
-
-  void handleCartRemoveClick;
-  void handleCartRemoveTouchEnd;
-  void handleCartDecreaseClick;
-  void handleCartDecreaseTouchEnd;
-  void handleCartIncreaseClick;
-  void handleCartIncreaseTouchEnd;
 
   const updateCheckoutPrimarySize = (sizeId: ProductSizeId) => {
     const primaryItem = cartItems[0];
@@ -1757,9 +1737,24 @@ export default function HomePageClient({
     }));
   };
 
+  const openCartPanel = (announce = true) => {
+    closeAllBottomNavPanelsImmediate();
+    leaveProductExperience();
+    setShowOrdersOnly(false);
+    setCartPanelOpen(true);
+    if (announce) {
+      setBottomNavAction(
+        cartItemCount > 0 ? "Открыта корзина" : "Ваша корзина пока пуста",
+      );
+    }
+  };
+
+  const closeCartPanel = () => setCartPanelOpen(false);
+
   const openCheckoutPanel = () => {
     initializeCheckoutDeliveryDate();
     closeAllBottomNavPanelsImmediate();
+    setCartPanelOpen(false);
     setShowOrdersOnly(false);
     setCheckoutPanelOpen(true);
     setBottomNavAction(
@@ -1779,16 +1774,28 @@ export default function HomePageClient({
       return;
     }
 
-    setCartItems([
-      {
-        bouquetId,
-        quantity: 1,
-        sizeId: selection.sizeId,
-        priceRub: selection.priceRub,
-      },
-    ]);
+    addBouquetToCart(bouquetId, sizeId, selection.priceRub);
+    openCartPanel(false);
+  };
+
+  const handleCartCheckoutClick = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+
+    if (didHandleRecentTouch(event.timeStamp)) {
+      return;
+    }
+
     openCheckoutPanel();
-    setBottomNavAction("Букет подготовлен к покупке");
+  };
+
+  const handleCartCheckoutTouchEnd = (
+    event: ReactTouchEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+    lastTouchActionRef.current = event.timeStamp;
+    openCheckoutPanel();
   };
 
   const handleFavoriteBuyClick = (
@@ -1837,6 +1844,11 @@ export default function HomePageClient({
   }, [publicAppView]);
 
   const handleTopNavNavigate = (href: string) => {
+    if (href === "#cart") {
+      openCartPanel();
+      return;
+    }
+
     closeAllBottomNavPanelsImmediate();
 
     if (href === "#home") {
@@ -2546,6 +2558,24 @@ export default function HomePageClient({
         </BottomNavPanelFrame>
       )}
 
+      {cartPanelOpen ? (
+        <CartPanel
+          cartBouquets={cartBouquets}
+          cartItemCount={cartItemCount}
+          checkoutTotalPrice={checkoutTotalPrice}
+          formatPrice={formatPrice}
+          closeCartPanel={closeCartPanel}
+          handleCartDecreaseClick={handleCartDecreaseClick}
+          handleCartDecreaseTouchEnd={handleCartDecreaseTouchEnd}
+          handleCartIncreaseClick={handleCartIncreaseClick}
+          handleCartIncreaseTouchEnd={handleCartIncreaseTouchEnd}
+          handleCartRemoveClick={handleCartRemoveClick}
+          handleCartRemoveTouchEnd={handleCartRemoveTouchEnd}
+          handleCheckoutClick={handleCartCheckoutClick}
+          handleCheckoutTouchEnd={handleCartCheckoutTouchEnd}
+        />
+      ) : null}
+
       {checkoutPanelOpen && (
         <CheckoutPanel closeCheckoutPanel={closeCheckoutPanel}>
           {renderCheckoutSection()}
@@ -2592,14 +2622,6 @@ export default function HomePageClient({
           formatPrice={formatPrice}
           isFavorite={favoriteBouquetIds.includes(activeProductExperience.id)}
           failedImageIds={productFailedImages}
-          deliveryAddress={checkoutForm.address}
-          zoneResult={realDeliveryZoneResult}
-          deliveryDate={checkoutForm.deliveryDate}
-          deliveryTime={checkoutForm.deliveryTime}
-          nearestFromConfidence={
-            deliveryConfidenceResult.nearestAvailableInterval
-          }
-          checkoutNow={checkoutAvailabilityNow}
           onClose={closeProductExperience}
           onBuy={handleProductExperienceBuy}
           onToggleFavorite={toggleFavoriteBouquet}

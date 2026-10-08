@@ -9,10 +9,8 @@ Purpose (EN): Typography scale, font stacks, and weight tokens only — no selec
 
 :root {
   /* Font stacks — system serif until a brand web font is chosen */
-  --font-brand: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
-    Georgia, "Times New Roman", serif;
-  --font-body: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
-    Georgia, "Times New Roman", serif;
+  --font-brand: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-body: var(--font-manrope), Manrope, system-ui, sans-serif;
 
   /* Type scale */
   --type-display: clamp(3rem, 11vw, 5.75rem);
