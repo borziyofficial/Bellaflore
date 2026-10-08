@@ -155,6 +155,9 @@ export function CartPanel({
                     <div className="cart-panel-item-heading">
                       <h3>{cartItem.bouquet.title}</h3>
                       <p>
+                        {cartItem.bouquet.catalogNumber
+                          ? `${cartItem.bouquet.catalogNumber} · `
+                          : ""}
                         Размер {cartItem.sizeLabel} ·{" "}
                         {formatPrice(cartItem.bouquet.priceRub)}
                       </p>

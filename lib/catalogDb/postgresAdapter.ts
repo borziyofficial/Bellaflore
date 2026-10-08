@@ -224,6 +224,8 @@ export async function postgresGetCatalogProductById(
   }
 
   await ensureSchema();
+  // Stored catalog_number wins. ROW_NUMBER() fills only a blank article and
+  // must not replace BF codes already shown in the catalog.
   const rows = await sql<CatalogRow[]>`
     WITH published_with_number AS (
       SELECT
@@ -268,7 +270,11 @@ export async function postgresGetCatalogProductById(
       p.is_promotion,
       p.created_at,
       p.updated_at,
-      COALESCE(published_with_number.catalog_number, '') as catalog_number
+      COALESCE(
+        NULLIF(btrim(p.catalog_number), ''),
+        published_with_number.catalog_number,
+        ''
+      ) as catalog_number
     FROM catalog_products p
     LEFT JOIN published_with_number ON published_with_number.id = p.id
     WHERE p.id = ${id}
@@ -286,6 +292,8 @@ export async function postgresGetCatalogProductBySlug(
   }
 
   await ensureSchema();
+  // Stored catalog_number wins. ROW_NUMBER() fills only a blank article and
+  // must not replace BF codes already shown in the catalog.
   const rows = await sql<CatalogRow[]>`
     WITH published_with_number AS (
       SELECT
@@ -330,7 +338,11 @@ export async function postgresGetCatalogProductBySlug(
       p.is_promotion,
       p.created_at,
       p.updated_at,
-      COALESCE(published_with_number.catalog_number, '') as catalog_number
+      COALESCE(
+        NULLIF(btrim(p.catalog_number), ''),
+        published_with_number.catalog_number,
+        ''
+      ) as catalog_number
     FROM catalog_products p
     LEFT JOIN published_with_number ON published_with_number.id = p.id
     WHERE p.slug = ${slug} OR p.seo_slug = ${slug}

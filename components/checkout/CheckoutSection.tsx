@@ -631,6 +631,9 @@ export function CheckoutSection({
                             {cartItem.bouquet.title}
                           </span>
                           <span className={checkoutSectionStyles.checkoutCartLineMeta}>
+                            {cartItem.bouquet.catalogNumber
+                              ? `${cartItem.bouquet.catalogNumber} · `
+                              : ""}
                             Размер {cartItem.sizeLabel} · {cartItem.quantity} ×{" "}
                             {formatPrice(cartItem.bouquet.priceRub)}
                           </span>
