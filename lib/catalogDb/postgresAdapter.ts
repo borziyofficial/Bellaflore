@@ -127,15 +127,52 @@ export async function postgresListCatalogProducts(): Promise<StoredCatalogProduc
   }
 
   await ensureSchema();
+  // Physical catalog_number is the stored BF code. ROW_NUMBER() is only a
+  // fallback for a blank value: stored codes do not follow created_at order.
   const rows = await sql<CatalogRow[]>`
     WITH published_with_number AS (
       SELECT
-        *,
-        CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0')) as catalog_number
+        id,
+        slug,
+        title,
+        category,
+        status,
+        short_description,
+        full_description,
+        composition,
+        tags,
+        sizes,
+        old_price_rub,
+        flower_count,
+        height_cm,
+        width_cm,
+        color_palette,
+        occasion,
+        image_url,
+        gallery_images,
+        images,
+        seo_title,
+        seo_description,
+        seo_h1,
+        seo_slug,
+        seo_image_alt,
+        seo_keywords,
+        seo_faq,
+        open_graph_title,
+        open_graph_description,
+        schema_product_json_ld,
+        is_featured,
+        is_new,
+        is_bestseller,
+        is_promotion,
+        created_at,
+        updated_at,
+        catalog_number,
+        CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0')) AS computed_catalog_number
       FROM catalog_products
       WHERE status = 'published'
     )
-    SELECT 
+    SELECT
       id,
       slug,
       title,
@@ -171,7 +208,7 @@ export async function postgresListCatalogProducts(): Promise<StoredCatalogProduc
       is_promotion,
       created_at,
       updated_at,
-      catalog_number
+      COALESCE(NULLIF(btrim(catalog_number), ''), computed_catalog_number) AS catalog_number
     FROM published_with_number
     ORDER BY created_at ASC
   `;
