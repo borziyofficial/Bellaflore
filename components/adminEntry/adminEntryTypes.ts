@@ -20,7 +20,8 @@ export type AdminEntryGateState =
   | "loading"
   | "ready"
   | "unauthenticated"
-  | "denied";
+  | "denied"
+  | "error";
 
 export type AdminEntryGateProps = {
   route: AdminEntryRoutePath;

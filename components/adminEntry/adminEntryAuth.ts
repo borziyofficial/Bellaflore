@@ -18,6 +18,8 @@ import type {
   SecuritySession,
   SecurityUser,
 } from "@/components/securityIntelligence/securityIntelligenceTypes";
+import { checkAdminServerSession } from "@/lib/adminSessionCheck";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 
 type AdminLoginApiResponse = {
   authenticated?: boolean;
@@ -91,17 +93,8 @@ export function hasValidAdminEntrySession(): boolean {
 }
 
 export async function hasValidAdminServerSession(): Promise<boolean> {
-  try {
-    const response = await fetch("/api/admin/session", {
-      method: "GET",
-      credentials: "include",
-      cache: "no-store",
-    });
-
-    return response.ok;
-  } catch {
-    return false;
-  }
+  const result = await checkAdminServerSession();
+  return result.status === "valid";
 }
 
 export async function loginWithAdminEntryCredentials(
@@ -168,7 +161,7 @@ export async function logoutAdminEntrySession(): Promise<void> {
   }
 
   try {
-    await fetch("/api/admin/logout", {
+    await fetchWithTimeout("/api/admin/logout", {
       method: "POST",
       credentials: "include",
     });

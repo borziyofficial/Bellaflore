@@ -51,7 +51,10 @@ export function AdminFoundationShell({
   // loaded (or loading), so the section switch itself never blocks on it.
   useEffect(() => {
     prefetchAdminCatalog();
-    void fetchAdminCategories();
+    void fetchAdminCategories().catch(() => {
+      // A timed-out category request must not freeze the shell. The section
+      // keeps the built-in categories and reports its own load error.
+    });
   }, []);
 
   return (

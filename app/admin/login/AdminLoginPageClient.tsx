@@ -9,11 +9,11 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { CSSProperties } from "react";
 import {
-  hasValidAdminServerSession,
   hasValidAdminEntrySession,
   loginWithAdminEntryCredentials,
   logoutAdminEntrySession,
 } from "@/components/adminEntry/adminEntryAuth";
+import { checkAdminServerSession } from "@/lib/adminSessionCheck";
 import {
   ADMIN_ENTRY_ROUTES,
   resolveAdminEntryRedirectPath,
@@ -32,13 +32,15 @@ export default function AdminLoginPageClient() {
     if (!hasValidAdminEntrySession()) return;
 
     let cancelled = false;
-    void hasValidAdminServerSession().then(async (valid) => {
+    void checkAdminServerSession().then(async (result) => {
       if (cancelled) return;
-      if (valid) {
+      if (result.status === "valid") {
         router.replace(redirectPath);
         return;
       }
-      await logoutAdminEntrySession();
+      if (result.status === "invalid") {
+        await logoutAdminEntrySession();
+      }
     });
 
     return () => {

@@ -12,6 +12,7 @@ import {
   CATALOG_CATEGORIES,
   CATALOG_CATEGORY_BY_ID,
 } from "@/components/catalogEngine/categoriesCatalog";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 
 export type AdminCategoryRecord = CatalogCategoryRecord & { isCustom: boolean };
 
@@ -77,7 +78,7 @@ async function parseJson<T>(response: Response): Promise<T> {
 }
 
 async function fetchAdminCategoriesFromServer(): Promise<AdminCategoryRecord[]> {
-  const response = await fetch("/api/admin/categories", {
+  const response = await fetchWithTimeout("/api/admin/categories", {
     credentials: "include",
     cache: "no-store",
   });

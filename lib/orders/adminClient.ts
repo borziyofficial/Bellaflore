@@ -1,3 +1,4 @@
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import type { OrderPaymentStatus, OrderStatus } from "@/lib/orders/types";
 
 export type AdminOrderItem = {
@@ -80,7 +81,7 @@ export function sortAdminOrdersNewestFirst(orders: AdminOrder[]): AdminOrder[] {
 }
 
 export async function fetchAdminOrders(limit = 100): Promise<AdminOrder[]> {
-  const response = await fetch(`/api/admin/orders?limit=${limit}`, {
+  const response = await fetchWithTimeout(`/api/admin/orders?limit=${limit}`, {
     cache: "no-store",
     credentials: "same-origin",
   });
@@ -111,7 +112,7 @@ async function readAdminOrderResponse(
 }
 
 export async function fetchAdminOrder(identifier: string): Promise<AdminOrder> {
-  const response = await fetch(`/api/admin/orders/${encodeURIComponent(identifier)}`, {
+  const response = await fetchWithTimeout(`/api/admin/orders/${encodeURIComponent(identifier)}`, {
     cache: "no-store",
     credentials: "same-origin",
   });
@@ -123,7 +124,7 @@ export async function updateAdminOrderStatus(
   status: OrderStatus,
   cancellationReason?: string,
 ): Promise<AdminOrder> {
-  const response = await fetch(`/api/admin/orders/${encodeURIComponent(identifier)}`, {
+  const response = await fetchWithTimeout(`/api/admin/orders/${encodeURIComponent(identifier)}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status, cancellationReason }),

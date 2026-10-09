@@ -4,6 +4,7 @@
 // ==================================================
 import type { AdminProductFormState } from "@/components/adminCatalogManager/adminCatalogTypes";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 
 type CatalogApiListResponse = {
   products: CatalogProductRecord[];
@@ -51,7 +52,7 @@ async function catalogRequest<T>(
   input: RequestInfo,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(input, {
+  const response = await fetchWithTimeout(input, {
     ...init,
     credentials: "include",
     cache: "no-store",
