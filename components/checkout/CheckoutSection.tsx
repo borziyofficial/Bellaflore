@@ -79,6 +79,7 @@ type CheckoutBouquet = {
   title: string;
   description: string;
   priceRub: number;
+  catalogNumber?: string;
 };
 
 type CheckoutCartItem = {

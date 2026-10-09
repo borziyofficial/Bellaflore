@@ -28,6 +28,7 @@ type CartPanelBouquet = {
   priceRub: number;
   width: number;
   height: number;
+  catalogNumber?: string;
 };
 
 type CartPanelItem = {

@@ -369,7 +369,7 @@ export async function postgresUpsertCatalogProduct(
       color_palette, occasion, image_url, gallery_images, images,
       seo_title, seo_description, seo_h1, seo_slug, seo_image_alt, seo_keywords,
       seo_faq, open_graph_title, open_graph_description, schema_product_json_ld,
-      is_featured, is_new, is_bestseller, is_promotion, created_at, updated_at
+      is_featured, is_new, is_bestseller, is_promotion, catalog_number, created_at, updated_at
     ) VALUES (
       ${product.id}, ${product.slug}, ${product.title}, ${product.category},
       ${product.status}, ${product.shortDescription}, ${product.fullDescription},
@@ -381,6 +381,10 @@ export async function postgresUpsertCatalogProduct(
       ${product.seoImageAlt}, ${sql.json(jsonb.seoKeywords)}, ${sql.json(jsonb.seoFaq)},
       ${product.openGraphTitle}, ${product.openGraphDescription}, ${sql.json(jsonb.schemaProductJsonLd as postgres.JSONValue)},
       ${product.isFeatured}, ${product.isNew}, ${product.isBestseller}, ${product.isPromotion},
+      COALESCE(
+        NULLIF(btrim(${product.catalogNumber ?? null}), ''),
+        CONCAT('BF-', LPAD(nextval('catalog_product_number_seq')::TEXT, 3, '0'))
+      ),
       NOW(), NOW()
     )
     ON CONFLICT (id) DO UPDATE SET

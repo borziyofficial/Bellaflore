@@ -223,6 +223,7 @@ export function adminFormToStoredProduct(
     isNew: normalizedForm.isNew,
     isBestseller: normalizedForm.isBestseller,
     isPromotion: normalizedForm.isPromotion,
+    catalogNumber: existing?.catalogNumber,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
   };
