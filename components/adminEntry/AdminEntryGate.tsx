@@ -17,6 +17,7 @@ import { canAccessAdminEntryPoint } from "@/components/securityIntelligence/secu
 import {
   ADMIN_SESSION_CHECK_TIMEOUT_MS,
   checkAdminServerSession,
+  continueAdminAfterServerSession,
 } from "@/lib/adminSessionCheck";
 
 function resolveGateState(route: AdminEntryGateProps["route"]): {
@@ -57,81 +58,83 @@ export function AdminEntryGate({ route, children }: AdminEntryGateProps) {
 
   useEffect(() => {
     let cancelled = false;
+    const next = resolveGateState(route);
 
-    const watchdog = window.setTimeout(() => {
+    if (next.state === "unauthenticated") {
+      router.replace(loginUrl);
+      setGateState("unauthenticated");
+      setSessionError(null);
+      return;
+    }
+
+    if (next.state === "denied") {
+      setDeniedMessage(next.deniedMessage);
+      setGateState("denied");
+      setSessionError(null);
+      return;
+    }
+
+    // The cookie check does not read the catalog. Waiting for it used to hide
+    // every section, so a slow round trip looked like a dead admin and the
+    // notifications request never started.
+    setDeniedMessage(null);
+    setGateState("ready");
+    setSessionError(null);
+
+    const noticeTimer = window.setTimeout(() => {
       if (cancelled) return;
       setSessionError(
-        "Проверка доступа заняла слишком много времени. Проверьте соединение и повторите.",
+        "Проверка доступа ещё выполняется. Разделы ниже загружаются отдельно.",
       );
-      setGateState("error");
-    }, ADMIN_SESSION_CHECK_TIMEOUT_MS + 1_000);
+    }, ADMIN_SESSION_CHECK_TIMEOUT_MS);
 
-    const verifyAccess = async () => {
-      if (!cancelled) {
-        setSessionError(null);
-        setGateState("loading");
-      }
-
-      const next = resolveGateState(route);
-
-      if (next.state === "unauthenticated") {
-        router.replace(loginUrl);
-        if (!cancelled) {
-          setGateState("unauthenticated");
-        }
-        window.clearTimeout(watchdog);
-        return;
-      }
-
-      const serverSession = await checkAdminServerSession();
+    void checkAdminServerSession({ timeoutMs: 0 }).then((serverSession) => {
       if (cancelled) return;
-      window.clearTimeout(watchdog);
+      window.clearTimeout(noticeTimer);
+      const continuation = continueAdminAfterServerSession(serverSession);
 
-      if (serverSession.status === "invalid") {
+      if (continuation === "login") {
         void logoutAdminEntrySession();
         router.replace(loginUrl);
         setGateState("unauthenticated");
         return;
       }
 
-      if (serverSession.status === "unavailable") {
-        setSessionError(serverSession.message);
-        setGateState("error");
+      if (continuation === "notice") {
+        setSessionError(
+          serverSession.status === "unavailable"
+            ? serverSession.message
+            : "Не удалось проверить доступ. Проверьте соединение и повторите.",
+        );
         return;
       }
 
-      setDeniedMessage(next.deniedMessage);
-      setGateState(next.state);
-    };
-
-    void verifyAccess();
+      setSessionError(null);
+    });
 
     return () => {
       cancelled = true;
-      window.clearTimeout(watchdog);
+      window.clearTimeout(noticeTimer);
     };
   }, [loginUrl, route, router, attempt]);
 
-  if (gateState === "error") {
+  if (gateState === "ready") {
     return (
-      <main style={styles.page}>
-        <section style={styles.card}>
-          <p style={styles.eyebrow}>Сессия</p>
-          <h1 style={styles.title}>Не удалось проверить доступ</h1>
-          <p style={styles.message}>{sessionError}</p>
-          <button
-            type="button"
-            style={styles.retry}
-            onClick={() => {
-              setGateState("loading");
-              setSessionError(null);
-              setAttempt((current) => current + 1);
-            }}
-          >
-            Повторить проверку
-          </button>
-        </section>
-      </main>
+      <>
+        {sessionError ? (
+          <div style={styles.notice} role="status">
+            <p style={styles.noticeText}>{sessionError}</p>
+            <button
+              type="button"
+              style={styles.retry}
+              onClick={() => setAttempt((current) => current + 1)}
+            >
+              Повторить проверку
+            </button>
+          </div>
+        ) : null}
+        {children}
+      </>
     );
   }
 
@@ -200,8 +203,30 @@ const styles: Record<string, CSSProperties> = {
     color: "#75695c",
     lineHeight: 1.5,
   },
+  notice: {
+    position: "fixed",
+    zIndex: 40,
+    top: "12px",
+    right: "12px",
+    width: "min(440px, calc(100% - 80px))",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "12px",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "12px 16px",
+    border: "1px solid rgba(138, 107, 61, 0.35)",
+    borderRadius: "8px",
+    background: "#fffaf3",
+    color: "#2f2a24",
+    boxShadow: "0 8px 24px rgba(47, 42, 36, 0.12)",
+  },
+  noticeText: {
+    margin: 0,
+    lineHeight: 1.4,
+  },
   retry: {
-    marginTop: "16px",
+    marginTop: 0,
     minHeight: "44px",
     border: "1px solid #4a1428",
     borderRadius: "8px",

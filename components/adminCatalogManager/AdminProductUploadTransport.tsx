@@ -2,6 +2,7 @@
 
 import { upload } from "@vercel/blob/client";
 import { useEffect } from "react";
+import { canFallbackProductImageUpload } from "@/components/adminCatalogManager/adminImageUploadPolicy";
 
 const SERVER_UPLOAD_ENDPOINT = "/api/admin/products/upload-image";
 const CLIENT_UPLOAD_ENDPOINT = "/api/admin/products/client-upload";
@@ -94,6 +95,10 @@ export function AdminProductUploadTransport() {
           storage: "blob",
         });
       } catch (error) {
+        if (canFallbackProductImageUpload(image.size)) {
+          return originalFetch(input, init);
+        }
+
         return Response.json(
           { message: getUploadErrorMessage(error) },
           { status: 502 },

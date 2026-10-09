@@ -400,16 +400,17 @@ summary.panelHeading {
 }
 
 .dropzone {
-  display: grid;
-  justify-items: center;
-  gap: 14px;
-  min-height: 230px;
-  align-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 0;
   border: 2px dashed rgba(138, 107, 61, 0.38);
   border-radius: 8px;
-  padding: 28px 20px;
+  padding: 12px;
   background: linear-gradient(145deg, #fffdf9 0%, #f8ecda 100%);
-  text-align: center;
+  text-align: left;
 }
 
 .uploadMark {
@@ -471,8 +472,151 @@ summary.panelHeading {
 
 .imageGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+}
+
+.imageToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.imageToolbar > button,
+.photoMenu > summary {
+  min-height: 32px;
+  border: 1px solid rgba(138, 107, 61, 0.24);
+  border-radius: 8px;
+  background: #fffaf2;
+  color: #2f2a24;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.imageToolbar > button {
+  flex: 1;
+  padding: 0 8px;
+}
+
+.photoMenu {
+  position: relative;
+}
+
+.photoMenu > summary {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  padding: 0;
+  list-style: none;
+  cursor: pointer;
+}
+
+.photoMenu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.photoMenuList {
+  position: absolute;
+  right: 0;
+  z-index: 3;
+  display: grid;
+  min-width: 132px;
+  margin-top: 4px;
+  border: 1px solid rgba(138, 107, 61, 0.22);
+  border-radius: 8px;
+  padding: 4px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(47, 42, 36, 0.18);
+}
+
+.photoMenuList button {
+  min-height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: #fffaf2;
+  color: #2f2a24;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.photoMenuList button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.zoomButton {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  min-height: 28px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 8px;
+  background: rgba(47, 42, 36, 0.78);
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.zoomOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(47, 42, 36, 0.72);
+}
+
+.zoomDialog {
+  display: grid;
+  gap: 8px;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fffdf9;
+}
+
+.zoomFrame {
+  position: relative;
+  width: 100%;
+  height: min(70vh, 720px);
+  background: #f7f2ea;
+}
+
+.zoomImage {
+  object-fit: contain;
+}
+
+.boundedText {
+  max-height: 9rem;
+  overflow: auto;
+}
+
+.categoryRow {
+  display: flex;
+  gap: 8px;
+}
+
+.categoryRow select {
+  flex: 1;
+  min-width: 0;
+}
+
+.unsavedNote {
+  flex: 1 1 100%;
+  margin: 0;
+  color: #8a6b3d;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .imageCard {
@@ -515,6 +659,7 @@ summary.panelHeading {
   gap: 6px;
 }
 
+.imageToolbar > button.primaryImageAction,
 .imageActions .primaryImageAction {
   border-color: rgba(47, 107, 79, 0.28);
   background: #edf7f1;
@@ -861,8 +1006,12 @@ summary.panelHeading {
   }
 
   .dropzone {
-    min-height: 210px;
-    padding: 24px 14px;
+    min-height: 0;
+    padding: 12px;
+  }
+
+  .categoryRow {
+    flex-direction: column;
   }
 
   .imageGrid {

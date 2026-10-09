@@ -1,5 +1,10 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import {
+  CatalogArticleTakenError,
+  catalogArticleKey,
+  normalizeCatalogArticle,
+} from "@/lib/catalog/catalogArticle";
 import type { StoredCatalogProduct } from "@/lib/catalogDb/types";
 
 const DATA_DIR = join(process.cwd(), ".data");
@@ -75,7 +80,22 @@ export async function fileUpsertCatalogProduct(
   product: StoredCatalogProduct,
 ): Promise<StoredCatalogProduct> {
   const products = await ensureDataFile();
-  const normalizedProduct = normalizeProduct(product);
+  const requestedArticle = product.catalogNumber
+    ? normalizeCatalogArticle(product.catalogNumber)
+    : null;
+  if (requestedArticle) {
+    const taken = products.some(
+      (item) =>
+        item.id !== product.id && catalogArticleKey(item.catalogNumber) === requestedArticle,
+    );
+    if (taken) {
+      throw new CatalogArticleTakenError(requestedArticle);
+    }
+  }
+  const normalizedProduct = normalizeProduct({
+    ...product,
+    catalogNumber: requestedArticle ?? product.catalogNumber,
+  });
   const existingIndex = products.findIndex((item) => item.id === product.id);
   const next =
     existingIndex === -1

@@ -40,6 +40,7 @@ export function createEmptyAdminProductForm(): AdminProductFormState {
   return {
     id: null,
     title: "",
+    catalogNumber: "",
     slug: "",
     categoryId: "roses",
     shortDescription: "",
@@ -309,6 +310,10 @@ export function adminFormToCatalogUpsertInput(
 export function catalogRecordToAdminForm(
   product: CatalogProductRecord,
 ): AdminProductFormState {
+  if (product.metadata.listView === "card") {
+    throw new Error("Карточка списка не содержит полных данных товара.");
+  }
+
   const primaryImage =
     product.images.find((image) => image.isPrimary) ?? product.images[0];
   const galleryUrls = product.images
@@ -334,6 +339,7 @@ export function catalogRecordToAdminForm(
   return {
     id: product.id,
     title: product.title,
+    catalogNumber: product.metadata.catalogNumber ?? "",
     slug: product.slug,
     categoryId: product.categoryIds[0] ?? "roses",
     shortDescription: product.shortDescription,

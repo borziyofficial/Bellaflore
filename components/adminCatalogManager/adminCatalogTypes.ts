@@ -40,6 +40,7 @@ export type AdminProductImageDraft = {
 export type AdminProductFormState = {
   id: string | null;
   title: string;
+  catalogNumber: string;
   slug: string;
   categoryId: string;
   shortDescription: string;

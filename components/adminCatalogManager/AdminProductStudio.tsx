@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import type {
   AdminProductFormState,
   AdminProductStatusFilter,
@@ -11,8 +11,10 @@ import {
   createEmptyAdminProductForm,
   slugifyProductTitle,
 } from "@/components/adminCatalogManager/adminCatalogRecordUtils";
+import { resolveAdminProductForEdit } from "@/components/adminCatalogManager/adminProductCard";
 import {
   deleteAdminCatalogProduct,
+  fetchAdminCatalogProduct,
   publishAdminCatalogProduct,
   saveAdminCatalogProduct,
   unpublishAdminCatalogProduct,
@@ -25,7 +27,13 @@ import {
   filterAdminProducts,
   type AdminProductSort,
 } from "@/components/adminCatalogManager/adminProductFiltering";
+import {
+  isAdminFormDirty,
+  markPrimaryAdminImage,
+  moveAdminImages,
+} from "@/components/adminCatalogManager/adminProductStudioEdits";
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
+import { normalizeCatalogArticle } from "@/lib/catalog/catalogArticle";
 import styles from "@/components/adminCatalogManager/AdminProductStudio.module.css";
 
 const SIZE_IDS = ["S", "M", "L", "XL"] as const;
@@ -61,11 +69,13 @@ type AdminProductStudioProps = {
   getProductById: (productId: string) => CatalogProductRecord | null;
   initialMode?: StudioMode;
   initialEditId?: string | null;
+  seedProduct?: CatalogProductRecord | null;
   imageStorageWarning?: string | null;
   /** False while the product list is still loading in the background —
    * the toolbar/filters render immediately regardless; only the grid
    * shows skeleton placeholders until this flips to true. */
   productsReady?: boolean;
+  catalogLoadFailed?: boolean;
 };
 
 function formatPrice(priceRub: number): string {
@@ -159,6 +169,7 @@ function duplicateForm(product: CatalogProductRecord): AdminProductFormState {
     ...form,
     id: null,
     title,
+    catalogNumber: "",
     slug: "",
     seoSlug: slugifyProductTitle(title),
     status: "draft",
@@ -175,10 +186,12 @@ export function AdminProductStudio({
   getProductById,
   initialMode = "list",
   initialEditId = null,
+  seedProduct = null,
   imageStorageWarning = null,
   productsReady = true,
+  catalogLoadFailed = false,
 }: AdminProductStudioProps) {
-  const initialProduct = initialEditId ? getProductById(initialEditId) : null;
+  const initialProduct = seedProduct ?? (initialEditId ? getProductById(initialEditId) : null);
   const [mode, setMode] = useState<StudioMode>(initialProduct ? "edit" : initialMode);
   const [form, setForm] = useState<AdminProductFormState>(
     initialProduct ? catalogRecordToAdminForm(initialProduct) : createEmptyAdminProductForm(),
@@ -200,6 +213,9 @@ export function AdminProductStudio({
   const [dragging, setDragging] = useState(false);
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
   const [quickAddCategoryOpen, setQuickAddCategoryOpen] = useState(false);
+  const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
+  const [baseline, setBaseline] = useState(() => JSON.stringify(form));
+  const dirty = isAdminFormDirty(JSON.stringify(form), baseline);
   const {
     categories,
     createCategory,
@@ -223,34 +239,74 @@ export function AdminProductStudio({
   };
 
   const openCreate = () => {
-    setForm(createEmptyAdminProductForm());
+    const nextForm = createEmptyAdminProductForm();
+    setForm(nextForm);
+    setBaseline(JSON.stringify(nextForm));
     setUploadStates([]);
     setNotice(null);
     setMode("create");
   };
 
-  const openEdit = (productId: string) => {
-    const product = getProductById(productId);
-    if (!product) {
-      setNotice({ tone: "error", text: "Товар не найден." });
-      return;
+  const openEdit = async (productId: string) => {
+    setNotice({ tone: "info", text: "Загрузка товара…" });
+    try {
+      const product = await resolveAdminProductForEdit(
+        productId,
+        getProductById(productId),
+        fetchAdminCatalogProduct,
+      );
+      const nextForm = catalogRecordToAdminForm(product);
+      setForm(nextForm);
+      setBaseline(JSON.stringify(nextForm));
+      setUploadStates([]);
+      setNotice(null);
+      setMode("edit");
+    } catch (error) {
+      setNotice({
+        tone: "error",
+        text: error instanceof Error ? error.message : "Не удалось открыть товар.",
+      });
     }
+  };
 
-    setForm(catalogRecordToAdminForm(product));
-    setUploadStates([]);
-    setNotice(null);
-    setMode("edit");
+  const confirmLeave = () => {
+    if (!dirty) {
+      return true;
+    }
+    return window.confirm("Есть несохранённые изменения. Закрыть без сохранения?");
   };
 
   const backToList = async () => {
+    if (!confirmLeave()) {
+      return;
+    }
     await reload();
     setMode("list");
     setNotice(null);
   };
 
+  useEffect(() => {
+    if (!dirty || mode === "list") {
+      return;
+    }
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty, mode]);
+
   const validateForm = (nextForm: AdminProductFormState): string | null => {
     if (!nextForm.title.trim()) {
       return "Введите название товара.";
+    }
+    if (!nextForm.id && nextForm.catalogNumber.trim()) {
+      try {
+        normalizeCatalogArticle(nextForm.catalogNumber);
+      } catch (error) {
+        return error instanceof Error ? error.message : "Некорректный артикул.";
+      }
     }
     if (!nextForm.categoryId) {
       return "Выберите категорию.";
@@ -280,7 +336,9 @@ export function AdminProductStudio({
     setNotice(null);
     try {
       const saved = await saveAdminCatalogProduct(nextForm);
-      setForm(catalogRecordToAdminForm(saved));
+      const savedForm = catalogRecordToAdminForm(saved);
+      setForm(savedForm);
+      setBaseline(JSON.stringify(savedForm));
       await reload();
       setMode("edit");
       setNotice({
@@ -327,7 +385,12 @@ export function AdminProductStudio({
     setSavingStatusId(product.id);
     setNotice(null);
     try {
-      const saved = await saveAdminCatalogProduct(duplicateForm(product));
+      const source = await resolveAdminProductForEdit(
+        product.id,
+        product,
+        fetchAdminCatalogProduct,
+      );
+      const saved = await saveAdminCatalogProduct(duplicateForm(source));
       await reload();
       setNotice({ tone: "success", text: `Создан черновик: ${saved.title}.` });
     } catch (error) {
@@ -492,28 +555,18 @@ export function AdminProductStudio({
     setForm((current) =>
       formWithNormalizedImages({
         ...current,
-        images: current.images.map((image) => ({
-          ...image,
-          isPrimary: image.id === imageId,
-        })),
+        images: markPrimaryAdminImage(current.images, imageId),
       }),
     );
   };
 
   const moveImage = (imageId: string, direction: -1 | 1) => {
     setForm((current) => {
-      const images = [...current.images].sort((left, right) => left.sortOrder - right.sortOrder);
-      const index = images.findIndex((image) => image.id === imageId);
-      const nextIndex = index + direction;
-      if (index < 0 || nextIndex < 0 || nextIndex >= images.length) {
+      const images = moveAdminImages(current.images, imageId, direction);
+      if (!images) {
         return current;
       }
-      const [image] = images.splice(index, 1);
-      images.splice(nextIndex, 0, image);
-      return formWithNormalizedImages({
-        ...current,
-        images: images.map((item, itemIndex) => ({ ...item, sortOrder: itemIndex })),
-      });
+      return formWithNormalizedImages({ ...current, images });
     });
   };
 
@@ -529,7 +582,9 @@ export function AdminProductStudio({
   if (mode !== "list") {
     const categoryTitle = resolveAdminCategoryTitle(form.categoryId);
     const catalogNumber = form.id
-      ? getProductById(form.id)?.metadata.catalogNumber ?? null
+      ? getProductById(form.id)?.metadata.catalogNumber ??
+        seedProduct?.metadata.catalogNumber ??
+        null
       : null;
     return (
       <div className={styles.root}>
@@ -567,37 +622,17 @@ export function AdminProductStudio({
                 placeholder="Например, Пионовидная роза"
               />
             </label>
-            <label className={styles.field}>
-              <span>Категория *</span>
-              <div style={{ display: "flex", gap: 8 }}>
-                <select
-                  value={form.categoryId}
-                  onChange={(event) => {
-                    const nextValue = event.target.value;
-                    if (nextValue === QUICK_ADD_CATEGORY_VALUE) {
-                      setQuickAddCategoryOpen(true);
-                      return;
-                    }
-                    updateForm({ categoryId: nextValue });
-                  }}
-                >
-                  <option value="">Выберите категорию</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.title}
-                    </option>
-                  ))}
-                  <option value={QUICK_ADD_CATEGORY_VALUE}>+ Добавить новую категорию</option>
-                </select>
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  onClick={() => setCategoryManagerOpen(true)}
-                >
-                  Категории
-                </button>
-              </div>
-            </label>
+            {mode === "create" ? (
+              <label className={styles.field}>
+                <span>Артикул BF</span>
+                <input
+                  value={form.catalogNumber}
+                  onChange={(event) => updateForm({ catalogNumber: event.target.value })}
+                  placeholder="Например, BF-002. Пусто — номер назначится сам"
+                  aria-label="Артикул BF"
+                />
+              </label>
+            ) : null}
           </details>
 
           <details className={styles.panel} open>
@@ -647,19 +682,14 @@ export function AdminProductStudio({
                 void appendFiles(Array.from(event.dataTransfer.files));
               }}
             >
-              <span className={styles.uploadMark} aria-hidden="true">+</span>
-              <div className={styles.dropzoneCopy}>
-                <strong>Добавьте фотографии товара</strong>
-                <p>Можно выбрать несколько файлов или перетащить их сюда</p>
-                <small>JPG, PNG, WEBP или HEIC · до 5 МБ · максимум 10 фото</small>
-              </div>
               <button
                 type="button"
                 className={styles.primaryButton}
                 onClick={() => fileInputRef.current?.click()}
               >
-                Выбрать фотографии
+                Добавить фото
               </button>
+              <p>Или перетащите сюда. JPG, PNG, WEBP, HEIC · до 5 МБ · максимум 10</p>
               <input
                 ref={fileInputRef}
                 className={styles.hiddenInput}
@@ -701,52 +731,61 @@ export function AdminProductStudio({
                       src={image.thumbnailUrl || image.processedUrl || image.originalUrl}
                       alt={form.title || image.filename}
                       fill
-                      sizes="140px"
+                      sizes="120px"
                       className={styles.image}
                       unoptimized
                     />
-                    {image.isPrimary ? <span className={styles.primaryBadge}>Главное фото</span> : null}
+                    {image.isPrimary ? <span className={styles.primaryBadge}>Обложка</span> : null}
+                    <button
+                      type="button"
+                      className={styles.zoomButton}
+                      onClick={() =>
+                        setZoomImageUrl(image.processedUrl || image.originalUrl || image.thumbnailUrl)
+                      }
+                    >
+                      Увеличить
+                    </button>
                   </div>
-                  <p className={styles.imageName}>{image.filename}</p>
-                  <div className={styles.imageActions}>
+                  <div className={styles.imageToolbar}>
                     <button
                       type="button"
                       className={image.isPrimary ? styles.primaryImageAction : ""}
                       onClick={() => setPrimaryImage(image.id)}
                       disabled={image.isPrimary}
                     >
-                      {image.isPrimary ? "Главное фото" : "Сделать главным"}
+                      {image.isPrimary ? "Обложка" : "Сделать обложкой"}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => moveImage(image.id, -1)}
-                      disabled={index === 0}
-                      aria-label={`Переместить ${image.filename} выше`}
-                      title="Переместить выше"
-                    >
-                      ↑
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => moveImage(image.id, 1)}
-                      disabled={index === form.images.length - 1}
-                      aria-label={`Переместить ${image.filename} ниже`}
-                      title="Переместить ниже"
-                    >
-                      ↓
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setReplaceImageId(image.id);
-                        replaceInputRef.current?.click();
-                      }}
-                    >
-                      Заменить
-                    </button>
-                    <button type="button" onClick={() => deleteImage(image.id)}>
-                      Удалить
-                    </button>
+                    <details className={styles.photoMenu}>
+                      <summary aria-label={`Действия с фото ${index + 1}`}>⋯</summary>
+                      <div className={styles.photoMenuList}>
+                        <button
+                          type="button"
+                          onClick={() => moveImage(image.id, -1)}
+                          disabled={index === 0}
+                        >
+                          Выше
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveImage(image.id, 1)}
+                          disabled={index === form.images.length - 1}
+                        >
+                          Ниже
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReplaceImageId(image.id);
+                            replaceInputRef.current?.click();
+                          }}
+                        >
+                          Заменить
+                        </button>
+                        <button type="button" onClick={() => deleteImage(image.id)}>
+                          Удалить
+                        </button>
+                      </div>
+                    </details>
                   </div>
                 </article>
               ))}
@@ -768,6 +807,7 @@ export function AdminProductStudio({
             <label className={styles.field}>
               <span>Краткое описание</span>
               <textarea
+                className={styles.boundedText}
                 value={form.shortDescription}
                 onChange={(event) => updateForm({ shortDescription: event.target.value })}
                 rows={3}
@@ -776,6 +816,7 @@ export function AdminProductStudio({
             <label className={styles.field}>
               <span>Состав букета</span>
               <textarea
+                className={styles.boundedText}
                 value={form.composition}
                 onChange={(event) => updateForm({ composition: event.target.value })}
                 rows={3}
@@ -783,8 +824,43 @@ export function AdminProductStudio({
             </label>
           </details>
 
+          <details className={styles.panel} open>
+            <summary className={styles.panelTitle}>Категория</summary>
+            <label className={styles.field}>
+              <span>Категория *</span>
+              <div className={styles.categoryRow}>
+                <select
+                  value={form.categoryId}
+                  onChange={(event) => {
+                    const nextValue = event.target.value;
+                    if (nextValue === QUICK_ADD_CATEGORY_VALUE) {
+                      setQuickAddCategoryOpen(true);
+                      return;
+                    }
+                    updateForm({ categoryId: nextValue });
+                  }}
+                >
+                  <option value="">Выберите категорию</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.title}
+                    </option>
+                  ))}
+                  <option value={QUICK_ADD_CATEGORY_VALUE}>+ Добавить новую категорию</option>
+                </select>
+                <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={() => setCategoryManagerOpen(true)}
+                >
+                  Категории
+                </button>
+              </div>
+            </label>
+          </details>
+
           <details className={styles.panel}>
-            <summary className={styles.panelTitle}>SEO и дополнительные поля</summary>
+            <summary className={styles.panelTitle}>Дополнительные поля</summary>
             <div className={styles.priceGrid}>
               <label className={styles.field}>
                 <span>Количество цветов</span>
@@ -809,7 +885,7 @@ export function AdminProductStudio({
             </label>
             <label className={styles.field}>
               <span>Полное описание</span>
-              <textarea value={form.fullDescription} onChange={(event) => updateForm({ fullDescription: event.target.value })} rows={4} />
+              <textarea className={styles.boundedText} value={form.fullDescription} onChange={(event) => updateForm({ fullDescription: event.target.value })} rows={4} />
             </label>
             <div className={styles.checkGrid}>
               {[
@@ -828,14 +904,17 @@ export function AdminProductStudio({
                 </label>
               ))}
             </div>
-            <h3 className={styles.subsectionTitle}>SEO</h3>
+          </details>
+
+          <details className={styles.panel}>
+            <summary className={styles.panelTitle}>SEO</summary>
             <label className={styles.field}>
               <span>SEO-заголовок</span>
               <input value={form.seoTitle} onChange={(event) => updateForm({ seoTitle: event.target.value })} />
             </label>
             <label className={styles.field}>
               <span>SEO-описание</span>
-              <textarea value={form.seoDescription} onChange={(event) => updateForm({ seoDescription: event.target.value })} rows={3} />
+              <textarea className={styles.boundedText} value={form.seoDescription} onChange={(event) => updateForm({ seoDescription: event.target.value })} rows={3} />
             </label>
             <label className={styles.field}>
               <span>Адрес страницы (slug)</span>
@@ -848,7 +927,33 @@ export function AdminProductStudio({
           </details>
         </div>
 
+        {zoomImageUrl ? (
+          <div className={styles.zoomOverlay} role="presentation" onClick={() => setZoomImageUrl(null)}>
+            <div
+              className={styles.zoomDialog}
+              role="dialog"
+              aria-label="Просмотр фото"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button type="button" className={styles.secondaryButton} onClick={() => setZoomImageUrl(null)}>
+                Закрыть
+              </button>
+              <div className={styles.zoomFrame}>
+                <Image
+                  src={zoomImageUrl}
+                  alt={form.title || "Фото товара"}
+                  fill
+                  sizes="720px"
+                  className={styles.zoomImage}
+                  unoptimized
+                />
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <footer className={styles.stickyActions}>
+          {dirty ? <p className={styles.unsavedNote}>Есть несохранённые изменения</p> : null}
           <div className={styles.stickyActionsSecondaryRow}>
             <button type="button" className={`${styles.secondaryButton} ${styles.cancelAction}`} onClick={() => void backToList()}>
               Отмена
@@ -999,7 +1104,11 @@ export function AdminProductStudio({
       ) : (
         <>
           {filteredProducts.length === 0 ? (
-            <p className={styles.empty}>Товары не найдены. Измените фильтры или добавьте товар.</p>
+            <p className={styles.empty}>
+              {catalogLoadFailed
+                ? "Список товаров не загрузился. Повторите запрос — это не означает, что каталог пуст."
+                : "Товары не найдены. Измените фильтры или добавьте товар."}
+            </p>
           ) : null}
 
           <div className={styles.productGrid}>
@@ -1044,14 +1153,14 @@ export function AdminProductStudio({
                   <span className={styles.extendedCardMeta}>{formatDate(product.metadata.updatedAt)}</span>
                 </div>
                 <div className={styles.cardActions}>
-                  <button type="button" onClick={() => openEdit(product.id)}>Редактировать</button>
+                  <button type="button" onClick={() => void openEdit(product.id)}>Редактировать</button>
                   <div className={styles.cardActionsRow}>
                     <button type="button" disabled={isBusy} onClick={() => void duplicateProduct(product)}>Дублировать</button>
                     <button type="button" disabled={isBusy} onClick={() => setDeleteId(product.id)}>Удалить</button>
                   </div>
                 </div>
                 <div className={styles.mobileCardActions}>
-                  <button type="button" onClick={() => openEdit(product.id)}>Изменить</button>
+                  <button type="button" onClick={() => void openEdit(product.id)}>Изменить</button>
                   <details className={styles.mobileOverflow}>
                     <summary aria-label={`Действия для ${product.title}`}>⋯</summary>
                     <div className={styles.mobileOverflowMenu}>

@@ -12,6 +12,7 @@ import { formatOrderDate, formatOrderPrice, orderStatusLabels } from "@/lib/orde
 import { AdminModuleHeader, AdminPanel, AdminStatCard } from "@/components/adminApp/shared/AdminModuleUi";
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
 import styles from "@/components/adminApp/modules/operations/AdminOperationsModules.module.css";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 
 type Category = {
   id: string;
@@ -60,7 +61,7 @@ const EMPTY_STORE: StoreProfile = {
 };
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetchWithTimeout(url, {
     credentials: "same-origin",
     cache: "no-store",
     ...init,
@@ -89,6 +90,7 @@ export function AdminCategoriesModule() {
     try {
       const body = await requestJson<{ categories: Category[] }>("/api/admin/categories");
       setCategories(body.categories);
+      setNotice(null);
     } catch (error) {
       setNotice({ tone: "error", text: error instanceof Error ? error.message : "Ошибка загрузки." });
     } finally {
@@ -157,6 +159,11 @@ export function AdminCategoriesModule() {
   return <div className={ui.stack}>
     <AdminModuleHeader title="Категории" subtitle="Реальные категории витрины и безопасное управление пользовательскими категориями" />
     <Notice value={notice} />
+    {notice?.tone === "error" ? (
+      <button type="button" onClick={() => void load()} disabled={loading}>
+        {loading ? "Повторяем…" : "Повторить загрузку"}
+      </button>
+    ) : null}
     <AdminPanel title="Новая категория">
       <div className={styles.inlineForm}>
         <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Название категории" />
@@ -344,7 +351,10 @@ export function AdminNotificationsModule() {
   const [error, setError] = useState("");
   async function load() {
     setLoading(true);
-    try { setItems((await requestJson<{ notifications: AdminNotification[] }>("/api/admin/notifications")).notifications); }
+    try {
+      setItems((await requestJson<{ notifications: AdminNotification[] }>("/api/admin/notifications")).notifications);
+      setError("");
+    }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Ошибка загрузки."); }
     finally { setLoading(false); }
   }
@@ -361,7 +371,14 @@ export function AdminNotificationsModule() {
   return <div className={ui.stack}>
     <AdminModuleHeader title="Уведомления" subtitle="Внутренние события, сформированные только из реальных заказов" action={<span className={styles.counter}>{unread} непрочитано</span>} />
     <p className={styles.info}>Новые и отменённые заказы отображаются автоматически. Отдельный журнал серверных ошибок пока не подключён.</p>
-    {error ? <p className={styles.error}>{error}</p> : null}
+    {error ? (
+      <div>
+        <p className={styles.error}>{error}</p>
+        <button type="button" onClick={() => void load()} disabled={loading}>
+          {loading ? "Повторяем…" : "Повторить загрузку"}
+        </button>
+      </div>
+    ) : null}
     <AdminPanel title={loading ? "Загружаем события…" : `События (${items.length})`}><div className={styles.cardList}>{items.map((item) => <article className={`${styles.notificationCard} ${!item.read ? styles.notificationUnread : ""}`} key={item.id}><button type="button" onClick={() => void markRead(item)}><span><strong>{item.title}</strong><small>{item.message} · {formatOrderDate(item.createdAt)}</small></span><span className={item.severity === "important" ? styles.importantBadge : styles.activeBadge}>{item.read ? "Прочитано" : "Непрочитано"}</span></button><Link href={`/admin/orders/${encodeURIComponent(item.orderId)}`}>Открыть заказ</Link></article>)}</div>{!loading && items.length === 0 ? <div className={ui.emptyZone}>Событий пока нет.</div> : null}</AdminPanel>
   </div>;
 }

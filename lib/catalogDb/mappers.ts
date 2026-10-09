@@ -11,6 +11,7 @@ import { CATALOG_CATEGORY_BY_ID } from "@/components/catalogEngine/categoriesCat
 import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import { PUBLIC_CATALOG_PLACEHOLDER_IMAGE } from "@/components/catalog/publicCatalogMerge";
+import { normalizeCatalogArticle } from "@/lib/catalog/catalogArticle";
 import type {
   CatalogProductDbStatus,
   CatalogProductSizePrices,
@@ -223,7 +224,9 @@ export function adminFormToStoredProduct(
     isNew: normalizedForm.isNew,
     isBestseller: normalizedForm.isBestseller,
     isPromotion: normalizedForm.isPromotion,
-    catalogNumber: existing?.catalogNumber,
+    catalogNumber: existing
+      ? existing.catalogNumber
+      : normalizeCatalogArticle(normalizedForm.catalogNumber) ?? undefined,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
   };
@@ -242,6 +245,7 @@ export function storedProductToAdminForm(
   return {
     id: product.id,
     title: product.title,
+    catalogNumber: product.catalogNumber ?? "",
     slug: product.slug,
     categoryId: product.category,
     shortDescription: product.shortDescription,

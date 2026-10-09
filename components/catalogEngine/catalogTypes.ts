@@ -131,6 +131,8 @@ export type CatalogProductRecord = {
     isPromotion?: boolean;
     adminCreated?: boolean;
     adminSeoDraft?: CatalogAdminSeoDraft;
+    /** Present only on the admin list payload. Never save a product from this shape. */
+    listView?: "card";
   };
 };
 

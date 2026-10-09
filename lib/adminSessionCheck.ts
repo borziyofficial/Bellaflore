@@ -7,6 +7,21 @@ export type AdminServerSessionCheck =
 
 const SESSION_PATH = "/api/admin/session";
 
+export type AdminGateContinuation = "render" | "login" | "notice";
+
+/** A slow or failed cookie check must not replace the admin. Only a rejected session logs the user out. */
+export function continueAdminAfterServerSession(
+  check: AdminServerSessionCheck,
+): AdminGateContinuation {
+  if (check.status === "invalid") {
+    return "login";
+  }
+  if (check.status === "unavailable") {
+    return "notice";
+  }
+  return "render";
+}
+
 export async function checkAdminServerSession(options?: {
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
@@ -14,14 +29,15 @@ export async function checkAdminServerSession(options?: {
   const fetchImpl = options?.fetchImpl ?? fetch;
   const timeoutMs = options?.timeoutMs ?? ADMIN_SESSION_CHECK_TIMEOUT_MS;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer =
+    timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : null;
 
   try {
     const response = await fetchImpl(SESSION_PATH, {
       method: "GET",
       credentials: "include",
       cache: "no-store",
-      signal: controller.signal,
+      signal: timer ? controller.signal : undefined,
     });
 
     if (response.ok) {
@@ -48,6 +64,8 @@ export async function checkAdminServerSession(options?: {
         : "Не удалось проверить доступ. Проверьте соединение и повторите.",
     };
   } finally {
-    clearTimeout(timer);
+    if (timer) {
+      clearTimeout(timer);
+    }
   }
 }

@@ -1036,6 +1036,23 @@
   line-height: 1.4;
 }
 
+.errorBanner p {
+  margin: 0;
+}
+
+.errorBanner button {
+  margin-top: 8px;
+  min-height: 36px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
 .warningBanner {
   background: rgba(184, 134, 11, 0.12);
   color: #8a6b00;

@@ -12,10 +12,9 @@ import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTyp
 import { fetchAdminCatalogProducts } from "@/components/adminCatalogManager/catalogApiClient";
 import {
   fetchAdminCatalogCacheState,
+  shouldReuseAdminCatalogCache,
   type AdminCatalogCacheState,
 } from "@/components/adminCatalogManager/adminCatalogCacheState";
-
-const STALE_AFTER_MS = 30_000;
 
 let state: AdminCatalogCacheState = {
   products: [],
@@ -64,9 +63,7 @@ async function performFetch(): Promise<void> {
  * mutations, and for pull-to-refresh style manual reloads).
  */
 export function ensureCatalogLoaded(options?: { force?: boolean }): Promise<void> {
-  const isStale = Date.now() - state.lastFetchedAt > STALE_AFTER_MS;
-
-  if (state.hasFetchedOnce && !options?.force && !isStale) {
+  if (shouldReuseAdminCatalogCache(state, Date.now(), options)) {
     return Promise.resolve();
   }
 

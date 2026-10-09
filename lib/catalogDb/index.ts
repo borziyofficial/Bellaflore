@@ -13,6 +13,8 @@ import {
 import {
   postgresGetCatalogProductById,
   postgresGetCatalogProductBySlug,
+  postgresCountPublishedProductsByCategory,
+  postgresListAdminCatalogCards,
   postgresListCatalogProducts,
   postgresDeleteCatalogProduct,
   postgresSetCatalogProductStatus,
@@ -55,6 +57,30 @@ export async function listCatalogProducts(): Promise<StoredCatalogProduct[]> {
   }
 
   return fileListCatalogProducts();
+}
+
+export async function listAdminCatalogCards(): Promise<StoredCatalogProduct[]> {
+  assertCatalogDatabaseAvailable();
+
+  if (isCatalogDatabaseConfigured()) {
+    return postgresListAdminCatalogCards();
+  }
+
+  return fileListCatalogProducts();
+}
+
+export async function countCatalogProductsByCategory(): Promise<Record<string, number>> {
+  assertCatalogDatabaseAvailable();
+
+  if (isCatalogDatabaseConfigured()) {
+    return postgresCountPublishedProductsByCategory();
+  }
+
+  const products = await fileListCatalogProducts();
+  return products.reduce<Record<string, number>>((counts, product) => {
+    counts[product.category] = (counts[product.category] ?? 0) + 1;
+    return counts;
+  }, {});
 }
 
 export async function listPublishedCatalogProducts(): Promise<StoredCatalogProduct[]> {

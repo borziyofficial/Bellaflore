@@ -70,7 +70,19 @@ async function catalogRequest<T>(
 }
 
 export async function fetchAdminCatalogProducts(): Promise<CatalogApiListResponse> {
-  return catalogRequest<CatalogApiListResponse>("/api/admin/products");
+  return catalogRequest<CatalogApiListResponse>("/api/admin/products?view=card");
+}
+
+export async function fetchAdminCatalogProduct(
+  productId: string,
+): Promise<CatalogProductRecord> {
+  const body = await catalogRequest<CatalogApiProductResponse>(
+    `/api/admin/products/${encodeURIComponent(productId)}`,
+  );
+  if (!body.product) {
+    throw new Error(body.message || "Товар не найден.");
+  }
+  return body.product;
 }
 
 export async function saveAdminCatalogProduct(

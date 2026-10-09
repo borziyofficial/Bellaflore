@@ -13,6 +13,20 @@ type AdminCatalogFetchResponse = {
   imageStorageWarning?: string | null;
 };
 
+export const ADMIN_CATALOG_CACHE_STALE_MS = 30_000;
+
+export function shouldReuseAdminCatalogCache(
+  cache: AdminCatalogCacheState,
+  now: number,
+  options?: { force?: boolean },
+): boolean {
+  if (options?.force || !cache.hasFetchedOnce || cache.loadError) {
+    return false;
+  }
+
+  return now - cache.lastFetchedAt <= ADMIN_CATALOG_CACHE_STALE_MS;
+}
+
 export async function fetchAdminCatalogCacheState(
   current: AdminCatalogCacheState,
   fetchCatalog: () => Promise<AdminCatalogFetchResponse>,

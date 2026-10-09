@@ -16,6 +16,10 @@ import {
   unauthorizedAdminResponse,
 } from "@/lib/adminApiAuth";
 import { logCatalogServerError } from "@/lib/catalogDb/logging";
+import {
+  CatalogArticleFormatError,
+  CatalogArticleTakenError,
+} from "@/lib/catalog/catalogArticle";
 
 export const runtime = "nodejs";
 // Reflects live writes and is re-fetched right after mutations to refresh
@@ -42,6 +46,13 @@ function catalogUnavailableResponse(
       },
       { status: 503 },
     );
+  }
+
+  if (error instanceof CatalogArticleFormatError) {
+    return Response.json({ message: error.message }, { status: 400 });
+  }
+  if (error instanceof CatalogArticleTakenError) {
+    return Response.json({ message: error.message }, { status: 409 });
   }
 
   return Response.json({ message: "Не удалось сохранить товар." }, { status: 500 });

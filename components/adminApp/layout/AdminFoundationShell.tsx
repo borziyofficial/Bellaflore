@@ -17,7 +17,6 @@ import { formatAdminRoleLabel } from "@/components/adminEntry/adminNavigationIte
 import { AdminBottomNav } from "@/components/adminApp/layout/AdminBottomNav";
 import { AdminSidebar } from "@/components/adminApp/layout/AdminSidebar";
 import { ADMIN_SIDEBAR_ITEMS, resolveAdminSidebarId } from "@/components/adminApp/foundation/navigation";
-import { prefetchAdminCatalog } from "@/components/adminCatalogManager/adminCatalogCache";
 import { fetchAdminCategories } from "@/components/adminCatalogManager/adminCustomCategories";
 import styles from "@/components/adminApp/layout/AdminFoundationShell.module.css";
 
@@ -45,12 +44,9 @@ export function AdminFoundationShell({
     window.location.assign(ADMIN_ENTRY_LOGIN_PATH);
   };
 
-  // Warm the catalog + category caches once per admin session, as soon as
-  // the persistent shell mounts — regardless of which section loads first.
-  // By the time the admin taps "Букеты" or "Добавить", the data is already
-  // loaded (or loading), so the section switch itself never blocks on it.
+  // Categories are a small request. The full product catalog is about 1.5 MB,
+  // so it loads only on the product and banner screens that render it.
   useEffect(() => {
-    prefetchAdminCatalog();
     void fetchAdminCategories().catch(() => {
       // A timed-out category request must not freeze the shell. The section
       // keeps the built-in categories and reports its own load error.

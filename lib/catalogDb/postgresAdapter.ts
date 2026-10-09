@@ -7,6 +7,10 @@ import {
   normalizeCatalogProductJsonb,
   type CatalogProductJsonbRow,
 } from "@/lib/catalogDb/jsonbNormalization";
+import {
+  CatalogArticleTakenError,
+  normalizeCatalogArticle,
+} from "@/lib/catalog/catalogArticle";
 import { logCatalogServerError } from "@/lib/catalogDb/logging";
 import type { StoredCatalogProduct } from "@/lib/catalogDb/types";
 
@@ -215,6 +219,163 @@ export async function postgresListCatalogProducts(): Promise<StoredCatalogProduc
   return rows.map(rowToProduct);
 }
 
+export async function postgresListAdminCatalogCards(): Promise<StoredCatalogProduct[]> {
+  const sql = getSqlClient();
+  if (!sql) {
+    return [];
+  }
+
+  // The list screen does not migrate the schema. ensureSchema() rewrites the
+  // article sequence and is reserved for writes and the full export query.
+  const rows = await sql<AdminCatalogCardRow[]>`
+    WITH published_with_number AS (
+      SELECT
+        id,
+        slug,
+        title,
+        category,
+        status,
+        tags,
+        sizes,
+        old_price_rub,
+        image_url,
+        seo_slug,
+        seo_image_alt,
+        is_featured,
+        is_new,
+        is_bestseller,
+        is_promotion,
+        created_at,
+        updated_at,
+        catalog_number,
+        CONCAT('BF-', LPAD(ROW_NUMBER() OVER (ORDER BY created_at ASC)::TEXT, 3, '0')) AS computed_catalog_number
+      FROM catalog_products
+      WHERE status = 'published'
+    )
+    SELECT
+      id,
+      slug,
+      title,
+      category,
+      status,
+      tags,
+      sizes,
+      old_price_rub,
+      image_url,
+      seo_slug,
+      seo_image_alt,
+      is_featured,
+      is_new,
+      is_bestseller,
+      is_promotion,
+      created_at,
+      updated_at,
+      COALESCE(NULLIF(btrim(catalog_number), ''), computed_catalog_number) AS catalog_number
+    FROM published_with_number
+    ORDER BY created_at ASC
+  `;
+  return rows.map(cardRowToProduct);
+}
+
+export async function postgresCountPublishedProductsByCategory(): Promise<
+  Record<string, number>
+> {
+  const sql = getSqlClient();
+  if (!sql) {
+    return {};
+  }
+
+  // Usage counts must not load descriptions, SEO or galleries. The admin
+  // shell asks for categories on every page; the old path read every
+  // published row in full and held the response until that finished.
+  const rows = await sql<Array<{ category: string; count: number | string }>>`
+    SELECT category, COUNT(*)::int AS count
+    FROM catalog_products
+    WHERE status = 'published'
+    GROUP BY category
+  `;
+
+  return Object.fromEntries(
+    rows.map((row) => [row.category, Number(row.count) || 0]),
+  );
+}
+
+type AdminCatalogCardRow = {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  status: StoredCatalogProduct["status"];
+  tags: unknown;
+  sizes: unknown;
+  old_price_rub: number | null;
+  image_url: string;
+  seo_slug: string;
+  seo_image_alt: string;
+  is_featured: boolean;
+  is_new: boolean;
+  is_bestseller: boolean;
+  is_promotion: boolean;
+  created_at: Date | string;
+  updated_at: Date | string;
+  catalog_number: string | null;
+};
+
+function cardRowToProduct(row: AdminCatalogCardRow): StoredCatalogProduct {
+  const jsonb = normalizeCatalogProductJsonb(
+    {
+      tags: row.tags,
+      sizes: row.sizes,
+      color_palette: [],
+      gallery_images: [],
+      images: [],
+      seo_keywords: [],
+      seo_faq: [],
+      schema_product_json_ld: {},
+    },
+    row.id,
+  );
+
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    category: row.category,
+    status: row.status,
+    shortDescription: "",
+    fullDescription: "",
+    composition: "",
+    tags: jsonb.tags,
+    sizes: jsonb.sizes,
+    oldPriceRub: row.old_price_rub ?? null,
+    flowerCount: null,
+    heightCm: null,
+    widthCm: null,
+    colorPalette: [],
+    occasion: "",
+    imageUrl: row.image_url,
+    galleryImages: [],
+    images: [],
+    seoTitle: "",
+    seoDescription: "",
+    seoH1: "",
+    seoSlug: row.seo_slug,
+    seoImageAlt: row.seo_image_alt,
+    seoKeywords: [],
+    seoFaq: [],
+    openGraphTitle: "",
+    openGraphDescription: "",
+    schemaProductJsonLd: {},
+    isFeatured: row.is_featured,
+    isNew: row.is_new,
+    isBestseller: row.is_bestseller,
+    isPromotion: row.is_promotion ?? false,
+    catalogNumber: row.catalog_number ?? undefined,
+    createdAt: new Date(row.created_at).toISOString(),
+    updatedAt: new Date(row.updated_at).toISOString(),
+  };
+}
+
 export async function postgresGetCatalogProductById(
   id: string,
 ): Promise<StoredCatalogProduct | null> {
@@ -361,6 +522,23 @@ export async function postgresUpsertCatalogProduct(
 
   try {
     await ensureSchema();
+    const requestedArticle = product.catalogNumber
+      ? normalizeCatalogArticle(product.catalogNumber)
+      : null;
+    if (requestedArticle) {
+      const digits = requestedArticle.replace(/\D/g, "").padStart(3, "0");
+      const taken = await sql<{ id: string }[]>`
+        SELECT id
+        FROM catalog_products
+        WHERE id <> ${product.id}
+          AND NULLIF(btrim(catalog_number), '') IS NOT NULL
+          AND lpad(regexp_replace(catalog_number, '[^0-9]', '', 'g'), 3, '0') = ${digits}
+        LIMIT 1
+      `;
+      if (taken.length > 0) {
+        throw new CatalogArticleTakenError(requestedArticle);
+      }
+    }
     const jsonb = getCatalogProductJsonbValues(product);
     const rows = await sql<CatalogRow[]>`
     INSERT INTO catalog_products (
@@ -382,7 +560,7 @@ export async function postgresUpsertCatalogProduct(
       ${product.openGraphTitle}, ${product.openGraphDescription}, ${sql.json(jsonb.schemaProductJsonLd as postgres.JSONValue)},
       ${product.isFeatured}, ${product.isNew}, ${product.isBestseller}, ${product.isPromotion},
       COALESCE(
-        NULLIF(btrim(${product.catalogNumber ?? null}), ''),
+        NULLIF(btrim(${requestedArticle}), ''),
         CONCAT('BF-', LPAD(nextval('catalog_product_number_seq')::TEXT, 3, '0'))
       ),
       NOW(), NOW()

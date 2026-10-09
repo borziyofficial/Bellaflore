@@ -1,4 +1,5 @@
 import type { AdminProductFormState } from "@/components/adminCatalogManager/adminCatalogTypes";
+import { toAdminProductCard } from "@/components/adminCatalogManager/adminProductCard";
 import {
   adminFormToStoredProduct,
   storedProductToCatalogRecord,
@@ -6,6 +7,7 @@ import {
 import {
   CatalogDatabaseNotConfiguredError,
   getCatalogDatabaseMode,
+  listAdminCatalogCards,
   listCatalogProducts,
   saveCatalogDraft,
   upsertCatalogProduct,
@@ -17,6 +19,10 @@ import {
 } from "@/lib/adminApiAuth";
 import { getImageStorageWarning } from "@/lib/catalogStorage/config";
 import { logCatalogServerError } from "@/lib/catalogDb/logging";
+import {
+  CatalogArticleFormatError,
+  CatalogArticleTakenError,
+} from "@/lib/catalog/catalogArticle";
 
 export const runtime = "nodejs";
 // This route reflects live writes made through publish/unpublish/save/delete
@@ -38,6 +44,13 @@ function catalogUnavailableResponse(error: unknown, operation: string): Response
     );
   }
 
+  if (error instanceof CatalogArticleFormatError) {
+    return Response.json({ message: error.message }, { status: 400 });
+  }
+  if (error instanceof CatalogArticleTakenError) {
+    return Response.json({ message: error.message }, { status: 409 });
+  }
+
   return Response.json({ message: "Не удалось сохранить товар." }, { status: 500 });
 }
 
@@ -47,15 +60,17 @@ export async function GET(request: Request) {
   }
 
   try {
+    const cardView = new URL(request.url).searchParams.get("view") === "card";
     const [products, customCategoryTitleById] = await Promise.all([
-      listCatalogProducts(),
+      cardView ? listAdminCatalogCards() : listCatalogProducts(),
       buildCategoryTitleMap(),
     ]);
     return Response.json(
       {
-        products: products.map((product) =>
-          storedProductToCatalogRecord(product, customCategoryTitleById),
-        ),
+        products: products.map((product) => {
+          const record = storedProductToCatalogRecord(product, customCategoryTitleById);
+          return cardView ? toAdminProductCard(record) : record;
+        }),
         mode: getCatalogDatabaseMode(),
         imageStorageWarning: getImageStorageWarning(),
       },

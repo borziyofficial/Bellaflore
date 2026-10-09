@@ -19,6 +19,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminModuleHeader, AdminPanel } from "@/components/adminApp/shared/AdminModuleUi";
+import { fetchWithTimeout } from "@/lib/fetchWithTimeout";
 import ui from "@/components/adminApp/shared/AdminModuleUi.module.css";
 import styles from "@/components/adminApp/modules/deliveryZones/AdminDeliveryZonesModule.module.css";
 import {
@@ -321,7 +322,7 @@ export function AdminDeliveryZonesModule({
 
   const loadZones = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/delivery-zones", {
+      const response = await fetchWithTimeout("/api/admin/delivery-zones", {
         credentials: "include",
         cache: "no-store",
       });
@@ -431,6 +432,9 @@ export function AdminDeliveryZonesModule({
         <AdminModuleHeader title="Зоны доставки" subtitle="Управление зонами доставки МКАД" />
         <AdminPanel>
           <p className={styles.error}>{loadNotice}</p>
+          <button type="button" onClick={() => void loadZones()}>
+            Повторить загрузку
+          </button>
         </AdminPanel>
       </div>
     );

@@ -12,7 +12,11 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import postgres from "postgres";
 import { getDatabaseUrl } from "@/lib/catalogDb/config";
-import { listCatalogProducts, upsertCatalogProduct } from "@/lib/catalogDb";
+import {
+  countCatalogProductsByCategory,
+  listCatalogProducts,
+  upsertCatalogProduct,
+} from "@/lib/catalogDb";
 import {
   CATALOG_CATEGORIES,
   CATALOG_CATEGORY_BY_ID,
@@ -270,16 +274,12 @@ export async function renameCustomCategory(
 }
 
 export async function getCategoryUsageCount(id: string): Promise<number> {
-  const products = await listCatalogProducts();
-  return products.filter((product) => product.category === id).length;
+  const counts = await getCategoryUsageCounts();
+  return counts[id] ?? 0;
 }
 
 export async function getCategoryUsageCounts(): Promise<Record<string, number>> {
-  const products = await listCatalogProducts();
-  return products.reduce<Record<string, number>>((counts, product) => {
-    counts[product.category] = (counts[product.category] ?? 0) + 1;
-    return counts;
-  }, {});
+  return countCatalogProductsByCategory();
 }
 
 export async function setCustomCategoryActive(
