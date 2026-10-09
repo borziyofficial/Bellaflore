@@ -10,6 +10,7 @@ import {
 } from "@/components/search/searchFoundation";
 import type { CatalogProduct } from "@/data/catalogProducts";
 import { getProductSizeOptions } from "@/data/productSizeFoundation";
+import { compareCatalogArticles } from "@/lib/catalogArticleOrder";
 
 export type HomeCatalogSortMode = "default" | "price-asc" | "price-desc";
 
@@ -234,16 +235,6 @@ function matchesBudget(
   return true;
 }
 
-function getCatalogNumberOrder(product: CatalogProduct): number | null {
-  const match = product.catalogNumber?.match(/(\d+)\s*$/);
-  if (!match) {
-    return null;
-  }
-
-  const parsed = Number(match[1]);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 function sortProductsByMode(
   products: CatalogProduct[],
   sortMode: HomeCatalogSortMode,
@@ -264,24 +255,9 @@ function sortProductsByMode(
     );
   }
 
-  return [...products].sort((left, right) => {
-    const leftOrder = getCatalogNumberOrder(left);
-    const rightOrder = getCatalogNumberOrder(right);
-
-    if (leftOrder !== null && rightOrder !== null) {
-      return leftOrder - rightOrder;
-    }
-
-    if (leftOrder !== null) {
-      return -1;
-    }
-
-    if (rightOrder !== null) {
-      return 1;
-    }
-
-    return 0;
-  });
+  return [...products].sort((left, right) =>
+    compareCatalogArticles(left.catalogNumber, right.catalogNumber),
+  );
 }
 
 export function filterHomeCatalogProducts(

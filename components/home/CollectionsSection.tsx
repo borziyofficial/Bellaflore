@@ -185,7 +185,7 @@ export function CollectionsSection({
   const isInitialCatalogLoading = catalogStatus === "loading" && bouquets.length === 0;
 
   const displayedProducts = useMemo(() => {
-    const filteredProducts = filterHomeCatalogProducts(bouquets, {
+    return filterHomeCatalogProducts(bouquets, {
       categoryId: isSearchMode ? "all" : activeCategoryId,
       quickFilterId: "all",
       searchQuery,
@@ -194,21 +194,6 @@ export function CollectionsSection({
       maxPriceRub: normalizedBudgetTo,
       sortMode,
     });
-
-    // Business-requested storefront placement: BF-230 is the first visible
-    // composition in the default full catalog. Keep its article unchanged;
-    // this is display ordering only and does not renumber any product.
-    if (!isSearchMode && activeCategoryId === "all" && sortMode === "default") {
-      const bf230Index = filteredProducts.findIndex(
-        (product) => product.catalogNumber?.replace(/\\s+/g, "").toUpperCase() === "BF-230",
-      );
-      if (bf230Index > 0) {
-        const [bf230] = filteredProducts.splice(bf230Index, 1);
-        filteredProducts.unshift(bf230);
-      }
-    }
-
-    return filteredProducts;
   }, [
     activeCategoryId,
     bouquets,
