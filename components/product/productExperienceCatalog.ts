@@ -21,6 +21,10 @@ import {
   getProductSizeOptions,
   hasProductSizes,
 } from "@/data/productSizeFoundation";
+import {
+  resolveStorefrontCare,
+  resolveStorefrontDeliveryHint,
+} from "@/lib/catalog/storefrontListPayload";
 
 const SIZE_SCALE: Record<ProductSizeId, number> = {
   S: 1,
@@ -135,8 +139,8 @@ function buildExperienceData(product: CatalogProduct): ProductExperienceData {
     defaultSizeId: getDefaultProductSizeId(product),
     hasMultipleSizes: hasProductSizes(product),
     composition: getProductCompositionFallback(product),
-    deliveryNote: details.deliveryHint,
-    careNote: details.care,
+    deliveryNote: resolveStorefrontDeliveryHint(details.deliveryHint),
+    careNote: resolveStorefrontCare(details.care),
     whatsIncluded:
       product.whatsIncluded ??
       "Премиальная упаковка Bellaflore, аккуратная доставка и рекомендации по уходу после получения.",

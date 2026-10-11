@@ -2,6 +2,7 @@ import { CATALOG_CATEGORY_BY_ID } from "@/components/catalogEngine/categoriesCat
 import { PUBLIC_CATALOG_PLACEHOLDER_IMAGE } from "@/components/catalog/publicCatalogMerge";
 import type { ProductSizeOption } from "@/data/productTypes";
 import type { CatalogProduct } from "@/data/catalogProducts";
+import { compactStorefrontGalleryImages } from "@/lib/catalog/storefrontListPayload";
 import type {
   StoredBouquetCategoryStorage,
   StoredBouquetRecord,
@@ -105,8 +106,8 @@ export function storedBouquetToLegacyCatalogProduct(
     height: cover?.height ?? 1350,
     sizes: sizes.length > 0 ? sizes : undefined,
     composition: record.description || "Премиальная сборка и упаковка Bellaflore.",
-    care: "Обрежьте стебли под углом, меняйте воду каждые 2 дня.",
-    deliveryHint: "Доставка сегодня по Москве и области",
+    care: "",
+    deliveryHint: "",
     availability: "В наличии",
     isPopular: record.displayFlags.isBestseller || record.badge === "hit",
     isNew: record.displayFlags.isNew || record.badge === "new",
@@ -114,16 +115,19 @@ export function storedBouquetToLegacyCatalogProduct(
     seoTitle: record.seo.title || record.name,
     seoDescription: record.seo.description || record.description,
     isAdminProduct: true,
-    galleryImages: record.images
-      .slice()
-      .sort((left, right) => left.order - right.order)
-      .map((image, index) => ({
-        id: image.id,
-        src: resolveDeployableImageUrl(image.url),
-        alt: image.name || `${record.name} — фото ${index + 1}`,
-        width: image.width ?? 1080,
-        height: image.height ?? 1350,
-      })),
+    galleryImages: compactStorefrontGalleryImages(
+      record.images
+        .slice()
+        .sort((left, right) => left.order - right.order)
+        .map((image, index) => ({
+          id: image.id,
+          src: resolveDeployableImageUrl(image.url),
+          alt: image.name || `${record.name} — фото ${index + 1}`,
+          width: image.width ?? 1080,
+          height: image.height ?? 1350,
+        })),
+      imageUrl,
+    ),
   };
 }
 

@@ -12,6 +12,7 @@ import type { CatalogProductRecord } from "@/components/catalogEngine/catalogTyp
 import type { CatalogProduct } from "@/data/catalogProducts";
 import { PUBLIC_CATALOG_PLACEHOLDER_IMAGE } from "@/components/catalog/publicCatalogMerge";
 import { normalizeCatalogArticle } from "@/lib/catalog/catalogArticle";
+import { compactStorefrontGalleryImages } from "@/lib/catalog/storefrontListPayload";
 import type {
   CatalogProductDbStatus,
   CatalogProductSizePrices,
@@ -470,8 +471,11 @@ export function storedProductToLegacyCatalogProduct(
     height: 1350,
     sizes: sizes.length > 0 ? sizes : undefined,
     composition: product.composition || product.shortDescription,
-    care: "Обрежьте стебли под углом, меняйте воду каждые 2 дня.",
-    deliveryHint: "Доставка сегодня по Москве и области",
+    // Identical care/delivery copy for every card is resolved in the product UI.
+    // Keeping empty strings preserves the public field contract while cutting
+    // ~60KB of repeated JSON from the published catalog list / SSR payload.
+    care: "",
+    deliveryHint: "",
     availability: "В наличии",
     isPopular: product.isBestseller || product.isFeatured,
     isNew: product.isNew,
@@ -481,15 +485,18 @@ export function storedProductToLegacyCatalogProduct(
     seoDescription: product.seoDescription,
     catalogNumber: product.catalogNumber,
     isAdminProduct: true,
-    galleryImages: record.images
-      .slice()
-      .sort((left, right) => left.sortOrder - right.sortOrder)
-      .map((image) => ({
-        id: image.id,
-        src: resolveDeployableImageUrl(image.url),
-        alt: image.alt,
-        width: image.width,
-        height: image.height,
-      })),
+    galleryImages: compactStorefrontGalleryImages(
+      record.images
+        .slice()
+        .sort((left, right) => left.sortOrder - right.sortOrder)
+        .map((image) => ({
+          id: image.id,
+          src: resolveDeployableImageUrl(image.url),
+          alt: image.alt,
+          width: image.width,
+          height: image.height,
+        })),
+      imageUrl,
+    ),
   };
 }
