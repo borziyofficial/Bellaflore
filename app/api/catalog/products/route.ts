@@ -63,10 +63,20 @@ export async function GET(request: Request) {
         );
       }
 
-      return Response.json({
-        products: catalogResult.products,
-        mode: getCatalogDatabaseMode(),
-      });
+      // Short CDN cache for the published list only. Product data still comes
+      // from Postgres on miss; this does not change assortment or pricing logic.
+      return Response.json(
+        {
+          products: catalogResult.products,
+          mode: getCatalogDatabaseMode(),
+        },
+        {
+          headers: {
+            "Cache-Control":
+              "public, s-maxage=60, stale-while-revalidate=300",
+          },
+        },
+      );
     }
 
     // Non-published products (admin view)

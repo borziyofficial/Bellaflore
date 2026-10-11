@@ -133,7 +133,8 @@ export function CatalogProductPageView({
               Условия заказа и доставки
             </Link>
             <p className={styles.deliveryHint}>
-              {product.deliveryHint ?? "Доставка по Москве и Московской области"}
+              {product.deliveryHint?.trim() ||
+                "Доставка сегодня по Москве и области"}
             </p>
           </div>
 
